@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新企获客 - 智能营销平台</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #f0f0f0;
+        }
+
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: 600;
+            color: #1890ff;
+        }
+
+        .stat-card .label {
+            font-size: 13px;
+            color: #8c8c8c;
+            margin-top: 4px;
+        }
+
+        .time-filter {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .time-btn {
+            padding: 8px 16px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .time-btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        .time-btn.active {
+            background: #1890ff;
+            color: white;
+            border-color: #1890ff;
+        }
+
+        .trend-bar {
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .trend-bar .fill {
+            height: 100%;
+            background: linear-gradient(90deg, #1890ff, #52c41a);
+            border-radius: 4px;
+        }
+
+        .new-company-card {
+            padding: 16px;
+            border: 1px solid #f0f0f0;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+        }
+
+        .new-company-card:hover {
+            border-color: #1890ff;
+            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.1);
+        }
+
+        .new-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            background: linear-gradient(135deg, #ff7a45, #ff4d4f);
+            color: white;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">💼</div>
+                <h1>智能营销平台</h1>
+            </div>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-item"><span class="nav-icon">🏠</span><span
+                        class="nav-text">工作台</span></a>
+                <a href="customers.html" class="nav-item"><span class="nav-icon">👥</span><span
+                        class="nav-text">客户名单</span></a>
+                <a href="tasks.html" class="nav-item"><span class="nav-icon">📋</span><span
+                        class="nav-text">任务管理</span></a>
+                <a href="select.html" class="nav-item active"><span class="nav-icon">🎯</span><span
+                        class="nav-text">智能圈选</span></a>
+                <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span><span
+                        class="nav-text">数据看板</span></a>
+                <a href="reconciliation.html" class="nav-item"><span class="nav-icon">📑</span><span
+                        class="nav-text">对账确认</span></a>
+                <a href="downloads.html" class="nav-item"><span class="nav-icon">📥</span><span
+                        class="nav-text">下载中心</span></a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">朱</div>
+                    <div>
+                        <div class="user-name">朱某人</div>
+                        <div class="user-role">客户经理</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">新企获客</h1>
+                <p class="page-breadcrumb"><a href="index.html">工作台</a> / <a href="select.html">智能圈选</a> / 新企获客</p>
+            </div>
+
+            <!-- 数据概览 -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px;">
+                <div class="stat-card">
+                    <div class="value">8,526</div>
+                    <div class="label">本月新注册企业</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" style="color: #52c41a;">1,245</div>
+                    <div class="label">科技型企业</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" style="color: #722ed1;">856</div>
+                    <div class="label">注册资本≥500万</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" style="color: #fa8c16;">2,340</div>
+                    <div class="label">首贷户潜力</div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 320px; gap: 16px;">
+                <!-- 左侧列表 -->
+                <div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">🆕 新注册企业</h3>
+                            <span class="card-extra">数据更新于 2小时前</span>
+                        </div>
+
+                        <!-- 时间筛选 -->
+                        <div class="time-filter">
+                            <button class="time-btn" onclick="setTimeRange(7)">近7天</button>
+                            <button class="time-btn active" onclick="setTimeRange(30)">近30天</button>
+                            <button class="time-btn" onclick="setTimeRange(90)">近3个月</button>
+                            <button class="time-btn" onclick="setTimeRange(180)">近6个月</button>
+                        </div>
+
+                        <!-- 筛选条件 -->
+                        <div
+                            style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #f0f0f0;">
+                            <div class="form-group" style="margin: 0; flex: 1; min-width: 120px;">
+                                <select class="form-select">
+                                    <option>全部地区</option>
+                                    <option selected>苏州市</option>
+                                    <option>无锡市</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin: 0; flex: 1; min-width: 120px;">
+                                <select class="form-select">
+                                    <option>全部行业</option>
+                                    <option>信息技术</option>
+                                    <option selected>科技服务</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin: 0; flex: 1; min-width: 120px;">
+                                <select class="form-select">
+                                    <option>注册资本</option>
+                                    <option>100万以上</option>
+                                    <option selected>500万以上</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary">筛选</button>
+                        </div>
+
+                        <!-- 企业列表 -->
+                        <div id="companyList">
+                            <div class="new-company-card">
+                                <div
+                                    style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                                    <div>
+                                        <a href="customer-detail.html"
+                                            style="font-weight: 600; color: #262626; font-size: 15px;">苏州智联云科技有限公司</a>
+                                        <span class="new-badge" style="margin-left: 8px;">🔥 3天前成立</span>
+                                    </div>
+                                    <input type="checkbox">
+                                </div>
+                                <div
+                                    style="display: flex; gap: 16px; font-size: 12px; color: #8c8c8c; margin-bottom: 8px;">
+                                    <span>📍 苏州工业园区</span>
+                                    <span>🏭 信息技术服务</span>
+                                    <span>💰 注册资本 1000万</span>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <span class="tag tag-blue">科技型</span>
+                                    <span class="tag tag-green">首贷户</span>
+                                </div>
+                            </div>
+
+                            <div class="new-company-card">
+                                <div
+                                    style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                                    <div>
+                                        <a href="customer-detail.html"
+                                            style="font-weight: 600; color: #262626; font-size: 15px;">苏州新材料科技有限公司</a>
+                                        <span class="new-badge" style="margin-left: 8px;">🔥 5天前成立</span>
+                                    </div>
+                                    <input type="checkbox">
+                                </div>
+                                <div
+                                    style="display: flex; gap: 16px; font-size: 12px; color: #8c8c8c; margin-bottom: 8px;">
+                                    <span>📍 苏州高新区</span>
+                                    <span>🏭 新材料研发</span>
+                                    <span>💰 注册资本 2000万</span>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <span class="tag tag-blue">科技型</span>
+                                    <span class="tag tag-purple">高注册资本</span>
+                                    <span class="tag tag-green">首贷户</span>
+                                </div>
+                            </div>
+
+                            <div class="new-company-card">
+                                <div
+                                    style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                                    <div>
+                                        <a href="customer-detail.html"
+                                            style="font-weight: 600; color: #262626; font-size: 15px;">苏州精密智造有限公司</a>
+                                        <span class="new-badge"
+                                            style="margin-left: 8px; background: linear-gradient(135deg, #1890ff, #40a9ff);">1周前成立</span>
+                                    </div>
+                                    <input type="checkbox">
+                                </div>
+                                <div
+                                    style="display: flex; gap: 16px; font-size: 12px; color: #8c8c8c; margin-bottom: 8px;">
+                                    <span>📍 昆山开发区</span>
+                                    <span>🏭 智能制造</span>
+                                    <span>💰 注册资本 800万</span>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <span class="tag tag-blue">制造业</span>
+                                    <span class="tag tag-green">首贷户</span>
+                                </div>
+                            </div>
+
+                            <div class="new-company-card">
+                                <div
+                                    style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                                    <div>
+                                        <a href="customer-detail.html"
+                                            style="font-weight: 600; color: #262626; font-size: 15px;">苏州生物医药科技有限公司</a>
+                                        <span class="new-badge"
+                                            style="margin-left: 8px; background: linear-gradient(135deg, #1890ff, #40a9ff);">2周前成立</span>
+                                    </div>
+                                    <input type="checkbox">
+                                </div>
+                                <div
+                                    style="display: flex; gap: 16px; font-size: 12px; color: #8c8c8c; margin-bottom: 8px;">
+                                    <span>📍 苏州工业园区</span>
+                                    <span>🏭 生物医药</span>
+                                    <span>💰 注册资本 5000万</span>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <span class="tag tag-blue">科技型</span>
+                                    <span class="tag tag-purple">高注册资本</span>
+                                    <span class="tag tag-orange">生物医药</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 分页 -->
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid #f0f0f0;">
+                            <div style="font-size: 13px; color: #8c8c8c;">共 1,245 家企业</div>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn btn-default btn-sm">上一页</button>
+                                <button class="btn btn-primary btn-sm">1</button>
+                                <button class="btn btn-default btn-sm">2</button>
+                                <button class="btn btn-default btn-sm">3</button>
+                                <button class="btn btn-default btn-sm">下一页</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧分析面板 -->
+                <div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">📊 注册趋势</h3>
+                        </div>
+                        <div style="font-size: 13px;">
+                            <div style="margin-bottom: 12px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                    <span>信息技术</span>
+                                    <span style="color: #1890ff;">32%</span>
+                                </div>
+                                <div class="trend-bar">
+                                    <div class="fill" style="width: 32%;"></div>
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 12px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                    <span>科技服务</span>
+                                    <span style="color: #1890ff;">28%</span>
+                                </div>
+                                <div class="trend-bar">
+                                    <div class="fill" style="width: 28%;"></div>
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 12px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                    <span>智能制造</span>
+                                    <span style="color: #1890ff;">18%</span>
+                                </div>
+                                <div class="trend-bar">
+                                    <div class="fill" style="width: 18%;"></div>
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 12px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                    <span>生物医药</span>
+                                    <span style="color: #1890ff;">12%</span>
+                                </div>
+                                <div class="trend-bar">
+                                    <div class="fill" style="width: 12%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top: 16px;">
+                        <div class="card-header">
+                            <h3 class="card-title">⚡ 快速筛选</h3>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <button class="btn btn-default" style="width: 100%; text-align: left;"
+                                onclick="quickFilter('highCap')">💰 注册资本1000万以上</button>
+                            <button class="btn btn-default" style="width: 100%; text-align: left;"
+                                onclick="quickFilter('tech')">💡 科技型企业</button>
+                            <button class="btn btn-default" style="width: 100%; text-align: left;"
+                                onclick="quickFilter('week')">🔥 本周新成立</button>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+                        <button class="btn btn-primary" style="width: 100%;"
+                            onclick="location.href='customers.html'">加入客户名单</button>
+                        <button class="btn btn-default" style="width: 100%;">导出Excel</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function setTimeRange(days) {
+            document.querySelectorAll('.time-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            console.log('筛选时间范围：近' + days + '天');
+        }
+
+        function quickFilter(type) {
+            console.log('快速筛选：' + type);
+            alert('已应用筛选条件');
+        }
+    </script>
+</body>
+
+</html>

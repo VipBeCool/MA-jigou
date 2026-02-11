@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地图获客 - 智能营销平台</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .map-main {
+            height: 500px;
+            background: linear-gradient(135deg, #e8f4f8 0%, #c8e4f0 100%);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .map-toolbar {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .map-tool-btn {
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .map-tool-btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        .map-tool-btn.active {
+            background: #1890ff;
+            color: white;
+            border-color: #1890ff;
+        }
+
+        .region-marker {
+            position: absolute;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .region-marker:hover {
+            transform: scale(1.1);
+        }
+
+        .region-marker .marker-dot {
+            width: 24px;
+            height: 24px;
+            background: rgba(24, 144, 255, 0.8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4);
+        }
+
+        .region-marker .marker-label {
+            position: absolute;
+            top: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.75);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .region-marker:hover .marker-label {
+            opacity: 1;
+        }
+
+        .region-marker.selected .marker-dot {
+            background: #52c41a;
+            width: 32px;
+            height: 32px;
+        }
+
+        .draw-area {
+            position: absolute;
+            border: 2px dashed #1890ff;
+            background: rgba(24, 144, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .map-legend {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            font-size: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .legend-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">💼</div>
+                <h1>智能营销平台</h1>
+            </div>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-item"><span class="nav-icon">🏠</span><span
+                        class="nav-text">工作台</span></a>
+                <a href="customers.html" class="nav-item"><span class="nav-icon">👥</span><span
+                        class="nav-text">客户名单</span></a>
+                <a href="tasks.html" class="nav-item"><span class="nav-icon">📋</span><span
+                        class="nav-text">任务管理</span></a>
+                <a href="select.html" class="nav-item active"><span class="nav-icon">🎯</span><span
+                        class="nav-text">智能圈选</span></a>
+                <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span><span
+                        class="nav-text">数据看板</span></a>
+                <a href="reconciliation.html" class="nav-item"><span class="nav-icon">📑</span><span
+                        class="nav-text">对账确认</span></a>
+                <a href="downloads.html" class="nav-item"><span class="nav-icon">📥</span><span
+                        class="nav-text">下载中心</span></a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">朱</div>
+                    <div>
+                        <div class="user-name">朱某人</div>
+                        <div class="user-role">客户经理</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">地图获客</h1>
+                <p class="page-breadcrumb"><a href="index.html">工作台</a> / <a href="select.html">智能圈选</a> / 地图获客</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 300px; gap: 16px;">
+                <!-- 左侧地图区 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">🗺️ 地图圈选</h3>
+                        <span class="card-extra">点击区域或使用工具框选企业</span>
+                    </div>
+                    <div class="map-main" id="mapMain">
+                        <!-- 地图背景 -->
+                        <div
+                            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 72px; opacity: 0.2;">
+                            🗺️</div>
+
+                        <!-- 工具栏 -->
+                        <div class="map-toolbar">
+                            <button class="map-tool-btn" onclick="setMapTool('pan')">✋ 拖动</button>
+                            <button class="map-tool-btn active" onclick="setMapTool('rect')">⬜ 框选</button>
+                            <button class="map-tool-btn" onclick="setMapTool('circle')">⭕ 圆形</button>
+                            <button class="map-tool-btn" onclick="setMapTool('polygon')">📐 多边形</button>
+                            <button class="map-tool-btn" onclick="clearSelection()">🗑️ 清除</button>
+                        </div>
+
+                        <!-- 模拟已框选区域 -->
+                        <div class="draw-area" style="left: 30%; top: 25%; width: 200px; height: 150px;"></div>
+
+                        <!-- 区域标记 -->
+                        <div class="region-marker selected" style="left: 35%; top: 30%;" onclick="selectRegion('工业园区')">
+                            <div class="marker-label">工业园区 · 12,580家</div>
+                            <div class="marker-dot">12K</div>
+                        </div>
+                        <div class="region-marker selected" style="left: 45%; top: 35%;" onclick="selectRegion('高新区')">
+                            <div class="marker-label">高新区 · 8,320家</div>
+                            <div class="marker-dot">8K</div>
+                        </div>
+                        <div class="region-marker" style="left: 60%; top: 45%;" onclick="selectRegion('吴中区')">
+                            <div class="marker-label">吴中区 · 5,640家</div>
+                            <div class="marker-dot">5K</div>
+                        </div>
+                        <div class="region-marker" style="left: 25%; top: 55%;" onclick="selectRegion('相城区')">
+                            <div class="marker-label">相城区 · 4,280家</div>
+                            <div class="marker-dot">4K</div>
+                        </div>
+                        <div class="region-marker" style="left: 70%; top: 60%;" onclick="selectRegion('昆山')">
+                            <div class="marker-label">昆山 · 9,560家</div>
+                            <div class="marker-dot">9K</div>
+                        </div>
+
+                        <!-- 图例 -->
+                        <div class="map-legend">
+                            <div style="font-weight: 500; margin-bottom: 8px;">图例</div>
+                            <div class="legend-item">
+                                <div class="legend-dot" style="background: #1890ff;"></div>
+                                <span>区域</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot" style="background: #52c41a;"></div>
+                                <span>已选中</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-dot"
+                                    style="background: rgba(24, 144, 255, 0.2); border: 2px dashed #1890ff;"></div>
+                                <span>框选范围</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧控制面板 -->
+                <div>
+                    <!-- 已选区域 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">📍 已选区域</h3>
+                        </div>
+                        <div id="selectedRegions">
+                            <div
+                                style="padding: 8px 12px; background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                                <span>🏭 工业园区</span>
+                                <span style="font-size: 12px; color: #52c41a;">12,580家</span>
+                            </div>
+                            <div
+                                style="padding: 8px 12px; background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                                <span>🏭 高新区</span>
+                                <span style="font-size: 12px; color: #52c41a;">8,320家</span>
+                            </div>
+                        </div>
+                        <div
+                            style="text-align: center; padding: 16px; background: #e6f7ff; border-radius: 6px; margin-top: 12px;">
+                            <div style="font-size: 32px; font-weight: 600; color: #1890ff;">20,900</div>
+                            <div style="font-size: 12px; color: #595959;">家企业在选中区域内</div>
+                        </div>
+                    </div>
+
+                    <!-- 企业筛选 -->
+                    <div class="card" style="margin-top: 16px;">
+                        <div class="card-header">
+                            <h3 class="card-title">🔍 企业筛选</h3>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">行业</label>
+                            <select class="form-select">
+                                <option>全部行业</option>
+                                <option>制造业</option>
+                                <option>信息技术</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">企业资质</label>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                <label
+                                    style="display: flex; align-items: center; gap: 4px; font-size: 12px; cursor: pointer;">
+                                    <input type="checkbox" checked> 高新技术
+                                </label>
+                                <label
+                                    style="display: flex; align-items: center; gap: 4px; font-size: 12px; cursor: pointer;">
+                                    <input type="checkbox"> 专精特新
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">苏信分</label>
+                            <select class="form-select">
+                                <option>不限</option>
+                                <option>≥700</option>
+                                <option selected>≥750</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 操作按钮 -->
+                    <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+                        <button class="btn btn-primary" style="width: 100%;"
+                            onclick="location.href='customers.html'">查看企业名单</button>
+                        <button class="btn btn-default" style="width: 100%;">💾 保存圈选</button>
+                        <button class="btn btn-default" style="width: 100%;">导出Excel</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let currentTool = 'rect';
+
+        function setMapTool(tool) {
+            currentTool = tool;
+            document.querySelectorAll('.map-tool-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function selectRegion(name) {
+            const marker = event.currentTarget;
+            marker.classList.toggle('selected');
+            updateSelectedCount();
+        }
+
+        function clearSelection() {
+            document.querySelectorAll('.region-marker').forEach(m => m.classList.remove('selected'));
+            document.querySelectorAll('.draw-area').forEach(a => a.remove());
+            updateSelectedCount();
+        }
+
+        function updateSelectedCount() {
+            const count = document.querySelectorAll('.region-marker.selected').length;
+            console.log('已选中 ' + count + ' 个区域');
+        }
+    </script>
+</body>
+
+</html>

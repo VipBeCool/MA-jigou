@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>对账确认 - 智能营销平台</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .confirm-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .confirm-badge.confirmed {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+
+        .confirm-badge.pending {
+            background: #fffbe6;
+            color: #faad14;
+        }
+
+        .confirm-badge.disputed {
+            background: #fff2f0;
+            color: #ff4d4f;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">💼</div>
+                <h1>智能营销平台</h1>
+            </div>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-item">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-text">工作台</span>
+                </a>
+                <a href="customers.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-text">客户名单</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-text">任务管理</span>
+                </a>
+                <a href="select.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span class="nav-text">智能圈选</span>
+                </a>
+                <a href="dashboard.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">数据看板</span>
+                </a>
+                <a href="reconciliation.html" class="nav-item active">
+                    <span class="nav-icon">📑</span>
+                    <span class="nav-text">对账确认</span>
+                </a>
+                <a href="downloads.html" class="nav-item">
+                    <span class="nav-icon">📥</span>
+                    <span class="nav-text">下载中心</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">朱</div>
+                    <div>
+                        <div class="user-name">朱某人</div>
+                        <div class="user-role">客户经理</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1 class="page-title">对账确认</h1>
+                    <p class="page-breadcrumb"><a href="index.html">工作台</a> / 对账确认</p>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <select class="form-select" style="width: 120px;">
+                        <option>2026年2月</option>
+                        <option>2026年1月</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 对账概览 -->
+            <div class="stat-cards">
+                <div class="stat-card primary">
+                    <div class="stat-label">本月推送客户</div>
+                    <div class="stat-value">156<span class="stat-suffix">家</span></div>
+                    <div class="stat-trend">来自平台分配</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-label">已回传数据</div>
+                    <div class="stat-value">142<span class="stat-suffix">家</span></div>
+                    <div class="stat-trend">占比 91%</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-label">放款客户</div>
+                    <div class="stat-value">18<span class="stat-suffix">家</span></div>
+                    <div class="stat-trend">放款 1,850万</div>
+                </div>
+                <div class="stat-card danger">
+                    <div class="stat-label">待确认账单</div>
+                    <div class="stat-value">1<span class="stat-suffix">笔</span></div>
+                    <div class="stat-trend">本月</div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px;">
+                <!-- 账单明细 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">📑 我的账单</h3>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>账期</th>
+                                <th>平台统计</th>
+                                <th>我方确认</th>
+                                <th>应付金额</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2026年2月</td>
+                                <td>放款 1,850万</td>
+                                <td>--</td>
+                                <td style="font-weight: 600; color: #1890ff;">¥5.55万</td>
+                                <td><span class="confirm-badge pending">⏳ 待确认</span></td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm"
+                                        onclick="openModal('confirmModal')">核对确认</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2026年1月</td>
+                                <td>放款 1,520万</td>
+                                <td>放款 1,520万</td>
+                                <td style="font-weight: 600; color: #52c41a;">¥4.56万</td>
+                                <td><span class="confirm-badge confirmed">✓ 已确认</span></td>
+                                <td><button class="btn btn-text btn-sm">查看</button></td>
+                            </tr>
+                            <tr>
+                                <td>2025年12月</td>
+                                <td>放款 1,380万</td>
+                                <td>放款 1,380万</td>
+                                <td style="font-weight: 600; color: #52c41a;">¥4.14万</td>
+                                <td><span class="confirm-badge confirmed">✓ 已确认</span></td>
+                                <td><button class="btn btn-text btn-sm">查看</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 对账说明 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">💡 对账说明</h3>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <div style="padding: 12px; background: #f0f5ff; border-radius: 6px;">
+                            <div style="font-weight: 500; color: #2f54eb;">计费模式</div>
+                            <div style="font-size: 13px; color: #595959; margin-top: 4px;">按放款金额 × 0.3% 计费</div>
+                        </div>
+                        <div style="padding: 12px; background: #f6ffed; border-radius: 6px;">
+                            <div style="font-weight: 500; color: #389e0d;">确认流程</div>
+                            <div style="font-size: 13px; color: #595959; margin-top: 4px;">
+                                1. 核对放款明细<br>
+                                2. 确认或提出异议<br>
+                                3. 签字完成结算
+                            </div>
+                        </div>
+                        <div style="padding: 12px; background: #fff7e6; border-radius: 6px;">
+                            <div style="font-weight: 500; color: #d46b08;">注意事项</div>
+                            <div style="font-size: 13px; color: #595959; margin-top: 4px;">
+                                • 请于每月5日前完成对账<br>
+                                • 如有异议可在线提交
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 本月明细 -->
+            <div class="card" style="margin-top: 16px;">
+                <div class="card-header">
+                    <h3 class="card-title">📋 本月放款明细</h3>
+                    <span class="card-extra">共 18 笔放款</span>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>放款日期</th>
+                            <th>企业名称</th>
+                            <th>放款金额</th>
+                            <th>产品</th>
+                            <th>计费金额</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="color: #8c8c8c;">2026-02-05</td>
+                            <td><span class="company-name">南通精密机械制造有限公司</span></td>
+                            <td style="font-weight: 500;">200万</td>
+                            <td>科技贷</td>
+                            <td>¥6,000</td>
+                        </tr>
+                        <tr>
+                            <td style="color: #8c8c8c;">2026-02-04</td>
+                            <td><span class="company-name">苏州智云科技有限公司</span></td>
+                            <td style="font-weight: 500;">300万</td>
+                            <td>科技贷</td>
+                            <td>¥9,000</td>
+                        </tr>
+                        <tr>
+                            <td style="color: #8c8c8c;">2026-02-03</td>
+                            <td><span class="company-name">无锡光电半导体有限公司</span></td>
+                            <td style="font-weight: 500;">180万</td>
+                            <td>专精特新贷</td>
+                            <td>¥5,400</td>
+                        </tr>
+                        <tr>
+                            <td style="color: #8c8c8c;">2026-02-02</td>
+                            <td><span class="company-name">常州新材料科技有限公司</span></td>
+                            <td style="font-weight: 500;">250万</td>
+                            <td>科技贷</td>
+                            <td>¥7,500</td>
+                        </tr>
+                        <tr>
+                            <td style="color: #8c8c8c;">2026-02-01</td>
+                            <td><span class="company-name">扬州智能装备有限公司</span></td>
+                            <td style="font-weight: 500;">150万</td>
+                            <td>普惠贷</td>
+                            <td>¥4,500</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div style="text-align: center; padding: 16px; color: #8c8c8c; font-size: 13px;">
+                    ... 显示前5条，共18条记录
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 确认模态框 -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3 class="modal-title">📑 账单确认</h3>
+                <div class="modal-close" onclick="closeModal('confirmModal')">✕</div>
+            </div>
+            <div class="modal-body">
+                <div style="padding: 16px; background: #f5f5f5; border-radius: 8px; margin-bottom: 16px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: #8c8c8c;">账期</span>
+                        <span style="font-weight: 500;">2026年2月</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: #8c8c8c;">放款笔数</span>
+                        <span style="font-weight: 500;">18笔</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: #8c8c8c;">放款总额</span>
+                        <span style="font-weight: 500;">1,850万</span>
+                    </div>
+                    <div
+                        style="display: flex; justify-content: space-between; border-top: 1px dashed #d9d9d9; padding-top: 8px; margin-top: 8px;">
+                        <span style="color: #1890ff; font-weight: 500;">应付金额</span>
+                        <span style="font-weight: 600; color: #1890ff; font-size: 18px;">¥55,500</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">确认说明（可选）</label>
+                    <textarea class="form-input" rows="3" placeholder="如有异议请说明..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('confirmModal')">稍后确认</button>
+                <button class="btn" style="background: #faad14; color: white;"
+                    onclick="closeModal('confirmModal')">提出异议</button>
+                <button class="btn btn-primary" onclick="closeModal('confirmModal'); alert('账单已确认！')">确认无误</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    </script>
+</body>
+
+</html>

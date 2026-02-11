@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工作台 - 智能营销平台</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">💼</div>
+                <h1>智能营销平台</h1>
+            </div>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-item active">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-text">工作台</span>
+                </a>
+                <a href="customers.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-text">客户名单</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-text">任务管理</span>
+                </a>
+                <a href="select.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span class="nav-text">智能圈选</span>
+                </a>
+                <a href="dashboard.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">数据看板</span>
+                </a>
+                <a href="reconciliation.html" class="nav-item">
+                    <span class="nav-icon">📑</span>
+                    <span class="nav-text">对账确认</span>
+                </a>
+                <a href="downloads.html" class="nav-item">
+                    <span class="nav-icon">📥</span>
+                    <span class="nav-text">下载中心</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">朱</div>
+                    <div>
+                        <div class="user-name">朱某人</div>
+                        <div class="user-role">客户经理</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">工作台</h1>
+                <p class="page-breadcrumb">欢迎回来，朱某人！今天是 2026年2月5日</p>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="stat-cards">
+                <div class="stat-card primary" onclick="location.href='customers.html?status=待触达'">
+                    <div class="stat-label">待触达客户</div>
+                    <div class="stat-value">156<span class="stat-suffix">家</span></div>
+                    <div class="stat-trend up">↑ 12% 较上周</div>
+                </div>
+                <div class="stat-card success" onclick="location.href='customers.html'">
+                    <div class="stat-label">本周已触达</div>
+                    <div class="stat-value">45<span class="stat-suffix">家</span></div>
+                    <div class="stat-trend up">↑ 8% 较上周</div>
+                </div>
+                <div class="stat-card warning" onclick="location.href='customers.html?status=已意向'">
+                    <div class="stat-label">意向客户</div>
+                    <div class="stat-value">23<span class="stat-suffix">家</span></div>
+                    <div class="stat-trend up">↑ 15% 较上周</div>
+                </div>
+                <div class="stat-card danger" onclick="location.href='dashboard.html'">
+                    <div class="stat-label">本月放款金额</div>
+                    <div class="stat-value">1,850<span class="stat-suffix">万</span></div>
+                    <div class="stat-trend up">↑ 22% 较上月</div>
+                </div>
+            </div>
+
+            <!-- 内容区域 -->
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px;">
+                <!-- 待办任务 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">📋 今日待办</h3>
+                        <a href="customers.html" class="card-extra">查看全部 →</a>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>企业名称</th>
+                                    <th>任务类型</th>
+                                    <th>优先级</th>
+                                    <th>截止时间</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><a href="customer-detail.html?id=1" class="company-name">苏州智云科技有限公司</a></td>
+                                    <td>首次触达</td>
+                                    <td><span class="tag tag-red">高</span></td>
+                                    <td>今天</td>
+                                    <td>
+                                        <button class="btn btn-text btn-sm"
+                                            onclick="location.href='customer-detail.html?id=1'">查看</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><a href="customer-detail.html?id=5" class="company-name">苏州生物医药研究院有限公司</a></td>
+                                    <td>首次触达</td>
+                                    <td><span class="tag tag-red">高</span></td>
+                                    <td>今天</td>
+                                    <td>
+                                        <button class="btn btn-text btn-sm"
+                                            onclick="location.href='customer-detail.html?id=5'">查看</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><a href="customer-detail.html?id=3" class="company-name">无锡光电半导体有限公司</a></td>
+                                    <td>跟进回访</td>
+                                    <td><span class="tag tag-orange">中</span></td>
+                                    <td>明天</td>
+                                    <td>
+                                        <button class="btn btn-text btn-sm"
+                                            onclick="location.href='customer-detail.html?id=3'">查看</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 消息通知 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">🔔 消息通知</h3>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <div
+                            style="padding: 12px; background: #e6f7ff; border-radius: 6px; border-left: 3px solid #1890ff;">
+                            <div style="font-weight: 500; margin-bottom: 4px;">新客户分配</div>
+                            <div style="font-size: 13px; color: #595959;">您有5个新客户待触达</div>
+                            <div style="font-size: 12px; color: #8c8c8c; margin-top: 4px;">10分钟前</div>
+                        </div>
+                        <div
+                            style="padding: 12px; background: #f6ffed; border-radius: 6px; border-left: 3px solid #52c41a;">
+                            <div style="font-weight: 500; margin-bottom: 4px;">放款成功</div>
+                            <div style="font-size: 13px; color: #595959;">南通精密机械制造有限公司放款200万已到账</div>
+                            <div style="font-size: 12px; color: #8c8c8c; margin-top: 4px;">2小时前</div>
+                        </div>
+                        <div
+                            style="padding: 12px; background: #fff7e6; border-radius: 6px; border-left: 3px solid #faad14;">
+                            <div style="font-weight: 500; margin-bottom: 4px;">跟进提醒</div>
+                            <div style="font-size: 13px; color: #595959;">无锡光电半导体有限公司已意向3天，建议尽快跟进</div>
+                            <div style="font-size: 12px; color: #8c8c8c; margin-top: 4px;">今天 09:00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 快捷入口 -->
+            <div class="card" style="margin-top: 16px;">
+                <div class="card-header">
+                    <h3 class="card-title">⚡ 快捷入口</h3>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+                    <a href="customers.html" style="text-decoration: none;">
+                        <div
+                            style="padding: 20px; text-align: center; background: linear-gradient(135deg, #e6f7ff 0%, #bae7ff 100%); border-radius: 8px; cursor: pointer; transition: transform 0.2s;">
+                            <div style="font-size: 32px; margin-bottom: 8px;">👥</div>
+                            <div style="font-weight: 500; color: #262626;">客户名单</div>
+                            <div style="font-size: 12px; color: #8c8c8c; margin-top: 4px;">管理分配的客户</div>
+                        </div>
+                    </a>
+                    <a href="select.html" style="text-decoration: none;">
+                        <div
+                            style="padding: 20px; text-align: center; background: linear-gradient(135deg, #f9f0ff 0%, #efdbff 100%); border-radius: 8px; cursor: pointer; transition: transform 0.2s;">
+                            <div style="font-size: 32px; margin-bottom: 8px;">🎯</div>
+                            <div style="font-weight: 500; color: #262626;">智能圈选</div>
+                            <div style="font-size: 12px; color: #8c8c8c; margin-top: 4px;">AI助力精准获客</div>
+                        </div>
+                    </a>
+                    <a href="dashboard.html" style="text-decoration: none;">
+                        <div
+                            style="padding: 20px; text-align: center; background: linear-gradient(135deg, #f6ffed 0%, #d9f7be 100%); border-radius: 8px; cursor: pointer; transition: transform 0.2s;">
+                            <div style="font-size: 32px; margin-bottom: 8px;">📊</div>
+                            <div style="font-weight: 500; color: #262626;">数据看板</div>
+                            <div style="font-size: 12px; color: #8c8c8c; margin-top: 4px;">查看业绩数据</div>
+                        </div>
+                    </a>
+                    <div
+                        style="padding: 20px; text-align: center; background: linear-gradient(135deg, #fff7e6 0%, #ffe7ba 100%); border-radius: 8px; cursor: pointer; transition: transform 0.2s;">
+                        <div style="font-size: 32px; margin-bottom: 8px;">📝</div>
+                        <div style="font-weight: 500; color: #262626;">话术库</div>
+                        <div style="font-size: 12px; color: #8c8c8c; margin-top: 4px;">查看常用话术</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/mock-data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>

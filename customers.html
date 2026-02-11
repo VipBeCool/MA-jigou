@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>客户名单 - 智能营销平台</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* 名单分组Tab */
+        .list-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 0 0 16px 0;
+            overflow-x: auto;
+            flex-wrap: wrap;
+        }
+
+        .list-tab {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border: 2px solid #e8e8e8;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            font-size: 14px;
+            color: #595959;
+        }
+
+        .list-tab:hover {
+            border-color: #91d5ff;
+        }
+
+        .list-tab.active {
+            border-color: #1890ff;
+            background: #e6f7ff;
+            color: #1890ff;
+            font-weight: 600;
+        }
+
+        .list-tab .tab-icon {
+            font-size: 16px;
+        }
+
+        .list-tab .tab-count {
+            background: #f0f0f0;
+            color: #8c8c8c;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+
+        .list-tab.active .tab-count {
+            background: #bae7ff;
+            color: #1890ff;
+        }
+
+        .list-tab-add {
+            border-style: dashed;
+            color: #8c8c8c;
+        }
+
+        .list-tab-add:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        /* 名单信息栏 */
+        .list-info-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #fafafa;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: #8c8c8c;
+        }
+
+        .list-info-bar .info-left {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .list-info-bar .info-left span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .list-info-bar .info-right {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* 产品信息卡 */
+        .product-info-card {
+            background: linear-gradient(135deg, #f0f7ff 0%, #f6f0ff 100%);
+            border: 1px solid #d6e4ff;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+        }
+
+        .product-info-card .prod-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .product-info-card .prod-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #262626;
+        }
+
+        .product-info-card .prod-badge {
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .product-info-card .prod-badge.auto {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .product-info-card .prod-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            font-size: 12px;
+            color: #595959;
+            margin-bottom: 12px;
+        }
+
+        .product-info-card .prod-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .product-info-card .prod-rules {
+            background: #fff;
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+        }
+
+        .product-info-card .prod-rules-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #595959;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .product-info-card .rule-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .product-info-card .rule-tag {
+            padding: 3px 10px;
+            background: #e6f7ff;
+            color: #1890ff;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .product-info-card .prod-perms {
+            display: flex;
+            gap: 16px;
+            font-size: 11px;
+            color: #8c8c8c;
+        }
+
+        .product-info-card .prod-perms span {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* 产品 Tab 样式 */
+        .list-tab.product-tab {
+            border-style: dashed;
+            border-color: #b7c4ff;
+            background: #f5f0ff;
+        }
+
+        .list-tab.product-tab.active {
+            background: #722ed1;
+            border-color: #722ed1;
+            color: #fff;
+        }
+
+        .list-tab.product-tab .tab-auto {
+            font-size: 10px;
+            opacity: 0.8;
+        }
+
+        /* 批量操作栏 */
+        .batch-bar {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #e6f7ff 0%, #f0f5ff 100%);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border: 1px solid #91d5ff;
+        }
+
+        .batch-bar.show {
+            display: flex;
+        }
+
+        .batch-bar .batch-count {
+            font-size: 14px;
+            color: #1890ff;
+            font-weight: 500;
+        }
+
+        .batch-bar .batch-actions {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        /* 复选框样式 */
+        .table-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #1890ff;
+        }
+
+        /* 下发弹窗 - 升级版 */
+        .assign-modal .modal {
+            max-width: 680px;
+        }
+
+        /* 步骤指示器 */
+        .assign-steps {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            margin-bottom: 24px;
+            padding: 0 20px;
+        }
+
+        .assign-step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #bfbfbf;
+            white-space: nowrap;
+        }
+
+        .assign-step .step-num {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+            background: #f0f0f0;
+            color: #bfbfbf;
+            transition: all 0.3s;
+        }
+
+        .assign-step.active .step-num {
+            background: #1890ff;
+            color: white;
+        }
+
+        .assign-step.done .step-num {
+            background: #52c41a;
+            color: white;
+        }
+
+        .assign-step.active,
+        .assign-step.done {
+            color: #262626;
+        }
+
+        .step-line {
+            flex: 1;
+            height: 2px;
+            background: #f0f0f0;
+            margin: 0 12px;
+            min-width: 30px;
+            transition: background 0.3s;
+        }
+
+        .step-line.done {
+            background: #52c41a;
+        }
+
+        /* 步骤内容区 */
+        .assign-step-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .assign-step-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 分配策略卡片 */
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .strategy-card {
+            padding: 16px;
+            border: 2px solid #e8e8e8;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .strategy-card:hover {
+            border-color: #91d5ff;
+            background: #fafafa;
+        }
+
+        .strategy-card.selected {
+            border-color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .strategy-card .strategy-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .strategy-card .strategy-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: #262626;
+            margin-bottom: 4px;
+        }
+
+        .strategy-card .strategy-desc {
+            font-size: 12px;
+            color: #8c8c8c;
+            line-height: 1.5;
+        }
+
+        .strategy-card.selected .strategy-name {
+            color: #1890ff;
+        }
+
+        /* 目标人员选择 */
+        .target-section-title {
+            font-size: 13px;
+            color: #8c8c8c;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .target-check-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .target-check-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border: 2px solid #e8e8e8;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .target-check-item:hover {
+            border-color: #91d5ff;
+            background: #fafafa;
+        }
+
+        .target-check-item.selected {
+            border-color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .target-check-item input[type="checkbox"],
+        .target-check-item input[type="radio"] {
+            accent-color: #1890ff;
+            width: 16px;
+            height: 16px;
+        }
+
+        .target-info {
+            flex: 1;
+        }
+
+        .target-info .target-name {
+            font-weight: 500;
+            color: #262626;
+            font-size: 14px;
+        }
+
+        .target-info .target-meta {
+            font-size: 12px;
+            color: #8c8c8c;
+            margin-top: 2px;
+        }
+
+        .target-info .target-workload {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-top: 4px;
+        }
+
+        .target-info .workload-light {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+
+        .target-info .workload-medium {
+            background: #fff7e6;
+            color: #fa8c16;
+        }
+
+        .target-info .workload-heavy {
+            background: #fff1f0;
+            color: #ff4d4f;
+        }
+
+        /* 预览表格 */
+        .preview-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .preview-stat {
+            text-align: center;
+            padding: 12px;
+            background: #fafafa;
+            border-radius: 8px;
+        }
+
+        .preview-stat .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1890ff;
+        }
+
+        .preview-stat .stat-label {
+            font-size: 12px;
+            color: #8c8c8c;
+            margin-top: 4px;
+        }
+
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .preview-table th {
+            text-align: left;
+            padding: 8px 12px;
+            background: #fafafa;
+            color: #8c8c8c;
+            font-weight: 500;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .preview-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f5f5f5;
+            color: #262626;
+        }
+
+        .preview-table .person-avatar {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .preview-table .avatar-circle {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+            font-weight: 500;
+        }
+
+        .preview-bar {
+            height: 6px;
+            background: #f0f0f0;
+            border-radius: 3px;
+            overflow: hidden;
+            min-width: 80px;
+        }
+
+        .preview-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        .deadline-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .deadline-row label {
+            font-size: 14px;
+            color: #595959;
+            white-space: nowrap;
+        }
+
+        .deadline-row input[type="date"] {
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #262626;
+        }
+
+        .deadline-row input[type="text"] {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        /* 加入名单弹窗 */
+        .add-to-list-modal .modal {
+            max-width: 480px;
+        }
+
+        .list-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 8px;
+        }
+
+        .list-option:hover {
+            border-color: #91d5ff;
+            background: #fafafa;
+        }
+
+        .list-option.selected {
+            border-color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .list-option-icon {
+            font-size: 20px;
+        }
+
+        .list-option-info {
+            flex: 1;
+        }
+
+        .list-option-info .list-name {
+            font-weight: 500;
+            color: #262626;
+        }
+
+        .list-option-info .list-meta {
+            font-size: 12px;
+            color: #8c8c8c;
+            margin-top: 2px;
+        }
+
+        .new-list-input {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .new-list-input input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px dashed #d9d9d9;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .new-list-input input:focus {
+            border-color: #1890ff;
+            outline: none;
+        }
+
+        /* Toast提示 */
+        .toast {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: #262626;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 10000;
+            transition: transform 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.success {
+            background: linear-gradient(135deg, #52c41a, #73d13d);
+        }
+
+        /* 分配状态标签 */
+        .assign-status {
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .assign-status.assigned {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+
+        .assign-status.pending {
+            background: #fff7e6;
+            color: #fa8c16;
+            border: 1px solid #ffd591;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">💼</div>
+                <h1>智能营销平台</h1>
+            </div>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-item">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-text">工作台</span>
+                </a>
+                <a href="customers.html" class="nav-item active">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-text">客户名单</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-text">任务管理</span>
+                </a>
+                <a href="select.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span class="nav-text">智能圈选</span>
+                </a>
+                <a href="dashboard.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">数据看板</span>
+                </a>
+                <a href="reconciliation.html" class="nav-item">
+                    <span class="nav-icon">📑</span>
+                    <span class="nav-text">对账确认</span>
+                </a>
+                <a href="downloads.html" class="nav-item">
+                    <span class="nav-icon">📥</span>
+                    <span class="nav-text">下载中心</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">朱</div>
+                    <div>
+                        <div class="user-name">朱某人</div>
+                        <div class="user-role">客户经理</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">客户名单</h1>
+                <p class="page-breadcrumb"><a href="index.html">工作台</a> / 客户名单</p>
+            </div>
+
+            <!-- 名单分组Tab -->
+            <div class="list-tabs" id="listTabs">
+                <!-- 动态渲染 -->
+            </div>
+
+            <!-- 名单信息栏（普通名单）-->
+            <div class="list-info-bar" id="listInfoBar">
+                <div class="info-left">
+                    <span>📁 来源：<strong id="listSource">系统汇总</strong></span>
+                    <span>📅 创建：<strong id="listDate">2025-01-15</strong></span>
+                    <span>📝 说明：<span id="listDesc">所有客户合集</span></span>
+                </div>
+                <div class="info-right">
+                    <span class="assign-status pending" id="listAssignStatus">待下发</span>
+                </div>
+            </div>
+
+            <!-- 产品信息卡（产品推送名单时显示）-->
+            <div class="product-info-card" id="productInfoCard" style="display:none;">
+                <div class="prod-header">
+                    <div class="prod-title">
+                        <span>📦</span>
+                        <span id="prodCardName">科技贷</span>
+                        <span class="prod-badge auto" id="prodCardBadge">🔄 自动推送 · 每天</span>
+                    </div>
+                    <span class="assign-status pending" id="prodAssignStatus">待下发</span>
+                </div>
+                <div class="prod-meta">
+                    <span>🏛️ <span id="prodCardOrg">江苏银行</span></span>
+                    <span>💳 <span id="prodCardType">信用贷</span></span>
+                    <span>📊 准入评分 <strong id="prodCardScore">≥750</strong></span>
+                    <span>💰 最高额度 <strong id="prodCardLimit">500万</strong></span>
+                    <span>📈 利率 <span id="prodCardRate">4.5%-5.5%</span></span>
+                </div>
+                <div class="prod-meta">
+                    <span>🕐 上次更新：<strong id="prodCardLast">2026-02-11 06:00</strong></span>
+                    <span>⏰ 下次更新：<strong id="prodCardNext">2026-02-12 06:00</strong></span>
+                    <span>📋 排序：<span id="prodCardSort">苏信分由高到低</span></span>
+                    <span>🔄 名单处理：<span id="prodCardProcess">排除已触达客户</span></span>
+                </div>
+                <div class="prod-rules">
+                    <div class="prod-rules-title">🎯 获客规则：<span id="prodRuleName">科技企业筛选规则</span></div>
+                    <div class="rule-tags" id="prodRuleTags">
+                        <!-- 动态渲染规则条件 -->
+                    </div>
+                </div>
+                <div class="prod-perms">
+                    <span>📤 导出权限：<strong id="prodExportPerm">允许导出</strong></span>
+                    <span>👁️ 展示字段：<span id="prodVisibleFields">企业名称、统一社会信用代码、联系方式</span></span>
+                </div>
+            </div>
+
+            <!-- 筛选栏 -->
+            <div class="filter-bar">
+                <div class="filter-item">
+                    <label>状态</label>
+                    <select class="form-select" id="filterStatus" onchange="filterCustomers()">
+                        <option value="">全部状态</option>
+                        <option value="待触达">待触达</option>
+                        <option value="已触达">已触达</option>
+                        <option value="已意向">已意向</option>
+                        <option value="已放款">已放款</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>行业</label>
+                    <select class="form-select" id="filterIndustry" onchange="filterCustomers()">
+                        <option value="">全部行业</option>
+                        <option value="软件信息技术服务业">软件信息技术服务业</option>
+                        <option value="通用设备制造业">通用设备制造业</option>
+                        <option value="电子器件制造">电子器件制造</option>
+                        <option value="医药制造业">医药制造业</option>
+                    </select>
+                </div>
+                <div class="filter-item search-input">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="form-input" placeholder="搜索企业名称..." id="searchInput"
+                        oninput="filterCustomers()">
+                </div>
+                <div style="margin-left: auto; display: flex; gap: 8px;">
+                    <button class="btn btn-default" onclick="openAssignModal()">
+                        📤 下发名单
+                    </button>
+                    <button class="btn btn-primary" onclick="location.href='select.html'">
+                        <span class="btn-icon">🎯</span> 智能圈选
+                    </button>
+                </div>
+            </div>
+
+            <!-- 批量操作栏 -->
+            <div class="batch-bar" id="batchBar">
+                <input type="checkbox" class="table-checkbox" id="selectAll" onchange="toggleSelectAll(this)">
+                <span class="batch-count">已选 <strong id="selectedCount">0</strong> 家企业</span>
+                <div class="batch-actions">
+                    <button class="btn btn-primary btn-sm" onclick="openAssignModal()">📤 批量下发</button>
+                    <button class="btn btn-default btn-sm" onclick="batchRemove()">移出名单</button>
+                    <button class="btn btn-text btn-sm" onclick="cancelSelection()">取消选择</button>
+                </div>
+            </div>
+
+            <!-- 客户列表 -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">客户列表</h3>
+                    <span class="card-extra">共 <span id="customerCount">6</span> 家企业</span>
+                </div>
+                <div class="table-wrapper">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th style="width: 40px;">
+                                    <input type="checkbox" class="table-checkbox" id="headerCheckbox"
+                                        onchange="toggleSelectAll(this)">
+                                </th>
+                                <th>企业名称</th>
+                                <th>地区</th>
+                                <th>行业</th>
+                                <th>苏信分</th>
+                                <th>推荐理由</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customerTableBody">
+                            <!-- 动态渲染 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 话术/状态模态框 -->
+    <div class="modal-overlay" id="scriptModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">智能话术</h3>
+                <div class="modal-close" onclick="closeModal('scriptModal')">✕</div>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- 动态内容 -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('scriptModal')">关闭</button>
+                <button class="btn btn-primary">复制话术</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 名单下发弹窗 - 多步骤向导 -->
+    <div class="modal-overlay assign-modal" id="assignModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">📤 名单下发</h3>
+                <div class="modal-close" onclick="closeAssignModal()">✕</div>
+            </div>
+            <div class="modal-body">
+                <!-- 步骤指示器 -->
+                <div class="assign-steps">
+                    <div class="assign-step active" id="stepIndicator1">
+                        <span class="step-num">1</span>
+                        <span>分配方式</span>
+                    </div>
+                    <div class="step-line" id="stepLine1"></div>
+                    <div class="assign-step" id="stepIndicator2">
+                        <span class="step-num">2</span>
+                        <span>选择人员</span>
+                    </div>
+                    <div class="step-line" id="stepLine2"></div>
+                    <div class="assign-step" id="stepIndicator3">
+                        <span class="step-num">3</span>
+                        <span>预览确认</span>
+                    </div>
+                </div>
+
+                <!-- 第一步：选择分配方式 -->
+                <div class="assign-step-content active" id="assignStep1">
+                    <div class="strategy-grid">
+                        <div class="strategy-card selected" onclick="selectStrategy(this, 'manual')">
+                            <div class="strategy-icon">🎯</div>
+                            <div class="strategy-name">手动指定</div>
+                            <div class="strategy-desc">选择一个目标，将整个名单下发给指定网点或客户经理</div>
+                        </div>
+                        <div class="strategy-card" onclick="selectStrategy(this, 'random')">
+                            <div class="strategy-icon">🎲</div>
+                            <div class="strategy-name">随机平均分配</div>
+                            <div class="strategy-desc">将名单随机打散后均匀分配给多个客户经理</div>
+                        </div>
+                        <div class="strategy-card" onclick="selectStrategy(this, 'region')">
+                            <div class="strategy-icon">📍</div>
+                            <div class="strategy-name">按区域就近</div>
+                            <div class="strategy-desc">根据企业所在区域，自动匹配对口网点的客户经理</div>
+                        </div>
+                        <div class="strategy-card" onclick="selectStrategy(this, 'workload')">
+                            <div class="strategy-icon">⚖️</div>
+                            <div class="strategy-name">按负载均衡</div>
+                            <div class="strategy-desc">当前任务少的经理多分，任务满的少分，避免忙闲不均</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 第二步：选择目标人员 -->
+                <div class="assign-step-content" id="assignStep2">
+                    <p id="step2Hint" style="color: #595959; font-size: 13px; margin-bottom: 12px;"></p>
+                    <div id="targetListContainer">
+                        <!-- 动态渲染 -->
+                    </div>
+                    <div class="deadline-row">
+                        <label>截止日期：</label>
+                        <input type="date" id="assignDeadline" value="2025-03-15">
+                        <label style="margin-left: 12px;">任务说明：</label>
+                        <input type="text" id="assignNote" placeholder="请输入任务描述...">
+                    </div>
+                </div>
+
+                <!-- 第三步：预览分配结果 -->
+                <div class="assign-step-content" id="assignStep3">
+                    <div class="preview-summary" id="previewSummary">
+                        <!-- 动态渲染 -->
+                    </div>
+                    <div style="max-height: 300px; overflow-y: auto; border: 1px solid #f0f0f0; border-radius: 8px;">
+                        <table class="preview-table" id="previewTable">
+                            <thead>
+                                <tr>
+                                    <th>客户经理</th>
+                                    <th>分配企业数</th>
+                                    <th>分配占比</th>
+                                    <th>企业列表</th>
+                                </tr>
+                            </thead>
+                            <tbody id="previewTableBody">
+                                <!-- 动态渲染 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="deadline-row" style="margin-top: 12px;">
+                        <label>📅 截止：</label>
+                        <span id="previewDeadline" style="font-weight: 500;"></span>
+                        <label style="margin-left: 16px;">📝 说明：</label>
+                        <span id="previewNote" style="color: #595959;"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" id="assignBackBtn" onclick="assignPrevStep()"
+                    style="display: none;">上一步</button>
+                <div style="flex: 1;"></div>
+                <button class="btn btn-default" onclick="closeAssignModal()">取消</button>
+                <button class="btn btn-primary" id="assignNextBtn" onclick="assignNextStep()">下一步</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast提示 -->
+    <div class="toast" id="toast"></div>
+
+    <script src="js/mock-data.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // 当前选中的名单ID
+        let currentListId = 'all';
+        // 选中的客户ID集合
+        let selectedCustomerIds = new Set();
+
+        // 渲染名单Tab
+        function renderListTabs() {
+            const container = document.getElementById('listTabs');
+            container.innerHTML = customerLists.map(list => {
+                const count = list.id === 'all' ? customers.length : customers.filter(c => c.listId === list.id).length;
+                const isProduct = list.isProduct;
+                const cls = [
+                    'list-tab',
+                    list.id === currentListId ? 'active' : '',
+                    isProduct ? 'product-tab' : ''
+                ].filter(Boolean).join(' ');
+                return `
+                    <div class="${cls}" onclick="switchList('${list.id}')">
+                        <span class="tab-icon">${list.icon}</span>
+                        <span>${list.name}${isProduct ? ' <span class="tab-auto">🔄</span>' : ''}</span>
+                        <span class="tab-count">${count}</span>
+                    </div>
+                `;
+            }).join('') + `
+                <div class="list-tab list-tab-add" onclick="showToast('💡 请先通过智能圈选创建名单')">
+                    ＋ 新建名单
+                </div>
+            `;
+        }
+
+        // 切换名单
+        function switchList(listId) {
+            currentListId = listId;
+            selectedCustomerIds.clear();
+            updateBatchBar();
+            renderListTabs();
+            updateListInfo();
+            filterCustomers();
+        }
+
+        // 更新名单信息栏
+        function updateListInfo() {
+            const list = customerLists.find(l => l.id === currentListId);
+            if (!list) return;
+
+            const infoBar = document.getElementById('listInfoBar');
+            const prodCard = document.getElementById('productInfoCard');
+
+            if (list.isProduct && list.product) {
+                // 产品推送名单 → 显示产品信息卡
+                infoBar.style.display = 'none';
+                prodCard.style.display = 'block';
+
+                const p = list.product;
+                document.getElementById('prodCardName').textContent = p.name;
+                document.getElementById('prodCardBadge').textContent = `🔄 自动推送 · ${p.freq}`;
+                document.getElementById('prodCardOrg').textContent = p.org;
+                document.getElementById('prodCardType').textContent = p.type;
+                document.getElementById('prodCardScore').textContent = p.score;
+                document.getElementById('prodCardLimit').textContent = p.limit;
+                document.getElementById('prodCardRate').textContent = p.rate;
+                document.getElementById('prodCardLast').textContent = p.lastUpdate;
+                document.getElementById('prodCardNext').textContent = p.nextUpdate;
+                document.getElementById('prodCardSort').textContent = p.sortBy;
+                document.getElementById('prodCardProcess').textContent = p.listProcess;
+                document.getElementById('prodRuleName').textContent = p.rule.name;
+                document.getElementById('prodRuleTags').innerHTML = p.rule.conditions.map(
+                    c => `<span class="rule-tag">${c}</span>`
+                ).join('');
+                document.getElementById('prodExportPerm').textContent = p.allowExport ? '✅ 允许导出' : '🔒 不可导出';
+                document.getElementById('prodVisibleFields').textContent = p.visibleFields.join('、');
+
+                // 下发状态
+                const statusEl = document.getElementById('prodAssignStatus');
+                if (list.assignStatus === '已下发') {
+                    statusEl.textContent = '已下发';
+                    statusEl.className = 'assign-status assigned';
+                } else {
+                    statusEl.textContent = '待下发';
+                    statusEl.className = 'assign-status pending';
+                }
+            } else {
+                // 普通名单 → 显示普通信息栏
+                infoBar.style.display = 'flex';
+                prodCard.style.display = 'none';
+
+                document.getElementById('listSource').textContent = list.source;
+                document.getElementById('listDate').textContent = list.createdAt;
+                document.getElementById('listDesc').textContent = list.description;
+                const statusEl = document.getElementById('listAssignStatus');
+                if (list.assignStatus === '已下发') {
+                    statusEl.textContent = '已下发';
+                    statusEl.className = 'assign-status assigned';
+                } else if (list.assignStatus === '待下发') {
+                    statusEl.textContent = '待下发';
+                    statusEl.className = 'assign-status pending';
+                } else {
+                    statusEl.textContent = '-';
+                    statusEl.className = 'assign-status';
+                }
+            }
+        }
+
+        // 渲染客户列表
+        function renderCustomerTable(data) {
+            const tbody = document.getElementById('customerTableBody');
+            tbody.innerHTML = data.map(c => `
+                <tr>
+                    <td>
+                        <input type="checkbox" class="table-checkbox" value="${c.id}"
+                            ${selectedCustomerIds.has(c.id) ? 'checked' : ''}
+                            onchange="toggleCustomerSelect(${c.id}, this.checked)">
+                    </td>
+                    <td>
+                        <a href="customer-detail.html?id=${c.id}" class="company-name">${c.name}</a>
+                        <div style="margin-top: 4px;">
+                            ${c.tags.map(tag => `<span class="tag ${getTagClass(tag)}">${tag}</span>`).join('')}
+                        </div>
+                    </td>
+                    <td>${c.region}</td>
+                    <td>${c.industry}</td>
+                    <td>
+                        <span style="font-weight: 600; color: ${c.score >= 750 ? '#52c41a' : c.score >= 700 ? '#1890ff' : '#faad14'}">
+                            ${c.score}
+                        </span>
+                    </td>
+                    <td style="max-width: 200px;">
+                        <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #595959;">
+                            ${c.recommendation}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge ${getStatusClass(c.status)}">${c.status}</span>
+                    </td>
+                    <td>
+                        <button class="btn btn-text btn-sm" onclick="location.href='customer-detail.html?id=${c.id}'">详情</button>
+                        <button class="btn btn-text btn-sm" onclick="showScriptModal(${c.id})">话术</button>
+                        <button class="btn btn-text btn-sm" onclick="showStatusModal(${c.id})">更新</button>
+                    </td>
+                </tr>
+            `).join('');
+            document.getElementById('customerCount').textContent = data.length;
+        }
+
+        // 筛选客户
+        function filterCustomers() {
+            const status = document.getElementById('filterStatus').value;
+            const industry = document.getElementById('filterIndustry').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+
+            let filtered = customers.filter(c => {
+                // 名单筛选
+                if (currentListId !== 'all' && c.listId !== currentListId) return false;
+                if (status && c.status !== status) return false;
+                if (industry && c.industry !== industry) return false;
+                if (search && !c.name.toLowerCase().includes(search)) return false;
+                return true;
+            });
+
+            renderCustomerTable(filtered);
+        }
+
+        // 勾选/取消单个客户
+        function toggleCustomerSelect(id, checked) {
+            if (checked) {
+                selectedCustomerIds.add(id);
+            } else {
+                selectedCustomerIds.delete(id);
+            }
+            updateBatchBar();
+        }
+
+        // 全选/取消全选
+        function toggleSelectAll(checkbox) {
+            const checkboxes = document.querySelectorAll('#customerTableBody .table-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = checkbox.checked;
+                const id = parseInt(cb.value);
+                if (checkbox.checked) {
+                    selectedCustomerIds.add(id);
+                } else {
+                    selectedCustomerIds.delete(id);
+                }
+            });
+            // 同步表头复选框
+            document.getElementById('headerCheckbox').checked = checkbox.checked;
+            updateBatchBar();
+        }
+
+        // 更新批量操作栏
+        function updateBatchBar() {
+            const bar = document.getElementById('batchBar');
+            const count = selectedCustomerIds.size;
+            document.getElementById('selectedCount').textContent = count;
+            if (count > 0) {
+                bar.classList.add('show');
+            } else {
+                bar.classList.remove('show');
+            }
+        }
+
+        // 取消选择
+        function cancelSelection() {
+            selectedCustomerIds.clear();
+            document.querySelectorAll('.table-checkbox').forEach(cb => cb.checked = false);
+            updateBatchBar();
+        }
+
+        // 批量移出
+        function batchRemove() {
+            if (currentListId === 'all') {
+                showToast('⚠️ 不能从"全部客户"中移除');
+                return;
+            }
+            showToast(`✅ 已将 ${selectedCustomerIds.size} 家企业移出名单`);
+            cancelSelection();
+        }
+
+        // ========== 名单下发 - 多步骤向导 ==========
+        let assignStep = 1;
+        let selectedStrategy = 'manual';
+        let selectedTargets = new Set();
+
+        // Mock 人员数据
+        const assignTargets = [
+            { id: 'branch1', type: 'branch', name: '科技支行 - 园区网点', icon: '🏢', region: '苏州工业园区', managers: ['朱某人', '李明'], currentLoad: 156, capacity: 200, monthDone: 12 },
+            { id: 'branch2', type: 'branch', name: '科技支行 - 高新区网点', icon: '🏢', region: '苏州高新区', managers: ['王芳', '张伟'], currentLoad: 98, capacity: 200, monthDone: 9 },
+            { id: 'mgr1', type: 'manager', name: '朱某人', icon: '👤', region: '苏州工业园区', branch: '园区网点', currentLoad: 86, capacity: 100, monthDone: 12 },
+            { id: 'mgr2', type: 'manager', name: '王芳', icon: '👤', region: '苏州高新区', branch: '高新区网点', currentLoad: 48, capacity: 100, monthDone: 9 },
+            { id: 'mgr3', type: 'manager', name: '李明', icon: '👤', region: '苏州工业园区', branch: '园区网点', currentLoad: 70, capacity: 100, monthDone: 7 },
+            { id: 'mgr4', type: 'manager', name: '张伟', icon: '👤', region: '南京江宁区', branch: '高新区网点', currentLoad: 50, capacity: 100, monthDone: 6 },
+        ];
+
+        // 打开下发弹窗
+        function openAssignModal() {
+            assignStep = 1;
+            selectedStrategy = 'manual';
+            selectedTargets.clear();
+            updateAssignStepUI();
+            openModal('assignModal');
+        }
+
+        // 关闭下发弹窗
+        function closeAssignModal() {
+            closeModal('assignModal');
+        }
+
+        // 选择分配策略
+        function selectStrategy(el, strategy) {
+            document.querySelectorAll('.strategy-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedStrategy = strategy;
+        }
+
+        // 下一步
+        function assignNextStep() {
+            if (assignStep === 1) {
+                assignStep = 2;
+                selectedTargets.clear();
+                renderTargetList();
+            } else if (assignStep === 2) {
+                // 验证：手动指定需要至少选1个，批量策略至少选2个经理
+                if (selectedStrategy === 'manual' && selectedTargets.size === 0) {
+                    showToast('⚠️ 请选择一个下发目标');
+                    return;
+                }
+                if (selectedStrategy !== 'manual' && selectedTargets.size < 2) {
+                    showToast('⚠️ 批量分配至少需要选择2名客户经理');
+                    return;
+                }
+                assignStep = 3;
+                renderPreview();
+            } else if (assignStep === 3) {
+                confirmAssign();
+                return;
+            }
+            updateAssignStepUI();
+        }
+
+        // 上一步
+        function assignPrevStep() {
+            if (assignStep > 1) {
+                assignStep--;
+                updateAssignStepUI();
+            }
+        }
+
+        // 更新步骤UI
+        function updateAssignStepUI() {
+            // 步骤指示器
+            for (let i = 1; i <= 3; i++) {
+                const indicator = document.getElementById('stepIndicator' + i);
+                indicator.className = 'assign-step';
+                if (i < assignStep) indicator.classList.add('done');
+                else if (i === assignStep) indicator.classList.add('active');
+            }
+            document.getElementById('stepLine1').className = assignStep > 1 ? 'step-line done' : 'step-line';
+            document.getElementById('stepLine2').className = assignStep > 2 ? 'step-line done' : 'step-line';
+
+            // 步骤内容
+            for (let i = 1; i <= 3; i++) {
+                document.getElementById('assignStep' + i).className = 'assign-step-content' + (i === assignStep ? ' active' : '');
+            }
+
+            // 按钮
+            document.getElementById('assignBackBtn').style.display = assignStep > 1 ? '' : 'none';
+            const nextBtn = document.getElementById('assignNextBtn');
+            if (assignStep === 3) {
+                nextBtn.textContent = '✅ 确认下发';
+            } else {
+                nextBtn.textContent = '下一步';
+            }
+        }
+
+        // 渲染目标人员列表
+        function renderTargetList() {
+            const container = document.getElementById('targetListContainer');
+            const hint = document.getElementById('step2Hint');
+
+            if (selectedStrategy === 'manual') {
+                hint.textContent = '选择一个下发目标（网点或客户经理），将整个名单交给其跟进：';
+                const allTargets = assignTargets;
+                container.innerHTML = `
+                    <div class="target-section-title">🏢 支行网点</div>
+                    <div class="target-check-list">
+                        ${allTargets.filter(t => t.type === 'branch').map(t => `
+                            <div class="target-check-item" onclick="toggleManualTarget(this, '${t.id}')">
+                                <input type="radio" name="manualTarget">
+                                <div class="target-info">
+                                    <div class="target-name">${t.icon} ${t.name}</div>
+                                    <div class="target-meta">覆盖${t.region}，${t.managers.length}名客户经理</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="target-section-title">👤 客户经理</div>
+                    <div class="target-check-list">
+                        ${allTargets.filter(t => t.type === 'manager').map(t => {
+                    const loadPct = Math.round(t.currentLoad / t.capacity * 100);
+                    const loadClass = loadPct < 60 ? 'workload-light' : loadPct < 85 ? 'workload-medium' : 'workload-heavy';
+                    return `
+                            <div class="target-check-item" onclick="toggleManualTarget(this, '${t.id}')">
+                                <input type="radio" name="manualTarget">
+                                <div class="target-info">
+                                    <div class="target-name">${t.icon} ${t.name}（${t.branch}）</div>
+                                    <div class="target-meta">管理 ${t.currentLoad} 家客户 · 本月完成 ${t.monthDone} 笔</div>
+                                    <div class="target-workload ${loadClass}">负载 ${loadPct}%</div>
+                                </div>
+                            </div>
+                            `;
+                }).join('')}
+                    </div>
+                `;
+            } else {
+                // 批量分配模式：只能选客户经理，可多选
+                const managers = assignTargets.filter(t => t.type === 'manager');
+                const strategyName = { random: '随机平均', region: '按区域就近', workload: '按负载均衡' }[selectedStrategy];
+                hint.textContent = `选择参与「${strategyName}」分配的客户经理（至少2人）：`;
+                container.innerHTML = `
+                    <div class="target-check-list">
+                        ${managers.map(t => {
+                    const loadPct = Math.round(t.currentLoad / t.capacity * 100);
+                    const loadClass = loadPct < 60 ? 'workload-light' : loadPct < 85 ? 'workload-medium' : 'workload-heavy';
+                    return `
+                            <div class="target-check-item" onclick="toggleBatchTarget(this, '${t.id}')">
+                                <input type="checkbox">
+                                <div class="target-info">
+                                    <div class="target-name">${t.icon} ${t.name}（${t.branch}）</div>
+                                    <div class="target-meta">
+                                        管辖区域：${t.region} · 当前 ${t.currentLoad} 家客户 · 本月 ${t.monthDone} 笔
+                                    </div>
+                                    <div class="target-workload ${loadClass}">负载 ${loadPct}%</div>
+                                </div>
+                            </div>
+                            `;
+                }).join('')}
+                    </div>
+                `;
+            }
+        }
+
+        // 手动指定 - 单选
+        function toggleManualTarget(el, id) {
+            document.querySelectorAll('.target-check-item').forEach(item => {
+                item.classList.remove('selected');
+                const input = item.querySelector('input');
+                if (input) input.checked = false;
+            });
+            el.classList.add('selected');
+            el.querySelector('input').checked = true;
+            selectedTargets.clear();
+            selectedTargets.add(id);
+        }
+
+        // 批量分配 - 多选
+        function toggleBatchTarget(el, id) {
+            const input = el.querySelector('input[type="checkbox"]');
+            if (selectedTargets.has(id)) {
+                selectedTargets.delete(id);
+                el.classList.remove('selected');
+                input.checked = false;
+            } else {
+                selectedTargets.add(id);
+                el.classList.add('selected');
+                input.checked = true;
+            }
+        }
+
+        // 渲染预览
+        function renderPreview() {
+            // 获取当前名单的客户
+            let listCustomers = currentListId === 'all' ? [...customers] : customers.filter(c => c.listId === currentListId);
+            const targetArray = Array.from(selectedTargets).map(id => assignTargets.find(t => t.id === id)).filter(Boolean);
+
+            let distribution = []; // { target, customers[] }
+
+            if (selectedStrategy === 'manual') {
+                // 手动指定整个名单给一个目标
+                distribution = [{ target: targetArray[0], customers: listCustomers }];
+            } else if (selectedStrategy === 'random') {
+                // 随机打散后均匀分配
+                const shuffled = listCustomers.sort(() => Math.random() - 0.5);
+                distribution = targetArray.map(t => ({ target: t, customers: [] }));
+                shuffled.forEach((c, i) => {
+                    distribution[i % distribution.length].customers.push(c);
+                });
+            } else if (selectedStrategy === 'region') {
+                // 按区域匹配
+                distribution = targetArray.map(t => ({ target: t, customers: [] }));
+                listCustomers.forEach(c => {
+                    const matched = distribution.find(d => c.region && c.region.includes(d.target.region.substring(0, 2)));
+                    if (matched) {
+                        matched.customers.push(c);
+                    } else {
+                        // 没匹配到的随机分
+                        distribution[Math.floor(Math.random() * distribution.length)].customers.push(c);
+                    }
+                });
+            } else if (selectedStrategy === 'workload') {
+                // 按负载均衡 - 负载低的多分
+                distribution = targetArray.map(t => ({
+                    target: t,
+                    customers: [],
+                    availableCapacity: t.capacity - t.currentLoad
+                }));
+                const totalCapacity = distribution.reduce((s, d) => s + Math.max(d.availableCapacity, 1), 0);
+                // 按可用容量比例分配
+                let remaining = [...listCustomers];
+                distribution.forEach((d, idx) => {
+                    const ratio = Math.max(d.availableCapacity, 1) / totalCapacity;
+                    const count = idx === distribution.length - 1 ? remaining.length : Math.round(listCustomers.length * ratio);
+                    d.customers = remaining.splice(0, count);
+                });
+                // 兜底
+                if (remaining.length > 0) distribution[0].customers.push(...remaining);
+            }
+
+            // 渲染统计
+            const totalCustomers = listCustomers.length;
+            const totalManagers = distribution.length;
+            const avgPerPerson = totalManagers > 0 ? Math.round(totalCustomers / totalManagers) : 0;
+            const strategyNames = { manual: '🎯 手动指定', random: '🎲 随机平均', region: '📍 区域就近', workload: '⚖️ 负载均衡' };
+
+            document.getElementById('previewSummary').innerHTML = `
+                <div class="preview-stat">
+                    <div class="stat-value">${totalCustomers}</div>
+                    <div class="stat-label">待分配企业</div>
+                </div>
+                <div class="preview-stat">
+                    <div class="stat-value">${totalManagers}</div>
+                    <div class="stat-label">分配对象</div>
+                </div>
+                <div class="preview-stat">
+                    <div class="stat-value">${strategyNames[selectedStrategy]}</div>
+                    <div class="stat-label">分配策略</div>
+                </div>
+            `;
+
+            // 渲染表格
+            const colors = ['#1890ff', '#52c41a', '#722ed1', '#fa8c16', '#eb2f96', '#13c2c2'];
+            document.getElementById('previewTableBody').innerHTML = distribution.map((d, i) => {
+                const pct = totalCustomers > 0 ? Math.round(d.customers.length / totalCustomers * 100) : 0;
+                const names = d.customers.slice(0, 3).map(c => c.name.substring(0, 4) + '..').join('、');
+                const more = d.customers.length > 3 ? ` 等${d.customers.length}家` : '';
+                return `
+                    <tr>
+                        <td>
+                            <div class="person-avatar">
+                                <div class="avatar-circle" style="background: ${colors[i % colors.length]}">${d.target.name.charAt(0)}</div>
+                                <span>${d.target.name}</span>
+                            </div>
+                        </td>
+                        <td><strong>${d.customers.length}</strong> 家</td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div class="preview-bar">
+                                    <div class="preview-bar-fill" style="width: ${pct}%; background: ${colors[i % colors.length]};"></div>
+                                </div>
+                                <span>${pct}%</span>
+                            </div>
+                        </td>
+                        <td style="font-size: 12px; color: #8c8c8c; max-width: 180px;">${names}${more}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            // 预览截止日期和说明
+            document.getElementById('previewDeadline').textContent = document.getElementById('assignDeadline').value || '未设置';
+            document.getElementById('previewNote').textContent = document.getElementById('assignNote').value || '无';
+        }
+
+        // 确认下发
+        function confirmAssign() {
+            closeAssignModal();
+            const strategyNames = { manual: '手动指定', random: '随机平均分配', region: '按区域就近分配', workload: '按负载均衡分配' };
+            showToast(`✅ 名单已通过「${strategyNames[selectedStrategy]}」成功下发！`);
+
+            // 更新当前名单状态
+            if (currentListId !== 'all') {
+                const list = customerLists.find(l => l.id === currentListId);
+                if (list) {
+                    list.assignStatus = '已下发';
+                    updateListInfo();
+                }
+            }
+        }
+
+        // Toast提示
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show success';
+            setTimeout(() => {
+                toast.className = 'toast';
+            }, 2500);
+        }
+
+        // 页面加载
+        document.addEventListener('DOMContentLoaded', function () {
+            renderListTabs();
+            updateListInfo();
+
+            // 检查URL参数
+            const urlParams = new URLSearchParams(window.location.search);
+            const statusParam = urlParams.get('status');
+            const listParam = urlParams.get('list');
+            if (listParam) {
+                currentListId = listParam;
+                renderListTabs();
+                updateListInfo();
+            }
+            if (statusParam) {
+                document.getElementById('filterStatus').value = statusParam;
+            }
+            filterCustomers();
+        });
+    </script>
+</body>
+
+</html>

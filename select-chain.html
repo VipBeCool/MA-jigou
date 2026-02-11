@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>产业链获客 - 智能营销平台</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .chain-container {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+            border-radius: 12px;
+            padding: 24px;
+            min-height: 450px;
+            position: relative;
+        }
+
+        .chain-node {
+            position: absolute;
+            padding: 12px 20px;
+            background: white;
+            border: 2px solid #d9d9d9;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            min-width: 100px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .chain-node:hover {
+            border-color: #1890ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.2);
+        }
+
+        .chain-node.active {
+            border-color: #52c41a;
+            background: linear-gradient(135deg, #f6ffed 0%, #d9f7be 100%);
+        }
+
+        .chain-node .node-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .chain-node .node-name {
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        .chain-node .node-count {
+            font-size: 11px;
+            color: #8c8c8c;
+            margin-top: 2px;
+        }
+
+        .chain-arrow {
+            position: absolute;
+            color: #bfbfbf;
+            font-size: 20px;
+        }
+
+        .chain-level {
+            text-align: center;
+            padding: 8px 16px;
+            background: rgba(24, 144, 255, 0.1);
+            color: #1890ff;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            position: absolute;
+            top: 8px;
+        }
+
+        .chain-legend {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 16px;
+            font-size: 12px;
+        }
+
+        .chain-legend span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">💼</div>
+                <h1>智能营销平台</h1>
+            </div>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-item"><span class="nav-icon">🏠</span><span
+                        class="nav-text">工作台</span></a>
+                <a href="customers.html" class="nav-item"><span class="nav-icon">👥</span><span
+                        class="nav-text">客户名单</span></a>
+                <a href="tasks.html" class="nav-item"><span class="nav-icon">📋</span><span
+                        class="nav-text">任务管理</span></a>
+                <a href="select.html" class="nav-item"><span class="nav-icon">🎯</span><span
+                        class="nav-text">智能圈选</span></a>
+                <a href="select-park.html" class="nav-item"><span class="nav-icon">🏭</span><span
+                        class="nav-text">园区获客</span></a>
+                <a href="select-chain.html" class="nav-item active"><span class="nav-icon">🔗</span><span
+                        class="nav-text">产业链获客</span></a>
+                <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span><span
+                        class="nav-text">数据看板</span></a>
+                <a href="reconciliation.html" class="nav-item"><span class="nav-icon">📑</span><span
+                        class="nav-text">对账确认</span></a>
+                <a href="downloads.html" class="nav-item"><span class="nav-icon">📥</span><span
+                        class="nav-text">下载中心</span></a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">朱</div>
+                    <div>
+                        <div class="user-name">朱某人</div>
+                        <div class="user-role">客户经理</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">产业链获客</h1>
+                <p class="page-breadcrumb"><a href="index.html">工作台</a> / <a href="select.html">智能圈选</a> / 产业链获客</p>
+            </div>
+
+            <!-- AI对话区 -->
+            <div class="ai-chat-box">
+                <div style="margin-bottom: 12px; font-weight: 500;">🤖 AI产业链分析助手</div>
+                <div class="ai-chat-input">
+                    <input type="text" id="aiQueryInput" placeholder="用自然语言描述，例如：新能源汽车产业链的电池供应商、光伏产业链上游企业..."
+                        value="新能源汽车产业链的电池供应商">
+                    <button class="btn btn-primary" onclick="executeAIQuery()">🔍 智能解析</button>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 280px 1fr; gap: 16px;">
+                <!-- 左侧：产业链选择 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">🔗 选择产业链</h3>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">产业大类</label>
+                        <select class="form-select" id="selectCategory" onchange="changeCategory()">
+                            <option value="新能源汽车" selected>新能源汽车</option>
+                            <option value="光伏">光伏</option>
+                            <option value="半导体">半导体</option>
+                            <option value="生物医药">生物医药</option>
+                            <option value="新材料">新材料</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-top: 16px;">
+                        <div style="font-size: 13px; color: #8c8c8c; margin-bottom: 8px;">热门产业链</div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            <span class="tag tag-blue" style="cursor: pointer;">🔋 新能源汽车</span>
+                            <span class="tag" style="cursor: pointer; background: #f5f5f5;">☀️ 光伏</span>
+                            <span class="tag" style="cursor: pointer; background: #f5f5f5;">💻 半导体</span>
+                            <span class="tag" style="cursor: pointer; background: #f5f5f5;">💊 生物医药</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #f0f0f0;">
+                        <div style="font-size: 13px; font-weight: 500; margin-bottom: 12px;">已选环节</div>
+                        <div id="selectedNodes" style="min-height: 60px;">
+                            <div
+                                style="display: flex; align-items: center; gap: 8px; padding: 8px; background: #f6ffed; border-radius: 6px; margin-bottom: 8px;">
+                                <span>🔋</span>
+                                <span style="flex: 1; font-size: 13px;">电池材料</span>
+                                <span style="color: #52c41a; font-size: 12px;">856家</span>
+                                <button onclick="removeNode(this)"
+                                    style="border: none; background: none; color: #ff4d4f; cursor: pointer;">×</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 16px;">
+                        <div style="font-size: 13px; color: #8c8c8c; margin-bottom: 8px;">企业筛选条件</div>
+                        <div class="form-group">
+                            <select class="form-select">
+                                <option>苏信分 ≥ 700</option>
+                                <option>苏信分 ≥ 650</option>
+                                <option>苏信分 ≥ 600</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <select class="form-select">
+                                <option>全部地区</option>
+                                <option selected>江苏省</option>
+                                <option>苏州市</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧 -->
+                <div>
+                    <!-- 产业链图谱 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">🔗 新能源汽车产业链图谱</h3>
+                            <span class="card-extra">点击环节筛选企业</span>
+                        </div>
+                        <div class="chain-container">
+                            <!-- 层级标签 -->
+                            <div class="chain-level" style="left: 10%;">上游原材料</div>
+                            <div class="chain-level" style="left: 38%;">中游制造</div>
+                            <div class="chain-level" style="left: 68%;">下游应用</div>
+
+                            <!-- 上游节点 -->
+                            <div class="chain-node" style="left: 5%; top: 80px;" onclick="toggleNode(this, '锂矿', 320)">
+                                <div class="node-icon">⛏️</div>
+                                <div class="node-name">锂矿</div>
+                                <div class="node-count">320家</div>
+                            </div>
+                            <div class="chain-node" style="left: 5%; top: 170px;" onclick="toggleNode(this, '钴镍', 185)">
+                                <div class="node-icon">🪨</div>
+                                <div class="node-name">钴镍</div>
+                                <div class="node-count">185家</div>
+                            </div>
+                            <div class="chain-node" style="left: 5%; top: 260px;" onclick="toggleNode(this, '石墨', 156)">
+                                <div class="node-icon">⚫</div>
+                                <div class="node-name">石墨</div>
+                                <div class="node-count">156家</div>
+                            </div>
+                            <div class="chain-node active" style="left: 5%; top: 350px;"
+                                onclick="toggleNode(this, '电解液', 243)">
+                                <div class="node-icon">💧</div>
+                                <div class="node-name">电解液</div>
+                                <div class="node-count">243家</div>
+                            </div>
+
+                            <!-- 箭头 -->
+                            <div class="chain-arrow" style="left: 18%; top: 200px;">→</div>
+
+                            <!-- 中游节点 -->
+                            <div class="chain-node" style="left: 32%; top: 100px;"
+                                onclick="toggleNode(this, '正极材料', 428)">
+                                <div class="node-icon">➕</div>
+                                <div class="node-name">正极材料</div>
+                                <div class="node-count">428家</div>
+                            </div>
+                            <div class="chain-node" style="left: 32%; top: 200px;"
+                                onclick="toggleNode(this, '负极材料', 312)">
+                                <div class="node-icon">➖</div>
+                                <div class="node-name">负极材料</div>
+                                <div class="node-count">312家</div>
+                            </div>
+                            <div class="chain-node active" style="left: 32%; top: 300px;"
+                                onclick="toggleNode(this, '电池材料', 856)">
+                                <div class="node-icon">🔋</div>
+                                <div class="node-name">电池材料</div>
+                                <div class="node-count">856家</div>
+                            </div>
+                            <div class="chain-node" style="left: 32%; top: 400px;"
+                                onclick="toggleNode(this, '电机电控', 567)">
+                                <div class="node-icon">⚡</div>
+                                <div class="node-name">电机电控</div>
+                                <div class="node-count">567家</div>
+                            </div>
+
+                            <!-- 箭头 -->
+                            <div class="chain-arrow" style="left: 52%; top: 200px;">→</div>
+
+                            <!-- 下游节点 -->
+                            <div class="chain-node" style="left: 62%; top: 120px;"
+                                onclick="toggleNode(this, '整车制造', 156)">
+                                <div class="node-icon">🚗</div>
+                                <div class="node-name">整车制造</div>
+                                <div class="node-count">156家</div>
+                            </div>
+                            <div class="chain-node" style="left: 62%; top: 230px;"
+                                onclick="toggleNode(this, '充电设施', 892)">
+                                <div class="node-icon">🔌</div>
+                                <div class="node-name">充电设施</div>
+                                <div class="node-count">892家</div>
+                            </div>
+                            <div class="chain-node" style="left: 62%; top: 340px;"
+                                onclick="toggleNode(this, '电池回收', 234)">
+                                <div class="node-icon">♻️</div>
+                                <div class="node-name">电池回收</div>
+                                <div class="node-count">234家</div>
+                            </div>
+
+                            <!-- 箭头 -->
+                            <div class="chain-arrow" style="left: 82%; top: 200px;">→</div>
+
+                            <!-- 终端 -->
+                            <div class="chain-node" style="left: 85%; top: 180px;"
+                                onclick="toggleNode(this, '消费市场', 0)">
+                                <div class="node-icon">👥</div>
+                                <div class="node-name">消费市场</div>
+                                <div class="node-count">-</div>
+                            </div>
+                        </div>
+
+                        <div class="chain-legend">
+                            <span><span
+                                    style="width: 12px; height: 12px; background: #52c41a; border-radius: 3px; display: inline-block;"></span>
+                                已选中</span>
+                            <span><span
+                                    style="width: 12px; height: 12px; background: #1890ff; border-radius: 3px; display: inline-block;"></span>
+                                可选择</span>
+                            <span style="color: #8c8c8c;">提示：点击节点选择/取消</span>
+                        </div>
+                    </div>
+
+                    <!-- 企业列表 -->
+                    <div class="card" style="margin-top: 16px;">
+                        <div class="card-header">
+                            <h3 class="card-title">🏢 产业链企业</h3>
+                            <span class="card-extra">共 <strong style="color: #1890ff;">856</strong> 家企业</span>
+                        </div>
+
+                        <!-- 统计 -->
+                        <div
+                            style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px;">
+                            <div style="text-align: center; padding: 12px; background: #f5f5f5; border-radius: 6px;">
+                                <div style="font-size: 24px; font-weight: 600; color: #1890ff;">856</div>
+                                <div style="font-size: 12px; color: #8c8c8c;">符合企业</div>
+                            </div>
+                            <div style="text-align: center; padding: 12px; background: #f5f5f5; border-radius: 6px;">
+                                <div style="font-size: 24px; font-weight: 600; color: #52c41a;">423</div>
+                                <div style="font-size: 12px; color: #8c8c8c;">高新企业</div>
+                            </div>
+                            <div style="text-align: center; padding: 12px; background: #f5f5f5; border-radius: 6px;">
+                                <div style="font-size: 24px; font-weight: 600; color: #faad14;">126</div>
+                                <div style="font-size: 12px; color: #8c8c8c;">专精特新</div>
+                            </div>
+                            <div style="text-align: center; padding: 12px; background: #f5f5f5; border-radius: 6px;">
+                                <div style="font-size: 24px; font-weight: 600; color: #722ed1;">768</div>
+                                <div style="font-size: 12px; color: #8c8c8c;">苏信分≥700</div>
+                            </div>
+                        </div>
+
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox"></th>
+                                    <th>企业名称</th>
+                                    <th>产业环节</th>
+                                    <th>资质</th>
+                                    <th>苏信分</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td><a href="customer-detail.html" class="company-name">江苏锂源动力科技有限公司</a></td>
+                                    <td><span class="tag tag-green">电池材料</span></td>
+                                    <td><span class="tag tag-blue">高新</span><span class="tag tag-purple">专精特新</span>
+                                    </td>
+                                    <td><span style="color: #52c41a; font-weight: 500;">835</span></td>
+                                    <td><button class="btn btn-text btn-sm">查看</button></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td><a href="customer-detail.html" class="company-name">苏州新能源材料有限公司</a></td>
+                                    <td><span class="tag tag-green">电池材料</span></td>
+                                    <td><span class="tag tag-blue">高新</span></td>
+                                    <td><span style="color: #52c41a; font-weight: 500;">798</span></td>
+                                    <td><button class="btn btn-text btn-sm">查看</button></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td><a href="customer-detail.html" class="company-name">常州电解液科技有限公司</a></td>
+                                    <td><span class="tag" style="background: #fff7e6; color: #d48806;">电解液</span></td>
+                                    <td><span class="tag tag-blue">高新</span></td>
+                                    <td><span style="color: #1890ff; font-weight: 500;">756</span></td>
+                                    <td><button class="btn btn-text btn-sm">查看</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px;">
+                            <div style="font-size: 13px; color: #8c8c8c;">已选择 <strong>0</strong> 家企业</div>
+                            <div style="display: flex; gap: 12px;">
+                                <button class="btn btn-default">导出名单</button>
+                                <button class="btn btn-primary">加入我的客户</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function toggleNode(el, name, count) {
+            el.classList.toggle('active');
+            if (el.classList.contains('active')) {
+                addSelectedNode(name, count);
+            } else {
+                // 移除节点逻辑
+            }
+        }
+
+        function addSelectedNode(name, count) {
+            const container = document.getElementById('selectedNodes');
+            const html = `
+        <div style="display: flex; align-items: center; gap: 8px; padding: 8px; background: #f6ffed; border-radius: 6px; margin-bottom: 8px;">
+          <span>🔋</span>
+          <span style="flex: 1; font-size: 13px;">${name}</span>
+          <span style="color: #52c41a; font-size: 12px;">${count}家</span>
+          <button onclick="removeNode(this)" style="border: none; background: none; color: #ff4d4f; cursor: pointer;">×</button>
+        </div>
+      `;
+            container.insertAdjacentHTML('beforeend', html);
+        }
+
+        function removeNode(btn) {
+            btn.parentElement.remove();
+        }
+
+        function executeAIQuery() {
+            alert('AI解析：正在分析您的需求...\n\n已识别：\n✓ 产业链：新能源汽车\n✓ 环节：电池供应商\n✓ 已自动选中"电池材料"环节');
+        }
+
+        function changeCategory() {
+            alert('切换产业链，正在加载...');
+        }
+    </script>
+</body>
+
+</html>

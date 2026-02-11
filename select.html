@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能圈选 - 智能营销平台</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* 模式切换区 */
+        .mode-switcher-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .mode-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 2px solid #e8e8e8;
+            background: white;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-card:hover {
+            border-color: #91d5ff;
+            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.1);
+        }
+
+        .mode-card.active {
+            border-color: #1890ff;
+            background: linear-gradient(135deg, #e6f7ff 0%, #f0f5ff 100%);
+            box-shadow: 0 4px 16px rgba(24, 144, 255, 0.15);
+        }
+
+        .mode-card.active::after {
+            content: '✓ 当前模式';
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            font-size: 11px;
+            color: #1890ff;
+            font-weight: 500;
+        }
+
+        .mode-card-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            flex-shrink: 0;
+        }
+
+        .mode-card.ai-mode .mode-card-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .mode-card.tools-mode .mode-card-icon {
+            background: linear-gradient(135deg, #fa8c16 0%, #faad14 100%);
+        }
+
+        .mode-card-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 0 4px 0;
+            color: #262626;
+        }
+
+        .mode-card-info p {
+            font-size: 13px;
+            color: #8c8c8c;
+            margin: 0;
+        }
+
+        .mode-card.active .mode-card-info h3 {
+            color: #1890ff;
+        }
+
+        /* 模式内容容器 */
+        .mode-content {
+            display: none;
+        }
+
+        .mode-content.active {
+            display: block;
+        }
+
+        /* AI对话模式样式 */
+        .ai-chat-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 24px;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ai-chat-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .ai-avatar-large {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .ai-chat-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .ai-chat-subtitle {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        .chat-messages {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            overflow-y: auto;
+            max-height: 350px;
+        }
+
+        .chat-message {
+            margin-bottom: 16px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-message.user {
+            flex-direction: row-reverse;
+        }
+
+        .chat-message .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .chat-message.ai .avatar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .chat-message.user .avatar {
+            background: #1890ff;
+            color: white;
+        }
+
+        .chat-message .bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .chat-message.ai .bubble {
+            background: #f5f5f5;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-message.user .bubble {
+            background: #1890ff;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-input-area {
+            background: white;
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .chat-input-wrapper textarea {
+            border: none;
+            outline: none;
+            resize: none;
+            font-size: 14px;
+            line-height: 1.5;
+            min-height: 24px;
+            max-height: 120px;
+            width: 100%;
+        }
+
+        .chat-input-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-input-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .chat-action-btn {
+            padding: 6px 12px;
+            border: 1px solid #d9d9d9;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #595959;
+            transition: all 0.2s;
+        }
+
+        .chat-action-btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        .chat-send-btn {
+            padding: 8px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: white;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chat-send-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        /* 规则确认卡片 */
+        .rule-confirm-card {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 12px;
+            border: 2px solid #52c41a;
+        }
+
+        .rule-confirm-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .rule-confirm-title {
+            font-weight: 600;
+            color: #52c41a;
+        }
+
+        .rule-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 0;
+            font-size: 13px;
+            border-bottom: 1px dashed #f0f0f0;
+        }
+
+        .rule-item:last-child {
+            border-bottom: none;
+        }
+
+        .rule-item .label {
+            color: #8c8c8c;
+            width: 70px;
+        }
+
+        .rule-item .value {
+            color: #262626;
+        }
+
+        .rule-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        /* 传统工具模式样式 */
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .tool-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            border: 2px solid #f0f0f0;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .tool-card:hover {
+            border-color: #1890ff;
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(24, 144, 255, 0.15);
+        }
+
+        .tool-card-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 16px;
+        }
+
+        .tool-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #262626;
+        }
+
+        .tool-card-desc {
+            font-size: 13px;
+            color: #8c8c8c;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .tool-card-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+        }
+
+        .tool-card-stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .tool-card-stat .num {
+            font-weight: 600;
+            color: #1890ff;
+        }
+
+        /* 工具卡片颜色 */
+        .tool-card.filter .tool-card-icon {
+            background: linear-gradient(135deg, #e6f7ff, #bae7ff);
+        }
+
+        .tool-card.park .tool-card-icon {
+            background: linear-gradient(135deg, #f6ffed, #d9f7be);
+        }
+
+        .tool-card.map .tool-card-icon {
+            background: linear-gradient(135deg, #fff7e6, #ffe7ba);
+        }
+
+        .tool-card.chain .tool-card-icon {
+            background: linear-gradient(135deg, #f9f0ff, #efdbff);
+        }
+
+        .tool-card.newbiz .tool-card-icon {
+            background: linear-gradient(135deg, #e6fffb, #b5f5ec);
+        }
+
+        .tool-card.trade .tool-card-icon {
+            background: linear-gradient(135deg, #fff0f6, #ffd6e7);
+        }
+
+        /* 思考动画 */
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 8px 0;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: #8c8c8c;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-indicator span:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes typing {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0.6);
+                opacity: 0.4;
+            }
+
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">💼</div>
+                <h1>智能营销平台</h1>
+            </div>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-item"><span class="nav-icon">🏠</span><span
+                        class="nav-text">工作台</span></a>
+                <a href="customers.html" class="nav-item"><span class="nav-icon">👥</span><span
+                        class="nav-text">客户名单</span></a>
+                <a href="tasks.html" class="nav-item"><span class="nav-icon">📋</span><span
+                        class="nav-text">任务管理</span></a>
+                <a href="select.html" class="nav-item active"><span class="nav-icon">🎯</span><span
+                        class="nav-text">智能圈选</span></a>
+                <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span><span
+                        class="nav-text">数据看板</span></a>
+                <a href="reconciliation.html" class="nav-item"><span class="nav-icon">📑</span><span
+                        class="nav-text">对账确认</span></a>
+                <a href="downloads.html" class="nav-item"><span class="nav-icon">📥</span><span
+                        class="nav-text">下载中心</span></a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">朱</div>
+                    <div>
+                        <div class="user-name">朱某人</div>
+                        <div class="user-role">客户经理</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">智能圈选</h1>
+                <p class="page-breadcrumb"><a href="index.html">工作台</a> / 智能圈选</p>
+            </div>
+
+            <!-- 模式选择区 -->
+            <div class="mode-switcher-section">
+                <div class="mode-card ai-mode active" onclick="switchMode('ai')">
+                    <div class="mode-card-icon">🤖</div>
+                    <div class="mode-card-info">
+                        <h3>AI 对话模式</h3>
+                        <p>用自然语言描述需求，AI自动生成筛选规则</p>
+                    </div>
+                </div>
+                <div class="mode-card tools-mode" onclick="switchMode('tools')">
+                    <div class="mode-card-icon">🛠️</div>
+                    <div class="mode-card-info">
+                        <h3>传统工具模式</h3>
+                        <p>使用条件筛选、地图、园区等专业工具精准获客</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== AI对话模式 ========== -->
+            <div class="mode-content active" id="mode-ai">
+                <div class="ai-chat-container">
+                    <div class="ai-chat-header">
+                        <div class="ai-avatar-large">🤖</div>
+                        <div>
+                            <div class="ai-chat-title">AI圈选助手</div>
+                            <div class="ai-chat-subtitle">告诉我您的获客需求，我来帮您精准筛选目标客户</div>
+                        </div>
+                    </div>
+
+                    <div class="chat-messages" id="chatMessages">
+                        <!-- AI欢迎消息 -->
+                        <div class="chat-message ai">
+                            <div class="avatar">AI</div>
+                            <div class="bubble">
+                                您好！我是您的智能圈选助手 👋<br><br>
+                                请告诉我您想找什么样的客户？您可以：<br>
+                                • 直接描述目标客户特征<br>
+                                • 上传已有的客户筛选规则<br>
+                                • 告诉我您的营销目标，我来推荐<br><br>
+                                例如："我想找苏州地区的高新技术企业，年营收在5000万以上，有融资需求的"
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-area" id="chatInputArea">
+                        <textarea id="chatInput" placeholder="描述您的获客需求，例如：帮我找苏州地区年营收超5000万的高新技术企业..." rows="2"
+                            onkeydown="handleKeyDown(event)"></textarea>
+                        <div class="chat-input-bottom">
+                            <div class="chat-input-actions">
+                                <label class="chat-action-btn" style="cursor: pointer;">
+                                    📎 上传规则文件
+                                    <input type="file" accept=".txt,.xlsx,.xls,.csv" style="display: none;"
+                                        onchange="handleFileUpload(this)">
+                                </label>
+                                <span id="uploadedFile" style="font-size: 12px; color: #52c41a;"></span>
+                            </div>
+                            <button class="chat-send-btn" onclick="sendMessage()">
+                                发送 <span style="font-size: 16px;">↗</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 快捷提问 -->
+                <div class="card" style="margin-top: 16px;">
+                    <div class="card-header">
+                        <h3 class="card-title">💡 快捷提问</h3>
+                    </div>
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        <button class="btn btn-default" onclick="quickAsk('帮我找苏州工业园区的高新技术企业，营收5000万以上')">🏭
+                            园区高新企业</button>
+                        <button class="btn btn-default" onclick="quickAsk('我想拓展新能源汽车产业链的上游供应商')">🔗 产业链企业</button>
+                        <button class="btn btn-default" onclick="quickAsk('帮我筛选最近3个月新成立的科技企业，看看有没有首贷户机会')">🆕
+                            新成立企业</button>
+                        <button class="btn btn-default" onclick="quickAsk('找一些年出口额500万以上的制造企业，可能需要跨境金融服务')">🌏
+                            进出口企业</button>
+                    </div>
+                </div>
+
+                <!-- AI推荐获客场景 -->
+                <div class="card" style="margin-top: 16px;">
+                    <div class="card-header">
+                        <h3 class="card-title">🎯 AI推荐获客场景</h3>
+                        <span class="card-extra" style="color: #8c8c8c; font-size: 12px;">基于历史转化数据智能推荐</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                        <!-- 场景1 -->
+                        <div class="recommend-scene"
+                            style="padding: 16px; border: 1px solid #f0f0f0; border-radius: 12px; background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%); position: relative; overflow: hidden;">
+                            <div
+                                style="position: absolute; top: 12px; right: 12px; background: linear-gradient(135deg, #52c41a, #73d13d); color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;">
+                                转化率 4.2%</div>
+                            <div style="font-size: 15px; font-weight: 600; margin-bottom: 8px; color: #262626;">🏭
+                                园区高新优质企业</div>
+                            <div style="font-size: 12px; color: #8c8c8c; margin-bottom: 12px;">国家级园区 + 高新认定 + 苏信分≥750
+                            </div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;">
+                                <span
+                                    style="background: #e6f7ff; color: #1890ff; padding: 2px 8px; border-radius: 4px; font-size: 11px;">地区：苏州/无锡</span>
+                                <span
+                                    style="background: #f6ffed; color: #52c41a; padding: 2px 8px; border-radius: 4px; font-size: 11px;">资质：高新技术</span>
+                                <span
+                                    style="background: #fff7e6; color: #fa8c16; padding: 2px 8px; border-radius: 4px; font-size: 11px;">营收：≥3000万</span>
+                            </div>
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px dashed #e8e8e8;">
+                                <span style="font-size: 12px; color: #595959;">预估 <strong
+                                        style="color: #1890ff;">2,850</strong> 家企业</span>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="btn btn-text btn-sm" onclick="copyRule('园区高新优质企业')">📋 复制</button>
+                                    <button class="btn btn-primary btn-sm"
+                                        onclick="customizeRule('园区高新优质企业', '帮我找国家级园区的高新技术企业，苏信分750以上，年营收3000万以上')">🎨
+                                        定制</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 场景2 -->
+                        <div class="recommend-scene"
+                            style="padding: 16px; border: 1px solid #f0f0f0; border-radius: 12px; background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%); position: relative; overflow: hidden;">
+                            <div
+                                style="position: absolute; top: 12px; right: 12px; background: linear-gradient(135deg, #1890ff, #40a9ff); color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;">
+                                转化率 3.8%</div>
+                            <div style="font-size: 15px; font-weight: 600; margin-bottom: 8px; color: #262626;">🔗
+                                产业链核心企业</div>
+                            <div style="font-size: 12px; color: #8c8c8c; margin-bottom: 12px;">新能源产业链 + 电池材料环节</div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;">
+                                <span
+                                    style="background: #f9f0ff; color: #722ed1; padding: 2px 8px; border-radius: 4px; font-size: 11px;">产业链：新能源汽车</span>
+                                <span
+                                    style="background: #e6fffb; color: #13c2c2; padding: 2px 8px; border-radius: 4px; font-size: 11px;">环节：电池材料</span>
+                            </div>
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px dashed #e8e8e8;">
+                                <span style="font-size: 12px; color: #595959;">预估 <strong
+                                        style="color: #1890ff;">856</strong> 家企业</span>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="btn btn-text btn-sm" onclick="copyRule('产业链核心企业')">📋 复制</button>
+                                    <button class="btn btn-primary btn-sm"
+                                        onclick="customizeRule('产业链核心企业', '我想拓展新能源汽车产业链的电池材料供应商')">🎨 定制</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 场景3 -->
+                        <div class="recommend-scene"
+                            style="padding: 16px; border: 1px solid #f0f0f0; border-radius: 12px; background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%); position: relative; overflow: hidden;">
+                            <div
+                                style="position: absolute; top: 12px; right: 12px; background: linear-gradient(135deg, #faad14, #ffc53d); color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;">
+                                转化率 2.5%</div>
+                            <div style="font-size: 15px; font-weight: 600; margin-bottom: 8px; color: #262626;">🆕
+                                首贷户潜力企业</div>
+                            <div style="font-size: 12px; color: #8c8c8c; margin-bottom: 12px;">新成立3个月 + 科技型 + 无贷款记录
+                            </div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;">
+                                <span
+                                    style="background: #e6fffb; color: #13c2c2; padding: 2px 8px; border-radius: 4px; font-size: 11px;">成立：近3个月</span>
+                                <span
+                                    style="background: #fff0f6; color: #eb2f96; padding: 2px 8px; border-radius: 4px; font-size: 11px;">类型：科技型</span>
+                                <span
+                                    style="background: #f6ffed; color: #52c41a; padding: 2px 8px; border-radius: 4px; font-size: 11px;">首贷户</span>
+                            </div>
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px dashed #e8e8e8;">
+                                <span style="font-size: 12px; color: #595959;">预估 <strong
+                                        style="color: #1890ff;">1,245</strong> 家企业</span>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="btn btn-text btn-sm" onclick="copyRule('首贷户潜力企业')">📋 复制</button>
+                                    <button class="btn btn-primary btn-sm"
+                                        onclick="customizeRule('首贷户潜力企业', '帮我筛选最近3个月新成立的科技企业，没有贷款记录的首贷户')">🎨
+                                        定制</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 场景4 -->
+                        <div class="recommend-scene"
+                            style="padding: 16px; border: 1px solid #f0f0f0; border-radius: 12px; background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%); position: relative; overflow: hidden;">
+                            <div
+                                style="position: absolute; top: 12px; right: 12px; background: linear-gradient(135deg, #722ed1, #9254de); color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;">
+                                转化率 3.2%</div>
+                            <div style="font-size: 15px; font-weight: 600; margin-bottom: 8px; color: #262626;">🌏
+                                外贸优质企业</div>
+                            <div style="font-size: 12px; color: #8c8c8c; margin-bottom: 12px;">年出口≥500万 + 制造业 + 欧美市场
+                            </div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;">
+                                <span
+                                    style="background: #fff0f6; color: #eb2f96; padding: 2px 8px; border-radius: 4px; font-size: 11px;">出口：≥500万/年</span>
+                                <span
+                                    style="background: #e6f7ff; color: #1890ff; padding: 2px 8px; border-radius: 4px; font-size: 11px;">行业：制造业</span>
+                                <span
+                                    style="background: #fff7e6; color: #fa8c16; padding: 2px 8px; border-radius: 4px; font-size: 11px;">市场：欧美</span>
+                            </div>
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px dashed #e8e8e8;">
+                                <span style="font-size: 12px; color: #595959;">预估 <strong
+                                        style="color: #1890ff;">620</strong> 家企业</span>
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="btn btn-text btn-sm" onclick="copyRule('外贸优质企业')">📋 复制</button>
+                                    <button class="btn btn-primary btn-sm"
+                                        onclick="customizeRule('外贸优质企业', '找年出口额500万以上的制造企业，主要出口欧美市场')">🎨 定制</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== 传统工具模式 ========== -->
+            <div class="mode-content" id="mode-tools">
+                <div style="margin-bottom: 20px;">
+                    <p style="color: #8c8c8c; font-size: 14px;">选择一个获客工具，进入详细筛选页面</p>
+                </div>
+
+                <div class="tool-grid">
+                    <!-- 条件筛选 -->
+                    <a href="select-filter.html" class="tool-card filter">
+                        <div class="tool-card-icon">📋</div>
+                        <div class="tool-card-title">条件筛选</div>
+                        <div class="tool-card-desc">通过多维度条件组合筛选目标企业，支持地区、行业、规模、资质等条件</div>
+                        <div class="tool-card-stats">
+                            <div class="tool-card-stat"><span class="num">14M</span> 企业库</div>
+                            <div class="tool-card-stat"><span class="num">50+</span> 筛选维度</div>
+                        </div>
+                    </a>
+
+                    <!-- 园区获客 -->
+                    <a href="select-park.html" class="tool-card park">
+                        <div class="tool-card-icon">🏭</div>
+                        <div class="tool-card-title">园区获客</div>
+                        <div class="tool-card-desc">按园区维度筛选企业，支持国家级、省级、市级园区，精准定位园区内优质企业</div>
+                        <div class="tool-card-stats">
+                            <div class="tool-card-stat"><span class="num">156</span> 个园区</div>
+                            <div class="tool-card-stat"><span class="num">3.2M</span> 园区企业</div>
+                        </div>
+                    </a>
+
+                    <!-- 地图获客 -->
+                    <a href="select-map.html" class="tool-card map">
+                        <div class="tool-card-icon">🗺️</div>
+                        <div class="tool-card-title">地图获客</div>
+                        <div class="tool-card-desc">在地图上圈选区域，或按行政区划筛选，直观查看企业分布和密度</div>
+                        <div class="tool-card-stats">
+                            <div class="tool-card-stat"><span class="num">13</span> 个地市</div>
+                            <div class="tool-card-stat"><span class="num">96</span> 个区县</div>
+                        </div>
+                    </a>
+
+                    <!-- 产业链获客 -->
+                    <a href="select-chain.html" class="tool-card chain">
+                        <div class="tool-card-icon">🔗</div>
+                        <div class="tool-card-title">产业链获客</div>
+                        <div class="tool-card-desc">选择目标产业链和环节，精准触达产业链上下游企业，把握产业生态</div>
+                        <div class="tool-card-stats">
+                            <div class="tool-card-stat"><span class="num">12</span> 条产业链</div>
+                            <div class="tool-card-stat"><span class="num">180+</span> 环节节点</div>
+                        </div>
+                    </a>
+
+                    <!-- 新企获客 -->
+                    <a href="select-newbiz.html" class="tool-card newbiz">
+                        <div class="tool-card-icon">🆕</div>
+                        <div class="tool-card-title">新企获客</div>
+                        <div class="tool-card-desc">追踪新注册企业，抢占首贷户市场，支持按成立时间、注册资本等筛选</div>
+                        <div class="tool-card-stats">
+                            <div class="tool-card-stat"><span class="num">8,500+</span> 月均新企</div>
+                            <div class="tool-card-stat"><span class="num">实时</span> 数据更新</div>
+                        </div>
+                    </a>
+
+                    <!-- 进出口获客 -->
+                    <a href="select-trade.html" class="tool-card trade">
+                        <div class="tool-card-icon">🌏</div>
+                        <div class="tool-card-title">进出口获客</div>
+                        <div class="tool-card-desc">基于海关进出口数据筛选外贸企业，支持按贸易额、市场、商品类型筛选</div>
+                        <div class="tool-card-stats">
+                            <div class="tool-card-stat"><span class="num">28K</span> 外贸企业</div>
+                            <div class="tool-card-stat"><span class="num">月度</span> 数据更新</div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- 最近使用的规则 -->
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h3 class="card-title">📂 最近保存的规则</h3>
+                        <span class="card-extra"><a href="#" style="color: #1890ff;">查看全部</a></span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                        <div style="padding: 12px; border: 1px solid #f0f0f0; border-radius: 8px; cursor: pointer;"
+                            onclick="alert('加载规则...')">
+                            <div style="font-weight: 500; margin-bottom: 4px;">苏州高新企业筛选</div>
+                            <div style="font-size: 12px; color: #8c8c8c;">2,850家企业 · 2天前使用</div>
+                        </div>
+                        <div style="padding: 12px; border: 1px solid #f0f0f0; border-radius: 8px; cursor: pointer;">
+                            <div style="font-weight: 500; margin-bottom: 4px;">新能源产业链企业</div>
+                            <div style="font-size: 12px; color: #8c8c8c;">856家企业 · 5天前使用</div>
+                        </div>
+                        <div style="padding: 12px; border: 1px solid #f0f0f0; border-radius: 8px; cursor: pointer;">
+                            <div style="font-weight: 500; margin-bottom: 4px;">Q1新注册科技企业</div>
+                            <div style="font-size: 12px; color: #8c8c8c;">1,245家企业 · 1周前使用</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/mock-data.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // 模式切换
+        function switchMode(mode) {
+            document.querySelectorAll('.mode-card').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.mode-content').forEach(c => c.classList.remove('active'));
+            document.querySelector(`.mode-card[onclick="switchMode('${mode}')"]`).classList.add('active');
+            document.getElementById('mode-' + mode).classList.add('active');
+        }
+
+        // 发送消息
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            addMessage('user', message);
+            input.value = '';
+
+            // 显示AI思考中
+            showTyping();
+
+            // 模拟AI回复
+            setTimeout(() => {
+                hideTyping();
+                processAIResponse(message);
+            }, 1500);
+        }
+
+        // 添加消息到聊天区
+        function addMessage(type, content, isHTML = false) {
+            const messages = document.getElementById('chatMessages');
+            const div = document.createElement('div');
+            div.className = 'chat-message ' + type;
+            div.innerHTML = `
+        <div class="avatar">${type === 'ai' ? 'AI' : '我'}</div>
+        <div class="bubble">${isHTML ? content : escapeHtml(content)}</div>
+      `;
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        // 显示思考中
+        function showTyping() {
+            const messages = document.getElementById('chatMessages');
+            const div = document.createElement('div');
+            div.className = 'chat-message ai';
+            div.id = 'typingIndicator';
+            div.innerHTML = `
+        <div class="avatar">AI</div>
+        <div class="bubble">
+          <div class="typing-indicator"><span></span><span></span><span></span></div>
+        </div>
+      `;
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function hideTyping() {
+            const typing = document.getElementById('typingIndicator');
+            if (typing) typing.remove();
+        }
+
+        // AI响应处理
+        function processAIResponse(userMessage) {
+            // 根据用户输入模拟不同的AI回复
+            let response = '';
+
+            if (userMessage.includes('园区') || userMessage.includes('高新')) {
+                response = `
+          我理解您想要筛选 <strong>园区内的高新技术企业</strong>，让我确认一下：<br><br>
+          <div class="rule-confirm-card">
+            <div class="rule-confirm-header">
+              <span class="rule-confirm-title">✅ 规则确认</span>
+            </div>
+            <div class="rule-item"><span class="label">目标园区</span><span class="value">苏州工业园区（国家级）</span></div>
+            <div class="rule-item"><span class="label">企业资质</span><span class="value">高新技术企业认定</span></div>
+            <div class="rule-item"><span class="label">营收要求</span><span class="value">≥5000万/年</span></div>
+            <div class="rule-item"><span class="label">信用要求</span><span class="value">苏信分≥700</span></div>
+            <div class="rule-actions">
+              <button class="btn btn-primary btn-sm" onclick="executeSearch(2850)">✓ 确认执行</button>
+              <button class="btn btn-default btn-sm" onclick="addMessage('user', '营收改成3000万以上')">调整条件</button>
+            </div>
+          </div>
+        `;
+            } else if (userMessage.includes('产业链') || userMessage.includes('新能源')) {
+                response = `
+          好的，您想拓展 <strong>新能源汽车产业链</strong> 企业。请问您重点关注哪些环节？<br><br>
+          🔋 <strong>上游材料</strong>：锂矿、电解液、正负极材料<br>
+          ⚡ <strong>核心零部件</strong>：电池、电机、电控<br>
+          🚗 <strong>整车制造</strong>：新能源整车厂<br>
+          🔌 <strong>下游服务</strong>：充电桩、储能系统<br><br>
+          请告诉我您关注的环节，或者说"全部"我帮您筛选整条产业链。
+        `;
+            } else if (userMessage.includes('新成立') || userMessage.includes('首贷')) {
+                response = `
+          明白，您想找 <strong>新成立企业的首贷机会</strong>。<br><br>
+          我需要确认几个条件：<br>
+          1. 成立时间范围？（最近1/3/6个月）<br>
+          2. 优先哪些行业？<br>
+          3. 注册资本有要求吗？<br><br>
+          或者您直接说"按默认条件筛选"，我用最优转化率的参数帮您筛选。
+        `;
+            } else if (userMessage.includes('出口') || userMessage.includes('外贸')) {
+                response = `
+          收到！筛选 <strong>外贸出口企业</strong>。<br><br>
+          <div class="rule-confirm-card">
+            <div class="rule-confirm-header">
+              <span class="rule-confirm-title">✅ 规则确认</span>
+            </div>
+            <div class="rule-item"><span class="label">贸易类型</span><span class="value">出口企业</span></div>
+            <div class="rule-item"><span class="label">年出口额</span><span class="value">≥500万</span></div>
+            <div class="rule-item"><span class="label">行业</span><span class="value">制造业</span></div>
+            <div class="rule-item"><span class="label">主要市场</span><span class="value">欧美、东南亚</span></div>
+            <div class="rule-actions">
+              <button class="btn btn-primary btn-sm" onclick="executeSearch(620)">✓ 确认执行</button>
+              <button class="btn btn-default btn-sm" onclick="addMessage('user', '加上东南亚市场')">调整条件</button>
+            </div>
+          </div>
+        `;
+            } else {
+                response = `
+          好的，让我理解一下您的需求...<br><br>
+          您提到的 "${userMessage.substring(0, 30)}${userMessage.length > 30 ? '...' : ''}"，<br>
+          我需要确认几个关键信息：<br><br>
+          1. <strong>目标地区</strong>：全省还是特定城市？<br>
+          2. <strong>行业偏好</strong>：有特定行业要求吗？<br>
+          3. <strong>企业规模</strong>：营收或人员规模要求？<br><br>
+          请补充这些信息，我来帮您精准筛选。
+        `;
+            }
+
+            addMessage('ai', response, true);
+        }
+
+        // 执行搜索
+        function executeSearch(count) {
+            showTyping();
+            setTimeout(() => {
+                hideTyping();
+                addMessage('ai', `
+          🎉 <strong>圈选完成！</strong><br><br>
+          共筛选出 <strong style="color: #1890ff; font-size: 18px;">${count.toLocaleString()}</strong> 家符合条件的企业。<br><br>
+          <div style="display: flex; gap: 8px; margin-top: 12px;">
+            <button class="btn btn-primary btn-sm" onclick="location.href='customers.html'">查看企业名单</button>
+            <button class="btn btn-default btn-sm" onclick="alert('规则已保存')">💾 保存规则</button>
+            <button class="btn btn-default btn-sm" onclick="addMessage('user', '再加一个条件：排除已有贷款的企业')">继续优化</button>
+          </div>
+        `, true);
+            }, 1000);
+        }
+
+        // 快速提问
+        function quickAsk(question) {
+            document.getElementById('chatInput').value = question;
+            sendMessage();
+        }
+
+        // 文件上传
+        function handleFileUpload(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                document.getElementById('uploadedFile').textContent = '✓ ' + file.name;
+                addMessage('user', `[上传文件] ${file.name}`);
+                showTyping();
+                setTimeout(() => {
+                    hideTyping();
+                    addMessage('ai', `
+            已收到您上传的规则文件 <strong>${file.name}</strong><br><br>
+            我解析到以下筛选条件：<br>
+            <div class="rule-confirm-card">
+              <div class="rule-confirm-header">
+                <span class="rule-confirm-title">📄 文件解析结果</span>
+              </div>
+              <div class="rule-item"><span class="label">地区</span><span class="value">苏州市、无锡市、常州市</span></div>
+              <div class="rule-item"><span class="label">行业</span><span class="value">制造业（汽车零部件、电子）</span></div>
+              <div class="rule-item"><span class="label">规模</span><span class="value">年营收2000万-5亿</span></div>
+              <div class="rule-item"><span class="label">资质</span><span class="value">高新技术或专精特新</span></div>
+              <div class="rule-item"><span class="label">信用</span><span class="value">苏信分≥700，无失信</span></div>
+              <div class="rule-actions">
+                <button class="btn btn-primary btn-sm" onclick="executeSearch(1856)">✓ 确认执行</button>
+                <button class="btn btn-default btn-sm">调整条件</button>
+              </div>
+            </div>
+          `, true);
+                }, 2000);
+            }
+        }
+
+        // 回车发送
+        function handleKeyDown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+
+        // HTML转义
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 复制规则
+        function copyRule(ruleName) {
+            const ruleText = `【${ruleName}】规则已复制到剪贴板，可在对话框中粘贴修改`;
+            navigator.clipboard.writeText(ruleName).then(() => {
+                // 显示提示
+                const toast = document.createElement('div');
+                toast.style.cssText = 'position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: #52c41a; color: white; padding: 12px 24px; border-radius: 8px; z-index: 9999; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+                toast.textContent = `✓ "${ruleName}" 规则已复制`;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 2000);
+            });
+        }
+
+        // 定制规则（进入AI对话模式并预填规则）
+        function customizeRule(ruleName, baseQuery) {
+            // 确保在AI模式
+            switchMode('ai');
+
+            // 添加系统提示
+            addMessage('ai', `
+                您选择了定制 <strong>"${ruleName}"</strong> 规则。<br><br>
+                当前规则条件已加载，您可以：<br>
+                • 直接修改某个条件，如"把营收改成5000万以上"<br>
+                • 增加新条件，如"再加上专精特新资质"<br>
+                • 删除条件，如"不限制地区"<br><br>
+                请告诉我您想怎么调整？
+            `, true);
+
+            // 预填输入框
+            document.getElementById('chatInput').value = baseQuery;
+            document.getElementById('chatInput').focus();
+
+            // 滚动到聊天区
+            document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+        }
+    </script>
+</body>
+
+</html>

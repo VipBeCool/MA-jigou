@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>园区获客 - 智能营销平台</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .map-container {
+            height: 400px;
+            background: linear-gradient(135deg, #e8f4f8 0%, #d0e8f2 100%);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .map-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .park-marker {
+            position: absolute;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .park-marker:hover {
+            transform: scale(1.2);
+        }
+
+        .park-marker .marker-icon {
+            width: 32px;
+            height: 32px;
+            background: #1890ff;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4);
+        }
+
+        .park-marker .marker-icon span {
+            transform: rotate(45deg);
+            color: white;
+            font-size: 14px;
+        }
+
+        .park-marker.active .marker-icon {
+            background: #52c41a;
+        }
+
+        .park-marker .marker-label {
+            position: absolute;
+            top: -28px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.75);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .park-marker:hover .marker-label {
+            opacity: 1;
+        }
+
+        .park-list-item {
+            padding: 12px;
+            border: 1px solid #f0f0f0;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .park-list-item:hover {
+            border-color: #1890ff;
+            background: #f0f7ff;
+        }
+
+        .park-list-item.active {
+            border-color: #52c41a;
+            background: #f6ffed;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">💼</div>
+                <h1>智能营销平台</h1>
+            </div>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-item"><span class="nav-icon">🏠</span><span
+                        class="nav-text">工作台</span></a>
+                <a href="customers.html" class="nav-item"><span class="nav-icon">👥</span><span
+                        class="nav-text">客户名单</span></a>
+                <a href="tasks.html" class="nav-item"><span class="nav-icon">📋</span><span
+                        class="nav-text">任务管理</span></a>
+                <a href="select.html" class="nav-item active"><span class="nav-icon">🎯</span><span
+                        class="nav-text">智能圈选</span></a>
+                <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span><span
+                        class="nav-text">数据看板</span></a>
+                <a href="reconciliation.html" class="nav-item"><span class="nav-icon">📑</span><span
+                        class="nav-text">对账确认</span></a>
+                <a href="downloads.html" class="nav-item"><span class="nav-icon">📥</span><span
+                        class="nav-text">下载中心</span></a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">朱</div>
+                    <div>
+                        <div class="user-name">朱某人</div>
+                        <div class="user-role">客户经理</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">园区获客</h1>
+                <p class="page-breadcrumb"><a href="index.html">工作台</a> / <a href="select.html">智能圈选</a> / 园区获客</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 300px 1fr; gap: 16px;">
+                <!-- 左侧：园区筛选 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">🏭 园区筛选</h3>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">地区</label>
+                        <select class="form-select" id="selectRegion" onchange="filterParks()">
+                            <option value="">全部地区</option>
+                            <option value="苏州" selected>苏州</option>
+                            <option value="南京">南京</option>
+                            <option value="无锡">无锡</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">园区级别</label>
+                        <select class="form-select" id="selectLevel">
+                            <option value="">全部级别</option>
+                            <option value="国家级" selected>国家级</option>
+                            <option value="省级">省级</option>
+                            <option value="市级">市级</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">园区类型</label>
+                        <select class="form-select" id="selectType">
+                            <option value="">全部类型</option>
+                            <option value="高新技术">高新技术产业园</option>
+                            <option value="经济开发区">经济开发区</option>
+                            <option value="科技园">科技园</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">搜索园区</label>
+                        <input type="text" class="form-input" placeholder="输入园区名称..." id="searchPark">
+                    </div>
+
+                    <div style="margin-top: 16px; border-top: 1px solid #f0f0f0; padding-top: 16px;">
+                        <div style="font-size: 13px; color: #8c8c8c; margin-bottom: 8px;">符合条件的园区</div>
+                        <div id="parkList">
+                            <div class="park-list-item active" onclick="selectPark(this, '苏州工业园区')">
+                                <div style="font-weight: 500;">🏭 苏州工业园区</div>
+                                <div style="font-size: 12px; color: #8c8c8c;">国家级 | 综合型 | 企业 12,580家</div>
+                            </div>
+                            <div class="park-list-item" onclick="selectPark(this, '苏州高新区')">
+                                <div style="font-weight: 500;">🏭 苏州高新区</div>
+                                <div style="font-size: 12px; color: #8c8c8c;">国家级 | 高新技术 | 企业 8,320家</div>
+                            </div>
+                            <div class="park-list-item" onclick="selectPark(this, '昆山开发区')">
+                                <div style="font-weight: 500;">🏭 昆山经济技术开发区</div>
+                                <div style="font-size: 12px; color: #8c8c8c;">国家级 | 经开区 | 企业 6,850家</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧：地图和企业 -->
+                <div>
+                    <!-- 地图 -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">🗺️ 园区地图</h3>
+                            <span class="card-extra">点击园区标记查看详情</span>
+                        </div>
+                        <div class="map-container" id="mapContainer">
+                            <!-- 模拟地图背景 -->
+                            <div
+                                style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #e8f4f8 0%, #d0e8f2 100%);">
+                                <div
+                                    style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 48px; opacity: 0.3;">
+                                    🗺️</div>
+                            </div>
+
+                            <!-- 园区标记 -->
+                            <div class="park-marker active" style="left: 60%; top: 40%;"
+                                onclick="selectParkOnMap('苏州工业园区')">
+                                <div class="marker-label">苏州工业园区</div>
+                                <div class="marker-icon"><span>🏭</span></div>
+                            </div>
+                            <div class="park-marker" style="left: 35%; top: 35%;" onclick="selectParkOnMap('苏州高新区')">
+                                <div class="marker-label">苏州高新区</div>
+                                <div class="marker-icon"><span>🏭</span></div>
+                            </div>
+                            <div class="park-marker" style="left: 75%; top: 55%;" onclick="selectParkOnMap('昆山开发区')">
+                                <div class="marker-label">昆山开发区</div>
+                                <div class="marker-icon"><span>🏭</span></div>
+                            </div>
+                            <div class="park-marker" style="left: 45%; top: 65%;" onclick="selectParkOnMap('吴江开发区')">
+                                <div class="marker-label">吴江开发区</div>
+                                <div class="marker-icon"><span>🏭</span></div>
+                            </div>
+
+                            <!-- 地图图例 -->
+                            <div
+                                style="position: absolute; bottom: 16px; right: 16px; background: white; padding: 12px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                <div style="font-size: 12px; color: #8c8c8c; margin-bottom: 8px;">图例</div>
+                                <div style="display: flex; align-items: center; gap: 8px; font-size: 12px;">
+                                    <span
+                                        style="width: 12px; height: 12px; background: #1890ff; border-radius: 50%;"></span>
+                                    园区
+                                </div>
+                                <div
+                                    style="display: flex; align-items: center; gap: 8px; font-size: 12px; margin-top: 4px;">
+                                    <span
+                                        style="width: 12px; height: 12px; background: #52c41a; border-radius: 50%;"></span>
+                                    已选中
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 企业筛选和列表 -->
+                    <div class="card" style="margin-top: 16px;">
+                        <div class="card-header">
+                            <h3 class="card-title">🏢 园区企业 <span style="color: #1890ff;">苏州工业园区</span></h3>
+                            <span class="card-extra">共 <strong style="color: #1890ff;">12,580</strong> 家企业</span>
+                        </div>
+
+                        <!-- 企业筛选标签 -->
+                        <div
+                            style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #f0f0f0;">
+                            <span style="font-size: 13px; color: #8c8c8c;">企业筛选：</span>
+                            <label
+                                style="display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: 13px;">
+                                <input type="checkbox" checked> 高新技术
+                            </label>
+                            <label
+                                style="display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: 13px;">
+                                <input type="checkbox"> 专精特新
+                            </label>
+                            <label
+                                style="display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: 13px;">
+                                <input type="checkbox"> 无司法风险
+                            </label>
+                            <label
+                                style="display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: 13px;">
+                                <input type="checkbox"> 无税务风险
+                            </label>
+                            <label
+                                style="display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: 13px;">
+                                <input type="checkbox"> 无信贷逾期
+                            </label>
+                        </div>
+
+                        <!-- 筛选后数量 -->
+                        <div
+                            style="padding: 16px; background: linear-gradient(135deg, #e6f7ff 0%, #bae7ff 100%); border-radius: 8px; text-align: center; margin-bottom: 16px;">
+                            <div style="font-size: 36px; font-weight: 600; color: #1890ff;">2,850</div>
+                            <div style="font-size: 13px; color: #595959;">家企业符合筛选条件</div>
+                        </div>
+
+                        <!-- 企业列表 -->
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox"></th>
+                                    <th>企业名称</th>
+                                    <th>行业</th>
+                                    <th>资质</th>
+                                    <th>苏信分</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td><a href="customer-detail.html" class="company-name">苏州智云科技有限公司</a></td>
+                                    <td>软件信息技术</td>
+                                    <td><span class="tag tag-blue">高新</span></td>
+                                    <td><span style="color: #52c41a; font-weight: 500;">798</span></td>
+                                    <td><button class="btn btn-text btn-sm">查看</button></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td><a href="customer-detail.html" class="company-name">苏州纳米材料科技有限公司</a></td>
+                                    <td>新材料</td>
+                                    <td><span class="tag tag-blue">高新</span><span class="tag tag-purple">专精特新</span>
+                                    </td>
+                                    <td><span style="color: #52c41a; font-weight: 500;">825</span></td>
+                                    <td><button class="btn btn-text btn-sm">查看</button></td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox"></td>
+                                    <td><a href="customer-detail.html" class="company-name">苏州精密机械制造有限公司</a></td>
+                                    <td>装备制造</td>
+                                    <td><span class="tag tag-blue">高新</span></td>
+                                    <td><span style="color: #1890ff; font-weight: 500;">756</span></td>
+                                    <td><button class="btn btn-text btn-sm">查看</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px;">
+                            <div style="font-size: 13px; color: #8c8c8c;">已选择 <strong>0</strong> 家企业</div>
+                            <div style="display: flex; gap: 12px;">
+                                <button class="btn btn-default">导出名单</button>
+                                <button class="btn btn-primary">加入我的客户</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 园区名称到地图标记的映射
+        const parkMarkerMap = {
+            '苏州工业园区': 0,
+            '苏州高新区': 1,
+            '昆山开发区': 2,
+            '吴江开发区': 3
+        };
+
+        function selectPark(el, name) {
+            // 更新左侧列表
+            document.querySelectorAll('.park-list-item').forEach(item => item.classList.remove('active'));
+            el.classList.add('active');
+
+            // 更新地图标记
+            document.querySelectorAll('.park-marker').forEach(m => m.classList.remove('active'));
+            const markerIndex = parkMarkerMap[name];
+            if (markerIndex !== undefined) {
+                document.querySelectorAll('.park-marker')[markerIndex].classList.add('active');
+            }
+
+            // 更新右侧企业列表标题
+            updateParkTitle(name);
+        }
+
+        function selectParkOnMap(name) {
+            // 更新地图标记
+            document.querySelectorAll('.park-marker').forEach(m => m.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            // 更新左侧列表
+            document.querySelectorAll('.park-list-item').forEach(item => {
+                if (item.textContent.includes(name)) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+
+            // 更新右侧企业列表标题
+            updateParkTitle(name);
+        }
+
+        function updateParkTitle(name) {
+            // 可以在此更新企业列表标题等
+            console.log('选中园区：' + name);
+        }
+
+
+        function filterParks() {
+            const region = document.getElementById('selectRegion').value;
+            const level = document.getElementById('selectLevel').value;
+            console.log('筛选条件：地区=' + region + ', 级别=' + level);
+        }
+    </script>
+</body>
+
+</html>

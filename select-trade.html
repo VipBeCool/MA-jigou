@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>进出口获客 - 智能营销平台</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .trade-card {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .trade-stat {
+            text-align: center;
+            padding: 16px;
+        }
+
+        .trade-stat .value {
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .trade-stat .label {
+            font-size: 12px;
+            color: #8c8c8c;
+            margin-top: 4px;
+        }
+
+        .trade-type-tab {
+            display: flex;
+            gap: 0;
+            margin-bottom: 16px;
+        }
+
+        .trade-type-btn {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #d9d9d9;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .trade-type-btn:first-child {
+            border-radius: 6px 0 0 6px;
+        }
+
+        .trade-type-btn:last-child {
+            border-radius: 0 6px 6px 0;
+        }
+
+        .trade-type-btn:not(:last-child) {
+            border-right: none;
+        }
+
+        .trade-type-btn:hover {
+            color: #1890ff;
+        }
+
+        .trade-type-btn.active {
+            background: #1890ff;
+            color: white;
+            border-color: #1890ff;
+        }
+
+        .market-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .market-tag.europe {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .market-tag.asia {
+            background: #fff7e6;
+            color: #fa8c16;
+        }
+
+        .market-tag.america {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+
+        .market-tag.active {
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.3);
+        }
+
+        .trade-company-row {
+            padding: 12px;
+            border: 1px solid #f0f0f0;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+        }
+
+        .trade-company-row:hover {
+            border-color: #1890ff;
+            background: #fafafa;
+        }
+
+        .trade-amount {
+            font-weight: 600;
+            color: #52c41a;
+        }
+
+        .trend-up {
+            color: #52c41a;
+        }
+
+        .trend-down {
+            color: #ff4d4f;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">💼</div>
+                <h1>智能营销平台</h1>
+            </div>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-item"><span class="nav-icon">🏠</span><span
+                        class="nav-text">工作台</span></a>
+                <a href="customers.html" class="nav-item"><span class="nav-icon">👥</span><span
+                        class="nav-text">客户名单</span></a>
+                <a href="tasks.html" class="nav-item"><span class="nav-icon">📋</span><span
+                        class="nav-text">任务管理</span></a>
+                <a href="select.html" class="nav-item active"><span class="nav-icon">🎯</span><span
+                        class="nav-text">智能圈选</span></a>
+                <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span><span
+                        class="nav-text">数据看板</span></a>
+                <a href="reconciliation.html" class="nav-item"><span class="nav-icon">📑</span><span
+                        class="nav-text">对账确认</span></a>
+                <a href="downloads.html" class="nav-item"><span class="nav-icon">📥</span><span
+                        class="nav-text">下载中心</span></a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">朱</div>
+                    <div>
+                        <div class="user-name">朱某人</div>
+                        <div class="user-role">客户经理</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">进出口获客</h1>
+                <p class="page-breadcrumb"><a href="index.html">工作台</a> / <a href="select.html">智能圈选</a> / 进出口获客</p>
+            </div>
+
+            <!-- 数据概览 -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px;">
+                <div class="trade-card">
+                    <div class="trade-stat">
+                        <div class="value" style="color: #1890ff;">28,560</div>
+                        <div class="label">外贸企业总数</div>
+                    </div>
+                </div>
+                <div class="trade-card">
+                    <div class="trade-stat">
+                        <div class="value" style="color: #52c41a;">¥856亿</div>
+                        <div class="label">年出口总额</div>
+                    </div>
+                </div>
+                <div class="trade-card">
+                    <div class="trade-stat">
+                        <div class="value" style="color: #722ed1;">¥423亿</div>
+                        <div class="label">年进口总额</div>
+                    </div>
+                </div>
+                <div class="trade-card">
+                    <div class="trade-stat">
+                        <div class="value" style="color: #fa8c16;">620</div>
+                        <div class="label">年贸易额≥500万</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 320px; gap: 16px;">
+                <!-- 左侧企业列表 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">🌏 外贸企业筛选</h3>
+                        <span class="card-extra">数据来源：海关进出口数据</span>
+                    </div>
+
+                    <!-- 贸易类型 -->
+                    <div class="trade-type-tab">
+                        <button class="trade-type-btn" onclick="setTradeType('all')">全部</button>
+                        <button class="trade-type-btn active" onclick="setTradeType('export')">🚢 出口企业</button>
+                        <button class="trade-type-btn" onclick="setTradeType('import')">📦 进口企业</button>
+                        <button class="trade-type-btn" onclick="setTradeType('both')">🔄 双向贸易</button>
+                    </div>
+
+                    <!-- 筛选条件 -->
+                    <div
+                        style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #f0f0f0;">
+                        <div class="form-group" style="margin: 0;">
+                            <label class="form-label">年贸易额</label>
+                            <select class="form-select">
+                                <option>不限</option>
+                                <option>100万以上</option>
+                                <option selected>500万以上</option>
+                                <option>1000万以上</option>
+                                <option>5000万以上</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label class="form-label">行业</label>
+                            <select class="form-select">
+                                <option>全部行业</option>
+                                <option selected>制造业</option>
+                                <option>电子产品</option>
+                                <option>机械设备</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label class="form-label">地区</label>
+                            <select class="form-select">
+                                <option>全部地区</option>
+                                <option selected>苏州市</option>
+                                <option>无锡市</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label class="form-label">贸易增速</label>
+                            <select class="form-select">
+                                <option>不限</option>
+                                <option selected>正增长</option>
+                                <option>增速>20%</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 主要市场 -->
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-size: 13px; color: #8c8c8c; margin-bottom: 8px;">主要出口市场：</div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            <span class="market-tag europe active" onclick="toggleMarket(this)">🇪🇺 欧盟</span>
+                            <span class="market-tag america active" onclick="toggleMarket(this)">🇺🇸 北美</span>
+                            <span class="market-tag asia" onclick="toggleMarket(this)">🌏 东南亚</span>
+                            <span class="market-tag" style="background: #fff0f6; color: #eb2f96;"
+                                onclick="toggleMarket(this)">🇯🇵 日韩</span>
+                            <span class="market-tag" style="background: #f0f5ff; color: #2f54eb;"
+                                onclick="toggleMarket(this)">🌍 中东非</span>
+                            <span class="market-tag" style="background: #f9f0ff; color: #722ed1;"
+                                onclick="toggleMarket(this)">🌎 拉美</span>
+                        </div>
+                    </div>
+
+                    <!-- 企业列表 -->
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox"></th>
+                                <th>企业名称</th>
+                                <th>年出口额</th>
+                                <th>主要市场</th>
+                                <th>同比增速</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td><a href="customer-detail.html" class="company-name">苏州精密电子科技有限公司</a></td>
+                                <td><span class="trade-amount">¥2,850万</span></td>
+                                <td>
+                                    <span class="market-tag europe" style="padding: 2px 6px;">🇪🇺 欧盟</span>
+                                </td>
+                                <td><span class="trend-up">+32.5%</span></td>
+                                <td><button class="btn btn-text btn-sm">查看</button></td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td><a href="customer-detail.html" class="company-name">苏州机械装备制造有限公司</a></td>
+                                <td><span class="trade-amount">¥1,680万</span></td>
+                                <td>
+                                    <span class="market-tag america" style="padding: 2px 6px;">🇺🇸 北美</span>
+                                </td>
+                                <td><span class="trend-up">+18.2%</span></td>
+                                <td><button class="btn btn-text btn-sm">查看</button></td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td><a href="customer-detail.html" class="company-name">苏州新材料进出口有限公司</a></td>
+                                <td><span class="trade-amount">¥1,250万</span></td>
+                                <td>
+                                    <span class="market-tag asia" style="padding: 2px 6px;">🌏 东南亚</span>
+                                </td>
+                                <td><span class="trend-up">+45.8%</span></td>
+                                <td><button class="btn btn-text btn-sm">查看</button></td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td><a href="customer-detail.html" class="company-name">苏州汽配国际贸易有限公司</a></td>
+                                <td><span class="trade-amount">¥980万</span></td>
+                                <td>
+                                    <span class="market-tag europe" style="padding: 2px 6px;">🇪🇺 欧盟</span>
+                                </td>
+                                <td><span class="trend-down">-5.2%</span></td>
+                                <td><button class="btn btn-text btn-sm">查看</button></td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td><a href="customer-detail.html" class="company-name">昆山电子元器件有限公司</a></td>
+                                <td><span class="trade-amount">¥860万</span></td>
+                                <td>
+                                    <span class="market-tag"
+                                        style="padding: 2px 6px; background: #fff0f6; color: #eb2f96;">🇯🇵 日韩</span>
+                                </td>
+                                <td><span class="trend-up">+28.6%</span></td>
+                                <td><button class="btn btn-text btn-sm">查看</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px;">
+                        <div style="font-size: 13px; color: #8c8c8c;">已选择 <strong>0</strong> 家企业</div>
+                        <div style="display: flex; gap: 12px;">
+                            <button class="btn btn-default">导出名单</button>
+                            <button class="btn btn-primary">加入我的客户</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧分析面板 -->
+                <div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">📊 筛选结果</h3>
+                        </div>
+                        <div
+                            style="text-align: center; padding: 20px; background: linear-gradient(135deg, #e6f7ff, #bae7ff); border-radius: 8px;">
+                            <div style="font-size: 42px; font-weight: 600; color: #1890ff;">620</div>
+                            <div style="font-size: 13px; color: #595959;">家企业符合条件</div>
+                        </div>
+                        <div style="margin-top: 16px; font-size: 13px;">
+                            <div
+                                style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #f0f0f0;">
+                                <span style="color: #8c8c8c;">出口额≥1000万</span>
+                                <span style="font-weight: 500;">186家</span>
+                            </div>
+                            <div
+                                style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #f0f0f0;">
+                                <span style="color: #8c8c8c;">高增长(>20%)</span>
+                                <span style="font-weight: 500;">245家</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+                                <span style="color: #8c8c8c;">欧美市场</span>
+                                <span style="font-weight: 500;">412家</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top: 16px;">
+                        <div class="card-header">
+                            <h3 class="card-title">💳 金融产品推荐</h3>
+                        </div>
+                        <div style="font-size: 13px;">
+                            <div
+                                style="padding: 12px; background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 6px; margin-bottom: 8px;">
+                                <div style="font-weight: 500; margin-bottom: 4px;">🏦 跨境贸易融资</div>
+                                <div style="color: #8c8c8c; font-size: 12px;">基于贸易订单的融资服务</div>
+                            </div>
+                            <div
+                                style="padding: 12px; background: #e6f7ff; border: 1px solid #91d5ff; border-radius: 6px; margin-bottom: 8px;">
+                                <div style="font-weight: 500; margin-bottom: 4px;">💱 汇率避险产品</div>
+                                <div style="color: #8c8c8c; font-size: 12px;">远期结售汇、期权等</div>
+                            </div>
+                            <div
+                                style="padding: 12px; background: #fff7e6; border: 1px solid #ffd591; border-radius: 6px;">
+                                <div style="font-weight: 500; margin-bottom: 4px;">📄 国际信用证</div>
+                                <div style="color: #8c8c8c; font-size: 12px;">进出口信用证开立</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+                        <button class="btn btn-primary" style="width: 100%;"
+                            onclick="location.href='customers.html'">查看企业详情</button>
+                        <button class="btn btn-default" style="width: 100%;">💾 保存筛选规则</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function setTradeType(type) {
+            document.querySelectorAll('.trade-type-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            console.log('贸易类型：' + type);
+        }
+
+        function toggleMarket(el) {
+            el.classList.toggle('active');
+        }
+    </script>
+</body>
+
+</html>

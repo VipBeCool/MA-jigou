@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>客户详情 - 智能营销平台</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">💼</div>
+        <h1>智能营销平台</h1>
+      </div>
+      <nav class="nav-menu">
+        <a href="index.html" class="nav-item">
+          <span class="nav-icon">🏠</span>
+          <span class="nav-text">工作台</span>
+        </a>
+        <a href="customers.html" class="nav-item active">
+          <span class="nav-icon">👥</span>
+          <span class="nav-text">客户名单</span>
+        </a>
+        <a href="tasks.html" class="nav-item">
+          <span class="nav-icon">📋</span>
+          <span class="nav-text">任务管理</span>
+        </a>
+        <a href="select.html" class="nav-item">
+          <span class="nav-icon">🎯</span>
+          <span class="nav-text">智能圈选</span>
+        </a>
+        <a href="dashboard.html" class="nav-item">
+          <span class="nav-icon">📊</span>
+          <span class="nav-text">数据看板</span>
+        </a>
+        <a href="reconciliation.html" class="nav-item">
+          <span class="nav-icon">📑</span>
+          <span class="nav-text">对账确认</span>
+        </a>
+        <a href="downloads.html" class="nav-item">
+          <span class="nav-icon">📥</span>
+          <span class="nav-text">下载中心</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar">朱</div>
+          <div>
+            <div class="user-name">朱某人</div>
+            <div class="user-role">客户经理</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+      <div class="page-header">
+        <h1 class="page-title" id="pageTitle">客户详情</h1>
+        <p class="page-breadcrumb"><a href="index.html">工作台</a> / <a href="customers.html">客户名单</a> / 客户详情</p>
+      </div>
+
+      <!-- 企业头部信息 -->
+      <div class="detail-header" id="detailHeader">
+        <!-- 动态渲染 -->
+      </div>
+
+      <!-- 主体内容 -->
+      <div class="detail-body">
+        <!-- 左侧详细信息 -->
+        <div class="detail-main">
+          <!-- AI推荐理由 -->
+          <div class="card">
+            <div class="ai-recommendation" id="aiRecommendation">
+              <!-- 动态渲染 -->
+            </div>
+          </div>
+
+          <!-- Tab信息 -->
+          <div class="card">
+            <div class="tabs">
+              <div class="tab-item active" data-tab="tabBasic">基本信息</div>
+              <div class="tab-item" data-tab="tabBusiness">经营数据</div>
+              <div class="tab-item" data-tab="tabRisk">风险信息</div>
+              <div class="tab-item" data-tab="tabHistory">触达记录</div>
+            </div>
+
+            <div class="tab-content active" id="tabBasic">
+              <table class="table" style="border: none;">
+                <tbody id="basicInfo">
+                  <!-- 动态渲染 -->
+                </tbody>
+              </table>
+            </div>
+
+            <div class="tab-content" id="tabBusiness">
+              <div class="metric-cards" id="businessMetrics">
+                <!-- 动态渲染 -->
+              </div>
+            </div>
+
+            <div class="tab-content" id="tabRisk">
+              <div id="riskInfo">
+                <!-- 动态渲染 -->
+              </div>
+            </div>
+
+            <div class="tab-content" id="tabHistory">
+              <div id="historyList">
+                <!-- 动态渲染 -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧操作栏 -->
+        <div class="detail-sidebar">
+          <!-- 联系信息 -->
+          <div class="contact-card" id="contactCard">
+            <div class="card-header" style="margin-bottom: 0;">
+              <h3 class="card-title">📞 联系方式</h3>
+            </div>
+            <!-- 动态渲染 -->
+          </div>
+
+          <!-- 操作按钮 -->
+          <div class="card">
+            <div class="card-header" style="margin-bottom: 0;">
+              <h3 class="card-title">⚡ 快捷操作</h3>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 16px;">
+              <button class="btn btn-primary" onclick="showScriptModalDetail()" style="width: 100%;">
+                🤖 生成智能话术
+              </button>
+              <button class="btn btn-success" onclick="showFeedbackModal()"
+                style="width: 100%; background: #52c41a; border-color: #52c41a;">
+                📝 录入触达结果
+              </button>
+              <button class="btn btn-default" onclick="showStatusModalDetail()" style="width: 100%;">
+                📋 更新客户状态
+              </button>
+              <button class="btn btn-default" style="width: 100%;">
+                📅 设置跟进提醒
+              </button>
+            </div>
+          </div>
+
+          <!-- 建议额度 -->
+          <div class="card" style="background: linear-gradient(135deg, #f6ffed 0%, #d9f7be 100%);">
+            <div style="text-align: center;">
+              <div style="font-size: 13px; color: #389e0d;">💰 建议授信额度</div>
+              <div id="suggestedAmount" style="font-size: 24px; font-weight: 600; color: #237804; margin-top: 8px;">
+                --
+              </div>
+            </div>
+          </div>
+
+          <!-- 触达时机预测 -->
+          <div class="card" style="background: linear-gradient(135deg, #e6f7ff 0%, #bae7ff 100%);">
+            <div class="card-header" style="margin-bottom: 12px;">
+              <h3 class="card-title" style="color: #0050b3;">⏰ AI触达时机预测</h3>
+            </div>
+            <div id="contactTiming">
+              <div
+                style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 8px; margin-bottom: 8px;">
+                <div style="font-size: 24px;">🎯</div>
+                <div>
+                  <div style="font-weight: 600; color: #1890ff;">本周四 上午 10:00-11:30</div>
+                  <div style="font-size: 12px; color: #52c41a;">接通率预测: 68%</div>
+                </div>
+              </div>
+              <div
+                style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 8px;">
+                <div style="font-size: 24px;">⌛</div>
+                <div>
+                  <div style="font-weight: 500; color: #595959;">本周五 下午 14:00-16:00</div>
+                  <div style="font-size: 12px; color: #8c8c8c;">接通率预测: 62%</div>
+                </div>
+              </div>
+              <div
+                style="font-size: 12px; color: #595959; margin-top: 10px; padding: 8px; background: rgba(255,255,255,0.7); border-radius: 4px;">
+                💡 该企业所在行业（制造业）通常在周四上午业务相对不忙
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- 模态框 -->
+  <div class="modal-overlay" id="scriptModal">
+    <div class="modal" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modalTitle">智能话术</h3>
+        <div class="modal-close" onclick="closeModal('scriptModal')">✕</div>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- 动态内容 -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('scriptModal')">关闭</button>
+        <button class="btn btn-primary">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 反馈录入模态框 -->
+  <div class="modal-overlay" id="feedbackModal">
+    <div class="modal" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3 class="modal-title">📝 录入触达结果</h3>
+        <div class="modal-close" onclick="closeModal('feedbackModal')">✕</div>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">触达方式</label>
+          <select class="form-select" id="contactMethod">
+            <option value="phone">📞 电话联系</option>
+            <option value="visit">🚗 上门拜访</option>
+            <option value="wechat">📱 微信沟通</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">触达结果 *</label>
+          <select class="form-select" id="contactResult">
+            <option value="connected">✅ 已接通 - 客户有意向</option>
+            <option value="connected_later">📅 已接通 - 稍后联系</option>
+            <option value="connected_no">❌ 已接通 - 无需求</option>
+            <option value="no_answer">📵 未接通 - 无人接听</option>
+            <option value="wrong_number">❓ 未接通 - 号码错误</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">跟进备注</label>
+          <textarea class="form-input" rows="3" id="feedbackNote" placeholder="记录客户反馈、下次跟进计划等..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">下次跟进时间</label>
+          <input type="date" class="form-input" id="nextFollowUp">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('feedbackModal')">取消</button>
+        <button class="btn btn-primary" onclick="saveFeedback()">保存记录</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/mock-data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    let currentCustomer = null;
+
+    function renderDetail(customer) {
+      currentCustomer = customer;
+
+      // 页面标题
+      document.getElementById('pageTitle').textContent = customer.name;
+
+      // 头部信息
+      document.getElementById('detailHeader').innerHTML = `
+        <div class="detail-header-top">
+          <div>
+            <h2 class="company-title">${customer.name}</h2>
+            <div class="company-tags">
+              ${customer.tags.map(tag => `<span class="tag ${getTagClass(tag)}">${tag}</span>`).join('')}
+              <span class="status-badge ${getStatusClass(customer.status)}">${customer.status}</span>
+            </div>
+          </div>
+          <div class="detail-actions">
+            <button class="btn btn-default" onclick="history.back()">← 返回列表</button>
+          </div>
+        </div>
+        <div class="metric-cards" style="margin-top: 20px;">
+          <div class="metric-card">
+            <div class="metric-value" style="color: ${customer.score >= 750 ? '#52c41a' : '#1890ff'}">${customer.score}</div>
+            <div class="metric-label">苏信分</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">${customer.revenue}</div>
+            <div class="metric-label">营收(万元)</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">${customer.tax}</div>
+            <div class="metric-label">纳税(万元)</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">${customer.patents}</div>
+            <div class="metric-label">专利数量</div>
+          </div>
+        </div>
+      `;
+
+      // AI推荐理由
+      document.getElementById('aiRecommendation').innerHTML = `
+        <div class="ai-recommendation-title">
+          <span class="icon">🤖</span> AI智能推荐理由
+        </div>
+        <div class="ai-recommendation-text">${customer.recommendation}</div>
+      `;
+
+      // 基本信息
+      document.getElementById('basicInfo').innerHTML = `
+        <tr><td style="width: 120px; color: #8c8c8c;">企业名称</td><td>${customer.name}</td></tr>
+        <tr><td style="color: #8c8c8c;">所在地区</td><td>${customer.region}</td></tr>
+        <tr><td style="color: #8c8c8c;">所属行业</td><td>${customer.industry}</td></tr>
+        <tr><td style="color: #8c8c8c;">员工人数</td><td>${customer.employees} 人</td></tr>
+      `;
+
+      // 经营数据
+      document.getElementById('businessMetrics').innerHTML = `
+        <div class="metric-card">
+          <div class="metric-value">${customer.revenue}</div>
+          <div class="metric-label">年营收(万元)</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">${customer.tax}</div>
+          <div class="metric-label">年纳税(万元)</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">${customer.patents}</div>
+          <div class="metric-label">专利数量</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">${customer.employees}</div>
+          <div class="metric-label">员工人数</div>
+        </div>
+      `;
+
+      // 风险信息
+      const risk = customer.riskInfo;
+      document.getElementById('riskInfo').innerHTML = `
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+          <div style="padding: 16px; background: ${risk.defaultProb <= 1 ? '#f6ffed' : risk.defaultProb <= 2 ? '#fffbe6' : '#fff2f0'}; border-radius: 8px;">
+            <div style="font-size: 13px; color: #8c8c8c;">违约概率</div>
+            <div style="font-size: 24px; font-weight: 600; color: ${risk.defaultProb <= 1 ? '#52c41a' : risk.defaultProb <= 2 ? '#faad14' : '#ff4d4f'};">${risk.defaultProb}%</div>
+            <div style="font-size: 12px; color: #8c8c8c;">${risk.defaultProb <= 1 ? '低风险' : risk.defaultProb <= 2 ? '中等风险' : '较高风险'}</div>
+          </div>
+          <div style="padding: 16px; background: ${risk.lawsuitCount === 0 ? '#f6ffed' : '#fff2f0'}; border-radius: 8px;">
+            <div style="font-size: 13px; color: #8c8c8c;">司法案件</div>
+            <div style="font-size: 24px; font-weight: 600; color: ${risk.lawsuitCount === 0 ? '#52c41a' : '#ff4d4f'};">${risk.lawsuitCount}</div>
+            <div style="font-size: 12px; color: #8c8c8c;">${risk.lawsuitCount === 0 ? '无涉诉记录' : '存在涉诉'}</div>
+          </div>
+          <div style="padding: 16px; background: ${risk.debtRatio <= 60 ? '#f6ffed' : '#fffbe6'}; border-radius: 8px;">
+            <div style="font-size: 13px; color: #8c8c8c;">资产负债率</div>
+            <div style="font-size: 24px; font-weight: 600; color: ${risk.debtRatio <= 60 ? '#52c41a' : '#faad14'};">${risk.debtRatio}%</div>
+            <div style="font-size: 12px; color: #8c8c8c;">${risk.debtRatio <= 60 ? '财务健康' : '略高于行业平均'}</div>
+          </div>
+          <div style="padding: 16px; background: #f6ffed; border-radius: 8px;">
+            <div style="font-size: 13px; color: #8c8c8c;">行政处罚</div>
+            <div style="font-size: 24px; font-weight: 600; color: #52c41a;">0</div>
+            <div style="font-size: 12px; color: #8c8c8c;">无处罚记录</div>
+          </div>
+        </div>
+      `;
+
+      // 联系信息
+      document.getElementById('contactCard').innerHTML = `
+        <div class="card-header" style="margin-bottom: 0;">
+          <h3 class="card-title">📞 联系方式</h3>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">👤</div>
+          <div>
+            <div class="contact-label">联系人</div>
+            <div class="contact-value">${customer.contact.name}</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">📱</div>
+          <div>
+            <div class="contact-label">手机号码</div>
+            <div class="contact-value">${customer.contact.phone}</div>
+          </div>
+        </div>
+      `;
+
+      // 建议额度
+      document.getElementById('suggestedAmount').textContent = customer.suggestedAmount;
+    }
+
+    function showScriptModalDetail() {
+      if (!currentCustomer) return;
+      const c = currentCustomer;
+      document.getElementById('modalBody').innerHTML = `
+        <div class="ai-recommendation">
+          <div class="ai-recommendation-title"><span class="icon">🤖</span> AI生成话术</div>
+          <div class="ai-recommendation-text">
+            <p><strong>【开场白】</strong></p>
+            <p>您好，请问是${c.contact.name}吗？我是江苏银行的客户经理朱某人。</p>
+            <p style="margin-top: 12px;">我们注意到贵公司${c.name}近年来发展迅速，${c.recommendation}</p>
+            <p style="margin-top: 12px;">我们银行有一款专门针对科技企业的"科技贷"产品，最高可授信${c.suggestedAmount}，利率优惠，想了解一下您这边是否有融资需求？</p>
+            <hr style="margin: 16px 0; border: none; border-top: 1px dashed #d9d9d9;">
+            <p><strong>【常见问答】</strong></p>
+            <p style="margin-top: 8px;"><strong>Q: 利率多少？</strong></p>
+            <p style="color: #595959;">A: 年化4.5%-5.5%，贵公司信用评分高，可争取到较低利率。</p>
+            <p style="margin-top: 8px;"><strong>Q: 需要抵押吗？</strong></p>
+            <p style="color: #595959;">A: 提供信用贷和抵押贷两种方式，贵公司可申请最高200万纯信用额度。</p>
+          </div>
+        </div>
+      `;
+      document.getElementById('modalTitle').textContent = '智能话术 - ' + c.name;
+      openModal('scriptModal');
+    }
+
+    function showStatusModalDetail() {
+      if (!currentCustomer) return;
+      document.getElementById('modalBody').innerHTML = `
+        <div class="form-group">
+          <label class="form-label">当前状态</label>
+          <div class="status-badge ${getStatusClass(currentCustomer.status)}">${currentCustomer.status}</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">更新为</label>
+          <select class="form-select" id="newStatus">
+            <option value="已触达">已触达</option>
+            <option value="已意向">已意向</option>
+            <option value="已申请">已申请</option>
+            <option value="已放款">已放款</option>
+            <option value="已拒绝">已拒绝</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">备注</label>
+          <textarea class="form-input" rows="3" placeholder="请输入跟进备注..."></textarea>
+        </div>
+      `;
+      document.getElementById('modalTitle').textContent = '更新状态';
+      openModal('scriptModal');
+    }
+
+    // 反馈录入相关
+    let contactHistory = [
+      { date: '2026-02-05 14:30', method: '📞 电话', result: '✅ 有意向', note: '客户表示感兴趣，约下周详谈', operator: '朱某人' },
+      { date: '2026-02-03 10:15', method: '📞 电话', result: '📵 未接通', note: '无人接听，稍后再试', operator: '朱某人' }
+    ];
+
+    function showFeedbackModal() {
+      openModal('feedbackModal');
+    }
+
+    function saveFeedback() {
+      const method = document.getElementById('contactMethod');
+      const result = document.getElementById('contactResult');
+      const note = document.getElementById('feedbackNote').value;
+
+      const methodMap = { phone: '📞 电话', visit: '🚗 拜访', wechat: '📱 微信' };
+      const resultMap = {
+        connected: '✅ 有意向',
+        connected_later: '📅 稍后联系',
+        connected_no: '❌ 无需求',
+        no_answer: '📵 未接通',
+        wrong_number: '❓ 号码错误'
+      };
+
+      const now = new Date();
+      const dateStr = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 5);
+
+      contactHistory.unshift({
+        date: dateStr,
+        method: methodMap[method.value],
+        result: resultMap[result.value],
+        note: note || '无备注',
+        operator: '朱某人'
+      });
+
+      renderContactHistory();
+      closeModal('feedbackModal');
+      alert('触达记录已保存！');
+    }
+
+    function renderContactHistory() {
+      const container = document.getElementById('historyList');
+      if (contactHistory.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 40px; color: #8c8c8c;">
+            <div style="font-size: 48px; margin-bottom: 16px;">📝</div>
+            <div>暂无触达记录</div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = `
+        <table class="table">
+          <thead>
+            <tr>
+              <th>时间</th>
+              <th>方式</th>
+              <th>结果</th>
+              <th>备注</th>
+              <th>操作人</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${contactHistory.map(h => `
+              <tr>
+                <td style="color: #8c8c8c; font-size: 13px;">${h.date}</td>
+                <td>${h.method}</td>
+                <td>${h.result}</td>
+                <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${h.note}</td>
+                <td>${h.operator}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    // 页面加载
+    document.addEventListener('DOMContentLoaded', function () {
+      const urlParams = new URLSearchParams(window.location.search);
+      const id = urlParams.get('id') || 1;
+      const customer = customers.find(c => c.id === parseInt(id));
+      if (customer) {
+        renderDetail(customer);
+        renderContactHistory();
+      }
+      initTabs();
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务管理 - 智能营销平台</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* 任务统计卡片 */
+        .task-stat-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .task-stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .task-stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
+        .task-stat-card.card-blue::after {
+            background: linear-gradient(90deg, #1890ff, #69c0ff);
+        }
+
+        .task-stat-card.card-green::after {
+            background: linear-gradient(90deg, #52c41a, #95de64);
+        }
+
+        .task-stat-card.card-orange::after {
+            background: linear-gradient(90deg, #fa8c16, #ffc069);
+        }
+
+        .task-stat-card.card-purple::after {
+            background: linear-gradient(90deg, #722ed1, #b37feb);
+        }
+
+        .task-stat-card .stat-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .task-stat-card .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #262626;
+            line-height: 1;
+        }
+
+        .task-stat-card .stat-label {
+            font-size: 13px;
+            color: #8c8c8c;
+            margin-top: 6px;
+        }
+
+        /* 任务筛选 */
+        .task-filter {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .task-filter-btn {
+            padding: 8px 16px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+            color: #595959;
+            transition: all 0.2s;
+        }
+
+        .task-filter-btn:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        .task-filter-btn.active {
+            border-color: #1890ff;
+            background: #e6f7ff;
+            color: #1890ff;
+            font-weight: 500;
+        }
+
+        /* 任务卡片 */
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .task-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            cursor: pointer;
+        }
+
+        .task-card:hover {
+            border-color: #d9d9d9;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .task-card-priority {
+            width: 4px;
+            height: 60px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .task-card-priority.high {
+            background: linear-gradient(180deg, #ff4d4f, #ff7875);
+        }
+
+        .task-card-priority.medium {
+            background: linear-gradient(180deg, #faad14, #ffd666);
+        }
+
+        .task-card-priority.low {
+            background: linear-gradient(180deg, #52c41a, #95de64);
+        }
+
+        .task-card-main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .task-card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .task-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #262626;
+        }
+
+        .task-status-tag {
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .task-status-tag.ongoing {
+            background: #e6f7ff;
+            color: #1890ff;
+            border: 1px solid #91d5ff;
+        }
+
+        .task-status-tag.pending {
+            background: #fff7e6;
+            color: #fa8c16;
+            border: 1px solid #ffd591;
+        }
+
+        .task-status-tag.completed {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+
+        .task-card-desc {
+            font-size: 13px;
+            color: #8c8c8c;
+            margin-bottom: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .task-card-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: #8c8c8c;
+        }
+
+        .task-card-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* 进度条 */
+        .task-card-progress {
+            width: 180px;
+            flex-shrink: 0;
+            text-align: center;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-bar-fill.blue {
+            background: linear-gradient(90deg, #1890ff, #69c0ff);
+        }
+
+        .progress-bar-fill.green {
+            background: linear-gradient(90deg, #52c41a, #95de64);
+        }
+
+        .progress-bar-fill.orange {
+            background: linear-gradient(90deg, #fa8c16, #ffc069);
+        }
+
+        .progress-text {
+            font-size: 13px;
+            color: #595959;
+        }
+
+        .progress-text strong {
+            color: #1890ff;
+            font-size: 16px;
+        }
+
+        /* 任务操作 */
+        .task-card-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        /* 任务详情弹窗 */
+        .task-detail-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: linear-gradient(135deg, #e6f7ff 0%, #f0f5ff 100%);
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .task-detail-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .task-detail-stat {
+            text-align: center;
+            padding: 12px;
+            background: #fafafa;
+            border-radius: 8px;
+        }
+
+        .task-detail-stat .num {
+            font-size: 24px;
+            font-weight: 700;
+            color: #262626;
+        }
+
+        .task-detail-stat .label {
+            font-size: 12px;
+            color: #8c8c8c;
+            margin-top: 4px;
+        }
+
+        .task-customer-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .task-customer-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .task-customer-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-customer-name {
+            font-weight: 500;
+            color: #262626;
+        }
+
+        .task-customer-status {
+            font-size: 12px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: #262626;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 10000;
+            transition: transform 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.success {
+            background: linear-gradient(135deg, #52c41a, #73d13d);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">💼</div>
+                <h1>智能营销平台</h1>
+            </div>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-item">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-text">工作台</span>
+                </a>
+                <a href="customers.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-text">客户名单</span>
+                </a>
+                <a href="tasks.html" class="nav-item active">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-text">任务管理</span>
+                </a>
+                <a href="select.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span class="nav-text">智能圈选</span>
+                </a>
+                <a href="dashboard.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">数据看板</span>
+                </a>
+                <a href="reconciliation.html" class="nav-item">
+                    <span class="nav-icon">📑</span>
+                    <span class="nav-text">对账确认</span>
+                </a>
+                <a href="downloads.html" class="nav-item">
+                    <span class="nav-icon">📥</span>
+                    <span class="nav-text">下载中心</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">朱</div>
+                    <div>
+                        <div class="user-name">朱某人</div>
+                        <div class="user-role">客户经理</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">任务管理</h1>
+                <p class="page-breadcrumb"><a href="index.html">工作台</a> / 任务管理</p>
+            </div>
+
+            <!-- 任务统计 -->
+            <div class="task-stat-cards">
+                <div class="task-stat-card card-blue">
+                    <div class="stat-icon">📋</div>
+                    <div class="stat-number" id="totalTasks">4</div>
+                    <div class="stat-label">全部任务</div>
+                </div>
+                <div class="task-stat-card card-orange">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-number" id="ongoingTasks">2</div>
+                    <div class="stat-label">进行中</div>
+                </div>
+                <div class="task-stat-card card-green">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-number" id="completionRate">22%</div>
+                    <div class="stat-label">整体完成率</div>
+                </div>
+                <div class="task-stat-card card-purple">
+                    <div class="stat-icon">🔥</div>
+                    <div class="stat-number" id="urgentTasks">2</div>
+                    <div class="stat-label">高优先级</div>
+                </div>
+            </div>
+
+            <!-- 筛选器 -->
+            <div class="task-filter">
+                <button class="task-filter-btn active" onclick="filterTasks('all', this)">全部</button>
+                <button class="task-filter-btn" onclick="filterTasks('进行中', this)">进行中</button>
+                <button class="task-filter-btn" onclick="filterTasks('待开始', this)">待开始</button>
+                <button class="task-filter-btn" onclick="filterTasks('已完成', this)">已完成</button>
+                <button class="task-filter-btn" onclick="filterTasks('high', this)">🔴 高优先级</button>
+            </div>
+
+            <!-- 任务列表 -->
+            <div class="task-list" id="taskList">
+                <!-- 动态渲染 -->
+            </div>
+        </main>
+    </div>
+
+    <!-- 任务详情弹窗 -->
+    <div class="modal-overlay" id="taskDetailModal">
+        <div class="modal" style="max-width: 640px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="taskDetailTitle">任务详情</h3>
+                <div class="modal-close" onclick="closeModal('taskDetailModal')">✕</div>
+            </div>
+            <div class="modal-body" id="taskDetailBody">
+                <!-- 动态内容 -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" onclick="closeModal('taskDetailModal')">关闭</button>
+                <button class="btn btn-primary" onclick="startTask()">🚀 一键开始跟进</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script src="js/mock-data.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        let currentFilter = 'all';
+
+        // 渲染任务列表
+        function renderTasks(tasks) {
+            const container = document.getElementById('taskList');
+            if (tasks.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 60px 0; color: #8c8c8c;">
+                        <div style="font-size: 48px; margin-bottom: 12px;">📭</div>
+                        <div>暂无相关任务</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = tasks.map(task => {
+                const progressPercent = task.totalCount > 0 ? Math.round(task.completedCount / task.totalCount * 100) : 0;
+                const priorityClass = task.priority === '高' ? 'high' : task.priority === '中' ? 'medium' : 'low';
+                const statusClass = task.status === '进行中' ? 'ongoing' : task.status === '待开始' ? 'pending' : 'completed';
+                const progressColor = progressPercent >= 80 ? 'green' : progressPercent >= 30 ? 'blue' : 'orange';
+
+                return `
+                    <div class="task-card" onclick="showTaskDetail('${task.id}')">
+                        <div class="task-card-priority ${priorityClass}"></div>
+                        <div class="task-card-main">
+                            <div class="task-card-header">
+                                <span class="task-card-title">${task.name}</span>
+                                <span class="task-status-tag ${statusClass}">${task.status}</span>
+                                ${task.priority === '高' ? '<span style="color: #ff4d4f; font-size: 12px;">🔴 高优先级</span>' : ''}
+                            </div>
+                            <div class="task-card-desc">${task.description}</div>
+                            <div class="task-card-meta">
+                                <span>📁 ${task.listName}</span>
+                                <span>👤 ${task.assignedBy}（${task.source}）</span>
+                                <span>📅 截止 ${task.deadline}</span>
+                            </div>
+                        </div>
+                        <div class="task-card-progress">
+                            <div class="progress-bar-container">
+                                <div class="progress-bar-fill ${progressColor}" style="width: ${progressPercent}%"></div>
+                            </div>
+                            <div class="progress-text">
+                                <strong>${task.completedCount}</strong> / ${task.totalCount} 家
+                                <span style="color: #8c8c8c; margin-left: 4px;">(${progressPercent}%)</span>
+                            </div>
+                        </div>
+                        <div class="task-card-actions" onclick="event.stopPropagation()">
+                            <button class="btn btn-primary btn-sm" onclick="viewTaskList('${task.listId}')">查看名单</button>
+                            <button class="btn btn-default btn-sm" onclick="showTaskDetail('${task.id}')">任务详情</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 筛选任务
+        function filterTasks(filter, btn) {
+            currentFilter = filter;
+            // 更新按钮状态
+            document.querySelectorAll('.task-filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            let filtered = acquisitionTasks;
+            if (filter === 'high') {
+                filtered = acquisitionTasks.filter(t => t.priority === '高');
+            } else if (filter !== 'all') {
+                filtered = acquisitionTasks.filter(t => t.status === filter);
+            }
+            renderTasks(filtered);
+        }
+
+        // 查看名单（跳转客户名单页）
+        function viewTaskList(listId) {
+            location.href = `customers.html?list=${listId}`;
+        }
+
+        // 显示任务详情
+        function showTaskDetail(taskId) {
+            const task = acquisitionTasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            document.getElementById('taskDetailTitle').textContent = task.name;
+
+            const progressPercent = Math.round(task.completedCount / task.totalCount * 100);
+            const taskCustomers = customers.filter(c => c.listId === task.listId);
+
+            document.getElementById('taskDetailBody').innerHTML = `
+                <div class="task-detail-header">
+                    <div style="flex: 1;">
+                        <div style="font-size: 16px; font-weight: 600; color: #262626; margin-bottom: 4px;">${task.name}</div>
+                        <div style="font-size: 13px; color: #595959;">${task.description}</div>
+                        <div style="font-size: 12px; color: #8c8c8c; margin-top: 8px;">
+                            下发人：${task.assignedBy}（${task.source}） · 下发时间：${task.createdAt}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="task-detail-stats">
+                    <div class="task-detail-stat">
+                        <div class="num">${task.totalCount}</div>
+                        <div class="label">目标企业</div>
+                    </div>
+                    <div class="task-detail-stat">
+                        <div class="num" style="color: #52c41a;">${task.completedCount}</div>
+                        <div class="label">已完成</div>
+                    </div>
+                    <div class="task-detail-stat">
+                        <div class="num" style="color: #fa8c16;">${task.totalCount - task.completedCount}</div>
+                        <div class="label">待跟进</div>
+                    </div>
+                    <div class="task-detail-stat">
+                        <div class="num" style="color: #1890ff;">${progressPercent}%</div>
+                        <div class="label">完成率</div>
+                    </div>
+                </div>
+
+                <h4 style="margin: 16px 0 10px; font-size: 14px; color: #262626;">📋 任务包含的企业</h4>
+                <div class="task-customer-list">
+                    ${taskCustomers.map(c => `
+                        <div class="task-customer-item">
+                            <div>
+                                <div class="task-customer-name">${c.name}</div>
+                                <div style="font-size: 12px; color: #8c8c8c; margin-top: 2px;">${c.region} · ${c.industry}  · 苏信分 ${c.score}</div>
+                            </div>
+                            <span class="status-badge ${getStatusClass(c.status)}" style="font-size: 12px;">${c.status}</span>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div style="margin-top: 16px; padding: 12px 16px; background: #fffbe6; border-radius: 8px; border: 1px solid #ffe58f; font-size: 13px; color: #d48806;">
+                    ⏰ 截止日期：<strong>${task.deadline}</strong>
+                    ${task.status === '待开始' ? ' · 任务尚未开始，请尽快启动' : ''}
+                </div>
+            `;
+
+            openModal('taskDetailModal');
+        }
+
+        // 开始跟进
+        function startTask() {
+            closeModal('taskDetailModal');
+            showToast('🚀 已开始跟进任务，前往客户名单查看详情');
+        }
+
+        // Toast
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show success';
+            setTimeout(() => { toast.className = 'toast'; }, 2500);
+        }
+
+        // 更新统计
+        function updateStats() {
+            const total = acquisitionTasks.length;
+            const ongoing = acquisitionTasks.filter(t => t.status === '进行中').length;
+            const urgent = acquisitionTasks.filter(t => t.priority === '高').length;
+            const totalItems = acquisitionTasks.reduce((sum, t) => sum + t.totalCount, 0);
+            const completedItems = acquisitionTasks.reduce((sum, t) => sum + t.completedCount, 0);
+            const rate = totalItems > 0 ? Math.round(completedItems / totalItems * 100) : 0;
+
+            document.getElementById('totalTasks').textContent = total;
+            document.getElementById('ongoingTasks').textContent = ongoing;
+            document.getElementById('completionRate').textContent = rate + '%';
+            document.getElementById('urgentTasks').textContent = urgent;
+        }
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function () {
+            updateStats();
+            renderTasks(acquisitionTasks);
+        });
+    </script>
+</body>
+
+</html>

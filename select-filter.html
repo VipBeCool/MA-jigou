@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>条件筛选 - 智能营销平台</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .filter-section {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .filter-section-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+
+        .filter-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px;
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #1890ff;
+            cursor: pointer;
+        }
+
+        .filter-tag .close {
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .filter-tag .close:hover {
+            color: #ff4d4f;
+        }
+
+        .range-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .range-input input {
+            width: 100px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">💼</div>
+                <h1>智能营销平台</h1>
+            </div>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-item"><span class="nav-icon">🏠</span><span
+                        class="nav-text">工作台</span></a>
+                <a href="customers.html" class="nav-item"><span class="nav-icon">👥</span><span
+                        class="nav-text">客户名单</span></a>
+                <a href="tasks.html" class="nav-item"><span class="nav-icon">📋</span><span
+                        class="nav-text">任务管理</span></a>
+                <a href="select.html" class="nav-item active"><span class="nav-icon">🎯</span><span
+                        class="nav-text">智能圈选</span></a>
+                <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span><span
+                        class="nav-text">数据看板</span></a>
+                <a href="reconciliation.html" class="nav-item"><span class="nav-icon">📑</span><span
+                        class="nav-text">对账确认</span></a>
+                <a href="downloads.html" class="nav-item"><span class="nav-icon">📥</span><span
+                        class="nav-text">下载中心</span></a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">朱</div>
+                    <div>
+                        <div class="user-name">朱某人</div>
+                        <div class="user-role">客户经理</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">条件筛选</h1>
+                <p class="page-breadcrumb"><a href="index.html">工作台</a> / <a href="select.html">智能圈选</a> / 条件筛选</p>
+            </div>
+
+            <!-- 已选条件 -->
+            <div class="card" style="margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <span style="font-size: 13px; color: #8c8c8c;">已选条件：</span>
+                        <span class="filter-tag">苏州市 <span class="close"
+                                onclick="this.parentElement.remove()">×</span></span>
+                        <span class="filter-tag">高新技术企业 <span class="close"
+                                onclick="this.parentElement.remove()">×</span></span>
+                        <span class="filter-tag">苏信分≥700 <span class="close"
+                                onclick="this.parentElement.remove()">×</span></span>
+                    </div>
+                    <button class="btn btn-text" onclick="clearAllFilters()">清空全部</button>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 320px; gap: 16px;">
+                <!-- 左侧筛选区 -->
+                <div>
+                    <!-- 基础信息 -->
+                    <div class="filter-section">
+                        <div class="filter-section-title">📍 地区与行业</div>
+                        <div class="filter-row">
+                            <div class="form-group">
+                                <label class="form-label">地区</label>
+                                <select class="form-select" id="filterRegion">
+                                    <option value="">全部地区</option>
+                                    <option value="苏州" selected>苏州市</option>
+                                    <option value="无锡">无锡市</option>
+                                    <option value="南京">南京市</option>
+                                    <option value="常州">常州市</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">区县</label>
+                                <select class="form-select">
+                                    <option value="">全部区县</option>
+                                    <option>工业园区</option>
+                                    <option>高新区</option>
+                                    <option>吴中区</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">行业大类</label>
+                                <select class="form-select">
+                                    <option value="">全部行业</option>
+                                    <option>制造业</option>
+                                    <option>信息技术</option>
+                                    <option>批发零售</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">行业细分</label>
+                                <select class="form-select">
+                                    <option value="">全部细分</option>
+                                    <option>电子元器件</option>
+                                    <option>汽车零部件</option>
+                                    <option>机械设备</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 企业资质 -->
+                    <div class="filter-section">
+                        <div class="filter-section-title">🏆 企业资质</div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+                            <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                <input type="checkbox" checked> 高新技术企业
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                <input type="checkbox"> 专精特新
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                <input type="checkbox"> 小巨人企业
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                <input type="checkbox"> 科技型中小企业
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                <input type="checkbox"> 上市公司
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                <input type="checkbox"> 独角兽企业
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 经营规模 -->
+                    <div class="filter-section">
+                        <div class="filter-section-title">📊 经营规模</div>
+                        <div class="filter-row">
+                            <div class="form-group">
+                                <label class="form-label">年营收</label>
+                                <select class="form-select">
+                                    <option value="">不限</option>
+                                    <option>500万以下</option>
+                                    <option>500万-2000万</option>
+                                    <option selected>2000万-1亿</option>
+                                    <option>1亿-5亿</option>
+                                    <option>5亿以上</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">注册资本</label>
+                                <select class="form-select">
+                                    <option value="">不限</option>
+                                    <option>100万以下</option>
+                                    <option>100万-500万</option>
+                                    <option>500万-1000万</option>
+                                    <option>1000万以上</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">员工人数</label>
+                                <select class="form-select">
+                                    <option value="">不限</option>
+                                    <option>50人以下</option>
+                                    <option>50-200人</option>
+                                    <option>200-500人</option>
+                                    <option>500人以上</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">成立年限</label>
+                                <select class="form-select">
+                                    <option value="">不限</option>
+                                    <option>1年以内</option>
+                                    <option>1-3年</option>
+                                    <option>3-5年</option>
+                                    <option>5年以上</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 信用评分 -->
+                    <div class="filter-section">
+                        <div class="filter-section-title">⭐ 信用与风险</div>
+                        <div class="filter-row">
+                            <div class="form-group">
+                                <label class="form-label">苏信分</label>
+                                <select class="form-select" id="filterScore">
+                                    <option value="">不限</option>
+                                    <option>600分以上</option>
+                                    <option selected>700分以上</option>
+                                    <option>750分以上</option>
+                                    <option>800分以上</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">司法风险</label>
+                                <select class="form-select">
+                                    <option value="">不限</option>
+                                    <option selected>无司法风险</option>
+                                    <option>低风险</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">税务风险</label>
+                                <select class="form-select">
+                                    <option value="">不限</option>
+                                    <option selected>无欠税</option>
+                                    <option>纳税A级</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">信贷记录</label>
+                                <select class="form-select">
+                                    <option value="">不限</option>
+                                    <option>无逾期</option>
+                                    <option>首贷户</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 融资需求 -->
+                    <div class="filter-section">
+                        <div class="filter-section-title">💰 融资特征</div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+                            <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                <input type="checkbox"> 有授信敞口
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                <input type="checkbox"> 授信未满
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                <input type="checkbox"> 首贷户
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                                <input type="checkbox"> 近期有融资动作
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 操作按钮 -->
+                    <div style="display: flex; gap: 12px; margin-top: 16px;">
+                        <button class="btn btn-primary" onclick="executeSearch()">🔍 搜索企业</button>
+                        <button class="btn btn-default">💾 保存规则</button>
+                        <button class="btn btn-default" onclick="clearAllFilters()">🔄 重置条件</button>
+                    </div>
+                </div>
+
+                <!-- 右侧结果面板 -->
+                <div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">📊 筛选结果</h3>
+                        </div>
+                        <div style="text-align: center; padding: 24px;">
+                            <div style="font-size: 48px; font-weight: 600; color: #1890ff;" id="resultCount">2,850</div>
+                            <div style="font-size: 14px; color: #8c8c8c;">家企业符合条件</div>
+                        </div>
+                        <div style="border-top: 1px solid #f0f0f0; padding-top: 16px;">
+                            <div
+                                style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;">
+                                <span style="color: #8c8c8c;">高新技术企业</span>
+                                <span style="font-weight: 500;">1,856家</span>
+                            </div>
+                            <div
+                                style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;">
+                                <span style="color: #8c8c8c;">专精特新企业</span>
+                                <span style="font-weight: 500;">423家</span>
+                            </div>
+                            <div
+                                style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;">
+                                <span style="color: #8c8c8c;">苏信分≥750</span>
+                                <span style="font-weight: 500;">1,245家</span>
+                            </div>
+                        </div>
+                        <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+                            <button class="btn btn-primary" style="width: 100%;"
+                                onclick="location.href='customers.html'">查看企业名单</button>
+                            <button class="btn btn-default" style="width: 100%;">导出Excel</button>
+                        </div>
+                    </div>
+
+                    <!-- 推荐规则 -->
+                    <div class="card" style="margin-top: 16px;">
+                        <div class="card-header">
+                            <h3 class="card-title">💡 推荐规则</h3>
+                        </div>
+                        <div style="font-size: 13px;">
+                            <div style="padding: 12px; background: #f9f9f9; border-radius: 6px; margin-bottom: 8px; cursor: pointer;"
+                                onclick="applyRule('high_growth')">
+                                <div style="font-weight: 500; margin-bottom: 4px;">🚀 高成长企业</div>
+                                <div style="color: #8c8c8c;">营收增速>30%，高新技术</div>
+                            </div>
+                            <div style="padding: 12px; background: #f9f9f9; border-radius: 6px; margin-bottom: 8px; cursor: pointer;"
+                                onclick="applyRule('first_loan')">
+                                <div style="font-weight: 500; margin-bottom: 4px;">🆕 首贷户潜力</div>
+                                <div style="color: #8c8c8c;">无贷款记录，苏信分>750</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function executeSearch() {
+            const count = Math.floor(Math.random() * 2000) + 1500;
+            document.getElementById('resultCount').textContent = count.toLocaleString();
+        }
+
+        function clearAllFilters() {
+            document.querySelectorAll('.filter-tag').forEach(tag => tag.remove());
+            document.querySelectorAll('select').forEach(sel => sel.selectedIndex = 0);
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+        }
+
+        function applyRule(ruleType) {
+            alert('已应用规则模板：' + ruleType);
+            executeSearch();
+        }
+    </script>
+</body>
+
+</html>
