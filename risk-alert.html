@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>风险预警 - 智能营销平台</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* 预警 Tab */
+        .alert-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 20px;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .alert-tab {
+            flex: 1;
+            padding: 14px 20px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 14px;
+            color: #595959;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            background: #fff;
+            border: none;
+        }
+
+        .alert-tab:hover {
+            color: #1890ff;
+            background: #f0f7ff;
+        }
+
+        .alert-tab.active {
+            color: #1890ff;
+            font-weight: 600;
+            border-bottom-color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .alert-tab .tab-badge {
+            display: inline-block;
+            background: #ff4d4f;
+            color: #fff;
+            font-size: 11px;
+            padding: 1px 6px;
+            border-radius: 10px;
+            margin-left: 6px;
+            font-weight: 500;
+        }
+
+        .alert-tab.active .tab-badge {
+            background: #1890ff;
+        }
+
+        /* 主布局 */
+        .alert-layout {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 16px;
+            align-items: start;
+        }
+
+        /* 预警卡片 */
+        .alert-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 18px 20px;
+            margin-bottom: 12px;
+            border-left: 4px solid;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .alert-card:hover {
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .alert-card.high {
+            border-left-color: #ff4d4f;
+        }
+
+        .alert-card.medium {
+            border-left-color: #faad14;
+        }
+
+        .alert-card.low {
+            border-left-color: #52c41a;
+        }
+
+        .alert-card.selected {
+            box-shadow: 0 0 0 2px #1890ff, 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .alert-card.processed {
+            opacity: 0.65;
+        }
+
+        .alert-card.processed .alert-company {
+            text-decoration: line-through;
+        }
+
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .alert-company {
+            font-weight: 600;
+            font-size: 15px;
+            color: #262626;
+        }
+
+        .alert-level {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+
+        .alert-level.high {
+            background: #fff2f0;
+            color: #ff4d4f;
+            border: 1px solid #ffccc7;
+        }
+
+        .alert-level.medium {
+            background: #fffbe6;
+            color: #d48806;
+            border: 1px solid #ffe58f;
+        }
+
+        .alert-level.low {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+
+        .alert-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            font-size: 13px;
+            color: #595959;
+            margin-bottom: 10px;
+        }
+
+        .alert-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .alert-meta-label {
+            color: #8c8c8c;
+        }
+
+        .alert-status-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .marketing-status {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .marketing-status.active {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        .marketing-status.paused {
+            background: #fff7e6;
+            color: #d46b08;
+        }
+
+        .marketing-status.stopped {
+            background: #fff2f0;
+            color: #cf1322;
+        }
+
+        .alert-actions {
+            display: flex;
+            gap: 8px;
+            padding-top: 12px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .alert-time {
+            font-size: 12px;
+            color: #bfbfbf;
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+        }
+
+        /* 右侧详情面板 */
+        .detail-panel {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            position: sticky;
+            top: 24px;
+        }
+
+        .detail-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .detail-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #262626;
+        }
+
+        .detail-body {
+            padding: 20px;
+        }
+
+        .detail-section {
+            margin-bottom: 20px;
+        }
+
+        .detail-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #8c8c8c;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* 风险信息区 */
+        .risk-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .risk-info-item {
+            background: #fafafa;
+            padding: 10px 12px;
+            border-radius: 6px;
+        }
+
+        .risk-info-label {
+            font-size: 11px;
+            color: #8c8c8c;
+            margin-bottom: 4px;
+        }
+
+        .risk-info-value {
+            font-size: 13px;
+            font-weight: 500;
+            color: #262626;
+        }
+
+        /* 时间线 */
+        .timeline {
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 6px;
+            top: 6px;
+            bottom: 6px;
+            width: 2px;
+            background: #e8e8e8;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 16px;
+        }
+
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -17px;
+            top: 5px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #d9d9d9;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 1px #d9d9d9;
+        }
+
+        .timeline-dot.active {
+            background: #1890ff;
+            box-shadow: 0 0 0 1px #1890ff;
+        }
+
+        .timeline-dot.warning {
+            background: #faad14;
+            box-shadow: 0 0 0 1px #faad14;
+        }
+
+        .timeline-dot.danger {
+            background: #ff4d4f;
+            box-shadow: 0 0 0 1px #ff4d4f;
+        }
+
+        .timeline-time {
+            font-size: 11px;
+            color: #bfbfbf;
+            margin-bottom: 2px;
+        }
+
+        .timeline-content {
+            font-size: 13px;
+            color: #595959;
+            line-height: 1.5;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #bfbfbf;
+        }
+
+        .empty-state .empty-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .empty-state .empty-text {
+            font-size: 14px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #52c41a;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            z-index: 9999;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            animation: toastIn 0.3s ease;
+        }
+
+        .toast.warning {
+            background: #faad14;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 红点 */
+        .nav-badge {
+            background: #ff4d4f;
+            color: #fff;
+            font-size: 10px;
+            padding: 1px 5px;
+            border-radius: 8px;
+            margin-left: auto;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">💼</div>
+                <h1>智能营销平台</h1>
+            </div>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-item">
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-text">工作台</span>
+                </a>
+                <a href="customers.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-text">客户名单</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-text">任务管理</span>
+                </a>
+                <a href="select.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span class="nav-text">智能圈选</span>
+                </a>
+                <a href="dashboard.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">数据看板</span>
+                </a>
+                <a href="risk-alert.html" class="nav-item active">
+                    <span class="nav-icon">⚠️</span>
+                    <span class="nav-text">风险预警</span>
+                    <span class="nav-badge">5</span>
+                </a>
+                <a href="reconciliation.html" class="nav-item">
+                    <span class="nav-icon">📑</span>
+                    <span class="nav-text">对账确认</span>
+                </a>
+                <a href="downloads.html" class="nav-item">
+                    <span class="nav-icon">📥</span>
+                    <span class="nav-text">下载中心</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">朱</div>
+                    <div>
+                        <div class="user-name">朱某人</div>
+                        <div class="user-role">客户经理</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                    <h1 class="page-title">风险预警</h1>
+                    <p class="page-breadcrumb"><a href="index.html">工作台</a> / 风险预警</p>
+                </div>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn btn-default btn-sm" onclick="markAllRead()">全部标为已读</button>
+                </div>
+            </div>
+
+            <!-- 概览统计 -->
+            <div class="stat-cards">
+                <div class="stat-card danger">
+                    <div class="stat-label">高风险预警</div>
+                    <div class="stat-value" id="statHigh">2<span class="stat-suffix">条</span></div>
+                    <div class="stat-trend" style="color:#ff4d4f;">需立即处理</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-label">中风险预警</div>
+                    <div class="stat-value" id="statMedium">2<span class="stat-suffix">条</span></div>
+                    <div class="stat-trend" style="color:#faad14;">建议关注</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-label">低风险提醒</div>
+                    <div class="stat-value" id="statLow">1<span class="stat-suffix">条</span></div>
+                    <div class="stat-trend" style="color:#52c41a;">可酌情处理</div>
+                </div>
+                <div class="stat-card primary">
+                    <div class="stat-label">本月已处理</div>
+                    <div class="stat-value" id="statProcessed">8<span class="stat-suffix">条</span></div>
+                    <div class="stat-trend">处理率 61.5%</div>
+                </div>
+            </div>
+
+            <!-- Tab 筛选 -->
+            <div class="alert-tabs">
+                <div class="alert-tab active" onclick="switchTab('all', this)">
+                    全部预警 <span class="tab-badge" id="badgeAll">5</span>
+                </div>
+                <div class="alert-tab" onclick="switchTab('pending', this)">
+                    待处理 <span class="tab-badge" id="badgePending">4</span>
+                </div>
+                <div class="alert-tab" onclick="switchTab('processed', this)">
+                    已处理
+                </div>
+            </div>
+
+            <!-- 主布局：预警列表 + 详情面板 -->
+            <div class="alert-layout">
+                <!-- 预警列表 -->
+                <div id="alertList">
+                    <!-- 动态渲染 -->
+                </div>
+
+                <!-- 右侧详情面板 -->
+                <div class="detail-panel" id="detailPanel">
+                    <div class="detail-header">
+                        <div class="detail-title" id="detailTitle">📋 预警详情</div>
+                    </div>
+                    <div class="detail-body" id="detailBody">
+                        <div class="empty-state">
+                            <div class="empty-icon">👈</div>
+                            <div class="empty-text">点击左侧预警卡片查看详情</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 预警 mock 数据
+        const alerts = [
+            {
+                id: 1,
+                company: '苏州某精密机械有限公司',
+                level: 'high',
+                levelText: '高风险',
+                type: '新增被执行人信息',
+                category: '司法涉诉',
+                source: '平台推送',
+                pushTime: '2026-02-11 14:30',
+                detectTime: '2026-02-11 09:00',
+                customerPushTime: '2026-02-01',
+                marketingStatus: '已意向',
+                marketingStatusCls: 'active',
+                status: 'pending',
+                description: '该企业于2026年2月11日被苏州市XX区人民法院列为被执行人，执行标的金额85万元，案由合同纠纷。',
+                suggestion: '建议立即暂缓营销推进，等待司法风险排查结果。若客户已进入授信审批流程，需通知审批部门暂停。',
+                timeline: [
+                    { time: '2026-02-11 14:30', text: '平台推送预警至银行端', type: 'active' },
+                    { time: '2026-02-11 09:00', text: '系统检测到被执行人信息变更', type: 'danger' },
+                    { time: '2026-02-05', text: '客户经理标记为「已意向」', type: '' },
+                    { time: '2026-02-01', text: '客户推送至江苏银行', type: '' }
+                ]
+            },
+            {
+                id: 2,
+                company: '南京某建材贸易有限公司',
+                level: 'high',
+                levelText: '高风险',
+                type: '法人变更',
+                category: '工商变更',
+                source: '平台推送',
+                pushTime: '2026-02-10 10:00',
+                detectTime: '2026-02-10 06:00',
+                customerPushTime: '2026-01-28',
+                marketingStatus: '已申请',
+                marketingStatusCls: 'active',
+                status: 'pending',
+                description: '该企业法定代表人于2026年2月9日由张某变更为李某，同时经营范围新增"房地产开发"。变更前后注册资本未变。',
+                suggestion: '法人变更可能影响授信主体信用评估，建议重新核实企业实控人背景，暂缓授信流程直至尽调完成。',
+                timeline: [
+                    { time: '2026-02-10 10:00', text: '平台推送预警至银行端', type: 'active' },
+                    { time: '2026-02-10 06:00', text: '系统检测到法人变更', type: 'danger' },
+                    { time: '2026-02-03', text: '客户提交贷款申请', type: '' },
+                    { time: '2026-01-28', text: '客户推送至南京银行', type: '' }
+                ]
+            },
+            {
+                id: 3,
+                company: '常州某电子科技有限公司',
+                level: 'medium',
+                levelText: '中风险',
+                type: '行政处罚（环保）',
+                category: '行政处罚',
+                source: '平台推送',
+                pushTime: '2026-02-09 11:00',
+                detectTime: '2026-02-09 08:00',
+                customerPushTime: '2026-02-03',
+                marketingStatus: '已触达',
+                marketingStatusCls: 'active',
+                status: 'pending',
+                description: '常州市生态环境局于2026年2月8日对该企业做出行政处罚，罚款12万元，原因为废水排放超标。',
+                suggestion: '环保处罚可能影响企业合规评价和ESG评分，建议在后续接触中了解企业整改情况，视整改结果决定是否继续推进。',
+                timeline: [
+                    { time: '2026-02-09 11:00', text: '平台推送预警至银行端', type: 'active' },
+                    { time: '2026-02-09 08:00', text: '系统检测到环保处罚信息', type: 'warning' },
+                    { time: '2026-02-05', text: '客户经理首次触达', type: '' },
+                    { time: '2026-02-03', text: '客户推送至苏州农商行', type: '' }
+                ]
+            },
+            {
+                id: 4,
+                company: '无锡某智能装备有限公司',
+                level: 'medium',
+                levelText: '中风险',
+                type: '股权变更',
+                category: '工商变更',
+                source: '平台推送',
+                pushTime: '2026-02-08 16:00',
+                detectTime: '2026-02-08 10:00',
+                customerPushTime: '2026-01-25',
+                marketingStatus: '已授信',
+                marketingStatusCls: 'active',
+                status: 'pending',
+                description: '该企业第二大股东（持股25%）于2026年2月7日将全部股权转让给一家新设立公司，新股东成立不足3个月。',
+                suggestion: '已授信客户出现股权变更需重点关注，建议核实新股东背景，评估是否影响风控模型评分，必要时通知授信管理部门。',
+                timeline: [
+                    { time: '2026-02-08 16:00', text: '平台推送预警至银行端', type: 'active' },
+                    { time: '2026-02-08 10:00', text: '系统检测到股权变更', type: 'warning' },
+                    { time: '2026-02-02', text: '授信审批通过，额度200万', type: '' },
+                    { time: '2026-01-25', text: '客户推送至江苏银行', type: '' }
+                ]
+            },
+            {
+                id: 5,
+                company: '镇江某食品加工有限公司',
+                level: 'low',
+                levelText: '低风险',
+                type: '经营范围变更',
+                category: '工商变更',
+                source: '平台推送',
+                pushTime: '2026-02-07 09:00',
+                detectTime: '2026-02-07 06:00',
+                customerPushTime: '2026-01-20',
+                marketingStatus: '待触达',
+                marketingStatusCls: 'active',
+                status: 'processed',
+                processedTime: '2026-02-08 10:30',
+                processedAction: '已确认，继续营销',
+                description: '该企业经营范围新增"预包装食品销售"，属于正常业务扩展。无负面信号。',
+                suggestion: '经营范围新增属于利好信号，可能意味着业务扩张，资金需求增加。建议在营销触达时可作为切入点。',
+                timeline: [
+                    { time: '2026-02-08 10:30', text: '客户经理标记为「已确认，继续营销」', type: 'active' },
+                    { time: '2026-02-07 09:00', text: '平台推送预警至银行端', type: '' },
+                    { time: '2026-02-07 06:00', text: '系统检测到经营范围变更', type: '' },
+                    { time: '2026-01-20', text: '客户推送至南京银行', type: '' }
+                ]
+            }
+        ];
+
+        let currentTab = 'all';
+        let selectedAlertId = null;
+
+        // 渲染预警列表
+        function renderAlerts() {
+            const container = document.getElementById('alertList');
+            let filtered = [...alerts];
+
+            if (currentTab === 'pending') {
+                filtered = filtered.filter(a => a.status === 'pending');
+            } else if (currentTab === 'processed') {
+                filtered = filtered.filter(a => a.status === 'processed');
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">✅</div>
+                        <div class="empty-text">${currentTab === 'processed' ? '暂无已处理预警' : '所有预警已处理完毕'}</div>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(a => {
+                const levelIcon = a.level === 'high' ? '🔴' : a.level === 'medium' ? '🟡' : '🟢';
+                return `
+                <div class="alert-card ${a.level} ${a.status === 'processed' ? 'processed' : ''} ${selectedAlertId === a.id ? 'selected' : ''}" 
+                     onclick="selectAlert(${a.id})">
+                    <div class="alert-header">
+                        <div class="alert-company">${levelIcon} ${a.company}</div>
+                        <span class="alert-level ${a.level}">${a.levelText}</span>
+                    </div>
+                    <div class="alert-meta">
+                        <div class="alert-meta-item">
+                            <span class="alert-meta-label">预警类型：</span>
+                            <strong>${a.type}</strong>
+                        </div>
+                        <div class="alert-meta-item">
+                            <span class="alert-meta-label">分类：</span>
+                            ${a.category}
+                        </div>
+                        <div class="alert-meta-item">
+                            <span class="alert-meta-label">来源：</span>
+                            ${a.source}
+                        </div>
+                    </div>
+                    <div class="alert-status-row">
+                        <span class="alert-meta-label">营销状态：</span>
+                        <span class="marketing-status ${a.marketingStatusCls}">${a.marketingStatus}</span>
+                        ${a.status === 'processed' ? `<span class="tag tag-green" style="margin-left:8px;">✓ 已处理</span>` : ''}
+                    </div>
+                    <div class="alert-actions">
+                        ${a.status === 'pending' ? `
+                            <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); viewCustomer(${a.id})">查看客户</button>
+                            <button class="btn btn-default btn-sm" style="color:#faad14;border-color:#faad14;" onclick="event.stopPropagation(); pauseMarketing(${a.id})">⚠ 暂缓营销</button>
+                            <button class="btn btn-default btn-sm" onclick="event.stopPropagation(); markProcessed(${a.id})">✓ 标为已处理</button>
+                        ` : `
+                            <button class="btn btn-text btn-sm" onclick="event.stopPropagation(); viewCustomer(${a.id})">查看客户</button>
+                            <span style="font-size:12px;color:#8c8c8c;margin-left:auto;">处理于 ${a.processedTime || ''}</span>
+                        `}
+                        <span class="alert-time">${formatTime(a.pushTime)}</span>
+                    </div>
+                </div>`;
+            }).join('');
+
+            updateBadges();
+        }
+
+        // 选中预警 → 右侧展示详情
+        function selectAlert(id) {
+            selectedAlertId = id;
+            const a = alerts.find(x => x.id === id);
+            if (!a) return;
+
+            const levelIcon = a.level === 'high' ? '🔴' : a.level === 'medium' ? '🟡' : '🟢';
+            document.getElementById('detailTitle').textContent = '📋 ' + a.company;
+
+            document.getElementById('detailBody').innerHTML = `
+                <div class="detail-section">
+                    <div class="detail-section-title">风险概况</div>
+                    <div class="risk-info-grid">
+                        <div class="risk-info-item">
+                            <div class="risk-info-label">预警类型</div>
+                            <div class="risk-info-value">${a.type}</div>
+                        </div>
+                        <div class="risk-info-item">
+                            <div class="risk-info-label">风险等级</div>
+                            <div class="risk-info-value">${levelIcon} ${a.levelText}</div>
+                        </div>
+                        <div class="risk-info-item">
+                            <div class="risk-info-label">风险分类</div>
+                            <div class="risk-info-value">${a.category}</div>
+                        </div>
+                        <div class="risk-info-item">
+                            <div class="risk-info-label">营销状态</div>
+                            <div class="risk-info-value">${a.marketingStatus}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-section-title">风险详情</div>
+                    <div style="font-size:13px;color:#595959;line-height:1.8;background:#fafafa;padding:12px;border-radius:6px;">
+                        ${a.description}
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-section-title">💡 处理建议</div>
+                    <div style="font-size:13px;color:#d46b08;line-height:1.8;background:#fffbe6;padding:12px;border-radius:6px;border:1px solid #ffe58f;">
+                        ${a.suggestion}
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-section-title">📖 处理时间线</div>
+                    <div class="timeline">
+                        ${a.timeline.map(t => `
+                            <div class="timeline-item">
+                                <div class="timeline-dot ${t.type}"></div>
+                                <div class="timeline-time">${t.time}</div>
+                                <div class="timeline-content">${t.text}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                ${a.status === 'pending' ? `
+                <div style="display:flex;gap:8px;padding-top:16px;border-top:1px solid #f0f0f0;">
+                    <button class="btn btn-primary btn-sm" onclick="viewCustomer(${a.id})" style="flex:1;">查看客户详情</button>
+                    <button class="btn btn-default btn-sm" style="color:#faad14;border-color:#faad14;flex:1;" onclick="pauseMarketing(${a.id})">⚠ 暂缓营销</button>
+                    <button class="btn btn-default btn-sm" onclick="markProcessed(${a.id})" style="flex:1;">✓ 已处理</button>
+                </div>` : ''}
+            `;
+
+            renderAlerts();
+        }
+
+        // 切换 Tab
+        function switchTab(tab, el) {
+            currentTab = tab;
+            document.querySelectorAll('.alert-tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            selectedAlertId = null;
+            document.getElementById('detailBody').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">👈</div>
+                    <div class="empty-text">点击左侧预警卡片查看详情</div>
+                </div>`;
+            document.getElementById('detailTitle').textContent = '📋 预警详情';
+            renderAlerts();
+        }
+
+        // 标为已处理
+        function markProcessed(id) {
+            const a = alerts.find(x => x.id === id);
+            if (!a) return;
+            a.status = 'processed';
+            a.processedTime = new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(/\//g, '-');
+            a.processedAction = '已确认处理';
+            a.timeline.unshift({
+                time: a.processedTime,
+                text: '客户经理标记为「已处理」',
+                type: 'active'
+            });
+            showToast(`已处理「${a.company}」的预警`);
+            if (selectedAlertId === id) selectAlert(id);
+            else renderAlerts();
+            updateBadges();
+        }
+
+        // 暂缓营销
+        function pauseMarketing(id) {
+            const a = alerts.find(x => x.id === id);
+            if (!a) return;
+            a.marketingStatus = '已暂缓';
+            a.marketingStatusCls = 'paused';
+            a.status = 'processed';
+            a.processedTime = new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(/\//g, '-');
+            a.processedAction = '暂缓营销';
+            a.timeline.unshift({
+                time: a.processedTime,
+                text: '客户经理标记为「暂缓营销」，暂停跟进',
+                type: 'warning'
+            });
+            showToast(`已暂缓「${a.company}」的营销推进`, 'warning');
+            if (selectedAlertId === id) selectAlert(id);
+            else renderAlerts();
+            updateBadges();
+        }
+
+        // 查看客户
+        function viewCustomer(id) {
+            showToast(`正在跳转到客户详情页...`);
+            setTimeout(() => { location.href = 'customer-detail.html'; }, 800);
+        }
+
+        // 全部标为已读
+        function markAllRead() {
+            alerts.forEach(a => {
+                if (a.status === 'pending') {
+                    a.status = 'processed';
+                    a.processedTime = new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(/\//g, '-');
+                    a.processedAction = '批量确认';
+                    a.timeline.unshift({
+                        time: a.processedTime,
+                        text: '客户经理批量标记为「已处理」',
+                        type: 'active'
+                    });
+                }
+            });
+            showToast('已全部标为已处理');
+            renderAlerts();
+            updateBadges();
+        }
+
+        // 更新徽章
+        function updateBadges() {
+            const pending = alerts.filter(a => a.status === 'pending').length;
+            const all = alerts.length;
+            document.getElementById('badgeAll').textContent = all;
+            document.getElementById('badgePending').textContent = pending;
+
+            // 更新统计卡片
+            const high = alerts.filter(a => a.status === 'pending' && a.level === 'high').length;
+            const medium = alerts.filter(a => a.status === 'pending' && a.level === 'medium').length;
+            const low = alerts.filter(a => a.status === 'pending' && a.level === 'low').length;
+            const processed = alerts.filter(a => a.status === 'processed').length;
+            document.getElementById('statHigh').innerHTML = `${high}<span class="stat-suffix">条</span>`;
+            document.getElementById('statMedium').innerHTML = `${medium}<span class="stat-suffix">条</span>`;
+            document.getElementById('statLow').innerHTML = `${low}<span class="stat-suffix">条</span>`;
+            document.getElementById('statProcessed').innerHTML = `${processed + 8}<span class="stat-suffix">条</span>`;
+        }
+
+        // 时间格式化
+        function formatTime(timeStr) {
+            const d = new Date(timeStr);
+            const now = new Date('2026-02-13T16:00:00');
+            const diff = now - d;
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const days = Math.floor(hours / 24);
+            if (hours < 1) return '刚刚';
+            if (hours < 24) return hours + '小时前';
+            if (days < 7) return days + '天前';
+            return timeStr.split(' ')[0];
+        }
+
+        // Toast
+        function showToast(msg, type) {
+            const t = document.createElement('div');
+            t.className = 'toast' + (type ? ' ' + type : '');
+            t.textContent = (type === 'warning' ? '⚠ ' : '✓ ') + msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 2500);
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            renderAlerts();
+        });
+    </script>
+</body>
+
+</html>
