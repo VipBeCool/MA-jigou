@@ -888,6 +888,8 @@
         </main>
     </div>
 
+    <script src="../js/contact-config.js"></script>
+
     <!-- 话术/状态模态框 -->
     <div class="modal-overlay" id="scriptModal">
         <div class="modal">
@@ -901,6 +903,19 @@
             <div class="modal-footer">
                 <button class="btn btn-default" onclick="closeModal('scriptModal')">关闭</button>
                 <button class="btn btn-primary">复制话术</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 触达路径推荐模态框 -->
+    <div class="modal-overlay" id="contactPathModal">
+        <div class="modal" style="width: 650px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="contactPathModalTitle">📞 触达路径推荐</h3>
+                <div class="modal-close" onclick="closeModal('contactPathModal')">✕</div>
+            </div>
+            <div class="modal-body" id="contactPathModalBody" style="max-height: 60vh; overflow-y: auto; padding: 20px;">
+                <!-- 动态内容 -->
             </div>
         </div>
     </div>
@@ -1152,11 +1167,116 @@
                     <td>
                         <button class="btn btn-text btn-sm" onclick="location.href='customer-detail.html?id=${c.id}'">详情</button>
                         <button class="btn btn-text btn-sm" onclick="showScriptModal(${c.id})">话术</button>
+                        <button class="btn btn-text btn-sm" onclick="showContactPathModal(${c.id})" style="color:#1890ff;">触达路径</button>
                         <button class="btn btn-text btn-sm" onclick="showStatusModal(${c.id})">更新</button>
                     </td>
                 </tr>
             `).join('');
             document.getElementById('customerCount').textContent = data.length;
+        }
+
+        // 展示触达路径模态框 - 使用 contact-config.js 中的共享配置
+        function showContactPathModal(customerId) {
+            const customer = customers.find(c => c.id === customerId);
+            if (!customer) return;
+
+            document.getElementById('contactPathModalTitle').textContent = '📞 触达路径推荐 — ' + customer.name;
+
+            // Mock 样例 - 实际接入后替换为 API 返回的 customer.contacts 数组
+            const paths = MOCK_CONTACT_PATHS.map((p, i) => {
+                if (i === 0) return { ...p, contactName: customer.contact.name || '' };
+                return p;
+            });
+
+            const visibleCards = paths.slice(0, 3).map((p, i) => window.buildContactCard(p, i)).join('');
+            const hiddenCards = paths.slice(3).map((p, i) => window.buildContactCard(p, i + 3)).join('');
+            const hiddenCount = paths.length - 3;
+
+            document.getElementById('contactPathModalBody').innerHTML = `
+                <div id="modalTabsContainer_${customer.id}">
+                    <div style="display:flex; border-bottom: 1px solid #f0f0f0; margin-bottom: 16px;">
+                        <div class="contact-tab-btn" style="padding: 8px 16px; border-bottom: 2px solid #1890ff; color: #1890ff; font-weight: 500; cursor: pointer;" onclick="window.switchContactTab(this, 'contactsTab_${customer.id}', 'modalTabsContainer_${customer.id}')">🏢 本企直接触达</div>
+                        <div class="contact-tab-btn" style="padding: 8px 16px; color: #595959; font-weight: 500; cursor: pointer;" onclick="window.switchContactTab(this, 'relEnterpriseTab_${customer.id}', 'modalTabsContainer_${customer.id}')">🕸️ 关联企业触达</div>
+                        <div class="contact-tab-btn" style="padding: 8px 16px; color: #595959; font-weight: 500; cursor: pointer;" onclick="window.switchContactTab(this, 'associationTab_${customer.id}', 'modalTabsContainer_${customer.id}')">🔗 行内存量关联</div>
+                    </div>
+
+                    <div id="contactsTab_${customer.id}" class="contact-tab-panel">
+                        <div style="font-size:12px;color:#bfbfbf;margin-bottom:14px;display:flex;align-items:center;gap:6px;">
+                            <span style="display:inline-block;width:4px;height:4px;background:#bfbfbf;border-radius:50%;"></span>
+                            以下角色及排序由系统基于多源数据综合推测，仅供参考
+                        </div>
+                        ${visibleCards}
+                        <div id="moreContactsList_${customer.id}" style="display:none;">
+                            ${hiddenCards}
+                        </div>
+                        <div style="text-align:center;margin:12px 0 20px;">
+                            <a href="javascript:void(0)" data-count="${hiddenCount}" onclick="window.toggleMoreContacts(this,'moreContactsList_${customer.id}')" style="font-size:13px;color:#1890ff;text-decoration:none;padding:6px 20px;background:#f0f5ff;border-radius:16px;display:inline-block;">🔽 展开更多 (${hiddenCount})</a>
+                        </div>
+                    </div>
+
+                    <div id="relEnterpriseTab_${customer.id}" class="contact-tab-panel" style="display:none;">
+                        <div style="font-size:12px;color:#bfbfbf;margin-bottom:14px;display:flex;align-items:center;gap:6px;">
+                          <span style="display:inline-block;width:4px;height:4px;background:#bfbfbf;border-radius:50%;"></span>
+                          当本企业无法取得联系时，可尝试通过以下强关联企业建立沟通
+                        </div>
+                        
+                        <div style="padding:14px 16px;background:#fafafa;border:1px solid #f0f0f0;border-radius:10px;margin-bottom:12px;">
+                          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+                            <div>
+                              <div style="font-size:14px;font-weight:600;color:#262626;">无锡市智云科技有限公司</div>
+                              <div style="font-size:11px;color:#722ed1;margin-top:4px;background:#f9f0ff;display:inline-block;padding:2px 6px;border-radius:4px;border:1px solid #d3adf7;">关联关系：控股股东 (持股65%)</div>
+                            </div>
+                            <button style="background:#fff;border:1px solid #d9d9d9;color:#595959;border-radius:4px;padding:3px 10px;font-size:12px;cursor:pointer;" onclick="alert('即将跳转至该企业画像页')">查看画像</button>
+                          </div>
+                          <div style="border-top:1px dashed #e8e8e8;padding-top:10px;">
+                            <div style="display:flex;align-items:center;gap:10px;font-size:14px;">
+                               <span style="color:#1890ff;font-weight:600;">139****8888</span>
+                               <span style="cursor:pointer;opacity:0.5;font-size:13px;" onclick="window.togglePhone(this, '139****8888', '13988888888')">👁️</span>
+                               <span style="font-size:11px;background:#e6f7ff;color:#1890ff;padding:2px 6px;border-radius:4px;border:1px solid #91d5ff;">[企业法人/实控人] 李总</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div style="padding:14px 16px;background:#fafafa;border:1px solid #f0f0f0;border-radius:10px;margin-bottom:12px;">
+                          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+                            <div>
+                              <div style="font-size:14px;font-weight:600;color:#262626;">苏州工业园区智云软件服务中心</div>
+                              <div style="font-size:11px;color:#fa8c16;margin-top:4px;background:#fff7e6;display:inline-block;padding:2px 6px;border-radius:4px;border:1px solid #ffd591;">关联关系：同法定代表人</div>
+                            </div>
+                            <button style="background:#fff;border:1px solid #d9d9d9;color:#595959;border-radius:4px;padding:3px 10px;font-size:12px;cursor:pointer;" onclick="alert('即将跳转至该企业画像页')">查看画像</button>
+                          </div>
+                          <div style="border-top:1px dashed #e8e8e8;padding-top:10px;">
+                            <div style="display:flex;align-items:center;gap:10px;font-size:14px;">
+                               <span style="color:#262626;font-weight:600;">0512-6888****</span>
+                               <span style="cursor:pointer;opacity:0.5;font-size:13px;" onclick="window.togglePhone(this, '0512-6888****', '0512-68889999')">👁️</span>
+                               <span style="font-size:11px;background:#f5f5f5;color:#8c8c8c;padding:2px 6px;border-radius:4px;border:1px solid #d9d9d9;">[工商预留固话]</span>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+
+                    <div id="associationTab_${customer.id}" class="contact-tab-panel" style="display:none;">
+                        <div style="font-size:12px;color:#bfbfbf;margin-bottom:14px;display:flex;align-items:center;gap:6px;">
+                          <span style="display:inline-block;width:4px;height:4px;background:#bfbfbf;border-radius:50%;"></span>
+                          关联关系由系统基于股权、法人、担保等维度自动匹配，仅供参考
+                        </div>
+                        <div style="background:linear-gradient(135deg,#e6f7ff 0%,#f0f5ff 100%);border:1px solid #91d5ff;border-radius:10px;padding:14px 16px;">
+                            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                                <span style="width:36px;height:36px;background:#1890ff;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:600;flex-shrink:0;">关</span>
+                                <div>
+                                    <div style="font-size:14px;font-weight:600;color:#262626;">苏州创芯微电子有限公司</div>
+                                    <div style="font-size:11px;color:#8c8c8c;margin-top:2px;">行内授信客户 · 贷款余额 800万 · 客户经理：王强</div>
+                                </div>
+                            </div>
+                            <div style="background:#fff;border-radius:8px;padding:10px 12px;font-size:12px;color:#595959;line-height:1.6;">
+                                <div style="margin-bottom:4px;"><b>关联关系：</b>该企业法人 <span style="color:#1890ff;">张明</span> 同时担任行内存量客户的股东（持股32%）</div>
+                                <div><b>触达建议：</b>可通过存量客户的客户经理王强引荐，或以关联企业授信为切入点沟通。</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            openModal('contactPathModal');
         }
 
         // 筛选客户

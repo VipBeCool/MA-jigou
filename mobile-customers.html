@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>我的客户 - 移动端工作台</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1890ff;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-main: #262626;
+            --text-sub: #8c8c8c;
+            --border-color: #f0f0f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding-bottom: 20px;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: #fff;
+            padding: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .search-box {
+            margin: 12px 16px;
+            background: #fff;
+            border-radius: 8px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .search-box input {
+            border: none;
+            outline: none;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        /* List */
+        .customer-list {
+            padding: 0 16px;
+        }
+
+        .customer-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .ent-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-main);
+            flex: 1;
+        }
+
+        .tag {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 8px;
+        }
+
+        .tag-blue { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
+
+        .card-body {
+            font-size: 13px;
+            color: var(--text-sub);
+            margin-bottom: 14px;
+            line-height: 1.5;
+        }
+
+        .card-footer {
+            border-top: 1px solid var(--border-color);
+            padding-top: 12px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn-path {
+            background: #f0f5ff;
+            color: var(--primary-color);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        /* Bottom Sheet */
+        .sheet-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .bottom-sheet {
+            position: fixed;
+            left: 0; right: 0; bottom: 0;
+            background: #fff;
+            border-radius: 20px 20px 0 0;
+            z-index: 1001;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sheet-active .sheet-overlay { display: block; opacity: 1; }
+        .sheet-active .bottom-sheet { transform: translateY(0); }
+
+        .sheet-handle {
+            width: 40px; height: 4px;
+            background: #e8e8e8;
+            border-radius: 2px;
+            margin: 10px auto;
+        }
+
+        .sheet-header {
+            padding: 0 16px 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sheet-title {
+            font-size: 17px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .sheet-tabs {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .sheet-tabs::-webkit-scrollbar { display: none; }
+
+        .sheet-tab-btn {
+            padding: 8px 16px;
+            font-size: 13px;
+            color: #595959;
+            white-space: nowrap;
+            border-radius: 8px;
+            background: #f5f5f5;
+            flex-shrink: 0;
+        }
+
+        .sheet-tab-btn.active {
+            background: #e6f7ff;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .sheet-content {
+            padding: 16px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* Override styles for buildContactCard on mobile */
+        .contact-tab-panel { display: none; }
+        .contact-tab-panel.active { display: block; }
+
+        /* Feedback Popover Fix for Mobile */
+        .feedback-popover {
+            bottom: auto !important;
+            top: 40px !important;
+            right: 0 !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-title">我的客户</div>
+        <div style="font-size: 20px;">🔍</div>
+    </div>
+
+    <div class="search-box">
+        <span>🔍</span>
+        <input type="text" placeholder="搜索企业名称、法定代表人">
+    </div>
+
+    <div class="customer-list" id="customerList">
+        <!-- List will be populated by JS -->
+    </div>
+
+    <!-- Bottom Sheet -->
+    <div class="sheet-overlay" id="sheetOverlay" onclick="closeSheet()"></div>
+    <div class="bottom-sheet" id="bottomSheet">
+        <div class="sheet-handle"></div>
+        <div class="sheet-header">
+            <div class="sheet-title">触达路径建议</div>
+            <div class="sheet-tabs" id="sheetTabs">
+                <div class="sheet-tab-btn active" onclick="switchMobileTab(this, 'tabDirect')">🏢 本企直接触达</div>
+                <div class="sheet-tab-btn" onclick="switchMobileTab(this, 'tabRelated')">🕸️ 关联企业触达</div>
+                <div class="sheet-tab-btn" onclick="switchMobileTab(this, 'tabInternal')">🔗 行内存量关联</div>
+            </div>
+        </div>
+        <div class="sheet-content" id="sheetContent">
+            <!-- Content will be populated by JS -->
+        </div>
+    </div>
+
+    <script src="../js/contact-config.js"></script>
+    <script>
+        const MOCK_CUSTOMERS = [
+            { id: 1, name: '苏州智云科技有限公司', industry: '软件和信息技术服务业', status: '正常经营', amount: '200万' },
+            { id: 2, name: '无锡灵动微电子有限公司', industry: '集成电路设计', status: '正常经营', amount: '500万' },
+            { id: 3, name: '南京鼎捷软件有限公司', industry: '软件开发', status: '正常经营', amount: '150万' },
+            { id: 4, name: '常州高科动力股份有限公司', industry: '通用设备制造业', status: '正常经营', amount: '1000万' }
+        ];
+
+        function renderCustomers() {
+            const list = document.getElementById('customerList');
+            list.innerHTML = MOCK_CUSTOMERS.map(c => `
+                <div class="customer-card">
+                    <div class="card-header">
+                        <div class="ent-name">${c.name}</div>
+                        <span class="tag tag-blue">优质存量</span>
+                    </div>
+                    <div class="card-body">
+                        行业：${c.industry}<br>
+                        建议额度：${c.amount} | 状态：${c.status}
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn-path" onclick="openPathSheet(${c.id}, '${c.name}')">
+                            <span>📞</span> 触达路径
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        let currentEntName = '';
+        function openPathSheet(id, name) {
+            currentEntName = name;
+            document.body.classList.add('sheet-active');
+            renderSheetContent();
+        }
+
+        function closeSheet() {
+            document.body.classList.remove('sheet-active');
+        }
+
+        function switchMobileTab(el, tabId) {
+            document.querySelectorAll('.sheet-tab-btn').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+            
+            document.querySelectorAll('.contact-tab-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        function renderSheetContent() {
+            const content = document.getElementById('sheetContent');
+            
+            // Build Tab 1: Direct
+            const visCards = MOCK_CONTACT_PATHS.slice(0, 3).map((p, i) => window.buildContactCard(p, i)).join('');
+            const hidCards = MOCK_CONTACT_PATHS.slice(3).map((p, i) => window.buildContactCard(p, i + 3)).join('');
+            
+            content.innerHTML = `
+                <!-- Tab 1 -->
+                <div id="tabDirect" class="contact-tab-panel active">
+                    <div style="font-size:11px;color:#bfbfbf;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+                      <span style="display:inline-block;width:4px;height:4px;background:#bfbfbf;border-radius:50%;"></span>
+                      算法基于多源数据推测，仅供参考
+                    </div>
+                    ${visCards}
+                    <div id="mobileMoreContacts" style="display:none;">${hidCards}</div>
+                    <div style="text-align:center;margin:12px 0;">
+                        <a href="javascript:void(0)" onclick="window.toggleMoreContacts(this, 'mobileMoreContacts')" style="font-size:13px;color:#1890ff;text-decoration:none;padding:6px 20px;background:#f0f5ff;border-radius:16px;display:inline-block;">🔽 展开更多</a>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Related -->
+                <div id="tabRelated" class="contact-tab-panel">
+                    <div style="font-size:11px;color:#bfbfbf;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+                      <span style="display:inline-block;width:4px;height:4px;background:#bfbfbf;border-radius:50%;"></span>
+                      尝试通过以下强关联企业建立沟通
+                    </div>
+                    <div style="padding:14px;background:#fafafa;border:1px solid #f0f0f0;border-radius:12px;margin-bottom:12px;">
+                        <div style="font-size:14px;font-weight:600;margin-bottom:4px;">无锡市智云科技有限公司</div>
+                        <div style="font-size:11px;color:#722ed1;margin-bottom:10px;">关联关系：控股股东 (持股65%)</div>
+                        <div style="border-top:1px dashed #eee;padding-top:10px;display:flex;align-items:center;gap:8px;">
+                            <span style="color:#1890ff;font-weight:600;font-size:14px;">139****8888</span>
+                            <span style="font-size:11px;background:#e6f7ff;color:#1890ff;padding:2px 6px;border-radius:4px;">李总 [法人]</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Internal -->
+                <div id="tabInternal" class="contact-tab-panel">
+                    <div style="font-size:11px;color:#bfbfbf;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+                      <span style="display:inline-block;width:4px;height:4px;background:#bfbfbf;border-radius:50%;"></span>
+                      关联关系由系统自动匹配，仅供参考
+                    </div>
+                    <div style="background:linear-gradient(135deg,#e6f7ff 0%,#f0f5ff 100%);border:1px solid #91d5ff;border-radius:12px;padding:16px;">
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+                            <span style="width:32px;height:32px;background:#1890ff;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;">关</span>
+                            <div style="font-size:14px;font-weight:600;">苏州创芯微电子有限公司</div>
+                        </div>
+                        <div style="background:#fff;border-radius:8px;padding:12px;font-size:12px;color:#595959;line-height:1.6;">
+                            <b>关联关系：</b>法人张明担任存量客户股东<br>
+                            <b>建议：</b>通过客户经理王强引荐
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        renderCustomers();
+    </script>
+</body>
+</html>
