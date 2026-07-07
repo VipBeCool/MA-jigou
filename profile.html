@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>个人中心 — 智能营销平台</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .profile-hero {
+      background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+      border-radius: var(--r-xl);
+      padding: 36px 40px;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .profile-hero::before {
+      content: '';
+      position: absolute;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(37,99,235,.2) 0%, transparent 70%);
+      top: -100px; right: -50px;
+    }
+    .profile-avatar-wrap { position: relative; flex-shrink: 0; }
+    .profile-avatar {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: var(--brand);
+      color: #fff;
+      font-size: 32px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid rgba(255,255,255,.2);
+    }
+    .profile-hero-info { flex: 1; position: relative; }
+    .profile-hero-name { font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .profile-hero-role { font-size: 13px; color: rgba(255,255,255,.5); margin-bottom: 16px; }
+    .profile-hero-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+    .profile-tag {
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      background: rgba(255,255,255,.1);
+      color: rgba(255,255,255,.8);
+      border: 1px solid rgba(255,255,255,.15);
+    }
+
+    /* Bento 布局 */
+    .bento-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+    .bento-card {
+      background: var(--bg-card);
+      border-radius: var(--r-xl);
+      border: 1px solid var(--border);
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .bento-card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .bento-card-title svg {
+      width: 18px; height: 18px;
+      stroke: var(--brand); fill: none;
+      stroke-width: 2; stroke-linecap: round;
+    }
+
+    /* 只读数据网格 (左侧) */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px 32px;
+    }
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .info-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--gray-500);
+    }
+    .info-value {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--gray-900);
+    }
+    .info-value-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 20px;
+      background: #ecfdf5; color: #10b981;
+      font-size: 13px; font-weight: 600;
+    }
+    .info-value-badge::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%; background: #10b981;
+    }
+    .info-divider {
+      grid-column: 1 / -1;
+      height: 1px;
+      background: var(--gray-100);
+      margin: 8px 0;
+    }
+
+    /* 密码修改表单 (右侧) */
+    .pwd-card::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0; width: 150px; height: 150px;
+      background: radial-gradient(circle, rgba(37,99,235,.05) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .form-group { margin-bottom: 20px; position: relative; z-index: 1; }
+    .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--gray-700); margin-bottom: 8px; }
+    .form-input {
+      width: 100%;
+      height: 44px;
+      padding: 0 16px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--r-md);
+      font-size: 14px;
+      color: var(--gray-900);
+      background: #f9fafb;
+      outline: none;
+      font-family: inherit;
+      transition: all .2s;
+    }
+    .form-input:focus { border-color: var(--brand); background: #fff; box-shadow: 0 0 0 4px rgba(37,99,235,.1); }
+    
+    .pwd-strength-bar { height: 4px; border-radius: 2px; background: var(--gray-100); overflow: hidden; margin-top: 8px; }
+    .pwd-strength-fill { height: 100%; border-radius: 2px; transition: width .3s, background .3s; width: 0%; }
+    .form-hint { font-size: 12px; color: var(--gray-400); margin-top: 6px; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 28px; right: 28px; background: var(--gray-900); color: #fff; padding: 12px 20px; border-radius: var(--r-md); font-size: 13.5px; font-weight: 500; box-shadow: var(--shadow-lg); z-index: 9999; transform: translateY(20px); opacity: 0; transition: all .3s var(--ease); pointer-events: none; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    @media (max-width: 900px) {
+      .bento-grid { grid-template-columns: 1fr; }
+      .profile-hero { flex-direction: column; text-align: center; }
+      .profile-hero-tags { justify-content: center; }
+      .info-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main-content">
+    <div>
+      <!-- 页头 -->
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1 class="page-title">个人中心</h1>
+          <p class="page-breadcrumb">
+            <a href="index.html">工作台</a><span class="sep">/</span>个人中心
+          </p>
+        </div>
+        <a href="index.html" class="btn btn-default" style="display:flex;align-items:center;gap:6px;">
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><polyline points="15 18 9 12 15 6"/></svg>
+          返回工作台
+        </a>
+      </div>
+
+      <!-- 个人信息卡 (Hero Banner) -->
+      <div class="profile-hero">
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar">
+            <svg viewBox="0 0 24 24" style="width:36px;height:36px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+        </div>
+        <div class="profile-hero-info">
+          <div class="profile-hero-name" id="heroName">张行长</div>
+          <div class="profile-hero-role" id="heroRole">省分行管理员</div>
+          <div class="profile-hero-tags">
+            <span class="profile-tag" id="tagBranch">江苏省分行</span>
+            <span class="profile-tag" id="tagRole">管理员</span>
+            <span class="profile-tag" id="heroLoginTag">上次登录: 今天 09:12</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bento 网格布局 -->
+      <div class="bento-grid">
+        
+        <!-- 左侧：身份与资产 (只读) -->
+        <div class="bento-card">
+          <div class="bento-card-title">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            基础资料与权限
+          </div>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">姓名</span>
+              <span class="info-value" id="infoName">张行长</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">手机号</span>
+              <span class="info-value" id="infoPhone">138 **** 8888</span>
+            </div>
+            
+            <div class="info-divider"></div>
+
+            <div class="info-item">
+              <span class="info-label">业务角色</span>
+              <span class="info-value" id="infoRoleDetail">省分行管理员</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">所属机构</span>
+              <span class="info-value" id="infoBranch">江苏省分行</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">上级机构</span>
+              <span class="info-value">平安银行总行</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">账户状态</span>
+              <div>
+                <span class="info-value-badge">正常</span>
+              </div>
+            </div>
+            <div class="info-item">
+              <span class="info-label">创建时间</span>
+              <span class="info-value">2024-03-01</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧：安全设置 (表单) -->
+        <div class="bento-card pwd-card">
+          <div class="bento-card-title">
+            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            安全盾牌
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">当前密码</label>
+            <input type="password" class="form-input" id="oldPwd" placeholder="请输入当前密码">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">新密码</label>
+            <input type="password" class="form-input" id="newPwd" placeholder="至少8位，含大小写字母和数字" oninput="onNewPwd(this.value)">
+            <div id="pwdStrengthContainer" style="display: none;">
+              <div class="pwd-strength-bar"><div class="pwd-strength-fill" id="pwdBar"></div></div>
+              <div class="form-hint" id="pwdHint">密码强度 —</div>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">确认新密码</label>
+            <input type="password" class="form-input" id="confirmPwd" placeholder="请再次输入新密码">
+          </div>
+          
+          <button class="btn btn-primary" style="width: 100%; height: 44px; margin-top: 10px;" onclick="changePwd()">更新密码</button>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/sidebar.js"></script>
+<script>
+  // 从 session 读取用户信息
+  const wbRole = sessionStorage.getItem('wb_role') || 'manager';
+  const wbUser = JSON.parse(sessionStorage.getItem('wb_user') || '{}');
+  const ROLES = { manager: '管理员', rm: '客户经理' };
+  const roleName = ROLES[wbRole] || '未知角色';
+
+  renderSidebar({ currentPage: 'profile', role: wbRole });
+
+  // 渲染数据
+  if (wbUser.name) {
+    const uid = wbUser.username || 'admin001';
+    
+    // Header
+    document.getElementById('heroName').textContent = wbUser.name;
+    document.getElementById('heroRole').textContent = roleName;
+    document.getElementById('tagRole').textContent = roleName;
+    
+    // Data Grid
+    document.getElementById('infoName').textContent = wbUser.name;
+    document.getElementById('infoRoleDetail').textContent = roleName;
+  }
+
+  function onNewPwd(val) {
+    const container = document.getElementById('pwdStrengthContainer');
+    if (!val) {
+      container.style.display = 'none';
+      return;
+    }
+    container.style.display = 'block';
+
+    const rules = [v => v.length >= 8, v => /[A-Z]/.test(v), v => /[0-9]/.test(v), v => /[@#$%^&*!]/.test(v)];
+    const pass = rules.filter(r => r(val)).length;
+    const levels = [
+      {pct:'0%',bg:'#d1d5db',text:'—'},
+      {pct:'25%',bg:'#ef4444',text:'弱'},
+      {pct:'50%',bg:'#f59e0b',text:'一般'},
+      {pct:'75%',bg:'#3b82f6',text:'强'},
+      {pct:'100%',bg:'#10b981',text:'非常强'}
+    ];
+    const lv = levels[pass] || levels[0];
+    document.getElementById('pwdBar').style.width = lv.pct;
+    document.getElementById('pwdBar').style.background = lv.bg;
+    document.getElementById('pwdHint').textContent = '密码强度 ' + lv.text;
+    document.getElementById('pwdHint').style.color = lv.bg;
+  }
+
+  function changePwd() {
+    const oldP = document.getElementById('oldPwd').value;
+    const newP = document.getElementById('newPwd').value;
+    const cfmP = document.getElementById('confirmPwd').value;
+    
+    if (!oldP || !newP || !cfmP) { showToast('请填写所有密码字段', 'warn'); return; }
+    if (newP !== cfmP) { showToast('两次输入的新密码不一致', 'error'); return; }
+    if (newP.length < 8) { showToast('新密码长度至少 8 位', 'error'); return; }
+    
+    showToast('密码修改成功，下次登录生效', 'success');
+    
+    document.getElementById('oldPwd').value = '';
+    document.getElementById('newPwd').value = '';
+    document.getElementById('confirmPwd').value = '';
+    document.getElementById('pwdBar').style.width = '0%';
+    document.getElementById('pwdHint').textContent = '密码强度 —';
+    document.getElementById('pwdStrengthContainer').style.display = 'none';
+  }
+
+  function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.background = type === 'error' ? '#ef4444' : type === 'warn' ? '#f59e0b' : '#10b981';
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+</script>
+</body>
+</html>

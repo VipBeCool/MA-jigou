@@ -1,0 +1,1969 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>名单分配 - 智能营销平台</title>
+  <meta name="description" content="银行名单分配，支持逐级下发与一次性到人，提供多种分配策略">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ── 批次卡片 ── */
+    .batch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 14px;
+    }
+
+    .batch-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 18px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+      background: var(--bg-card);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .batch-card:hover {
+      border-color: var(--brand);
+      background: var(--brand-light);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.1);
+    }
+
+    .batch-card.selected {
+      border-color: var(--brand);
+      background: var(--brand-light);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .batch-card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: var(--gray-100);
+      color: var(--gray-500);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .batch-card-icon svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .batch-card.selected .batch-card-icon {
+      background: var(--brand);
+      color: #fff;
+    }
+
+    .batch-card-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 4px;
+    }
+
+    .batch-card-meta {
+      font-size: 12px;
+      color: var(--gray-400);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 8px;
+    }
+
+    .batch-card-count {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--brand);
+      letter-spacing: -0.5px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .batch-card-count small {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--gray-400);
+    }
+
+    .batch-progress-bar {
+      height: 4px;
+      border-radius: 2px;
+      background: var(--gray-100);
+      margin-top: 6px;
+      overflow: hidden;
+    }
+
+    .batch-progress-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--brand), #60a5fa);
+      transition: width 0.4s;
+    }
+
+    .product-group-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gray-400);
+      letter-spacing: 0.8px;
+      padding: 6px 0 8px;
+      margin: 16px 0 10px;
+      border-bottom: 1px solid var(--gray-100);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .product-group-title:first-child {
+      margin-top: 4px;
+    }
+
+    .product-group-title::before {
+      content: '';
+      display: inline-block;
+      width: 3px;
+      height: 11px;
+      border-radius: 2px;
+      background: var(--brand);
+    }
+
+    .batch-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--gray-100);
+      padding-bottom: 0;
+    }
+
+    .batch-tab-btn {
+      padding: 9px 18px 10px;
+      border: none;
+      background: none;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-400);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      border-radius: 6px 6px 0 0;
+    }
+
+    .batch-tab-btn:hover {
+      color: var(--brand);
+      background: var(--brand-light);
+    }
+
+    .batch-tab-btn.active {
+      color: var(--brand);
+      border-bottom-color: var(--brand);
+      background: none;
+    }
+
+    .batch-tab-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 18px;
+      height: 18px;
+      border-radius: 9px;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 0 5px;
+      background: var(--gray-100);
+      color: var(--gray-500);
+    }
+
+    .batch-tab-btn.active .batch-tab-count {
+      background: var(--brand);
+      color: #fff;
+    }
+
+    /* ── 分配页布局 ── */
+    .alloc-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    /* ── 进度面板 (横向) ── */
+    .progress-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 24px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 0;
+    }
+
+    .prog-step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .prog-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--gray-100);
+      color: var(--gray-400);
+      font-size: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .prog-step.done .prog-icon {
+      background: var(--success);
+      color: #fff;
+    }
+
+    .prog-step.active .prog-icon {
+      background: var(--brand);
+      color: #fff;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .prog-content {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .prog-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-400);
+      margin-bottom: 2px;
+    }
+
+    .prog-step.active .prog-name {
+      color: var(--brand);
+      font-weight: 700;
+    }
+
+    .prog-step.done .prog-name {
+      color: var(--gray-700);
+    }
+
+    .prog-desc {
+      font-size: 11px;
+      color: var(--gray-400);
+      line-height: 1.2;
+    }
+
+    /* ── 模式切换 ── */
+    .mode-tab-bar {
+      display: flex;
+      gap: 0;
+      margin-bottom: 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--gray-50);
+      padding: 3px;
+    }
+
+    .mode-tab-btn {
+      flex: 1;
+      padding: 8px 12px;
+      border: none;
+      background: none;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-500);
+      cursor: pointer;
+      border-radius: 7px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .mode-tab-btn:hover {
+      color: var(--brand);
+    }
+
+    .mode-tab-btn.on {
+      background: #fff;
+      color: var(--brand);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* ── 底部策略栏(改进版) ── */
+    .b-strat-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .b-strat-label {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--gray-500);
+    }
+
+    .b-strat-group {
+      display: flex;
+      align-items: center;
+      background: var(--gray-100);
+      padding: 3px;
+      border-radius: 8px;
+    }
+
+    .b-strat-opt {
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--gray-600);
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .b-strat-opt:hover {
+      color: var(--gray-900);
+    }
+
+    .b-strat-opt.on {
+      background: #fff;
+      color: var(--brand);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .b-strat-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: 4px;
+    }
+
+    .b-strat-apply {
+      padding: 5px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--brand);
+      background: #eff6ff;
+      color: var(--brand);
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .b-strat-apply:hover {
+      background: #dbeafe;
+    }
+
+    .b-strat-clear {
+      padding: 5px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--gray-600);
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .b-strat-clear:hover {
+      background: var(--gray-50);
+      color: var(--gray-900);
+    }
+
+    /* ── 分配树节点 ── */
+    #allocTree {}
+
+    .tree-section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gray-400);
+      letter-spacing: 0.4px;
+      padding: 8px 0 6px;
+      margin: 10px 0 8px;
+      border-bottom: 1px solid var(--gray-100);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tree-section-label::before {
+      content: '';
+      display: inline-block;
+      width: 3px;
+      height: 10px;
+      border-radius: 2px;
+      background: var(--brand);
+    }
+
+    /* 覆盖 style.css 中的全局 flex 设置，防止水平排布 */
+    .tree-node {
+      display: block !important;
+      margin-bottom: 4px;
+      padding: 0 !important;
+      cursor: default !important;
+      background: transparent !important;
+    }
+
+    .tree-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      transition: border-color 0.15s;
+    }
+
+    .tree-row:hover {
+      border-color: var(--gray-300);
+    }
+
+    .tree-row.cm-row {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-100);
+      padding: 4px 10px;
+    }
+
+    .tree-row.locked {
+      background: var(--gray-50);
+      opacity: 0.7;
+    }
+
+    .tree-row.root-row {
+      background: linear-gradient(135deg, var(--brand-light) 0%, #fff 100%);
+      border-color: var(--brand-border);
+    }
+
+    .tree-row.error {
+      border-color: var(--danger);
+      background: #fff5f5;
+    }
+
+    .expand-btn {
+      width: 20px;
+      height: 20px;
+      border-radius: 5px;
+      border: 1.5px solid var(--gray-200);
+      background: var(--gray-50);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.15s;
+      color: var(--gray-400);
+      font-size: 10px;
+    }
+
+    .expand-btn:hover {
+      border-color: var(--brand);
+      color: var(--brand);
+      background: var(--brand-light);
+    }
+
+    .expand-btn.open {
+      background: var(--brand-light);
+      border-color: var(--brand);
+      color: var(--brand);
+    }
+
+    .expand-ph {
+      width: 20px;
+      flex-shrink: 0;
+    }
+
+    .org-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 7px;
+      background: rgba(37, 99, 235, 0.1);
+      color: var(--brand);
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .org-avatar.cm-av {
+      border-radius: 50%;
+      background: #e0e7ff;
+    }
+
+    .org-avatar svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .org-avatar.locked-av {
+      background: var(--gray-100);
+      color: var(--gray-400);
+    }
+
+    .node-label {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .node-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-800);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .node-sub {
+      font-size: 11px;
+      color: var(--gray-400);
+      margin-top: 1px;
+    }
+
+    .node-name.locked-text {
+      color: var(--gray-400);
+    }
+
+    /* 层级标签 (统一浅灰色) */
+    .level-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      white-space: nowrap;
+      flex-shrink: 0;
+      background: var(--gray-100);
+      color: var(--gray-600);
+    }
+
+    .node-input {
+      width: 70px;
+      padding: 5px 8px;
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+      color: var(--brand);
+      transition: all 0.15s;
+      background: #fff;
+      flex-shrink: 0;
+    }
+
+    .node-input:focus {
+      outline: none;
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .node-input.err {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    .node-input[readonly] {
+      background: var(--gray-100);
+      color: var(--gray-500);
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .node-pct {
+      width: 32px;
+      font-size: 11px;
+      color: var(--gray-400);
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* 聚合数字（direct模式下org节点的计算值） */
+    .agg-count {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--brand);
+      width: 70px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .agg-count.zero {
+      color: var(--gray-300);
+    }
+
+    .tree-children {
+      padding-left: 16px;
+      margin-top: 3px;
+      border-left: 1.5px solid var(--gray-100);
+      margin-left: 9px;
+      padding-bottom: 2px;
+    }
+
+    /* CM 自留行 */
+    .cm-retain-header {
+      font-size: 11px;
+      color: var(--gray-400);
+      font-weight: 600;
+      padding: 2px 0 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cm-retain-header:not(:first-child) {
+      margin-top: 6px;
+    }
+
+    .cm-badge {
+      background: #e0e7ff;
+      color: #4338ca;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 100px;
+    }
+
+    .locked-notice {
+      font-size: 11px;
+      color: var(--gray-400);
+      padding: 8px 12px;
+      background: var(--gray-50);
+      border-radius: 6px;
+      margin: 4px 0;
+      border-left: 3px solid var(--gray-200);
+    }
+
+    /* ── 汇总栏 ── */
+    .summary-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      border: 1.5px solid var(--border);
+      background: var(--bg-card);
+    }
+
+    .summary-bar.ok {
+      border-color: var(--success);
+      background: #f0fdf4;
+    }
+
+    .summary-bar.warn {
+      border-color: #d97706;
+      background: #fffbeb;
+    }
+
+    .summary-bar.err {
+      border-color: var(--danger);
+      background: #fff5f5;
+    }
+
+    /* ── 底部操作栏 ── */
+    .action-bar {
+      position: fixed;
+      bottom: 0;
+      left: var(--sidebar-width);
+      right: 0;
+      z-index: 99;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid var(--border);
+      padding: 13px 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    /* ── 完成动画 ── */
+    @keyframes success-bounce {
+      0% {
+        transform: scale(0.3);
+        opacity: 0
+      }
+
+      60% {
+        transform: scale(1.1)
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 1
+      }
+    }
+
+    @keyframes fadeSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content anim-fade-in" id="main"></main>
+  </div>
+
+  <!-- 退出确认弹窗 -->
+  <div id="leaveModal"
+    style="display:none;align-items:center;justify-content:center;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:9999;">
+    <div style="width:400px;background:#fff;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,0.18);">
+      <div
+        style="padding:16px 20px;border-bottom:1px solid var(--gray-100);display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:15px;font-weight:700;">退出分配</span>
+        <button onclick="closeLeaveModal()"
+          style="background:none;border:none;cursor:pointer;color:var(--gray-400);"><svg width="18" height="18"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg></button>
+      </div>
+      <div style="padding:18px 20px;">
+        <p style="font-size:14px;color:var(--gray-700);line-height:1.6;margin:0 0 4px;">当前分配尚未提交，退出后操作不会生效。</p>
+        <p style="font-size:13px;color:var(--gray-400);margin:0;">可暂存草稿，下次进入同一批次时恢复。</p>
+      </div>
+      <div
+        style="padding:14px 20px;border-top:1px solid var(--gray-100);display:flex;justify-content:flex-end;gap:10px;">
+        <button class="btn btn-default" onclick="closeLeaveModal()">继续编辑</button>
+        <button class="btn btn-default" onclick="doStagingLeave()"
+          style="border-color:var(--brand);color:var(--brand);">暂存草稿并退出</button>
+        <button class="btn btn-primary" onclick="forceLeave()"
+          style="background:var(--danger);border-color:var(--danger);">不保存退出</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 导出任务已提交弹窗 -->
+  <div id="downloadModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:999999; align-items:center; justify-content:center;">
+    <div class="modal-content" style="background:#fff; width:400px; border-radius:8px; padding:24px; box-shadow:0 4px 12px rgba(0,0,0,0.15); position:relative;">
+      <div style="position:absolute; top:16px; right:16px; cursor:pointer; color:#999; transition:color 0.2s;" onclick="closeDownloadModal()" onmouseover="this.style.color='#333'" onmouseout="this.style.color='#999'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#52c41a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        <h3 style="margin:0; font-size:16px; color:#262626;">导出任务已提交</h3>
+      </div>
+      <div style="margin-bottom:24px; color:#595959; font-size:14px; padding-left:36px;">
+        后台正在为您生成导出文件，请稍后前往「下载中心」查看和下载。
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:12px;">
+        <button class="btn btn-default" onclick="closeDownloadModal()">我知道了</button>
+        <button class="btn btn-primary" onclick="gotoDownloadCenter()">前往下载中心</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/sidebar.js"></script>
+  <script>
+    // =============================================
+    // 侧边栏
+    // =============================================
+    const role = sessionStorage.getItem('wb_role') || 'manager';
+    renderSidebar({ currentPage: 'allocation', role });
+
+    // =============================================
+    // Mock 数据 — 组织树（全层级可挂 cm）
+    // 节点结构:
+    //   id, name, levelName
+    //   cms: [] — 本层直属客户经理
+    //   children: [] — 子机构
+    // =============================================
+    const ORG_TREE = {
+      id: 'root', name: '江苏省分行', levelName: '省分行',
+      cms: [{ id: 'cm_root1', name: '李行', levelName: '省行客户经理' }],
+      children: [
+        {
+          id: 'sz', name: '苏州市分行', levelName: '市分行',
+          // 市分行有直属客户经理（混合深度示例）
+          cms: [
+            { id: 'cm_sz1', name: '陈晨', levelName: '市行客户经理' },
+            { id: 'cm_sz2', name: '黄磊', levelName: '市行客户经理' },
+          ],
+          children: [
+            {
+              id: 'sz_gs', name: '姑苏支行', levelName: '支行',
+              cms: [
+                { id: 'cm_u1', name: '张伟', levelName: '支行客户经理' },
+              ],
+              children: [
+                {
+                  id: 'sz_gs_wd1', name: '观前街网点', levelName: '网点',
+                  cms: [
+                    { id: 'cm_wd1', name: '李芳', levelName: '网点客户经理' }
+                  ],
+                  children: [
+                    {
+                      id: 'sz_gs_wd1_t1', name: '对公业务团队', levelName: '团队',
+                      cms: [
+                        { id: 'cm_t3', name: '王敏', levelName: '团队长' },
+                        { id: 'cm_t4', name: '孙浩', levelName: '客户经理' }
+                      ],
+                      children: []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              id: 'sz_gyq', name: '工业园区支行', levelName: '支行',
+              cms: [
+                { id: 'cm_u4', name: '刘洋', levelName: '支行客户经理' },
+              ],
+              children: [
+                {
+                  id: 'sz_gyq_t1', name: '科创金融团队', levelName: '团队',
+                  cms: [
+                    { id: 'cm_t1', name: '张帅', levelName: '团队长' },
+                    { id: 'cm_t2', name: '王丽', levelName: '客户经理' },
+                  ],
+                  children: []
+                }
+              ]
+            },
+            {
+              id: 'sz_wj', name: '吴江支行', levelName: '支行',
+              cms: [{ id: 'cm_u6', name: '赵静', levelName: '支行客户经理' }],
+              children: []
+            },
+          ]
+        },
+        {
+          id: 'nj', name: '南京市分行', levelName: '市分行',
+          cms: [],
+          children: [
+            { id: 'nj_gl', name: '鼓楼支行', levelName: '支行', cms: [{ id: 'cm_u7', name: '孙磊', levelName: '支行客户经理' }], children: [] },
+            { id: 'nj_jn', name: '江宁支行', levelName: '支行', cms: [{ id: 'cm_u8', name: '周杰', levelName: '支行客户经理' }], children: [] },
+            { id: 'nj_jy', name: '建邺支行', levelName: '支行', cms: [{ id: 'cm_u9', name: '吴刚', levelName: '支行客户经理' }], children: [] },
+          ]
+        },
+        {
+          id: 'wx', name: '无锡市分行', levelName: '市分行',
+          cms: [],
+          children: [
+            { id: 'wx_lx', name: '梁溪支行', levelName: '支行', cms: [{ id: 'cm_u10', name: '郑明', levelName: '支行客户经理' }], children: [] },
+            { id: 'wx_jy', name: '江阴支行', levelName: '支行', cms: [{ id: 'cm_u11', name: '王勇', levelName: '支行客户经理' }], children: [] },
+          ]
+        },
+      ]
+    };
+
+    // 模拟地域权重（按企业归属区域比例）
+    const REGION_WEIGHTS = { sz: 0.45, nj: 0.35, wx: 0.20 };
+
+    const BATCHES = [
+      { id: 'b1', product: '橙业贷', batch: '2026年5月第一批', total: 126, status: '未分配' },
+      { id: 'b5', product: '橙业贷', batch: '2026年4月批次', total: 76, status: '未分配' },
+      { id: 'b2', product: '厂房贷', batch: '2026年5月批次', total: 89, status: '未分配' },
+      { id: 'b3', product: '科技贷', batch: '2026年4月批次', total: 42, status: '进行中', subStatus: 'pending_sub', allocatedToCm: 28 },
+      { id: 'b6', product: '科技贷', batch: '2026年3月补充批次', total: 20, status: '进行中', subStatus: 'saved', allocatedToCm: 0 },
+      { id: 'b4', product: '助农贷', batch: '2026年3月批次', total: 310, status: '已完成', allocatedToCm: 310 },
+    ];
+
+    // =============================================
+    // 应用状态
+    // =============================================
+    const state = {
+      phase: 'batch',          // batch | alloc | confirm | done
+      selectedBatch: null,
+      batchTab: '未分配',
+      allocMode: 'direct',     // direct | cascade（默认一次性到人）
+      strategy: 'equal',       // equal | weighted | region | manual
+      isDirty: false,
+      expandedNodes: new Set(),
+      // quotaMap[nodeId] = { received, childQuotas: {id->count}, cmMap: {id->count} }
+      quotaMap: {},
+    };
+
+    const main = document.getElementById('main');
+
+    // =============================================
+    // 工具：组织树
+    // =============================================
+    function findNode(id, node = ORG_TREE) {
+      if (node.id === id) return node;
+      for (const c of (node.children || [])) {
+        const r = findNode(id, c);
+        if (r) return r;
+      }
+      return null;
+    }
+
+    function countAllCms(node) {
+      let n = (node.cms || []).length;
+      (node.children || []).forEach(c => n += countAllCms(c));
+      return n;
+    }
+
+    // 判断节点下是否有客户经理（用于过滤空节点）
+    function hasAnyCm(node) {
+      return countAllCms(node) > 0;
+    }
+
+    function collectAllCms(node, result = []) {
+      (node.cms || []).forEach(cm => result.push({ ...cm, parentOrgId: node.id }));
+      (node.children || []).forEach(c => collectAllCms(c, result));
+      return result;
+    }
+
+    // 根据 levelName 返回标签 CSS class
+    function levelTagClass(levelName) {
+      if (!levelName) return 'lv-default';
+      if (levelName.includes('省')) return 'lv-province';
+      if (levelName.includes('市') || levelName.includes('分行')) return 'lv-city';
+      if (levelName.includes('支行')) return 'lv-branch';
+      if (levelName.includes('网点')) return 'lv-outlet';
+      if (levelName.includes('团队')) return 'lv-team';
+      return 'lv-default';
+    }
+
+    // 根据 levelName 返回对应图标 SVG（与 org-config 体系一致）
+    function orgIcon(levelName) {
+      if (!levelName) return ICONS.briefcase;
+      if (levelName.includes('省') || levelName.includes('总行')) return ICONS.network;
+      if (levelName.includes('市') || levelName.includes('分行')) return ICONS.briefcase;
+      if (levelName.includes('支行')) return ICONS.home;
+      if (levelName.includes('网点')) return ICONS.map_pin;
+      if (levelName.includes('团队')) return ICONS.flag;
+      return ICONS.briefcase;
+    }
+
+    // =============================================
+    // 工具：配额计算
+    // =============================================
+    function initQuotaMap(node, receivedCount) {
+      state.quotaMap[node.id] = {
+        received: receivedCount,
+        childQuotas: {},
+        cmMap: {},
+      };
+      (node.cms || []).forEach(cm => { state.quotaMap[node.id].cmMap[cm.id] = 0; });
+      (node.children || []).forEach(c => {
+        state.quotaMap[node.id].childQuotas[c.id] = 0;
+        initQuotaMap(c, 0);
+      });
+    }
+
+    function q(nodeId) { return state.quotaMap[nodeId] || { received: 0, childQuotas: {}, cmMap: {} }; }
+    function selfCm(nodeId) { return Object.values(q(nodeId).cmMap).reduce((a, b) => a + b, 0); }
+    function downstream(nodeId) { return Object.values(q(nodeId).childQuotas).reduce((a, b) => a + b, 0); }
+    function used(nodeId) { return selfCm(nodeId) + downstream(nodeId); }
+    function remain(nodeId) { return q(nodeId).received - used(nodeId); }
+
+    // direct模式：递归计算节点下所有CM分配总数
+    function directAggregate(node) {
+      let total = selfCm(node.id);
+      (node.children || []).forEach(c => total += directAggregate(c));
+      return total;
+    }
+
+    // =============================================
+    // 分配策略算法
+    // =============================================
+    function applyStrategyToCascade() {
+      // 对根节点的直接子机构进行快速分配
+      const rootNode = ORG_TREE;
+      const total = state.selectedBatch.total;
+      const rootSelfCm = selfCm(rootNode.id);
+      const budget = total - rootSelfCm; // 可往子机构分的配额
+      const children = rootNode.children || [];
+      if (!children.length) return;
+
+      if (state.strategy === 'equal') {
+        // 按机构数均分
+        const base = Math.floor(budget / children.length);
+        const extra = budget % children.length;
+        children.forEach((c, i) => {
+          const cnt = base + (i < extra ? 1 : 0);
+          state.quotaMap[rootNode.id].childQuotas[c.id] = cnt;
+          state.quotaMap[c.id].received = cnt;
+        });
+      } else if (state.strategy === 'weighted') {
+        // 按各机构下客经人数加权
+        const totalCms = children.reduce((s, c) => s + countAllCms(c), 0) || 1;
+        let remaining = budget;
+        children.forEach((c, i) => {
+          const cnt = i === children.length - 1
+            ? remaining
+            : Math.round(budget * countAllCms(c) / totalCms);
+          state.quotaMap[rootNode.id].childQuotas[c.id] = cnt;
+          state.quotaMap[c.id].received = cnt;
+          remaining -= cnt;
+        });
+      } else if (state.strategy === 'region') {
+        // 按地域权重（REGION_WEIGHTS）
+        let remaining = budget;
+        children.forEach((c, i) => {
+          const w = REGION_WEIGHTS[c.id] || (1 / children.length);
+          const cnt = i === children.length - 1
+            ? remaining
+            : Math.round(budget * w);
+          state.quotaMap[rootNode.id].childQuotas[c.id] = cnt;
+          state.quotaMap[c.id].received = cnt;
+          remaining -= cnt;
+        });
+      }
+      // manual: 不自动填，让用户手动填
+      renderAllocPage();
+    }
+
+    function applyStrategyToDirect() {
+      // 对全树所有CM进行快速分配
+      const allCms = collectAllCms(ORG_TREE);
+      const total = state.selectedBatch.total;
+      if (!allCms.length) return;
+
+      // 重置所有CM
+      allCms.forEach(cm => { state.quotaMap[cm.parentOrgId].cmMap[cm.id] = 0; });
+
+      if (state.strategy === 'equal') {
+        const base = Math.floor(total / allCms.length);
+        const extra = total % allCms.length;
+        allCms.forEach((cm, i) => {
+          state.quotaMap[cm.parentOrgId].cmMap[cm.id] = base + (i < extra ? 1 : 0);
+        });
+      } else if (state.strategy === 'weighted') {
+        // 按所在机构的CM人数加权（每机构内平均分）
+        // 先按机构加权，再机构内均分
+        const orgCmGroups = {};
+        allCms.forEach(cm => {
+          if (!orgCmGroups[cm.parentOrgId]) orgCmGroups[cm.parentOrgId] = [];
+          orgCmGroups[cm.parentOrgId].push(cm);
+        });
+        // 找所有叶子机构（直接有CM的org）
+        const orgIds = Object.keys(orgCmGroups);
+        const totalCmCount = allCms.length;
+        let remaining = total;
+        orgIds.forEach((orgId, oi) => {
+          const cms = orgCmGroups[orgId];
+          const orgBudget = oi === orgIds.length - 1
+            ? remaining
+            : Math.round(total * cms.length / totalCmCount);
+          const base = Math.floor(orgBudget / cms.length);
+          const extra = orgBudget % cms.length;
+          cms.forEach((cm, ci) => {
+            state.quotaMap[orgId].cmMap[cm.id] = base + (ci < extra ? 1 : 0);
+          });
+          remaining -= orgBudget;
+        });
+      } else if (state.strategy === 'region') {
+        // 先按地域权重给市行，再在市行内均分
+        const root = ORG_TREE;
+        root.children.forEach(child => {
+          const w = REGION_WEIGHTS[child.id] || (1 / root.children.length);
+          const childBudget = Math.round(total * w);
+          const childCms = collectAllCms(child);
+          if (!childCms.length) return;
+          const base = Math.floor(childBudget / childCms.length);
+          const extra = childBudget % childCms.length;
+          childCms.forEach((cm, i) => {
+            state.quotaMap[cm.parentOrgId].cmMap[cm.id] = base + (i < extra ? 1 : 0);
+          });
+        });
+      }
+      renderAllocPage();
+    }
+
+    // =============================================
+    // 进度面板
+    // =============================================
+    function renderProgressPanel() {
+      const b = state.selectedBatch;
+      const total = b ? b.total : 0;
+      const rootQ = b ? q(ORG_TREE.id) : null;
+      const allocated = rootQ ? (state.allocMode === 'direct' ? directAggregate(ORG_TREE) : used(ORG_TREE.id)) : 0;
+      const pct = total > 0 ? Math.round(allocated / total * 100) : 0;
+
+      const phases = [
+        { key: 'batch', icon: '1', label: '选择批次', desc: b ? `${b.product} · ${b.total}家` : '待选择' },
+        { key: 'alloc', icon: '2', label: '分配操作', desc: state.phase === 'batch' ? '待操作' : `${allocated} / ${total} 家` },
+        { key: 'confirm', icon: '3', label: '确认下发', desc: state.phase === 'done' ? '已生效' : (state.phase === 'confirm' ? '待确认' : '') },
+      ];
+
+      const phaseOrder = ['batch', 'alloc', 'confirm', 'done'];
+      const currentIdx = phaseOrder.indexOf(state.phase);
+
+      // 左侧：固定文字
+      let html = `<div class="progress-panel">
+    <div style="display:flex; align-items:center; gap:16px;">
+      <div style="font-size:14px; font-weight:700; color:var(--gray-800); display:flex; align-items:center; gap:8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="m9 12 2 2 4-4"/></svg>
+        ${b ? `${b.product} · ${b.batch}` : '分配进度'}
+      </div>
+    </div>
+
+    <!-- 右侧：横向步骤条 (居中) -->
+    <div style="display:flex; align-items:center; justify-content:center; gap:16px;">
+      ${phases.map((p, i) => {
+        const pIdx = phaseOrder.indexOf(p.key);
+        const status = currentIdx > pIdx ? 'done' : (currentIdx === pIdx ? 'active' : '');
+        const icon = status === 'done' ? '✓' : p.icon;
+        let stepHtml = `<div class="prog-step ${status}" ${p.key === 'batch' && b ? 'onclick="tryLeave()" style="cursor:pointer;"' : ''}>
+          <div class="prog-icon">${icon}</div>
+          <div class="prog-content">
+            <div class="prog-name">${p.label}</div>
+            <div class="prog-desc">${p.desc}</div>
+          </div>
+        </div>`;
+        if (i < phases.length - 1) {
+          stepHtml += `<div style="width:40px; height:1px; background:var(--gray-200);"></div>`;
+        }
+        return stepHtml;
+      }).join('')}
+    </div>
+
+    <!-- 右侧占位符，帮助Grid将步骤条完美居中 -->
+    <div></div>
+  </div>`;
+
+      return html;
+    }
+
+    // =============================================
+    // 阶段1：批次选择
+    // =============================================
+    function switchBatchTab(tab) {
+      state.batchTab = tab; state.selectedBatch = null; renderBatch();
+    }
+
+    function renderBatch() {
+      state.phase = 'batch'; state.isDirty = false; state.quotaMap = {};
+      const counts = { '未分配': 0, '进行中': 0, '已完成': 0 };
+      BATCHES.forEach(b => { if (counts[b.status] !== undefined) counts[b.status]++; });
+      const filtered = BATCHES.filter(b => b.status === state.batchTab);
+      const groups = {};
+      filtered.forEach(b => { if (!groups[b.product]) groups[b.product] = []; groups[b.product].push(b); });
+
+      let cardsHtml = filtered.length === 0
+        ? `<div style="text-align:center;padding:48px 20px;color:var(--gray-400);">
+         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:block;margin:0 auto 12px;opacity:0.35;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+         <div style="font-size:14px;">当前没有「${state.batchTab}」的批次</div>
+       </div>`
+        : '';
+      Object.entries(groups).forEach(([product, batches]) => {
+        cardsHtml += `<div class="product-group-title">${product}</div><div class="batch-grid" style="margin-bottom:8px;">`;
+        batches.forEach(b => {
+          const isSel = state.selectedBatch?.id === b.id;
+          const pct = b.allocatedToCm ? Math.round(b.allocatedToCm / b.total * 100) : 0;
+          let tagText = b.status;
+          if (b.status === '进行中') {
+            tagText = b.subStatus === 'saved' ? '已暂存待继续' : '待下级机构分配';
+          }
+          cardsHtml += `<div class="batch-card ${isSel ? 'selected' : ''}" onclick="selectBatch('${b.id}')">
+        <div class="batch-card-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+        <div style="flex:1;min-width:0;">
+          <div class="batch-card-name">${b.batch}</div>
+          <div class="batch-card-meta">
+            <span class="tag ${b.status === '未分配' ? 'tag-amber' : b.status === '已完成' ? 'tag-green' : 'tag-blue'}">${tagText}</span>
+          </div>
+          ${b.status === '进行中' && b.subStatus !== 'saved' ? `<div class="batch-progress-bar"><div class="batch-progress-fill" style="width:${pct}%"></div></div><div style="font-size:11px;color:var(--gray-400);margin-top:3px;">${b.allocatedToCm}家企业已分配到人</div>` : ''}
+        </div>
+        <div style="text-align:right;flex-shrink:0;"><div class="batch-card-count">${b.total}<small> 家</small></div></div>
+      </div>`;
+        });
+        cardsHtml += `</div>`;
+      });
+
+      main.innerHTML = `
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1 class="page-title">名单分配</h1>
+        <p class="page-breadcrumb"><a href="index.html">工作台</a><span class="sep">/</span>运营管理<span class="sep">/</span>名单分配</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title"><span class="card-title-icon"><svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></span>选择产品批次</h3>
+      </div>
+      <div class="card-body" style="padding-top:16px;">
+        <div class="batch-tabs">
+          ${'未分配,进行中,已完成'.split(',').map(tab => `
+            <button class="batch-tab-btn ${state.batchTab === tab ? 'active' : ''}" onclick="switchBatchTab('${tab}')">
+              ${tab === '进行中' ? '分配中' : tab}
+              <span class="batch-tab-count">${counts[tab]}</span>
+            </button>`).join('')}
+        </div>
+        ${cardsHtml}
+      </div>
+    </div>
+    <div style="height:80px;"></div>
+    <div class="action-bar">
+      <div style="flex:1;font-size:13px;color:var(--gray-500);">
+        ${state.selectedBatch ? `已选择：<strong style="color:var(--brand);">${state.selectedBatch.product} · ${state.selectedBatch.batch}</strong>，共 <strong>${state.selectedBatch.total}</strong> 家企业` : '请在上方选择一个批次以继续'}
+      </div>
+      <button class="btn btn-primary" style="${!state.selectedBatch ? 'opacity:0.4;pointer-events:none;' : ''}" onclick="gotoAlloc()">
+        ${state.selectedBatch?.status === '已完成' || state.selectedBatch?.subStatus === 'pending_sub' ? '查看分配 →' : (state.selectedBatch?.status === '进行中' ? '继续分配 →' : '开始分配 →')}
+      </button>
+    </div>`;
+    }
+
+    function selectBatch(id) {
+      state.selectedBatch = BATCHES.find(b => b.id === id) || null;
+      renderBatch();
+    }
+
+    // =============================================
+    // 进入分配页
+    // =============================================
+    function gotoAlloc() {
+      const b = state.selectedBatch;
+      if (!b) return;
+      state.quotaMap = {};
+      initQuotaMap(ORG_TREE, b.total);
+
+      if (b.status === '已完成' || b.status === '进行中') {
+        state.allocMode = (b.subStatus === 'pending_sub') ? 'cascade' : 'direct';
+        if (state.allocMode === 'cascade') {
+          const children = ORG_TREE.children || [];
+          if (children.length > 0) {
+            const base = Math.floor(b.total / children.length);
+            const extra = b.total % children.length;
+            children.forEach((c, i) => {
+              state.quotaMap[ORG_TREE.id].childQuotas[c.id] = base + (i < extra ? 1 : 0);
+            });
+          }
+        } else {
+          const cms = collectAllCms(ORG_TREE);
+          if (cms.length > 0) {
+            const base = Math.floor(b.total / cms.length);
+            const extra = b.total % cms.length;
+            cms.forEach((cm, i) => {
+              state.quotaMap[cm.parentOrgId].cmMap[cm.id] = base + (i < extra ? 1 : 0);
+            });
+          }
+        }
+      }
+
+      if (b.status === '已完成' || b.subStatus === 'pending_sub') {
+        state.phase = 'done';
+        renderConfirm();
+        return;
+      }
+
+      state.phase = 'alloc';
+      state.isDirty = true;
+      state.expandedNodes = new Set([ORG_TREE.id, ...(ORG_TREE.children || []).map(c => c.id)]);
+      renderAllocPage();
+    }
+
+    // =============================================
+    // 阶段2：分配主页面
+    // =============================================
+    function renderAllocPage() {
+      const b = state.selectedBatch;
+      const total = b.total;
+      // direct模式：从全树CM累加；cascade模式：selfCm+downstream
+      const rootUsed = state.allocMode === 'direct'
+        ? directAggregate(ORG_TREE)
+        : used(ORG_TREE.id);
+      const rootRemain = total - rootUsed;
+
+      let sumClass, sumIcon, sumMsg;
+      if (rootRemain === 0) {
+        sumClass = 'ok'; sumIcon = '✓'; sumMsg = `全部 ${total} 家已分配完毕，可提交下发`;
+      } else if (rootRemain > 0) {
+        sumClass = 'warn'; sumIcon = '⚠'; sumMsg = `还剩 <strong>${rootRemain}</strong> 家未分配（${rootUsed} / ${total}）`;
+      } else {
+        sumClass = 'err'; sumIcon = '✕'; sumMsg = `超额 ${-rootRemain} 家，请检查各机构配额`;
+      }
+
+      const strategyLabels = { equal: '按机构均分', weighted: '按人数加权', region: '按地域匹配', manual: '自定义' };
+
+      main.innerHTML = `
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1 class="page-title">名单分配</h1>
+        <p class="page-breadcrumb"><a href="index.html">工作台</a><span class="sep">/</span>运营管理<span class="sep">/</span>名单分配<span class="sep">/</span><strong>${b.product} · ${b.batch}</strong></p>
+      </div>
+    </div>
+    <div class="alloc-layout">
+      ${renderProgressPanel()}
+      <div>
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-header">
+            <h3 class="card-title">${ORG_TREE.name} · 共 ${total} 家</h3>
+          </div>
+          <div class="card-body" style="padding-top:16px;">
+
+            <!-- 模式切换与展开折叠操作 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+              <div class="mode-tab-bar" style="margin-bottom: 0;">
+                <button class="mode-tab-btn ${state.allocMode === 'direct' ? 'on' : ''}" onclick="switchAllocMode('direct')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  一次性分配到人
+                </button>
+                <button class="mode-tab-btn ${state.allocMode === 'cascade' ? 'on' : ''}" onclick="switchAllocMode('cascade')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/><line x1="12" y1="3" x2="12" y2="9"/></svg>
+                  下发到分支机构
+                </button>
+              </div>
+
+              <!-- 仅在“一次性到人”即 direct 模式下有用 -->
+              ${state.allocMode === 'direct' ? `
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <button onclick="expandAllNodes()" style="font-size: 12px; color: var(--gray-600); cursor: pointer; border: 1px solid var(--border); background: #fff; padding: 4px 10px; border-radius: 6px; display: flex; align-items: center; gap: 4px; font-weight: 500;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                    展开全部
+                  </button>
+                  <button onclick="collapseAllNodes()" style="font-size: 12px; color: var(--gray-600); cursor: pointer; border: 1px solid var(--border); background: #fff; padding: 4px 10px; border-radius: 6px; display: flex; align-items: center; gap: 4px; font-weight: 500;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                    收起全部
+                  </button>
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- 顶部仅保留分配树（策略选择已移至底部） -->
+
+            <!-- 分配树 -->
+            <div id="allocTree">
+              ${state.allocMode === 'cascade' ? renderCascadeMode() : renderDirectMode()}
+            </div>
+          </div>
+        </div>
+
+        <!-- 汇总栏被移动到了底部 action-bar -->
+      </div>
+    </div>
+    <div style="height:80px;"></div>
+    <div class="action-bar">
+      <button class="btn btn-default" onclick="tryLeave()">← 退出</button>
+      
+      <!-- 汇总状态展示 -->
+      <div style="flex:1; display:flex; align-items:center;">
+        <div style="font-size:12.5px; font-weight:600; color:${sumClass === 'ok' ? 'var(--success)' : sumClass === 'warn' ? '#92400e' : 'var(--danger)'}; background: ${sumClass === 'ok' ? '#f0fdf4' : sumClass === 'warn' ? '#fffbeb' : '#fff5f5'}; padding: 6px 12px; border-radius: 6px; border: 1px solid ${sumClass === 'ok' ? '#bbf7d0' : sumClass === 'warn' ? '#fde68a' : '#fecaca'}; display: flex; align-items:center; gap: 6px; margin-left: 16px;">
+          ${sumIcon} ${sumMsg}
+        </div>
+      </div>
+      
+      <!-- 底部固定策略栏 -->
+      <div class="b-strat-bar">
+        <div class="b-strat-label">分配策略</div>
+        <div class="b-strat-group">
+          ${['region', 'equal', 'weighted'].map(s => `
+            <button class="b-strat-opt ${state.strategy === s ? 'on' : ''}" onclick="setStrategy('${s}')">${strategyLabels[s]}</button>
+          `).join('')}
+          <div class="b-strat-divider"></div>
+          <button class="b-strat-opt ${state.strategy === 'manual' ? 'on' : ''}" onclick="setStrategy('manual')">自定义</button>
+        </div>
+        
+        <div class="b-strat-actions">
+          ${state.strategy !== 'manual' ? `<button class="b-strat-apply" onclick="applyStrategy()">一键填入</button>` : ''}
+          <button class="b-strat-clear" onclick="clearAllQuotas()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg> 清空
+          </button>
+        </div>
+      </div>
+
+      <div style="flex:1;"></div>
+      <button class="btn btn-default" onclick="doStaging()" style="border-color:var(--brand);color:var(--brand);">暂存草稿</button>
+      <button class="btn btn-primary" id="submitBtn" style="${rootRemain !== 0 ? 'opacity:0.4;pointer-events:none;' : ''}" onclick="renderConfirm()">确认下发 →</button>
+    </div>`;
+    }
+
+    function renderCascadeMode() {
+      const root = ORG_TREE;
+      const total = state.selectedBatch.total;
+      let html = '';
+
+      // ─ 本层直属客户经理（若有）─
+      if ((root.cms || []).length > 0) {
+        html += `<div class="tree-section-label">直属客户经理</div>`;
+        root.cms.forEach(cm => { html += renderCmRow(root.id, cm, false); });
+      }
+
+      // ─ 直接下级机构（只显示有客户经理的节点）─
+      const validChildren = (root.children || []).filter(c => hasAnyCm(c));
+      if (validChildren.length > 0) {
+        html += `<div class="tree-section-label">下级分支机构</div>`;
+        validChildren.forEach(child => {
+          html += renderCascadeChildRow(child, root.id, total);
+        });
+      }
+
+      // ─ 层级约束提示 ─
+      html += `<div style="margin-top:8px;padding:10px 12px;background:var(--gray-50);border-radius:8px;font-size:12px;color:var(--gray-500);">
+    <strong>逐级下发模式：</strong>在下级机构填入配额数量，该机构管理员登录后可在自己权限范围内继续向下分配到客户经理。提交后本次操作结束，后续由各级管理员接力完成。
+  </div>`;
+
+      return html;
+    }
+
+    function renderCascadeChildRow(child, parentId, total) {
+      const childQ = q(child.id);
+      const received = childQ.received;
+      const cmCount = countAllCms(child);
+
+      let html = `<div class="tree-node">
+    <div class="tree-row">
+      <div class="org-avatar">${orgIcon(child.levelName)}</div>
+      <div class="node-label">
+        <div class="node-name">${child.name}<span class="level-tag ${levelTagClass(child.levelName)}">${child.levelName}</span></div>
+        <div class="node-sub">${cmCount} 名客户经理可接收名单</div>
+      </div>
+      <input type="number" class="node-input" id="inp_${child.id}" min="0" max="${total}"
+        value="${received || ''}" placeholder="0"
+        oninput="onChildOrgInput('${parentId}','${child.id}', this.value)">
+      <div class="node-pct" id="pct_${child.id}">${received > 0 && total > 0 ? Math.round(received / total * 100) + '%' : ''}</div>
+    </div>
+  </div>`;
+      return html;
+    }
+
+    // ──────────────────────────────────────────────
+    // DIRECT 模式：全树所有CM可编辑，org显示计算值
+    // ──────────────────────────────────────────────
+    function renderDirectMode() {
+      const root = ORG_TREE;
+      let html = '';
+
+      // 根节点直属客户经理（若有）
+      if ((root.cms || []).length > 0) {
+        html += `<div class="tree-section-label">直属客户经理</div>`;
+        root.cms.forEach(cm => { html += renderCmRow(root.id, cm, false); });
+      }
+
+      // 子机构树（只显示有客户经理的节点）
+      const validChildren = (root.children || []).filter(c => hasAnyCm(c));
+      if (validChildren.length > 0) {
+        html += `<div class="tree-section-label">下级分支机构</div>`;
+        validChildren.forEach(child => {
+          html += renderDirectOrgNode(child, 0);
+        });
+      }
+
+      return html;
+    }
+
+    function renderDirectOrgNode(node, depth) {
+      // 只渲染有客户经理的节点
+      if (!hasAnyCm(node)) return '';
+      const agg = directAggregate(node);
+      const total = state.selectedBatch.total;
+      const isExpanded = state.expandedNodes.has(node.id);
+      const hasCms = (node.cms || []).length > 0;
+      const validChildren = (node.children || []).filter(c => hasAnyCm(c));
+      const hasChildren = validChildren.length > 0;
+      const canExpand = hasCms || hasChildren;
+
+      let html = `<div class="tree-node">
+    <div class="tree-row">
+      ${canExpand
+          ? `<div class="expand-btn ${isExpanded ? 'open' : ''}" onclick="toggleExpand('${node.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="transition:transform 0.2s; transform:${isExpanded ? 'rotate(90deg)' : 'rotate(0)'}"><polyline points="9 18 15 12 9 6"/></svg></div>`
+          : `<div class="expand-ph"></div>`}
+      <div class="org-avatar">${orgIcon(node.levelName)}</div>
+      <div class="node-label">
+        <div class="node-name">${node.name}<span class="level-tag ${levelTagClass(node.levelName)}">${node.levelName}</span></div>
+        <div class="node-sub">${countAllCms(node)} 名客户经理</div>
+      </div>
+      <div class="agg-count ${agg === 0 ? 'zero' : ''}" id="agg_${node.id}">${agg || '—'}</div>
+      <div class="node-pct">${agg > 0 && total > 0 ? Math.round(agg / total * 100) + '%' : ''}</div>
+    </div>`;
+
+      if (isExpanded) {
+        html += `<div class="tree-children">`;
+        // 直属客户经理
+        if (hasCms) {
+          html += `<div class="cm-retain-header"><span class="cm-badge">直属客户经理</span>${node.cms.length} 名</div>`;
+          node.cms.forEach(cm => { html += renderCmRow(node.id, cm, false); });
+        }
+        // 子机构（只显示有CM的）
+        if (hasChildren) {
+          html += `<div class="cm-retain-header"><span class="cm-badge">下级分支机构</span>${validChildren.length} 个</div>`;
+          validChildren.forEach(c => { html += renderDirectOrgNode(c, depth + 1); });
+        }
+        html += `</div>`;
+      }
+      html += `</div>`;
+      return html;
+    }
+
+    // 通用：渲染单个客户经理行
+    function renderCmRow(orgId, cm, readonly) {
+      const count = q(orgId).cmMap[cm.id] || 0;
+      return `<div class="tree-row ${readonly ? 'locked' : ''}" id="cmrow_${cm.id}" style="margin-bottom:4px;">
+    <div class="expand-ph"></div>
+    <div class="org-avatar cm-av ${readonly ? 'locked-av' : ''}">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </div>
+    <div class="node-label">
+      <div class="node-name ${readonly ? 'locked-text' : ''}">${cm.name}</div>
+      <div class="node-sub">${cm.levelName}</div>
+    </div>
+    ${readonly
+          ? `<input type="number" class="node-input" readonly value="" placeholder="—">`
+          : `<input type="number" class="node-input" id="cminp_${cm.id}" min="0" value="${count || ''}" placeholder="0" oninput="onCmInput('${orgId}','${cm.id}',this.value)">`}
+    <div class="node-pct" id="cmpct_${cm.id}"></div>
+  </div>`;
+    }
+
+    // =============================================
+    // 事件处理
+    // =============================================
+    function switchAllocMode(mode) {
+      state.allocMode = mode;
+      // 重置配额但保留批次
+      initQuotaMap(ORG_TREE, state.selectedBatch.total);
+      state.expandedNodes = new Set([ORG_TREE.id, ...(ORG_TREE.children || []).map(c => c.id)]);
+      renderAllocPage();
+    }
+
+    function expandAllNodes() {
+      const allOrgIds = [];
+      function collectOrgIds(node) {
+        allOrgIds.push(node.id);
+        if (node.children) {
+          node.children.forEach(collectOrgIds);
+        }
+      }
+      collectOrgIds(ORG_TREE);
+      state.expandedNodes = new Set(allOrgIds);
+      renderAllocPage();
+    }
+
+    function collapseAllNodes() {
+      state.expandedNodes = new Set([ORG_TREE.id]);
+      renderAllocPage();
+    }
+
+    function setStrategy(s) {
+      state.strategy = s;
+      renderAllocPage();
+    }
+
+    function applyStrategy() {
+      if (state.allocMode === 'cascade') applyStrategyToCascade();
+      else applyStrategyToDirect();
+    }
+
+    // 手动填写模式：清空所有配额并重新渲染
+    function clearAllQuotas() {
+      initQuotaMap(ORG_TREE, state.selectedBatch.total);
+      renderAllocPage();
+      showToast('已清空所有填写内容');
+    }
+
+    function toggleExpand(nodeId) {
+      if (state.expandedNodes.has(nodeId)) state.expandedNodes.delete(nodeId);
+      else state.expandedNodes.add(nodeId);
+      // 局部刷新树（重新渲染整个分配区域，避免全页刷新）
+      const treeEl = document.getElementById('allocTree');
+      if (treeEl) treeEl.innerHTML = state.allocMode === 'cascade' ? renderCascadeMode() : renderDirectMode();
+    }
+
+    // 子机构配额输入（cascade模式）
+    function onChildOrgInput(parentId, childId, val) {
+      const num = parseInt(val) || 0;
+      state.quotaMap[parentId].childQuotas[childId] = num;
+      state.quotaMap[childId].received = num;
+      refreshSummary();
+      // 更新百分比
+      const total = state.selectedBatch.total;
+      const pctEl = document.getElementById(`pct_${childId}`);
+      if (pctEl) pctEl.textContent = num > 0 && total > 0 ? Math.round(num / total * 100) + '%' : '';
+    }
+
+    // 客户经理配额输入（两种模式都适用）
+    function onCmInput(orgId, cmId, val) {
+      const num = parseInt(val) || 0;
+      state.quotaMap[orgId].cmMap[cmId] = num;
+      refreshSummary();
+      // direct模式更新聚合数字
+      if (state.allocMode === 'direct') refreshDirectAggregates(ORG_TREE);
+    }
+
+    function refreshDirectAggregates(node) {
+      const agg = directAggregate(node);
+      const total = state.selectedBatch.total;
+      const el = document.getElementById(`agg_${node.id}`);
+      if (el) {
+        el.textContent = agg || '—';
+        el.className = `agg-count ${agg === 0 ? 'zero' : ''}`;
+      }
+      (node.children || []).forEach(c => refreshDirectAggregates(c));
+    }
+
+    function refreshSummary() {
+      const b = state.selectedBatch;
+      const total = b.total;
+      let rootUsed;
+      if (state.allocMode === 'direct') {
+        rootUsed = directAggregate(ORG_TREE);
+      } else {
+        rootUsed = used(ORG_TREE.id);
+      }
+      const rootRemain = total - rootUsed;
+
+      let cls, icon, msg;
+      if (rootRemain === 0) { cls = 'ok'; icon = '✓'; msg = `全部 ${total} 家已分配完毕，可提交下发`; }
+      else if (rootRemain > 0) { cls = 'warn'; icon = '⚠'; msg = `还剩 <strong>${rootRemain}</strong> 家未分配（${rootUsed} / ${total}）`; }
+      else { cls = 'err'; icon = '✕'; msg = `超额 ${-rootRemain} 家，请检查各项数量`; }
+
+      const bar = document.getElementById('summaryBar');
+      if (bar) {
+        bar.className = `summary-bar ${cls}`;
+        bar.innerHTML = `
+      <span style="font-size:13.5px;font-weight:600;color:${cls === 'ok' ? 'var(--success)' : cls === 'warn' ? '#92400e' : 'var(--danger)'};">${icon} ${msg}</span>
+      <span style="font-size:12px;color:var(--gray-400);">${ORG_TREE.name} · 共 ${total} 家</span>`;
+      }
+      const submitBtn = document.getElementById('submitBtn');
+      if (submitBtn) {
+        submitBtn.style.opacity = rootRemain !== 0 ? '0.4' : '1';
+        submitBtn.style.pointerEvents = rootRemain !== 0 ? 'none' : 'auto';
+      }
+    }
+
+    // =============================================
+    // 阶段3：确认页
+    // =============================================
+    function renderConfirm() {
+      if (state.phase !== 'done') {
+        state.phase = 'confirm';
+      }
+      const b = state.selectedBatch;
+      const items = collectConfirmItems(ORG_TREE, '');
+
+      main.innerHTML = `
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1 class="page-title">名单分配</h1>
+        <p class="page-breadcrumb"><a href="index.html">工作台</a><span class="sep">/</span>运营管理<span class="sep">/</span>名单分配<span class="sep">/</span>确认下发</p>
+      </div>
+    </div>
+    <div class="alloc-layout">
+      ${renderProgressPanel()}
+      <div class="card" style="overflow:visible;">
+        <div class="card-header">
+          <h3 class="card-title">${state.phase === 'done' ? '分配明细' : '分配明细确认'}</h3>
+        </div>
+        <div class="card-body">
+          <div style="background:var(--brand-light);border:1px solid var(--brand-border);border-radius:10px;padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:12px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>
+            <div>
+              <div style="font-size:14px;font-weight:700;color:var(--brand);">${b.product} · ${b.batch}</div>
+              <div style="font-size:12px;color:var(--gray-500);margin-top:2px;">共 ${b.total} 家 · ${state.allocMode === 'cascade' ? '逐级下发：配额分配到各级机构' : '一次性分配到人：直接分配到客户经理'}</div>
+            </div>
+          </div>
+          ${state.allocMode === 'cascade' ? `
+            <div style="padding:10px 12px;background:#fef9c3;border-radius:8px;margin-bottom:14px;font-size:12px;color:#854d0e;">
+              提交后，各机构管理员登录时将看到「待分配名单」提醒，需继续向下级分配直至到达客户经理。
+            </div>` : ''}
+          <div style="margin-bottom:12px; display:flex; gap:10px;">
+            <div class="custom-select form-control" onclick="toggleDropdown(this, event)"
+                 style="position:relative; width:220px; padding:0; cursor:pointer; user-select:none; display:flex; align-items:center; background:var(--bg-card);">
+               <div class="custom-select-display" style="flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding-left:12px; font-size:13px; color:var(--gray-700);">全部机构</div>
+               <div style="width:32px; display:flex; align-items:center; justify-content:center; color:var(--gray-500); pointer-events:none;">
+                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+               </div>
+               <input type="hidden" id="confirmOrgFilter" value="" onchange="filterConfirmList()">
+               <div class="dropdown-list" style="display:none; position:absolute; top:calc(100% + 4px); left:0; width:100%; min-width:220px; background:#fff; border:1px solid var(--border); border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); max-height:300px; overflow-y:auto; z-index:999;">
+                 <div class="dropdown-item" onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background='transparent'" onclick="selectDropdownOption(this, '全部机构', '', event)" style="padding:10px 12px; cursor:pointer; font-weight:500; font-size:13px; color:var(--gray-900);">全部机构</div>
+                 ${[...new Set(items.map(i => i.path))].filter(Boolean).map(p => {
+                   const parts = p.split(' › ');
+                   const name = parts[parts.length-1];
+                   const level = parts.length - 1;
+                   return `<div class="dropdown-item" onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background='transparent'" onclick="selectDropdownOption(this, '${name}', '${p}', event)" style="padding:10px 12px 10px ${12 + level*16}px; cursor:pointer; font-size:13px; color:var(--gray-900);">
+                     <span style="color:var(--gray-400);margin-right:4px;">${level > 0 ? '└ ' : ''}</span>${name}
+                   </div>`;
+                 }).join('')}
+               </div>
+            </div>
+            <div style="position:relative; flex:1;">
+              <svg style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--gray-400);" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="confirmNameFilter" placeholder="输入人员名称筛选..." 
+                oninput="filterConfirmList()"
+                style="width:100%; padding:9px 12px 9px 34px; border:1px solid var(--border); border-radius:8px; font-size:13px; outline:none; transition:all 0.2s; background:var(--bg-card);"
+                onfocus="this.style.borderColor='var(--brand)'; this.style.boxShadow='0 0 0 3px rgba(37,99,235,0.1)';"
+                onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none';">
+            </div>
+          </div>
+          <div style="max-height:440px;overflow-y:auto;">
+            ${items.map(item => `
+              <div class="confirm-item-row" data-path="${item.path}" data-name="${item.name}" data-count="${item.count}" style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--gray-100);">
+                <div class="org-avatar ${item.type === 'cm' ? 'cm-av' : ''}">
+                  ${item.type === 'cm' ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>' : orgIcon(item.levelName)}
+                </div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-size:13px;font-weight:600;color:var(--gray-800);">${item.name}</div>
+                  <div style="font-size:11px;color:var(--gray-400);">${item.path}</div>
+                </div>
+                <div style="font-size:16px;font-weight:800;color:var(--brand);">${item.count}</div>
+                <div style="width:30px;font-size:11px;color:var(--gray-400);text-align:right;">${Math.round(item.count / b.total * 100)}%</div>
+              </div>`).join('')}
+          </div>
+          <div style="margin-top:14px;padding:12px 14px;background:var(--gray-50);border-radius:8px;display:flex;justify-content:space-between;">
+            <span style="font-size:13px;color:var(--gray-500);">合计</span>
+            <span style="font-size:18px;font-weight:800;color:var(--brand);" id="confirmTotalCount">${b.total} 家</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="height:80px;"></div>
+    <div class="action-bar">
+      ${state.phase === 'done' ? `
+        <button class="btn btn-default" onclick="renderBatch()">← 返回</button>
+        <div style="flex:1;"></div>
+        ${state.allocMode !== 'cascade' ? '<button class="btn btn-primary" onclick="showDownloadModal()">下载分配名单</button>' : ''}
+      ` : `
+        <button class="btn btn-default" onclick="tryLeave()">← 返回</button>
+        <div style="flex:1;"></div>
+        <button class="btn btn-primary" onclick="doSubmit()">确认下发</button>
+      `}
+    </div>`;
+    }
+
+    function collectConfirmItems(node, path) {
+      const result = [];
+      const currentPath = path ? `${path} › ${node.name}` : node.name;
+      const nq = q(node.id);
+
+      if (state.allocMode === 'cascade') {
+        // 本层CM
+        (node.cms || []).forEach(cm => {
+          const cnt = nq.cmMap[cm.id] || 0;
+          if (cnt > 0) result.push({ type: 'cm', name: cm.name, path: currentPath, count: cnt, levelName: cm.levelName });
+        });
+        // 子机构（只列第一级有配额的）
+        (node.children || []).forEach(c => {
+          const cnt = nq.childQuotas[c.id] || 0;
+          if (cnt > 0) result.push({ type: 'org', name: c.name, path: `${currentPath} › ${c.name}`, count: cnt, levelName: c.levelName });
+        });
+      } else {
+        // direct: 递归所有CM
+        (node.cms || []).forEach(cm => {
+          const cnt = nq.cmMap[cm.id] || 0;
+          if (cnt > 0) result.push({ type: 'cm', name: cm.name, path: currentPath, count: cnt, levelName: cm.levelName });
+        });
+        (node.children || []).forEach(c => {
+          collectConfirmItems(c, currentPath).forEach(i => result.push(i));
+        });
+      }
+      return result;
+    }
+
+    function filterConfirmList() {
+      const nameInput = document.getElementById('confirmNameFilter');
+      const orgSelect = document.getElementById('confirmOrgFilter');
+      const keyword = nameInput ? nameInput.value.trim().toLowerCase() : '';
+      const orgFilter = orgSelect ? orgSelect.value : '';
+
+      const rows = document.querySelectorAll('.confirm-item-row');
+      let filteredTotal = 0;
+
+      rows.forEach(row => {
+        const path = row.getAttribute('data-path');
+        const name = row.getAttribute('data-name').toLowerCase();
+
+        let match = true;
+        if (orgFilter && path !== orgFilter) match = false;
+        if (keyword && !name.includes(keyword)) match = false;
+
+        if (match) {
+          row.style.display = 'flex';
+          filteredTotal += parseInt(row.getAttribute('data-count') || '0', 10);
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      const totalEl = document.getElementById('confirmTotalCount');
+      if (totalEl) {
+        if (keyword || orgFilter) {
+          totalEl.innerHTML = `<span style="font-size:13px;color:var(--gray-500);font-weight:normal;margin-right:8px;">筛选合计</span>${filteredTotal} 家`;
+        } else {
+          totalEl.innerHTML = `${state.selectedBatch.total} 家`;
+        }
+      }
+    }
+
+    // =============================================
+    // 阶段4：完成
+    // =============================================
+    function doSubmit() {
+      state.phase = 'done';
+      const b = state.selectedBatch;
+      if (b) {
+        b.status = '已完成';
+        b.allocatedToCm = b.total;
+      }
+      main.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:64vh;gap:24px;">
+      <div style="width:80px;height:80px;background:var(--brand-light);border-radius:24px;display:flex;align-items:center;justify-content:center;animation:success-bounce 0.5s cubic-bezier(0.175,0.885,0.32,1.275);">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      </div>
+      <div style="text-align:center;animation:fadeSlideUp 0.4s 0.2s both;">
+        <h2 style="font-size:22px;font-weight:800;color:var(--gray-900);margin-bottom:8px;">下发成功</h2>
+        <p style="font-size:14px;color:var(--gray-500);">${b ? b.product : ''} · ${b ? b.batch : ''} · 共 ${b ? b.total : 0} 家企业已完成分配</p>
+        <p style="font-size:13px;color:var(--gray-400);margin-top:4px;">
+          ${state.allocMode === 'cascade'
+          ? '各级机构管理员登录后可在首页看到"待分配名单"提醒，继续向下级分配'
+          : '客户经理已可在移动端查看并处理分配的名单'}
+        </p>
+      </div>
+      <div style="display:flex;gap:12px;animation:fadeSlideUp 0.4s 0.35s both;">
+        <button class="btn btn-default" onclick="renderBatch()">返回批次列表</button>
+        <button class="btn btn-primary" onclick="gotoNextBatch()">分配下一批次</button>
+      </div>
+    </div>`;
+    }
+
+    // =============================================
+    // 暂存 & 退出
+    // =============================================
+    function doStaging() { showToast('草稿已暂存，下次可恢复继续操作'); state.isDirty = false; }
+    function doStagingLeave() { doStaging(); closeLeaveModal(); renderBatch(); }
+    function tryLeave() {
+      if (state.isDirty && state.phase !== 'batch') { document.getElementById('leaveModal').style.display = 'flex'; }
+      else { renderBatch(); }
+    }
+    function closeLeaveModal() { document.getElementById('leaveModal').style.display = 'none'; }
+    function forceLeave() { closeLeaveModal(); state.isDirty = false; renderBatch(); }
+
+    // =============================================
+    // 下载弹窗
+    // =============================================
+    function showDownloadModal() {
+      document.getElementById('downloadModal').style.display = 'flex';
+    }
+    function closeDownloadModal() {
+      document.getElementById('downloadModal').style.display = 'none';
+    }
+    function gotoDownloadCenter() {
+      closeDownloadModal();
+      location.href = 'downloads.html';
+    }
+
+    // =============================================
+    // Toast
+    // =============================================
+    function showToast(msg) {
+      let el = document.getElementById('__toast__');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = '__toast__';
+        el.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(15,23,42,0.88);color:#fff;padding:10px 22px;border-radius:100px;font-size:13.5px;font-weight:500;z-index:9999;opacity:0;transition:all 0.3s;pointer-events:none;';
+        document.body.appendChild(el);
+      }
+      el.textContent = msg;
+      el.style.opacity = '1'; el.style.transform = 'translateX(-50%) translateY(0)';
+      clearTimeout(el._t);
+      el._t = setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(-50%) translateY(10px)'; }, 2200);
+    }
+
+    // =============================================
+    // 下拉选择逻辑
+    // =============================================
+    function toggleDropdown(el, e) {
+      e.stopPropagation();
+      document.querySelectorAll('.custom-select .dropdown-list').forEach(list => {
+        if (list !== el.querySelector('.dropdown-list')) {
+          list.style.display = 'none';
+          list.parentNode.style.borderColor = 'var(--border)';
+          list.parentNode.style.boxShadow = 'none';
+        }
+      });
+      const list = el.querySelector('.dropdown-list');
+      if (list) {
+        const isVisible = list.style.display === 'block';
+        list.style.display = isVisible ? 'none' : 'block';
+        el.style.borderColor = isVisible ? 'var(--border)' : 'var(--brand)';
+        el.style.boxShadow = isVisible ? 'none' : '0 0 0 3px rgba(37,99,235,0.1)';
+      }
+    }
+
+    function selectDropdownOption(optionEl, name, value, e) {
+      e.stopPropagation();
+      const selectDiv = optionEl.closest('.custom-select');
+      const displayDiv = selectDiv.querySelector('.custom-select-display');
+      const hiddenInput = selectDiv.querySelector('input[type="hidden"]');
+      if (displayDiv) displayDiv.innerText = name;
+      if (hiddenInput) {
+        hiddenInput.value = value;
+        hiddenInput.dispatchEvent(new Event('change'));
+      }
+      const list = selectDiv.querySelector('.dropdown-list');
+      if (list) list.style.display = 'none';
+      selectDiv.style.borderColor = 'var(--border)';
+      selectDiv.style.boxShadow = 'none';
+    }
+
+    function gotoNextBatch() {
+      // 找到第一个未分配或进行中的批次进行分配
+      const next = BATCHES.find(b => b.status !== '已完成');
+      if (next) {
+        state.selectedBatch = next;
+        gotoAlloc();
+      } else {
+        showToast('所有批次已分配完毕！');
+        renderBatch();
+      }
+    }
+
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.custom-select').forEach(select => {
+        const list = select.querySelector('.dropdown-list');
+        if (list) list.style.display = 'none';
+        select.style.borderColor = 'var(--border)';
+        select.style.boxShadow = 'none';
+      });
+    });
+
+    // =============================================
+    // 入口
+    // =============================================
+    renderBatch();
+  </script>
+</body>
+
+</html>

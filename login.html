@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登录 — 智能营销平台 | 江苏联合征信</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root {
+      --brand: #2563eb;
+      --brand-hover: #1d4ed8;
+      --gray-50: #f8fafc;
+      --gray-100: #f1f5f9;
+      --gray-200: #e2e8f0;
+      --gray-300: #cbd5e1;
+      --gray-400: #94a3b8;
+      --gray-500: #64748b;
+      --gray-600: #475569;
+      --gray-700: #334155;
+      --gray-800: #1e293b;
+      --gray-900: #0f172a;
+      --danger: #ef4444;
+      --success: #10b981;
+      --r-sm: 6px;
+      --r-md: 10px;
+      --r-lg: 16px;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    html,body{
+      height: 100%;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      font-size: 14px; line-height: 1.5; color: var(--gray-900);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .split-layout {
+      display: flex; min-height: 100vh;
+    }
+
+    /* ====== 左侧：深色品牌区 ====== */
+    .split-left {
+      flex: 1;
+      /* 参考图二的深色背景，比图一的蓝底更深邃 */
+      background: linear-gradient(135deg, #0f172a 0%, #0b1120 100%);
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px 8%;
+      transform: translateZ(0); /* 开启硬件加速隔离层 */
+    }
+
+    /* 保留图一的网格线 */
+    .split-left::before {
+      content: ''; position: absolute; inset: 0;
+      background-image: 
+        linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    /* 增强光晕和渐变 */
+    .glow {
+      position: absolute; border-radius: 50%;
+      filter: blur(120px); pointer-events: none;
+    }
+    .glow-1 { width: 500px; height: 500px; background: rgba(37, 99, 235, 0.25); top: -150px; left: -100px; }
+    .glow-2 { width: 400px; height: 400px; background: rgba(16, 185, 129, 0.15); bottom: 5%; right: -100px; }
+
+    .marketing-content {
+      position: relative; z-index: 1; max-width: 500px;
+      animation: fade-in-up 0.8s var(--ease) both;
+    }
+
+    /* 图二的平台Logo（放在标题上方） */
+    .platform-logo {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 48px;
+    }
+    .platform-logo .icon {
+      width: 40px; height: 40px; background: #3b82f6; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+    .platform-logo .icon svg { width: 20px; height: 20px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .platform-logo .text { display: flex; flex-direction: column; }
+    .platform-logo .text .t1 { font-size: 18px; font-weight: 600; color: #fff; line-height: 1.2; letter-spacing: 0.5px;}
+    .platform-logo .text .t2 { font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.2; margin-top: 4px;}
+
+    .marketing-content h1 {
+      font-size: 56px; font-weight: 700; line-height: 1.25;
+      margin-bottom: 24px; letter-spacing: -1px; color: #fff;
+    }
+    /* 蓝绿渐变文字 */
+    .text-gradient {
+      background: linear-gradient(to right, #60a5fa, #34d399);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+    
+    .marketing-desc {
+      font-size: 16px; color: rgba(255,255,255,0.75); line-height: 1.8;
+      margin-bottom: 56px; max-width: 480px;
+    }
+
+    /* 简化设计的列表 */
+    .simple-features {
+      list-style: none; display: flex; flex-direction: column; gap: 20px;
+    }
+    .simple-features li {
+      display: flex; align-items: center; gap: 14px;
+      font-size: 16px; color: rgba(255,255,255,0.85); font-weight: 500;
+    }
+    .simple-features li .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+    }
+    .dot.d1 { background: #3b82f6; box-shadow: 0 0 10px rgba(59,130,246,0.6); }
+    .dot.d2 { background: #10b981; box-shadow: 0 0 10px rgba(16,185,129,0.6); }
+    .dot.d3 { background: #a855f7; box-shadow: 0 0 10px rgba(168,85,247,0.6); }
+
+    @keyframes fade-in-up {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+
+    /* ====== 右侧：白色表单区 ====== */
+    .split-right {
+      /* 完全按比例自适应，移除硬性max-width限制 */
+      flex: 0 0 35%; min-width: 480px; 
+      background: #fff;
+      display: flex; flex-direction: column;
+      justify-content: center;
+      padding: 40px 8%;
+      position: relative;
+    }
+
+    .logo-container { margin-bottom: 56px; }
+    .logo-container img { 
+      height: 46px; width: auto; display: block; 
+    }
+
+    .login-header { margin-bottom: 32px; }
+    .login-header h2 { font-size: 24px; font-weight: 700; color: var(--gray-900); margin-bottom: 8px; }
+    .login-header p { font-size: 14px; color: var(--gray-500); }
+
+    /* 错误提示 */
+    .err-bar {
+      display: none; align-items: center; gap: 8px;
+      padding: 10px 14px; border-radius: var(--r-sm);
+      background: #fef2f2; border: 1px solid #fecaca;
+      color: var(--danger); font-size: 13px; margin-bottom: 24px;
+    }
+    .err-bar.show { display: flex; animation: shake 0.4s var(--ease); }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-4px)} 40%,80%{transform:translateX(4px)} }
+    .err-bar svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; flex-shrink: 0; }
+
+    /* 表单组件 */
+    .fg { margin-bottom: 20px; }
+    .fl { display: block; font-size: 13px; font-weight: 500; color: var(--gray-700); margin-bottom: 8px; }
+    .iw { position: relative; }
+    .iw input {
+      width: 100%; height: 44px; padding: 0 40px 0 16px;
+      border: 1px solid var(--gray-300); border-radius: var(--r-md);
+      font-size: 14px; color: var(--gray-900);
+      outline: none; font-family: inherit; transition: all .2s;
+    }
+    .iw input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+    .iw input.e { border-color: var(--danger); background: #fef2f2; }
+    .iw input::placeholder { color: var(--gray-400); }
+    
+    .iicon {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      width: 18px; height: 18px; color: var(--gray-400);
+      display: flex; align-items: center; cursor: pointer; transition: color .2s;
+    }
+    .iicon:hover { color: var(--gray-700); }
+    .iicon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    
+    .ferr { font-size: 12px; color: var(--danger); margin-top: 6px; display: none; }
+    .ferr.v { display: block; }
+
+    .frow { display: flex; align-items: center; justify-content: space-between; margin: 16px 0 32px; }
+    .fck { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--gray-600); cursor: pointer; user-select: none; }
+    .fck input { accent-color: var(--brand); width: 16px; height: 16px; cursor: pointer; }
+    .flk { font-size: 13px; color: var(--brand); text-decoration: none; font-weight: 500; }
+    .flk:hover { text-decoration: underline; }
+
+    /* 登录按钮 */
+    .btn-go {
+      width: 100%; height: 46px; background: var(--brand); color: #fff;
+      border: none; border-radius: var(--r-md); font-size: 15px; font-weight: 600;
+      cursor: pointer; font-family: inherit; letter-spacing: 1px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: all .2s;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .btn-go:hover { background: var(--brand-hover); box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3); }
+    .btn-go:active { transform: translateY(1px); box-shadow: none; }
+    .btn-go:disabled { opacity: .6; cursor: not-allowed; transform: none; box-shadow: none; }
+    
+    .sp {
+      width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff; border-radius: 50%;
+      animation: spin .6s linear infinite; display: none; flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .cr {
+      position: absolute; bottom: 32px; left: 0; right: 0;
+      text-align: center; font-size: 12px; color: var(--gray-400);
+    }
+
+    /* ========= 改密弹窗 ========= */
+    .ov {
+      display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 9999; 
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .ov.on { display: flex; animation: fadeIn .2s var(--ease); }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    
+    .pm {
+      background: #fff; border-radius: var(--r-lg); width: 100%; max-width: 440px; padding: 32px;
+      box-shadow: 0 20px 40px rgba(0,0,0,.15); position: relative;
+      animation: scaleUp .3s var(--ease);
+    }
+    @keyframes scaleUp { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    
+    .pm-ico { 
+      width: 48px; height: 48px; border-radius: 12px; 
+      background: #eff6ff; color: var(--brand);
+      display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; 
+    }
+    .pm-ico svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .pm-t { font-size: 18px; font-weight: 700; color: var(--gray-900); text-align: center; margin-bottom: 8px; }
+    .pm-d { font-size: 13px; color: var(--gray-500); text-align: center; line-height: 1.5; margin-bottom: 24px; }
+    .pm-d b { color: var(--brand); }
+    
+    .rules { background: var(--gray-50); border-radius: var(--r-md); padding: 16px; margin-bottom: 24px; display: flex; flex-direction: column; gap: 8px; }
+    .rule { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--gray-500); transition: color .2s; }
+    .rule.ok { color: var(--success); }
+    .rdot { width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--gray-200); color: #fff; flex-shrink: 0; transition: background .2s; }
+    .rule.ok .rdot { background: var(--success); }
+    .rdot svg { width: 10px; height: 10px; stroke: currentColor; fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; opacity: 0; transition: opacity .2s;}
+    .rule.ok .rdot svg { opacity: 1; }
+    
+    .str-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--gray-500); margin: 6px 0; }
+    .str-bar { height: 4px; border-radius: 2px; background: var(--gray-200); overflow: hidden; margin-bottom: 20px; }
+    .str-f { height: 100%; border-radius: 2px; transition: width .3s, background .3s; width: 0; }
+    
+    .btn-cf { width: 100%; height: 44px; background: var(--brand); color: #fff; border: none; border-radius: var(--r-md); font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: background .2s; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+    .btn-cf:hover { background: var(--brand-hover); }
+    .btn-cf:disabled { opacity: .5; cursor: not-allowed; box-shadow: none; }
+    
+    .btn-lt { width: 100%; margin-top: 12px; height: 40px; background: transparent; color: var(--gray-500); border: none; font-size: 13px; cursor: pointer; font-family: inherit; transition: color .2s; }
+    .btn-lt:hover { color: var(--gray-900); }
+
+    /* 响应式调整：当屏幕宽度较小时，允许右侧变窄 */
+    @media (max-width: 1024px) {
+      .split-right { flex: 1; padding: 40px; }
+      .split-left { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="split-layout">
+  
+  <!-- 左侧区域 -->
+  <div class="split-left">
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+    
+    <div class="marketing-content">
+      
+      <!-- 平台图标与名称 -->
+      <div class="platform-logo">
+        <div class="logo-mark" style="background: transparent; box-shadow: none; width: 48px; height: 48px; padding: 0; display: flex; align-items: center; justify-content: center;">
+          <svg width="48" height="48" viewBox="0 0 36 36" fill="none" stroke="#ffffff" stroke-width="1.2" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="logoHex1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#2563eb"/>
+                <stop offset="100%" stop-color="#1e40af"/>
+              </linearGradient>
+              <linearGradient id="logoHex2" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#3b82f6"/>
+                <stop offset="100%" stop-color="#1d4ed8"/>
+              </linearGradient>
+              <linearGradient id="logoHex3" x1="100%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#60a5fa"/>
+                <stop offset="100%" stop-color="#2563eb"/>
+              </linearGradient>
+            </defs>
+            <path d="M18 3L31 10.5V25.5L18 33L5 25.5V10.5L18 3Z" stroke="url(#logoHex3)" stroke-width="1.5" fill="rgba(59,130,246,0.1)"/>
+            <path d="M18 9L26.66 14L18 19L9.34 14Z" fill="url(#logoHex3)"/>
+            <path d="M18 19L26.66 14V24L18 29Z" fill="url(#logoHex1)"/>
+            <path d="M18 19V29L9.34 24V14Z" fill="url(#logoHex2)"/>
+          </svg>
+        </div>
+        <div class="text">
+          <span class="t1" style="font-size: 24px; font-weight: 800; background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 0.5px;">智能营销平台</span>
+          <span class="t2" style="font-size: 14px; color: rgba(255,255,255,0.6); letter-spacing: 0.5px; margin-top: 4px;">金融机构端</span>
+        </div>
+      </div>
+      
+      <h1>赋能营销，<br><span class="text-gradient">智驱增长</span></h1>
+      
+      <p class="marketing-desc">
+        基于海量企业征信数据与先进的 AI 算法，提供全链路智能营销解决方案，助力金融机构实现精准获客与高效转化。
+      </p>
+
+      <!-- 提炼后的精简列表 -->
+      <ul class="simple-features">
+        <li><span class="dot d1"></span>智能客群分层</li>
+        <li><span class="dot d2"></span>AI 策略生成</li>
+        <li><span class="dot d3"></span>全链路转化追踪</li>
+      </ul>
+      
+    </div>
+  </div>
+
+  <!-- 右侧表单区域 -->
+  <div class="split-right">
+    <div class="logo-container">
+      <img src="img/logo-color.png" alt="江苏联合征信">
+    </div>
+    
+    <div class="login-header">
+      <h2>欢迎回来</h2>
+      <p>请使用用户名/手机号登录系统</p>
+    </div>
+
+    <div class="err-bar" id="errBar">
+      <svg viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span id="errMsg">账号或密码错误</span>
+    </div>
+
+    <form onsubmit="doLogin(event)">
+      <div class="fg">
+        <label class="fl" for="uid">用户名/手机号</label>
+        <div class="iw">
+          <input type="text" id="uid" placeholder="请输入用户名或手机号" autocomplete="username">
+          <span class="iicon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+        </div>
+        <div class="ferr" id="uidE">请输入用户名或手机号</div>
+      </div>
+      <div class="fg">
+        <label class="fl" for="pwd">密码</label>
+        <div class="iw">
+          <input type="password" id="pwd" placeholder="请输入登录密码" autocomplete="current-password">
+          <span class="iicon" onclick="eye('pwd',this)">
+            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </span>
+        </div>
+        <div class="ferr" id="pwdE">请输入密码</div>
+      </div>
+      
+      <div class="frow">
+        <label class="fck"><input type="checkbox" id="rem"> 自动登录</label>
+        <a href="#" class="flk">忘记密码？</a>
+      </div>
+      
+      <button type="submit" class="btn-go" id="loginBtn">
+        <div class="sp" id="sp"></div>
+        <span id="btnTxt">登 录</span>
+      </button>
+    </form>
+    
+    <div class="cr">
+      © 2026 江苏省联合征信有限公司
+    </div>
+  </div>
+  
+</div>
+
+
+<!-- 改密弹窗 -->
+<div class="ov" id="pwdOv">
+  <div class="pm">
+    <div class="pm-ico"><svg viewBox="0 0 24 24"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4M3 5h4"/></svg></div>
+    <div class="pm-t">首次登录安全验证</div>
+    <div class="pm-d">系统检测到您使用的是<b>初始密码</b>，<br>为保障账户数据安全，请设置新密码。</div>
+    
+    <div class="rules">
+      <div class="rule" id="r1"><div class="rdot"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>长度至少 8 位</div>
+      <div class="rule" id="r2"><div class="rdot"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>包含大写字母</div>
+      <div class="rule" id="r3"><div class="rdot"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>包含数字</div>
+      <div class="rule" id="r4"><div class="rdot"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>包含特殊字符（@#$%等）</div>
+    </div>
+    
+    <div class="fg">
+      <label class="fl" for="np">新密码</label>
+      <div class="iw">
+        <input type="password" id="np" placeholder="请输入新密码" oninput="chkStr(this.value)">
+        <span class="iicon" onclick="eye('np',this)"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      </div>
+      <div class="str-row"><span>密码强度</span><span id="strL">—</span></div>
+      <div class="str-bar"><div class="str-f" id="strF"></div></div>
+    </div>
+    
+    <div class="fg" style="margin-bottom:24px">
+      <label class="fl" for="cp">确认新密码</label>
+      <div class="iw">
+        <input type="password" id="cp" placeholder="请再次输入新密码">
+        <span class="iicon" onclick="eye('cp',this)"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+      </div>
+      <div class="ferr" id="cpE">两次密码输入不一致</div>
+    </div>
+    
+    <button class="btn-cf" id="cfBtn" onclick="doPwdChange()" disabled>确认修改并登录</button>
+    <button class="btn-lt" onclick="skipPwd()">稍后在个人中心修改</button>
+  </div>
+</div>
+
+<script>
+const USERS={
+  'manager001':  {pw:'123456',role:'manager',        name:'张行长',  label:'管理员',first:true },
+  'rm001':       {pw:'123456',role:'rm',             name:'朱某人',  label:'客户经理',    first:false},
+};
+
+function doLogin(e){
+  e.preventDefault();
+  const u=document.getElementById('uid').value.trim();
+  const p=document.getElementById('pwd').value;
+  let ok=true;
+  if(!u){se('uid','请输入用户名/手机号');ok=false;}else ce('uid');
+  if(!p){se('pwd','请输入密码');ok=false;}else ce('pwd');
+  if(!ok)return;
+  
+  const btn=document.getElementById('loginBtn');
+  document.getElementById('sp').style.display='block';
+  document.getElementById('btnTxt').textContent='登录中…';
+  btn.disabled=true;
+  
+  setTimeout(()=>{
+    btn.disabled=false;
+    document.getElementById('sp').style.display='none';
+    document.getElementById('btnTxt').textContent='登 录';
+    const usr=USERS[u];
+    if(!usr||usr.pw!==p){
+      document.getElementById('errMsg').textContent='账号或密码错误，请核对后重试';
+      document.getElementById('errBar').classList.add('show');
+      document.getElementById('pwd').classList.add('e');
+      return;
+    }
+    sessionStorage.setItem('wb_role',usr.role);
+    sessionStorage.setItem('wb_user',JSON.stringify({username:u,name:usr.name,label:usr.label}));
+    usr.first ? document.getElementById('pwdOv').classList.add('on') : location.href='index.html';
+  },800);
+}
+
+function se(id,msg){
+  document.getElementById(id).classList.add('e');
+  const el=document.getElementById(id+'E');if(el){el.textContent=msg;el.classList.add('v');}
+}
+function ce(id){
+  document.getElementById(id).classList.remove('e');
+  const el=document.getElementById(id+'E');if(el)el.classList.remove('v');
+}
+['uid','pwd'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',()=>{
+    ce(id);document.getElementById('errBar').classList.remove('show');
+  });
+});
+
+function eye(id,span){
+  const inp=document.getElementById(id);const t=inp.type==='text';inp.type=t?'password':'text';
+  span.innerHTML=t
+    ?'<svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
+    :'<svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+}
+
+function chkStr(v){
+  const rs=[{id:'r1',f:v=>v.length>=8},{id:'r2',f:v=>/[A-Z]/.test(v)},{id:'r3',f:v=>/[0-9]/.test(v)},{id:'r4',f:v=>/[@#$%^&*!]/.test(v)}];
+  let p=0;rs.forEach(r=>{const ok=r.f(v);if(ok)p++;document.getElementById(r.id).classList.toggle('ok',ok);});
+  const lvs=[
+    {w:'0%',bg:'#e2e8f0',t:'—'},
+    {w:'25%',bg:'#ef4444',t:'弱'},
+    {w:'50%',bg:'#f59e0b',t:'中'},
+    {w:'75%',bg:'#3b82f6',t:'强'},
+    {w:'100%',bg:'#10b981',t:'极强'}
+  ];
+  const lv=lvs[p]||lvs[0];
+  document.getElementById('strF').style.cssText=`width:${lv.w};background:${lv.bg}`;
+  const sl=document.getElementById('strL');sl.textContent=lv.t;sl.style.color=p===0?'var(--gray-500)':lv.bg;
+  document.getElementById('cfBtn').disabled=(p<4);
+}
+
+function doPwdChange(){
+  const n=document.getElementById('np').value,c=document.getElementById('cp').value;
+  if(n!==c){document.getElementById('cpE').classList.add('v');document.getElementById('cp').classList.add('e');return;}
+  location.href='index.html';
+}
+function skipPwd(){location.href='index.html';}
+</script>
+</body>
+</html>

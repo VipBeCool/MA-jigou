@@ -72,7 +72,7 @@ window.buildContactCard = function(opt, index) {
   const phoneColor = tier === 1 ? '#1890ff' : (dim ? '#bfbfbf' : '#262626');
   const phoneSize = tier === 1 ? '17px' : (dim ? '14px' : '15px');
 
-  const nameHtml = opt.contactName ? `<div style="font-size:12px;color:#8c8c8c;margin-bottom:2px;">👤 ${opt.contactName}</div>` : '';
+  // 姓名/职务属于敏感数据，不在前端展示
   const opacityStyle = dim ? 'opacity:0.65;' : '';
 
   return `<div style="padding:14px 16px;background:${bg};border:1px solid ${border};border-radius:10px;margin-bottom:10px;${opacityStyle}">
@@ -83,12 +83,12 @@ window.buildContactCard = function(opt, index) {
           <span style="cursor:pointer;font-size:13px;opacity:0.5;margin-left:3px;" onclick="window.togglePhone(this,'${opt.maskedPhone}','${opt.fullPhone}')">👁️</span>
         </span>
         <span style="font-size:11px;background:${cfg.tagBg};color:${cfg.tagColor};padding:2px 8px;border-radius:4px;border:1px solid ${cfg.tagBorder};">
-          ${opt.role}
+          <span style="opacity:0.6;">预测</span> ${opt.role}
         </span>
       </div>
       <span style="font-size:18px;flex-shrink:0;">${medal}</span>
     </div>
-    ${nameHtml}
+
     <div style="font-size:12px;color:#595959;line-height:1.6;background:rgba(255,255,255,0.7);padding:6px 10px;border-radius:6px;margin-bottom:10px;">
       <span style="opacity:0.6;">Tips：</span>${tips}
     </div>
@@ -201,7 +201,7 @@ window.switchContactTab = function(el, targetId, containerId) {
 
 // Mock 样例数据 - 覆盖 P1-P7 所有层级的代表性角色
 const MOCK_CONTACT_PATHS = [
-  { maskedPhone:'138****1234', fullPhone:'13800001234', role:'[财务/税务负责人]', contactName:'张明' },
+  { maskedPhone:'138****1234', fullPhone:'13800001234', role:'[财务/税务负责人]' },
   { maskedPhone:'186****8888', fullPhone:'18688888888', role:'[融资对接人]' },
   { maskedPhone:'139****5678', fullPhone:'13988885678', role:'[资质项目申报人]' },
   { maskedPhone:'137****0000', fullPhone:'13711110000', role:'[董监高/核心股东]' },

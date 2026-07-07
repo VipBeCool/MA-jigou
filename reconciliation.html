@@ -35,61 +35,13 @@
 
 <body>
     <div class="app-container">
-        <aside class="sidebar">
-            <div class="sidebar-logo">
-                <div class="logo-icon">💼</div>
-                <h1>智能营销平台</h1>
-            </div>
-            <nav class="nav-menu">
-                <a href="index.html" class="nav-item">
-                    <span class="nav-icon">🏠</span>
-                    <span class="nav-text">工作台</span>
-                </a>
-                <a href="customers.html" class="nav-item">
-                    <span class="nav-icon">👥</span>
-                    <span class="nav-text">客户名单</span>
-                </a>
-                <a href="tasks.html" class="nav-item">
-                    <span class="nav-icon">📋</span>
-                    <span class="nav-text">任务管理</span>
-                </a>
-                <a href="select.html" class="nav-item">
-                    <span class="nav-icon">🎯</span>
-                    <span class="nav-text">智能圈选</span>
-                </a>
-                <a href="dashboard.html" class="nav-item">
-                    <span class="nav-icon">📊</span>
-                    <span class="nav-text">数据看板</span>
-                </a>
-                <a href="risk-alert.html" class="nav-item">
-                    <span class="nav-icon">⚠️</span>
-                    <span class="nav-text">风险预警</span>
-                </a>
-                <a href="reconciliation.html" class="nav-item active">
-                    <span class="nav-icon">📑</span>
-                    <span class="nav-text">对账确认</span>
-                </a>
-                <a href="downloads.html" class="nav-item">
-                    <span class="nav-icon">📥</span>
-                    <span class="nav-text">下载中心</span>
-                </a>
-            </nav>
-            <div class="sidebar-footer">
-                <div class="user-info">
-                    <div class="user-avatar">朱</div>
-                    <div>
-                        <div class="user-name">朱某人</div>
-                        <div class="user-role">客户经理</div>
-                    </div>
-                </div>
-            </div>
-        </aside>
+        <aside class="sidebar" id="sidebar"></aside>
 
         <main class="main-content">
             <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
                     <h1 class="page-title">对账确认</h1>
-                    <p class="page-breadcrumb"><a href="index.html">工作台</a> / 对账确认</p>
+                    <p class="page-breadcrumb"><a href="index.html">工作台</a><span class="sep">/</span>其他<span class="sep">/</span>对账确认</p>
                 </div>
                 <div style="display: flex; gap: 12px;">
                     <select class="form-select" style="width: 120px;">
@@ -303,10 +255,12 @@
         </div>
     </div>
 
+    <script src="js/sidebar.js"></script>
     <script>
-        function openModal(id) { document.getElementById(id).classList.add('active'); }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        const role = sessionStorage.getItem('wb_role') || 'manager';
+        renderSidebar({ currentPage: 'reconciliation', role });
+        function openModal(id) { document.getElementById(id).classList.add('show'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('show'); }
     </script>
 </body>
-
 </html>

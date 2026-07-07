@@ -340,21 +340,7 @@
             line-height: 1.5;
         }
 
-        /* 空状态 */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #bfbfbf;
-        }
 
-        .empty-state .empty-icon {
-            font-size: 48px;
-            margin-bottom: 12px;
-        }
-
-        .empty-state .empty-text {
-            font-size: 14px;
-        }
 
         /* Toast */
         .toast {
@@ -387,80 +373,19 @@
             }
         }
 
-        /* 红点 */
-        .nav-badge {
-            background: #ff4d4f;
-            color: #fff;
-            font-size: 10px;
-            padding: 1px 5px;
-            border-radius: 8px;
-            margin-left: auto;
-            font-weight: 500;
-            line-height: 1.4;
-        }
     </style>
 </head>
 
 <body>
     <div class="app-container">
-        <!-- 侧边栏 -->
-        <aside class="sidebar">
-            <div class="sidebar-logo">
-                <div class="logo-icon">💼</div>
-                <h1>智能营销平台</h1>
-            </div>
-            <nav class="nav-menu">
-                <a href="index.html" class="nav-item">
-                    <span class="nav-icon">🏠</span>
-                    <span class="nav-text">工作台</span>
-                </a>
-                <a href="customers.html" class="nav-item">
-                    <span class="nav-icon">👥</span>
-                    <span class="nav-text">客户名单</span>
-                </a>
-                <a href="tasks.html" class="nav-item">
-                    <span class="nav-icon">📋</span>
-                    <span class="nav-text">任务管理</span>
-                </a>
-                <a href="select.html" class="nav-item">
-                    <span class="nav-icon">🎯</span>
-                    <span class="nav-text">智能圈选</span>
-                </a>
-                <a href="dashboard.html" class="nav-item">
-                    <span class="nav-icon">📊</span>
-                    <span class="nav-text">数据看板</span>
-                </a>
-                <a href="risk-alert.html" class="nav-item active">
-                    <span class="nav-icon">⚠️</span>
-                    <span class="nav-text">风险预警</span>
-                    <span class="nav-badge">5</span>
-                </a>
-                <a href="reconciliation.html" class="nav-item">
-                    <span class="nav-icon">📑</span>
-                    <span class="nav-text">对账确认</span>
-                </a>
-                <a href="downloads.html" class="nav-item">
-                    <span class="nav-icon">📥</span>
-                    <span class="nav-text">下载中心</span>
-                </a>
-            </nav>
-            <div class="sidebar-footer">
-                <div class="user-info">
-                    <div class="user-avatar">朱</div>
-                    <div>
-                        <div class="user-name">朱某人</div>
-                        <div class="user-role">客户经理</div>
-                    </div>
-                </div>
-            </div>
-        </aside>
+        <aside class="sidebar" id="sidebar"></aside>
 
         <!-- 主内容区 -->
         <main class="main-content">
             <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;">
                 <div>
                     <h1 class="page-title">风险预警</h1>
-                    <p class="page-breadcrumb"><a href="index.html">工作台</a> / 风险预警</p>
+                    <p class="page-breadcrumb"><a href="index.html">工作台</a><span class="sep">/</span>数据分析<span class="sep">/</span>风险预警</p>
                 </div>
                 <div style="display:flex;gap:8px;">
                     <button class="btn btn-default btn-sm" onclick="markAllRead()">全部标为已读</button>
@@ -527,6 +452,11 @@
         </main>
     </div>
 
+    <script src="js/sidebar.js"></script>
+    <script>
+        const role = sessionStorage.getItem('wb_role') || 'manager';
+        renderSidebar({ currentPage: 'risk-alert', role });
+    </script>
     <script>
         // 预警 mock 数据
         const alerts = [
@@ -666,8 +596,11 @@
             if (filtered.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-icon">✅</div>
-                        <div class="empty-text">${currentTab === 'processed' ? '暂无已处理预警' : '所有预警已处理完毕'}</div>
+                        <div class="empty-state-icon">
+                            <svg viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"></path><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
+                        </div>
+                        <div class="empty-title">暂无数据</div>
+                        
                     </div>`;
                 return;
             }

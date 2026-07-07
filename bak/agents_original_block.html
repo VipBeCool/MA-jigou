@@ -1,0 +1,761 @@
+          <option value="江苏银行">江苏银行</option>
+        </select>
+        <select class="form-control" id="agentStatusFilter" style="font-size:13px;width:auto;min-width:120px;"
+          onchange="filterAgentList()">
+          <option value="">全部状态</option>
+          <option value="running">运行中</option>
+          <option value="paused">已暂停</option>
+          <option value="draft">草稿</option>
+        </select>
+        <div style="flex:1;"></div>
+        <span style="font-size:12.5px;color:var(--gray-400);" id="agentCount"></span>
+      </div>
+
+      <!-- 主列表：全宽卡片 -->
+      <div class="agent-grid" id="agentGrid"></div>
+
+      <div class="pagination">
+        <div class="pagination-info">显示 1 到 4 条，共 14 条智能体数据</div>
+        <div class="pagination-controls">
+          <button class="btn btn-ghost btn-sm" disabled>上一页</button>
+          <button class="btn btn-primary btn-sm page-num">1</button>
+          <button class="btn btn-ghost btn-sm page-num">2</button>
+          <button class="btn btn-ghost btn-sm page-num">3</button>
+          <button class="btn btn-ghost btn-sm">下一页</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ===== 智能体详情 抽屉 ===== -->
+  <div class="drawer-overlay" id="detailDrawer">
+    <div class="drawer-box" style="width:780px;max-width:96vw;">
+      <div class="detail-drawer-header">
+        <div class="detail-drawer-agent-info" id="drawerAgentInfo"></div>
+        <div class="detail-tabs" id="drawerTabs">
+          <div class="detail-tab active" onclick="switchDrawerTab('config',this)">规则配置</div>
+          <div class="detail-tab" onclick="switchDrawerTab('batches',this)">名单批次</div>
+          <div class="detail-tab" onclick="switchDrawerTab('whitelist',this)">白名单快照</div>
+          <div class="detail-tab" onclick="switchDrawerTab('logs',this)">执行日志</div>
+        </div>
+      </div>
+      <div class="detail-drawer-body">
+        <div id="dtab-config"></div>
+        <div id="dtab-batches" style="display:none;"></div>
+        <div id="dtab-whitelist" style="display:none;"></div>
+        <div id="dtab-logs" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 新建/编辑 向导 Modal ===== -->
+  <div class="drawer-overlay" id="wizardModal">
+    <div class="drawer-box" style="width:860px;max-width:96vw;">
+      <div class="modal-header">
+        <span class="modal-title" id="wizardTitle">新建获客智能体</span>
+        <button class="modal-close" onclick="closeModal('wizardModal')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" style="overflow-y:auto;flex:1;">
+        <!-- 步骤条 -->
+        <div class="wizard-steps">
+          <div class="wizard-step active" id="wstep-0">
+            <div class="wizard-step-dot">1</div>
+            <div class="wizard-step-text">
+              <div class="wizard-step-label">基础信息</div>
+            </div>
+          </div>
+          <div class="wizard-step-line"></div>
+          <div class="wizard-step" id="wstep-1">
+            <div class="wizard-step-dot">2</div>
+            <div class="wizard-step-text">
+              <div class="wizard-step-label">获客规则</div>
+            </div>
+          </div>
+          <div class="wizard-step-line"></div>
+          <div class="wizard-step" id="wstep-2">
+            <div class="wizard-step-dot">3</div>
+            <div class="wizard-step-text">
+              <div class="wizard-step-label">名单策略</div>
+            </div>
+          </div>
+          <div class="wizard-step-line"></div>
+          <div class="wizard-step" id="wstep-3">
+            <div class="wizard-step-dot">4</div>
+            <div class="wizard-step-text">
+              <div class="wizard-step-label">白名单配置</div>
+            </div>
+          </div>
+          <div class="wizard-step-line"></div>
+          <div class="wizard-step" id="wstep-4">
+            <div class="wizard-step-dot">5</div>
+            <div class="wizard-step-text">
+              <div class="wizard-step-label">字段配置</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 1: 基础信息 -->
+        <div id="wpage-0">
+          <div class="section-title">
+            <svg viewBox="0 0 24 24">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              <polyline points="9 22 9 12 15 12 15 22" />
+            </svg>
+            归属机构
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">归属金融机构 <span class="req">*</span></label>
+              <!-- 自定义搜索下拉组件 -->
+              <div class="search-select" id="orgSearchSelect">
+                <div class="search-select-input-wrap" onclick="toggleSearchSelect('orgSearchSelect')">
+                  <input type="text" class="search-select-input" id="orgSearchInput" placeholder="请搜索或选择机构（全称）"
+                    oninput="filterSearchSelect('orgSearchSelect', this.value)"
+                    onclick="event.stopPropagation(); openSearchSelect('orgSearchSelect')" autocomplete="off">
+                  <svg class="search-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </div>
+                <div class="search-select-dropdown" id="orgSearchSelectDropdown">
+                  <div class="search-select-option" data-value="平安银行股份有限公司">平安银行股份有限公司</div>
+                  <div class="search-select-option" data-value="招商银行股份有限公司">招商银行股份有限公司</div>
+                  <div class="search-select-option" data-value="中国农业银行股份有限公司">中国农业银行股份有限公司</div>
+                  <div class="search-select-option" data-value="江苏银行股份有限公司">江苏银行股份有限公司</div>
+                  <div class="search-select-option" data-value="苏州银行股份有限公司">苏州银行股份有限公司</div>
+                  <div class="search-select-option" data-value="南京银行股份有限公司">南京银行股份有限公司</div>
+                  <div class="search-select-option" data-value="南通银行股份有限公司">南通银行股份有限公司</div>
+                  <div class="search-select-empty" style="display:none;"><span>未找到匹配的机构</span></div>
+                </div>
+              </div>
+              <input type="hidden" id="f-org" value="">
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">平台侧简称 <span class="req">*</span></label>
+              <input type="text" class="form-control" id="f-orgshort" placeholder="如：平安银行（用于页面展示、名单命名等）">
+            </div>
+          </div>
+          <div class="section-title">
+            <svg viewBox="0 0 24 24">
+              <rect x="3" y="11" width="18" height="10" rx="2" />
+              <circle cx="12" cy="5" r="2" />
+              <path d="M12 7v4" />
+            </svg>
+            智能体配置
+          </div>
+          <div style="display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:22px;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">智能体名称 <span class="req">*</span></label>
+              <input type="text" class="form-control" id="f-name" placeholder="如：橙业贷（通常获客智能体对应银行侧一个产品）">
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: 规则引擎 -->
+        <div id="wpage-1" style="display:none;">
+          <div class="section-title">
+            <svg viewBox="0 0 24 24">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+            </svg>
+            获客规则引擎
+          </div>
+          <p style="font-size:12.5px;color:var(--gray-500);margin-bottom:14px;line-height:1.7;">
+            基于 <strong style="color:var(--gray-800);">1,400万</strong> 省内市场主体数据过筛，条件间默认 <strong
+              style="color:var(--brand);">AND</strong> 关系，点击可切换为 <strong style="color:#92400e;">OR</strong>。
+          </p>
+          <div id="ruleContainer"></div>
+          <button class="btn btn-ghost"
+            style="display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:7px 12px;margin-top:4px;white-space:nowrap;"
+            onclick="addRule()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round"
+              style="width:13px;height:13px;flex-shrink:0;display:block;">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            添加条件
+          </button>
+          <div class="rule-preview">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            当前规则预估命中：<span class="rule-preview-count" id="rulePreviewCount">~</span> 家企业（基于1400万市场主体估算）
+          </div>
+        </div>
+
+        <!-- Step 3: 名单策略 -->
+        <div id="wpage-2" style="display:none;">
+          <div class="section-title">
+            <svg viewBox="0 0 24 24">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            筛查数据源
+          </div>
+          <div style="font-size:12.5px;color:var(--gray-500);margin-bottom:12px;line-height:1.6;">
+            此为筛查的最基础数据池。如无需特定白名单限制，可直接选择全省企业或全省授权企业。</div>
+          <div
+            style="display:flex; gap: 24px; margin-bottom: 22px; align-items: center; font-size:13.5px; color:var(--gray-700);">
+            <label style="display:flex; align-items:center; gap: 6px; cursor:pointer;">
+              <input type="radio" name="base_data_pool" value="whitelist" checked> 营销白名单（为空时筛全省企业）
+            </label>
+            <label style="display:flex; align-items:center; gap: 6px; cursor:pointer;">
+              <input type="radio" name="base_data_pool" value="province"> 全省企业
+            </label>
+            <label style="display:flex; align-items:center; gap: 6px; cursor:pointer;">
+              <input type="radio" name="base_data_pool" value="auth"> 全省授权企业
+            </label>
+          </div>
+
+          <div class="section-title">
+            <svg viewBox="0 0 24 24">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+            </svg>
+            名单输出配置
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">每批次输出上限</label>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <input type="number" class="form-control" id="f-outputLimit" value="500" style="flex:1;">
+                <label
+                  style="display:flex;align-items:center;gap:5px;white-space:nowrap;font-size:13px;cursor:pointer;">
+                  <input type="checkbox" id="f-noLimit" onchange="toggleNoLimit()"> 不限
+                </label>
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">名单导出</label>
+              <select class="form-control" id="f-export">
+                <option value="1">允许导出名单</option>
+                <option value="0">不允许导出</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:16px; margin-bottom:22px;">
+            <div style="font-size:13.5px; font-weight:500; color:var(--gray-800);"><span class="req">*</span> 名单企业排序：
+            </div>
+            <div style="display:flex; gap:24px;">
+              <label
+                style="display:flex;align-items:center;gap:6px;font-size:13.5px;color:var(--gray-700);cursor:pointer;">
+                <input type="radio" name="list_sort" value="time"> 按生成时间倒排
+              </label>
+              <label
+                style="display:flex;align-items:center;gap:6px;font-size:13.5px;color:var(--gray-700);cursor:pointer;">
+                <input type="radio" name="list_sort" value="fund" checked> 按资金需求分倒排
+              </label>
+            </div>
+          </div>
+
+          <div class="section-title">
+            名单更新频次
+          </div>
+          <div class="freq-options" id="freqOptions">
+            <div class="freq-option active" onclick="selectFreq('daily',this)">按天</div>
+            <div class="freq-option" onclick="selectFreq('weekly',this)">按周</div>
+            <div class="freq-option" onclick="selectFreq('monthly',this)">按月</div>
+            <div class="freq-option" onclick="selectFreq('quarterly',this)">按季度</div>
+            <div class="freq-option" onclick="selectFreq('manual',this)">手动触发</div>
+          </div>
+          <div id="freqDetail"
+            style="margin-bottom:22px;padding:12px 14px;background:var(--gray-50);border-radius:8px;border:1px solid var(--border);">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:13px;color:var(--gray-600);font-weight:500;">每日执行时间：</span>
+              <input type="time" class="form-control" value="06:00" style="width:130px;">
+            </div>
+          </div>
+
+          <div class="section-title">
+            名单处理
+          </div>
+          <div
+            style="display:flex; gap: 24px; margin-bottom: 20px; align-items: center; font-size:13.5px; color:var(--gray-700);">
+            <label style="display:flex; align-items:center; gap: 6px; cursor:pointer;">
+              <input type="radio" name="list_process_type" value="direct" checked onchange="toggleListProcess()"> 原始名单直出
+            </label>
+            <label style="display:flex; align-items:center; gap: 6px; cursor:pointer;">
+              <input type="radio" name="list_process_type" value="intersect" onchange="toggleListProcess()"> 取交
+            </label>
+            <label style="display:flex; align-items:center; gap: 6px; cursor:pointer;">
+              <input type="radio" name="list_process_type" value="union" onchange="toggleListProcess()"> 求并
+            </label>
+            <label style="display:flex; align-items:center; gap: 6px; cursor:pointer;">
+              <input type="radio" name="list_process_type" value="exclude" onchange="toggleListProcess()"> 排除
+            </label>
+          </div>
+          <div id="listProcessConfig" style="display:none; margin-bottom:20px;">
+            <div style="display:flex; align-items:center; gap: 16px;">
+              <div onclick="openUploadListModal()"
+                style="width:64px; height:64px; border:1px solid #e5e7eb; border-radius:6px; display:flex; align-items:center; justify-content:center; cursor:pointer; background:white; color:#374151; transition:border-color 0.2s;"
+                onmouseover="this.style.borderColor='var(--brand)'" onmouseout="this.style.borderColor='#e5e7eb'">
+
+
+
+
+
+
+
+
+
+                  style="color:var(--brand); font-size:13px; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  下载模板
+                </a>
+              </div>
+            </div>
+            <div id="blacklistFiles" style="margin-top:12px;"></div>
+          </div>
+
+          <div class="section-title" style="margin-top:22px;">
+            <svg viewBox="0 0 24 24">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            手工导入名单
+          </div>
+          <label
+            style="display:flex;align-items:flex-start;gap:8px;font-size:13.5px;cursor:pointer;margin-bottom:24px;">
+            <input type="checkbox" id="f-allowManual" checked style="margin-top:2px;">
+            <div>
+              <strong>允许银行侧手工导入名单</strong>
+              <div style="font-size:12px;color:var(--gray-500);margin-top:2px;">
+                手工导入的名单与定时任务生成的名单完全平级，统一在客户名单页展示，走相同的分配和触达流程。<br>
+                模板要求：<strong>企业名称 + 统一社会信用代码</strong>（其他字段系统自动匹配补全）<br>
+                批次命名格式：<strong>{机构简称}{产品名}{导入日期}</strong>，如：平安橙业贷20260615
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <!-- Step 4: 白名单 -->
+        <div id="wpage-3" style="display:none;">
+          <div class="section-title">
+            <svg viewBox="0 0 24 24">
+              <polygon points="12 2 2 7 12 12 22 7 12 2" />
+              <polyline points="2 17 12 22 22 17" />
+              <polyline points="2 12 12 17 22 12" />
+            </svg>
+            营销白名单配置
+          </div>
+          <div
+            style="background:var(--gray-50);border-radius:9px;padding:12px 14px;border:1px solid var(--border);margin-bottom:16px;font-size:12.5px;color:var(--gray-600);line-height:1.8;">
+            <strong style="color:var(--gray-900);">什么是白名单？</strong><br>
+            白名单是用于银行<strong>考核与对账分润</strong>的客户基准库。部分业务场景要求后续营销转化的客户必须在白名单范围内，超范围不计佣金。<br>
+            系统支持基于智能体规则自动过筛提取（<strong>随名单同步</strong>或<strong>独立定时生成</strong>），也支持直接<strong>手动上传</strong>。快照生成后，可在数据列表中下载用于线下核对。
+          </div>
+          <div class="form-group">
+            <label style="display:flex;align-items:center;gap:8px;font-size:13.5px;cursor:pointer;margin-bottom:16px;">
+              <input type="checkbox" id="f-enableWhitelist" onchange="toggleWhitelistConfig()">
+              <strong>启用白名单</strong>
+            </label>
+          </div>
+          <div id="whitelistConfig" style="display:none;">
+            <div class="form-group" style="margin-bottom:20px;">
+              <label class="form-label">快照生成方式</label>
+              <div
+                style="display:flex; gap: 24px; margin-bottom: 12px; align-items: center; font-size:13.5px; color:var(--gray-700);">
+                <label style="display:flex; align-items:center; gap: 6px; cursor:pointer;">
+                  <input type="radio" name="wl_gen_type" value="sync" checked onchange="toggleWlGen()"> 随智能体名单同步生成
+                </label>
+                <label style="display:flex; align-items:center; gap: 6px; cursor:pointer;">
+                  <input type="radio" name="wl_gen_type" value="timer" onchange="toggleWlGen()"> 独立定时任务生成
+                </label>
+                <label style="display:flex; align-items:center; gap: 6px; cursor:pointer;">
+                  <input type="radio" name="wl_gen_type" value="manual" onchange="toggleWlGen()"> 手动上传白名单
+                </label>
+              </div>
+
+              <!-- 独立定时生成 的选项 -->
+              <div id="wlGenTimer"
+                style="display:none; margin-top:14px; border:1px solid var(--border); border-radius:8px; padding:16px; background:white;">
+                <div style="font-size:13px;font-weight:600;color:var(--gray-800);margin-bottom:12px;">执行频次设置</div>
+                <div class="freq-options" style="margin-bottom:14px;">
+                  <div class="freq-option active" onclick="selectWlFreq('daily',this)">按天</div>
+                  <div class="freq-option" onclick="selectWlFreq('weekly',this)">按周</div>
+                  <div class="freq-option" onclick="selectWlFreq('monthly',this)">按月</div>
+                  <div class="freq-option" onclick="selectWlFreq('quarterly',this)">按季度</div>
+                </div>
+                <div id="wlFreqDetail" style="padding:10px 14px;background:var(--gray-50);border-radius:6px;">
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <span style="font-size:13px;color:var(--gray-600);font-weight:500;">每日执行时间：</span>
+                    <input type="time" class="form-control" value="02:00" style="width:130px;">
+                  </div>
+                </div>
+              </div>
+
+              <!-- 手动上传 的选项 -->
+              <div id="wlGenManual" style="display:none; margin-top:14px;">
+                <input type="file" id="wlDirectUploadInput" accept=".xlsx,.xls,.csv" style="display:none;"
+                  onchange="handleWlDirectUpload(this)">
+                <div onclick="document.getElementById('wlDirectUploadInput').click()"
+                  style="border: 1px dashed var(--gray-300); border-radius: 6px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--gray-50);"
+                  onmouseover="this.style.borderColor='var(--brand)';this.style.background='#f0f7ff';"
+                  onmouseout="this.style.borderColor='var(--gray-300)';this.style.background='var(--gray-50)';">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:8px;display:inline-block;">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                  </svg>
+                  <div id="wlUploadText"
+                    style="font-size: 14px; font-weight: 500; color: var(--gray-800); margin-bottom: 4px;">
+                    点击或拖拽上传白名单快照文件</div>
+                  <div style="font-size: 12px; color: var(--gray-500);">支持 .xlsx / .xls / .csv 格式 <span
+                      style="margin:0 4px;color:var(--gray-300);">|</span> <a href="#"
+                      onclick="downloadWlTemplate(event)" style="color:var(--brand);text-decoration:none;">下载模板</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+          </div>
+        </div>
+
+        <!-- Step 5: 字段展示配置 -->
+        <div id="wpage-4" style="display:none;">
+          <div class="section-title">
+            <svg viewBox="0 0 24 24">
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+            </svg>
+            客户名单展示字段配置
+          </div>
+          <p style="font-size:12.5px;color:var(--gray-500);margin-bottom:16px;line-height:1.7;">
+            控制在<strong>客户名单页</strong>展示哪些字段列。灰色为系统必显字段，不可取消。
+          </p>
+          <div style="background:var(--gray-50);border-radius:10px;padding:16px;border:1px solid var(--border);">
+            <div style="font-size:12px;font-weight:700;color:var(--gray-400);margin-bottom:10px;letter-spacing:0.5px;">
+              系统必显字段（不可取消）</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px;">
+              <div
+                style="display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:7px;background:#fff;border:1.5px solid var(--brand);opacity:0.65;font-size:13px;color:var(--brand);font-weight:600;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>企业名称
+              </div>
+              <div
+                style="display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:7px;background:#fff;border:1.5px solid var(--brand);opacity:0.65;font-size:13px;color:var(--brand);font-weight:600;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>统一社会信用代码
+              </div>
+              <div
+                style="display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:7px;background:#fff;border:1.5px solid var(--brand);opacity:0.65;font-size:13px;color:var(--brand);font-weight:600;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>适配产品
+              </div>
+              <div
+                style="display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:7px;background:#fff;border:1.5px solid var(--brand);opacity:0.65;font-size:13px;color:var(--brand);font-weight:600;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>营销状态
+              </div>
+              <div
+                style="display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:7px;background:#fff;border:1.5px solid var(--brand);opacity:0.65;font-size:13px;color:var(--brand);font-weight:600;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>业务状态
+              </div>
+              <div
+                style="display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:7px;background:#fff;border:1.5px solid var(--brand);opacity:0.65;font-size:13px;color:var(--brand);font-weight:600;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>名单批次
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+              <div style="font-size:12px;font-weight:700;color:var(--gray-400);letter-spacing:0.5px;">可选扩展字段</div>
+              <div style="display:flex;gap:16px;font-size:13px;">
+                <span style="color:var(--gray-500);cursor:pointer;transition:color 0.2s;"
+                  onmouseover="this.style.color='var(--gray-700)'" onmouseout="this.style.color='var(--gray-500)'"
+                  onclick="toggleAllFields(false)">全部取消</span>
+                <span style="color:var(--brand);cursor:pointer;transition:opacity 0.2s;"
+                  onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1"
+                  onclick="toggleAllFields(true)">全部选中</span>
+              </div>
+            </div>
+            <div id="fieldToggles" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"></div>
+          </div>
+          <div style="margin-top:12px;font-size:12.5px;color:var(--gray-500);">
+            已选 <span id="fieldCount" style="font-weight:700;color:var(--brand);">0</span> 个扩展字段
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="closeModal('wizardModal')">取消</button>
+        <div style="flex:1;"></div>
+        <button class="btn btn-default" onclick="wizardPrev()" id="wizardPrevBtn" style="display:none;">← 上一步</button>
+        <button class="btn btn-primary" onclick="wizardNext()" id="wizardNextBtn">下一步 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 上传名单文件 Modal ===== -->
+  <div class="drawer-overlay" id="uploadListModal">
+    <div
+      style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;width:400px;border-radius:12px;display:flex;flex-direction:column;box-shadow:0 10px 30px rgba(0,0,0,0.1);">
+      <div class="modal-header"
+        style="border-bottom:1px solid var(--gray-100);padding:16px 20px;display:flex;justify-content:space-between;align-items:center;">
+        <span class="modal-title" style="font-size:16px;font-weight:600;color:var(--gray-900);">上传名单文件</span>
+        <button class="modal-close" onclick="closeModal('uploadListModal')"
+          style="background:none;border:none;cursor:pointer;color:var(--gray-500);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" style="padding:24px;">
+        <div class="upload-zone" onclick="document.getElementById('fileInputList').click()"
+          style="padding:40px 20px;text-align:center;border:1px dashed #d1d5db;border-radius:8px;cursor:pointer;background:#f9fafb;transition:all 0.2s;"
+          onmouseover="this.style.borderColor='var(--brand)';this.style.background='#eff6ff'"
+          onmouseout="this.style.borderColor='#d1d5db';this.style.background='#f9fafb'">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5"
+            stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 12px;">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </svg>
+          <div style="font-size:14px;font-weight:600;color:var(--gray-700);margin-bottom:4px;">点击选择或将文件拖拽至此</div>
+          <div style="font-size:12.5px;color:var(--gray-400);">支持 .xlsx / .xls / .csv 格式</div>
+          <input type="file" id="fileInputList" accept=".xlsx,.xls,.csv" style="display:none;"
+            onchange="handleListFileSelect(this)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 手工导入 Modal ===== -->
+  <div class="drawer-overlay" id="importModal">
+    <div class="drawer-box" style="width:580px;max-width:95vw;">
+      <div class="modal-header">
+        <span class="modal-title">手工导入名单</span>
+        <button class="modal-close" onclick="closeModal('importModal')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">归属智能体 <span class="req">*</span></label>
+          <select class="form-control" id="import-agent"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">批次名称</label>
+          <input type="text" class="form-control" id="import-name" placeholder="留空则自动生成">
+          <div class="form-hint">自动格式：{机构简称}{产品名}{日期}，如：平安橙业贷20260615</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">上传名单文件 <span class="req">*</span></label>
+          <div class="upload-zone" onclick="document.getElementById('importFile').click()">
+            <div style="font-size:28px;margin-bottom:8px;">📋</div>
+            <div style="font-size:14px;font-weight:600;color:var(--gray-700);margin-bottom:4px;">点击上传 Excel 文件</div>
+            <div style="font-size:12.5px;color:var(--gray-400);">支持
+              .xlsx / .xls / .csv，需包含：<strong>企业名称</strong>、<strong>统一社会信用代码</strong></div>
+            <input type="file" id="importFile" accept=".xlsx,.xls,.csv" style="display:none;"
+              onchange="handleFileSelect(this)">
+          </div>
+          <div id="importFileInfo"
+            style="display:none;margin-top:8px;padding:8px 12px;background:var(--gray-50);border-radius:7px;font-size:12.5px;color:var(--gray-700);">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">白名单校验</label>
+          <select class="form-control" id="import-check">
+            <option value="check">自动校验（超范围企业标记警告，仍可导入）</option>
+            <option value="strict">严格剔除（超范围企业不导入）</option>
+            <option value="skip">跳过校验</option>
+          </select>
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" /></svg>
+          下载模板
+          </button>
+          <button class="btn btn-primary" onclick="doImport()">确认导入</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/sidebar.js"></script>
+    <script>
+      const role = sessionStorage.getItem('wb_role') || 'manager';
+      renderSidebar({ currentPage: 'agents', role });
+
+      /* ---- Mock 数据 ---- */
+      const AGENTS_DATA = [
+        {
+          id: 'a1', name: '橙业贷', org: '平安银行股份有限公司', orgShort: '平安银行', type: '小微贷款', region: '全省', status: 'running', totalBatches: 5, totalOutput: 1248, thisMonth: 280, lastRun: '2026-06-25 06:00', whitelist: true, wlMode: 'strict', freq: 'weekly', outputLimit: 300,
+          dataPool: 'whitelist', listProcess: 'direct', listExport: true, listSort: 'fund', allowManual: true, wlGenMode: 'sync',
+          rules: [
+            { field: '主体划型', op: '=', val: '是小微企业' },
+            { field: '企业状态', op: '=', val: '在业' },
+            { field: '成立年限', op: '>', val: '2' },
+            { field: '无贷户', op: '=', val: '非无贷户' },
+            { field: '特色认证', op: '包含', val: '高新技术企业, 专精特新企业' }
+          ]
+        },
+        {
+          id: 'a2', name: '厂房贷', org: '招商银行股份有限公司', orgShort: '招商银行', type: '厂房贷款', region: '苏州', status: 'running', totalBatches: 4, totalOutput: 980, thisMonth: 220, lastRun: '2026-06-01 06:00', whitelist: false, wlMode: 'loose', freq: 'monthly', outputLimit: 200,
+          dataPool: 'province', listProcess: 'direct', listExport: true, listSort: 'fund', allowManual: false, wlGenMode: 'none',
+          rules: [
+            { field: '实体类型', op: '=', val: '法人企业' },
+            { field: '房地产数量', op: '>', val: '0' },
+            { field: '纳税信用等级', op: '属于', val: 'A级, B级' }
+          ]
+        },
+        {
+          id: 'a3', name: '惠农贷', org: '中国农业银行股份有限公司', orgShort: '农业银行', type: '经营贷', region: '南通', status: 'paused', totalBatches: 2, totalOutput: 456, thisMonth: 0, lastRun: '2026-05-20 06:00', whitelist: true, wlMode: 'loose', freq: 'manual', outputLimit: 500,
+          dataPool: 'whitelist', listProcess: 'intersect', listExport: false, listSort: 'time', allowManual: true, wlGenMode: 'manual',
+          rules: [
+            { field: '实体类型', op: '=', val: '农民专业合作社' },
+            { field: '注册资本', op: '<', val: '500' }
+          ]
+        },
+        {
+          id: 'a4', name: '科创贷', org: '江苏银行股份有限公司', orgShort: '江苏银行', type: '科技贷', region: '苏州', status: 'draft', totalBatches: 0, totalOutput: 0, thisMonth: 0, lastRun: '—', whitelist: true, wlMode: 'strict', freq: 'monthly', outputLimit: 1000,
+          dataPool: 'whitelist', listProcess: 'direct', listExport: true, listSort: 'fund', allowManual: true, wlGenMode: 'timer'
+        },
+      ];
+
+      const BATCHES_DATA = [
+        { id: 'b1', agentId: 'a1', name: '平安橙业贷20260625', source: 'auto', count: 298, time: '2026-06-25 06:18', status: '已分配' },
+        { id: 'b2', agentId: 'a1', name: '平安橙业贷手工20260615', source: 'manual', count: 82, time: '2026-06-15 14:30', status: '已分配' },
+        { id: 'b3', agentId: 'a1', name: '平安橙业贷20260618', source: 'auto', count: 311, time: '2026-06-18 06:14', status: '已分配' },
+        { id: 'b4', agentId: 'a2', name: '招行厂房贷20260601', source: 'auto', count: 204, time: '2026-06-01 06:20', status: '分配中' },
+        { id: 'b5', agentId: 'a2', name: '招行厂房贷手工20260614', source: 'manual', count: 47, time: '2026-06-14 09:45', status: '已分配' },
+        { id: 'b6', agentId: 'a3', name: '农行惠农贷20260520', source: 'auto', count: 195, time: '2026-05-20 06:08', status: '已完成' },
+        { id: 'b7', agentId: 'a1', name: '平安橙业贷20260611', source: 'auto', count: 302, time: '2026-06-11 06:11', status: '分配中' },
+        { id: 'b8', agentId: 'a1', name: '平安橙业贷20260626', source: 'auto', count: 150, time: '2026-06-26 09:00', status: '待分配' },
+      ];
+
+      const WHITELIST_DATA = [
+        { agentId: 'a1', version: '快照_20260601_001', genTime: '2026-06-01 02:00', count: 3842, status: '已同步银行', source: '系统自动生成', desc: '全量过筛符合规则企业' },
+        { agentId: 'a1', version: '快照_20260301_001', genTime: '2026-03-01 02:00', count: 3619, status: '历史版本', source: '手动生成', desc: '全量过筛符合规则企业' },
+        { agentId: 'a3', version: '快照_20260501_001', genTime: '2026-05-01 02:00', count: 1205, status: '待同步', source: '基于历史批次', desc: '全量过筛符合规则企业' },
+      ];
+
+
+      const LOGS_DATA = [
+        { agentId: 'a1', time: '06:18', agent: '平安橙业贷', action: '定时任务执行完成', detail: '命中3,842家，输出298户（上限300）', count: '+298', status: 'success' },
+        { agentId: 'a2', time: '06:14', agent: '招行厂房贷', action: '定时任务执行完成', detail: '命中1,204家，输出204户（上限200）', count: '+204', status: 'success' },
+        { agentId: 'a1', time: '14:30', agent: '平安橙业贷', action: '手工导入完成', detail: '导入82条，白名单校验：80通过 / 2超范围已标记', count: '+82', status: 'warn' },
+        { agentId: 'a3', time: '06:00', agent: '农行惠农贷', action: '任务已暂停跳过', detail: '智能体处于暂停状态，本次定时任务跳过', count: '—', status: 'warn' },
+        { agentId: 'a1', time: '昨日', agent: '平安橙业贷', action: '白名单快照生成', detail: '全量过筛完成，白名单3,842户，版本 v2026-06，可下载', count: '3842', status: 'success' },
+        { agentId: 'a4', time: '昨日', agent: '江苏科创贷', action: '草稿未部署', detail: '智能体为草稿状态，规则未完善，定时任务未激活', count: '—', status: 'error' },
+      ];
+
+      const INDICATOR_LIB = [
+        { label: '营业收入', field: 'revenueAmt', unit: '万元', type: 'number' },
+        { label: '注册资本', field: 'regCapi', unit: '万元', type: 'number' },
+        { label: '成立年限', field: 'establishPeriod', unit: '年', type: 'number' },
+        { label: '从业人数', field: 'employeeNum', unit: '人', type: 'number' },
+        { label: '当前贷款笔数', field: 'nCurrLoan', unit: '笔', type: 'number' },
+        { label: '贷款银行数', field: 'nCurrOrg', unit: '家', type: 'number' },
+        { label: '工商变更次数(近6月)', field: 'changeCorpOperManCnt6m', unit: '次', type: 'number' },
+        { label: '贷销比', field: 'rLoanSale', unit: '[0~1]', type: 'number' },
+        { label: '房地产数量', field: 'houseLandCnt', unit: '处', type: 'number' },
+        { label: '主体划型', field: 'entity_type', unit: '', type: 'enum', options: ['是小微企业', '不是小微企业'] },
+        { label: '实体类型', field: 'entityTypeCd', unit: '', type: 'enum', options: ['法人企业', '个体工商户', '农民专业合作社', '其他'] },
+        { label: '企业状态', field: 'corpStatusCd', unit: '', type: 'enum', options: ['在业', '迁出', '撤销', '注销', '其他'] },
+        { label: '纳税信用等级', field: 'taxLevelCd', unit: '', type: 'enum', options: ['A级', 'B级', 'M级', '其他'] },
+        { label: '贷款状态', field: 'worstLoanStatusCd', unit: '', type: 'enum', options: ['正常', '关注', '不良'] },
+        { label: '环保评级', field: 'envLevelCd', unit: '', type: 'enum', options: ['绿色', '蓝色', '黄色', '红色', '黑色', '无评级'] },
+        { label: '无贷户', field: 'hasLoanHistory', unit: '', type: 'enum', options: ['是无贷户', '非无贷户'] },
+        { label: '特色认证', field: 'corpCertificate', unit: '', type: 'multi', options: ['专精特新企业', '专精特新小巨人企业', '高新技术企业'] },
+        { label: '失信信息', field: 'dishonestExecutorFlag', unit: '', type: 'bool', options: ['有失信信息', '无失信信息'] },
+        { label: '行政处罚', field: 'adminPunishFlag', unit: '', type: 'bool', options: ['有行政处罚', '无行政处罚'] },
+        { label: '经营异常', field: 'manageAbnormalFlag', unit: '', type: 'bool', options: ['有经营异常', '无经营异常'] },
+        { label: '股权出质', field: 'equityPledgeFlag', unit: '', type: 'bool', options: ['有股权出质', '无股权出质'] },
+        { label: '海关注册', field: 'customsRegFlag', unit: '', type: 'bool', options: ['有海关注册信息', '无海关注册信息'] },
+        { label: '授权状态', field: 'jfAuthFlag', unit: '', type: 'bool', options: ['已授权', '未授权'] },
+        { label: '被执行人', field: 'executorFlag', unit: '', type: 'bool', options: ['是被执行人', '非被执行人'] },
+        { label: '行业分类', field: 'belongTradeCd', unit: '国民经济行业代码', type: 'text' },
+      ];
+
+      const STATUS_MAP = { running: { cls: 'tag-green', text: '运行中' }, paused: { cls: 'tag-amber', text: '已暂停' }, draft: { cls: 'tag-gray', text: '草稿' } };
+
+      /* ---- 主列表：全宽卡片渲染 ---- */
+      function filterAgentList() {
+        const q = document.getElementById('agentSearch').value.toLowerCase();
+        const org = document.getElementById('agentOrgFilter').value;
+        const status = document.getElementById('agentStatusFilter').value;
+        const filtered = AGENTS_DATA.filter(a =>
+          (!q || (a.name + a.orgShort).toLowerCase().includes(q)) &&
+          (!org || a.orgShort === org) &&
+          (!status || a.status === status)
+        );
+        renderAgentGrid(filtered);
+      }
+
+      function renderAgentGrid(list) {
+        if (!list) list = AGENTS_DATA;
+        const s = STATUS_MAP;
+        const colorMap = { running: ['#2563eb', '#eff6ff'], paused: ['#d97706', '#fffbeb'], draft: ['#9ca3af', '#f3f4f6'] };
+        const freqLabel = { daily: '按天', weekly: '按周', monthly: '按月', manual: '手动触发' };
+        const el = document.getElementById('agentCount');
+        if (el) el.textContent = '共 ' + list.length + ' 个智能体';
+        const grid = document.getElementById('agentGrid');
+        if (!grid) return;
+        if (!list.length) {
+          grid.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--gray-400);font-size:14px;">未找到匹配的智能体</div>';
+          return;
+        }
+        const listHTML = list.map(function (a) {
+          const c = colorMap[a.status][0], bg = colorMap[a.status][1];
+          const statusBtn = a.status === 'running'
+            ? '<button class="btn btn-default btn-sm" onclick="event.stopPropagation();showToast(\'' + a.orgShort + '·' + a.name + ' 已暂停\')"> 暂停</button>'
+            : a.status === 'paused'
+              ? '<button class="btn btn-primary btn-sm" onclick="event.stopPropagation();showToast(\'' + a.orgShort + '·' + a.name + ' 已启动\',\'success\')"> 启动</button>'
+              : '<button class="btn btn-primary btn-sm" onclick="event.stopPropagation();showToast(\'正在部署...\')"> 部署</button>';
+          return '<div class="agent-main-card ' + a.status + '">' +
+            '<div class="amc-header">' +
+            '<div class="amc-icon" style="background:' + bg + ';color:' + c + ';">' +
+            '<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/></svg>' +
+            '</div>' +
+            '<div class="amc-actions">' +
+            statusBtn +
+            '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openWizard(\'' + a.id + '\')" style="display:inline-flex;align-items:center;gap:4px;padding:0 8px;">' +
+            '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;flex-shrink:0;display:block;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>编辑' +
+            '</button>' +
+            '<button class="btn btn-default btn-sm" onclick="openAgentDetail(\'' + a.id + '\')" style="display:inline-flex;align-items:center;gap:4px;">' +
+            '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;flex-shrink:0;display:block;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>详情' +
+            '</button>' +
+            '</div>' +
+            '</div>' +
+            '<div class="amc-body">' +
+            '<div class="amc-title">' + a.orgShort + ' &middot; ' + a.name +
+            '<span class="tag ' + s[a.status].cls + '">' + s[a.status].text + '</span>' +
+            '</div>' +
+            '<div class="amc-sub">' + a.org + ' &middot; ' + a.type + ' &middot; 辖区：' + a.region + '<br>' +
+            (freqLabel[a.freq] || '按周') + '更新 &middot; ' + (a.whitelist ? '白名单已启用' : '不启用白名单') + '</div>' +

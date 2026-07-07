@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>团队业绩 - 智能营销平台</title>
+  <meta name="description" content="查看团队成员绩效、管理分配权重与目标">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .member-card {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      transition: all 0.15s;
+      cursor: pointer;
+      position: relative;
+    }
+    .member-card:hover {
+      border-color: var(--brand);
+      box-shadow: 0 4px 14px rgba(37,99,235,0.1);
+      transform: translateY(-1px);
+    }
+    .member-card-header {
+      display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px;
+    }
+    .member-av {
+      width: 44px; height: 44px; border-radius: 50%;
+      color: #fff; font-size: 16px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .member-card-name { font-size: 15px; font-weight: 700; color: var(--gray-900); }
+    .member-card-role { font-size: 12px; color: var(--gray-400); margin-top: 3px; }
+    .member-card-branch { font-size: 12px; color: var(--gray-500); margin-top: 2px; }
+
+    .kpi-row {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 10px; margin-bottom: 14px;
+    }
+    .kpi-box {
+      background: var(--gray-50); border-radius: 9px; padding: 10px 12px; text-align: center;
+      border: 1px solid var(--gray-100);
+    }
+    .kpi-val { font-size: 18px; font-weight: 800; color: var(--brand); }
+    .kpi-lbl { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
+
+    .target-bar {
+      background: var(--gray-100); border-radius: 6px; height: 6px; overflow: hidden; margin: 8px 0 4px;
+    }
+    .target-fill { height: 100%; border-radius: 6px; background: var(--brand); transition: width 0.5s; }
+
+    /* 排行榜 */
+    .rank-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 0; border-bottom: 1px solid var(--gray-100);
+    }
+    .rank-row:last-child { border-bottom: none; }
+    .rank-num {
+      width: 22px; height: 22px; border-radius: 7px;
+      font-size: 12px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .rank-1 { background: #fbbf24; color: #fff; }
+    .rank-2 { background: #94a3b8; color: #fff; }
+    .rank-3 { background: #c2855d; color: #fff; }
+    .rank-n { background: var(--gray-100); color: var(--gray-500); }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main-content anim-fade-in">
+
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1 class="page-title">团队业绩</h1>
+        <p class="page-breadcrumb">
+          <a href="index.html">工作台</a><span class="sep">/</span>运营管理<span class="sep">/</span>团队业绩
+        </p>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <select class="form-control" style="width:auto;min-width:150px;" id="branchFilter" onchange="render()">
+          <option value="">全部支行</option>
+          <option value="sz">苏州市分行</option>
+          <option value="nj">南京市分行</option>
+          <option value="wx">无锡市分行</option>
+        </select>
+        <select class="form-control" style="width:auto;min-width:150px;" id="roleFilter" onchange="render()">
+          <option value="">全部角色</option>
+          <option value="rm">客户经理</option>
+          <option value="mgr">支行管理员</option>
+        </select>
+        <button class="btn btn-primary" id="btnAddMember">
+          <span id="btnAddIcon" style="width:15px;height:15px;"></span>
+          添加成员
+        </button>
+      </div>
+    </div>
+
+    <!-- 汇总统计 -->
+    <div class="stat-cards" style="margin-bottom:24px;" id="teamStats"></div>
+
+    <!-- 主体 -->
+    <div style="display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start;">
+
+      <!-- 成员网格 -->
+      <div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;" id="memberGrid"></div>
+      </div>
+
+      <!-- 右侧排行 + 提醒 -->
+      <div style="display:flex;flex-direction:column;gap:20px;">
+        <!-- 本月排行 -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <span class="card-title-icon" id="rankIcon"></span>
+              本月触达排行
+            </h3>
+          </div>
+          <div class="card-body" style="padding-top:10px;" id="rankList"></div>
+        </div>
+
+        <!-- 目标完成预警 -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <span class="card-title-icon" id="alertIcon"></span>
+              目标预警
+            </h3>
+          </div>
+          <div class="card-body" style="padding-top:10px;" id="alertList"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="js/sidebar.js"></script>
+<script>
+const role = sessionStorage.getItem('wb_role') || 'manager';
+renderSidebar({ currentPage: 'team', role });
+
+document.getElementById('btnAddIcon').innerHTML  = ICONS.plus;
+document.getElementById('rankIcon').innerHTML  = `<span style="width:16px;height:16px;">${ICONS.trending_up}</span>`;
+document.getElementById('alertIcon').innerHTML = `<span style="width:16px;height:16px;">${ICONS.alert}</span>`;
+
+const MEMBERS = [
+  { id:'u1', name:'朱某人',  initials:'朱', color:'#8b5cf6', role:'rm',  roleLabel:'客户经理',   branch:'sz', branchLabel:'苏州·姑苏支行', touch:17, target:20, intent:3, loan:180 },
+  { id:'u2', name:'王芳',    initials:'王', color:'#10b981', role:'rm',  roleLabel:'客户经理',   branch:'sz', branchLabel:'苏州·工业园区支行', touch:14, target:20, intent:2, loan:150 },
+  { id:'u3', name:'张伟',    initials:'张', color:'#f59e0b', role:'rm',  roleLabel:'客户经理',   branch:'nj', branchLabel:'南京·鼓楼支行', touch:11, target:15, intent:1, loan:80  },
+  { id:'u4', name:'陈静',    initials:'陈', color:'#ef4444', role:'rm',  roleLabel:'客户经理',   branch:'nj', branchLabel:'南京·建邺支行', touch:8,  target:15, intent:2, loan:120 },
+  { id:'u5', name:'李磊',    initials:'李', color:'#2563eb', role:'rm',  roleLabel:'客户经理',   branch:'wx', branchLabel:'无锡·惠山支行', touch:12, target:15, intent:3, loan:200 },
+  { id:'u6', name:'赵小雨',  initials:'赵', color:'#6366f1', role:'rm',  roleLabel:'客户经理',   branch:'wx', branchLabel:'无锡·滨湖支行', touch:9,  target:15, intent:1, loan:60  },
+  { id:'u7', name:'钱伟东',  initials:'钱', color:'#0ea5e9', role:'rm',  roleLabel:'客户经理',   branch:'sz', branchLabel:'苏州·吴中支行', touch:19, target:20, intent:4, loan:240 },
+  { id:'u8', name:'孙秀英',  initials:'孙', color:'#f97316', role:'rm',  roleLabel:'客户经理',   branch:'nj', branchLabel:'南京·鼓楼支行', touch:6,  target:15, intent:0, loan:0   },
+  { id:'u9', name:'王支行长', initials:'王', color:'#475569', role:'mgr', roleLabel:'支行管理员', branch:'sz', branchLabel:'苏州市分行', touch:2,  target:5,  intent:0, loan:0   },
+];
+
+function getFiltered() {
+  const b = document.getElementById('branchFilter').value;
+  const r = document.getElementById('roleFilter').value;
+  return MEMBERS.filter(m =>
+    (!b || m.branch === b) &&
+    (!r || m.role   === r)
+  );
+}
+
+function render() {
+  const members = getFiltered();
+
+  // 统计
+  const totalTouch  = members.reduce((s,m)=>s+m.touch,0);
+  const totalIntent = members.reduce((s,m)=>s+m.intent,0);
+  const totalLoan   = members.reduce((s,m)=>s+m.loan,0);
+  document.getElementById('teamStats').innerHTML = [
+    { icon:'users',       label:'成员总数',   value: members.length, suffix:'人',   featured: true },
+    { icon:'trending_up', label:'本月触达合计', value: totalTouch,     suffix:'家' },
+    { icon:'target',      label:'本月意向合计', value: totalIntent,    suffix:'家' },
+    { icon:'chart',       label:'本月放款合计', value: `${totalLoan}万`, suffix:'' },
+  ].map(s => `
+    <div class="stat-card ${s.featured?'featured':''}">
+      <div class="stat-card-icon"><span style="width:20px;height:20px;">${ICONS[s.icon]||''}</span></div>
+      <div class="stat-label">${s.label}</div>
+      <div class="stat-value">${s.value}<span class="stat-suffix">${s.suffix}</span></div>
+    </div>
+  `).join('');
+
+  // 成员卡片
+  document.getElementById('memberGrid').innerHTML = members.map(m => {
+    const pct = Math.min(Math.round(m.touch/m.target*100), 100);
+    const barColor = pct>=80 ? 'var(--success)' : pct>=50 ? 'var(--brand)' : 'var(--warning)';
+    return `
+      <div class="member-card">
+        <div class="member-card-header">
+          <div class="member-av" style="background:var(--gray-100); color:var(--gray-500);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div class="member-card-name">${m.name}</div>
+            <div class="member-card-role">${m.roleLabel}</div>
+            <div class="member-card-branch">${m.branchLabel}</div>
+          </div>
+          <span class="tag ${pct>=80?'tag-green':pct>=50?'tag-blue':'tag-amber'}">${pct}%</span>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-box">
+            <div class="kpi-val">${m.touch}</div>
+            <div class="kpi-lbl">已触达</div>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-val">${m.intent}</div>
+            <div class="kpi-lbl">意向</div>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-val">${m.loan>0?m.loan+'万':'—'}</div>
+            <div class="kpi-lbl">放款</div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--gray-400);display:flex;justify-content:space-between;margin-bottom:4px;">
+          <span>月度触达进度</span>
+          <span>${m.touch} / ${m.target}</span>
+        </div>
+        <div class="target-bar"><div class="target-fill" style="width:${pct}%;background:${barColor};"></div></div>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+          <button class="btn btn-ghost btn-sm" style="flex:1;">查看详情</button>
+          <button class="btn btn-default btn-sm" style="flex:1;">分配名单</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // 排行榜
+  const sorted = [...members].filter(m=>m.role==='rm').sort((a,b)=>b.touch-a.touch).slice(0,8);
+  document.getElementById('rankList').innerHTML = sorted.map((m,i) => `
+    <div class="rank-row">
+      <div class="rank-num ${i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-n'}">${i+1}</div>
+      <div class="member-av" style="background:var(--gray-100); color:var(--gray-500); width:30px; height:30px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:13.5px;font-weight:600;color:var(--gray-800);">${m.name}</div>
+        <div style="font-size:12px;color:var(--gray-400);">${m.branchLabel}</div>
+      </div>
+      <div style="font-size:14px;font-weight:800;color:var(--brand);">${m.touch}</div>
+    </div>
+  `).join('');
+
+  // 预警
+  const alerts = members.filter(m=>m.role==='rm' && m.touch/m.target < 0.5);
+  document.getElementById('alertList').innerHTML = alerts.length ? alerts.map(m => {
+    const pct = Math.round(m.touch/m.target*100);
+    return `
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--gray-100);">
+        <div class="member-av" style="background:rgba(37,99,235,0.08);color:var(--brand);width:30px;height:30px;display:flex;align-items:center;justify-content:center;">
+          <span class="icon-svg" style="width:14px;height:14px;display:flex;">${ICONS.user}</span>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:600;color:var(--gray-800);">${m.name}</div>
+          <div style="font-size:12px;color:var(--warning);">进度 ${pct}%，距目标还差 ${m.target-m.touch} 家</div>
+          <div class="target-bar" style="margin:5px 0 0;"><div class="target-fill" style="width:${pct}%;background:var(--warning);"></div></div>
+        </div>
+      </div>
+    `;
+  }).join('') : `<div style="text-align:center;padding:20px;color:var(--gray-400);font-size:13px;">全员进度达标 🎉</div>`;
+}
+
+render();
+</script>
+</body>
+</html>

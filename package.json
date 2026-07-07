@@ -1,0 +1,24 @@
+{
+  "name": "bank-workbench",
+  "version": "1.0.0",
+  "description": "",
+  "main": "fix_bugs.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VipBeCool/MA-jigou.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/VipBeCool/MA-jigou/issues"
+  },
+  "homepage": "https://github.com/VipBeCool/MA-jigou#readme",
+  "dependencies": {
+    "puppeteer": "^25.3.0"
+  }
+}

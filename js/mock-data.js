@@ -77,11 +77,12 @@ const customerLists = [
     }
 ];
 
-// 客户数据
+// 客户数据 - 双维度状态体系：reachStage(营销阶段) + bizStage(业务阶段)
 const customers = [
     {
-        id: 1, name: "苏州智云科技有限公司", region: "苏州工业园区", industry: "软件信息技术服务业",
-        score: 798, revenue: 3500, tax: 280, patents: 12, employees: 85, status: "待触达",
+        id: 1, name: "苏州智云科技有限公司", region: "苏州工业园区", industry: "软件信息技术服务业", uscc: "91320594MA1EXAMPLE1",
+        score: 798, revenue: 3500, tax: 280, patents: 12, employees: 85,
+        status: "待触达", reachStage: 'PENDING', bizStage: 'NONE',
         tags: ["高新技术企业", "专精特新"], listId: "hightech",
         recommendation: "高成长科技企业，近三年营收增长62%，拥有12项发明专利，信用优秀。",
         contact: { name: "张明", phone: "138****8888" },
@@ -89,8 +90,9 @@ const customers = [
         suggestedAmount: "200-500万元"
     },
     {
-        id: 2, name: "南京创新智造集团有限公司", region: "南京江宁区", industry: "通用设备制造业",
-        score: 812, revenue: 8200, tax: 520, patents: 28, employees: 220, status: "待触达",
+        id: 2, name: "南京创新智造集团有限公司", region: "南京江宁区", industry: "通用设备制造业", uscc: "91320115MA2EXAMPLE2",
+        score: 812, revenue: 8200, tax: 520, patents: 28, employees: 220,
+        status: "待触达", reachStage: 'PENDING', bizStage: 'NONE',
         tags: ["高新技术企业", "制造业单项冠军"], listId: "hightech",
         recommendation: "制造业龙头企业，年营收8200万元，拥有28项专利，苏信分812。",
         contact: { name: "李强", phone: "139****6666" },
@@ -98,45 +100,64 @@ const customers = [
         suggestedAmount: "500-1000万元"
     },
     {
-        id: 3, name: "无锡光电半导体有限公司", region: "无锡新吴区", industry: "电子器件制造",
-        score: 785, revenue: 5600, tax: 380, patents: 35, employees: 150, status: "已意向",
+        id: 3, name: "无锡光电半导体有限公司", region: "无锡新吴区", industry: "电子器件制造", uscc: "91320214MA3EXAMPLE3",
+        score: 785, revenue: 5600, tax: 380, patents: 35, employees: 150,
+        status: "已意向", reachStage: 'REACHED_INTERESTED', bizStage: 'APPLIED',
+        reachDetail: { interestProduct: '科技贷', interestAmount: 500, nextFollowDate: '2026-05-15' },
+        bizDetail: { applyDate: '2026-05-05', applyProduct: '科技贷', applyAmount: 500 },
         tags: ["高新技术企业", "科技型中小企业"], listId: "hightech",
         recommendation: "半导体行业新锐，营收快速增长48%，拥有35项专利。",
         contact: { name: "王芳", phone: "136****7777" },
         riskInfo: { defaultProb: 1.2, lawsuitCount: 0, debtRatio: 52 },
-        suggestedAmount: "300-800万元"
+        suggestedAmount: "300-800万元",
+        updateSource: '手动', lastUpdateTime: '2026-05-05 14:30'
     },
     {
-        id: 4, name: "常州新能源科技股份有限公司", region: "常州武进区", industry: "电气机械及器材制造",
-        score: 756, revenue: 12000, tax: 850, patents: 42, employees: 380, status: "已触达",
+        id: 4, name: "常州新能源科技股份有限公司", region: "常州武进区", industry: "电气机械及器材制造", uscc: "91320412MA4EXAMPLE4",
+        score: 756, revenue: 12000, tax: 850, patents: 42, employees: 380,
+        status: "已触达", reachStage: 'REACHED_NO_INTEREST', bizStage: 'NONE',
+        reachDetail: { noInterestReason: ['已在他行申请','利率不满意'], noInterestDetail: '已在建行获批500万科技贷' },
         tags: ["上市后备企业", "专精特新小巨人"], listId: "newenergy",
         recommendation: "新能源装备制造领军企业，年营收过亿，已进入上市辅导期。",
         contact: { name: "赵刚", phone: "135****5555" },
         riskInfo: { defaultProb: 0.6, lawsuitCount: 1, debtRatio: 48 },
-        suggestedAmount: "800-1500万元"
+        suggestedAmount: "800-1500万元",
+        updateSource: '手动', lastUpdateTime: '2026-04-28 10:15'
     },
     {
-        id: 5, name: "苏州生物医药研究院有限公司", region: "苏州工业园区", industry: "医药制造业",
-        score: 768, revenue: 4200, tax: 320, patents: 18, employees: 95, status: "待触达",
+        id: 5, name: "苏州生物医药研究院有限公司", region: "苏州工业园区", industry: "医药制造业", uscc: "91320594MA5EXAMPLE5",
+        score: 768, revenue: 4200, tax: 320, patents: 18, employees: 95,
+        status: "待触达", reachStage: 'UNREACHED_NO_ANSWER', bizStage: 'NONE',
+        reachDetail: { attemptCount: '2次', retryPlan: '2026-05-10' },
         tags: ["高新技术企业", "生物医药"], listId: "hightech",
         recommendation: "创新药研发企业，多个管线处于临床阶段，研发团队实力雄厚。",
         contact: { name: "陈明华", phone: "137****4444" },
         riskInfo: { defaultProb: 2.1, lawsuitCount: 0, debtRatio: 35 },
-        suggestedAmount: "300-600万元"
+        suggestedAmount: "300-600万元",
+        updateSource: '手动', lastUpdateTime: '2026-05-06 09:00'
     },
     {
-        id: 6, name: "南通精密机械制造有限公司", region: "南通崇川区", industry: "专用设备制造业",
-        score: 742, revenue: 6800, tax: 480, patents: 15, employees: 210, status: "已放款",
+        id: 6, name: "南通精密机械制造有限公司", region: "南通崇川区", industry: "专用设备制造业", uscc: "91320602MA6EXAMPLE6",
+        score: 742, revenue: 6800, tax: 480, patents: 15, employees: 210,
+        status: "已放款", reachStage: 'REACHED_INTERESTED', bizStage: 'DISBURSED',
+        reachDetail: { interestProduct: '科技贷', interestAmount: 400 },
+        bizDetail: { creditType: '循环额度', creditAmount: 400, creditRemaining: 200 },
+        disbursements: [
+            { id: 'D001', amount: 100, date: '2026-02-15', term: '12个月', rate: '4.85%', status: '正常', product: '科技贷' },
+            { id: 'D002', amount: 100, date: '2026-04-20', term: '6个月', rate: '4.65%', status: '正常', product: '科技贷' },
+        ],
         tags: ["高新技术企业"], listId: "newenergy",
         recommendation: "精密机械加工行业老牌企业，盈利能力稳定，此前合作良好。",
         contact: { name: "周伟", phone: "133****3333" },
         riskInfo: { defaultProb: 0.9, lawsuitCount: 0, debtRatio: 55 },
-        suggestedAmount: "200-400万元"
+        suggestedAmount: "200-400万元",
+        updateSource: 'API', lastUpdateTime: '2026-04-20 16:00'
     },
     // ========== 产品推送客户 ==========
     {
-        id: 7, name: "苏州纳米智能装备有限公司", region: "苏州工业园区", industry: "通用设备制造业",
-        score: 788, revenue: 4800, tax: 350, patents: 22, employees: 120, status: "待触达",
+        id: 7, name: "苏州纳米智能装备有限公司", region: "苏州工业园区", industry: "通用设备制造业", uscc: "91320594MA7EXAMPLE7",
+        score: 788, revenue: 4800, tax: 350, patents: 22, employees: 120,
+        status: "待触达", reachStage: 'PENDING', bizStage: 'NONE',
         tags: ["高新技术企业", "纳米技术"], listId: "prod_keji",
         recommendation: "纳米级精密装备制造商，多个产品打破进口垄断，苏信分788。",
         contact: { name: "孙磊", phone: "139****2222" },
@@ -144,8 +165,9 @@ const customers = [
         suggestedAmount: "300-600万元"
     },
     {
-        id: 8, name: "南京云端数据技术有限公司", region: "南京雨花台区", industry: "软件信息技术服务业",
-        score: 772, revenue: 2800, tax: 210, patents: 8, employees: 65, status: "待触达",
+        id: 8, name: "南京云端数据技术有限公司", region: "南京雨花台区", industry: "软件信息技术服务业", uscc: "91320114MA8EXAMPLE8",
+        score: 772, revenue: 2800, tax: 210, patents: 8, employees: 65,
+        status: "待触达", reachStage: 'PENDING', bizStage: 'NONE',
         tags: ["高新技术企业", "大数据"], listId: "prod_keji",
         recommendation: "大数据分析平台服务商，连续3年盈利增长，技术团队50+人。",
         contact: { name: "林峰", phone: "136****1111" },
@@ -153,26 +175,34 @@ const customers = [
         suggestedAmount: "200-400万元"
     },
     {
-        id: 9, name: "无锡集成电路设计有限公司", region: "无锡新吴区", industry: "电子器件制造",
-        score: 801, revenue: 6200, tax: 420, patents: 31, employees: 180, status: "待触达",
+        id: 9, name: "无锡集成电路设计有限公司", region: "无锡新吴区", industry: "电子器件制造", uscc: "91320214MA9EXAMPLEB",
+        score: 801, revenue: 6200, tax: 420, patents: 31, employees: 180,
+        status: "待触达", reachStage: 'UNREACHED_REJECTED', bizStage: 'NONE',
+        reachDetail: { retryPlan: '2026-05-12' },
         tags: ["高新技术企业", "集成电路"], listId: "prod_keji",
         recommendation: "IC设计领域头部企业，国产替代受益明显，苏信分801。",
         contact: { name: "郑宇", phone: "138****9999" },
         riskInfo: { defaultProb: 0.4, lawsuitCount: 0, debtRatio: 35 },
-        suggestedAmount: "500-1000万元"
+        suggestedAmount: "500-1000万元",
+        updateSource: '手动', lastUpdateTime: '2026-05-03 11:20'
     },
     {
-        id: 10, name: "常州智能制造系统有限公司", region: "常州天宁区", industry: "通用设备制造业",
-        score: 765, revenue: 7500, tax: 510, patents: 16, employees: 250, status: "已触达",
+        id: 10, name: "常州智能制造系统有限公司", region: "常州天宁区", industry: "通用设备制造业", uscc: "91320402MAAEXAMPLEC",
+        score: 765, revenue: 7500, tax: 510, patents: 16, employees: 250,
+        status: "已触达", reachStage: 'REACHED_INTERESTED', bizStage: 'APPROVED',
+        reachDetail: { interestProduct: '科技贷', interestAmount: 800 },
+        bizDetail: { creditType: '循环额度', creditAmount: 800, creditExpiry: '2027-12-31', approvedProduct: '科技贷' },
         tags: ["高新技术企业", "智能制造"], listId: "prod_keji",
         recommendation: "工业机器人集成方案商，合作客户遍布长三角，近年增长迅猛。",
         contact: { name: "吴强", phone: "135****0000" },
         riskInfo: { defaultProb: 0.8, lawsuitCount: 0, debtRatio: 50 },
-        suggestedAmount: "400-800万元"
+        suggestedAmount: "400-800万元",
+        updateSource: 'API', lastUpdateTime: '2026-05-01 08:00'
     },
     {
-        id: 11, name: "苏州量子计算科技有限公司", region: "苏州高新区", industry: "软件信息技术服务业",
-        score: 758, revenue: 1500, tax: 120, patents: 6, employees: 40, status: "待触达",
+        id: 11, name: "苏州量子计算科技有限公司", region: "苏州高新区", industry: "软件信息技术服务业", uscc: "91320505MABEXAMPLED",
+        score: 758, revenue: 1500, tax: 120, patents: 6, employees: 40,
+        status: "待触达", reachStage: 'PENDING', bizStage: 'NONE',
         tags: ["科技型中小企业", "量子计算"], listId: "prod_keji",
         recommendation: "前沿量子计算方向，已获B轮融资，团队来自中科大。",
         contact: { name: "何涛", phone: "137****3333" },
@@ -180,8 +210,9 @@ const customers = [
         suggestedAmount: "100-300万元"
     },
     {
-        id: 12, name: "南京顺达贸易有限公司", region: "南京栖霞区", industry: "批发和零售业",
-        score: 735, revenue: 9500, tax: 680, patents: 0, employees: 45, status: "待触达",
+        id: 12, name: "南京顺达贸易有限公司", region: "南京栖霞区", industry: "批发和零售业", uscc: "91320113MACEXAMPLEE",
+        score: 735, revenue: 9500, tax: 680, patents: 0, employees: 45,
+        status: "待触达", reachStage: 'PENDING', bizStage: 'NONE',
         tags: ["纳税A级"], listId: "prod_shuie",
         recommendation: "纳税A级连续5年，年缴税680万，经营稳健，无司法记录。",
         contact: { name: "钱芳", phone: "138****5555" },
@@ -189,17 +220,21 @@ const customers = [
         suggestedAmount: "200-300万元"
     },
     {
-        id: 13, name: "苏州恒通建材有限公司", region: "苏州相城区", industry: "非金属矿物制品业",
-        score: 721, revenue: 11000, tax: 750, patents: 3, employees: 180, status: "待触达",
+        id: 13, name: "苏州恒通建材有限公司", region: "苏州相城区", industry: "非金属矿物制品业", uscc: "91320507MADEXAMPLEF",
+        score: 721, revenue: 11000, tax: 750, patents: 3, employees: 180,
+        status: "待触达", reachStage: 'UNREACHED_EMPTY', bizStage: 'NONE',
+        reachDetail: { altPhone: '0512-6588****' },
         tags: ["纳税A级", "建材龙头"], listId: "prod_shuie",
         recommendation: "区域建材龙头，纳税记录优良，年缴税750万，资金需求旺。",
         contact: { name: "杨帆", phone: "139****7777" },
         riskInfo: { defaultProb: 0.9, lawsuitCount: 0, debtRatio: 52 },
-        suggestedAmount: "300-500万元"
+        suggestedAmount: "300-500万元",
+        updateSource: '批量上传', lastUpdateTime: '2026-04-30 15:00'
     },
     {
-        id: 14, name: "无锡诺信科技发展有限公司", region: "无锡锡山区", industry: "软件信息技术服务业",
-        score: 748, revenue: 3200, tax: 240, patents: 5, employees: 60, status: "待触达",
+        id: 14, name: "无锡诺信科技发展有限公司", region: "无锡锡山区", industry: "软件信息技术服务业", uscc: "91320205MAEEXAMPLEG",
+        score: 748, revenue: 3200, tax: 240, patents: 5, employees: 60,
+        status: "待触达", reachStage: 'PENDING', bizStage: 'NONE',
         tags: ["纳税B级", "科技型中小企业"], listId: "prod_shuie",
         recommendation: "纳税B级，连续纳税4年，软件行业增长较快，苏信分748。",
         contact: { name: "许峰", phone: "136****8888" },
@@ -207,13 +242,17 @@ const customers = [
         suggestedAmount: "100-200万元"
     },
     {
-        id: 15, name: "常州富达纺织有限公司", region: "常州武进区", industry: "纺织业",
-        score: 712, revenue: 8600, tax: 580, patents: 2, employees: 320, status: "已触达",
+        id: 15, name: "常州富达纺织有限公司", region: "常州武进区", industry: "纺织业", uscc: "91320412MAFEXAMPLEH",
+        score: 712, revenue: 8600, tax: 580, patents: 2, employees: 320,
+        status: "已触达", reachStage: 'REACHED_NO_INTEREST', bizStage: 'REJECTED_BIZ',
+        reachDetail: { noInterestReason: ['利率不满意','额度不满足'], noInterestDetail: '希望利率低于4%' },
+        bizDetail: { rejectReason: '行业限制', rejectDetail: '纺织业暂不在科技贷准入范围' },
         tags: ["纳税A级", "外贸企业"], listId: "prod_shuie",
         recommendation: "出口型纺织企业，纳税A级，年出口额约400万美元，经营稳定。",
         contact: { name: "冯军", phone: "135****6666" },
         riskInfo: { defaultProb: 0.7, lawsuitCount: 0, debtRatio: 48 },
-        suggestedAmount: "200-400万元"
+        suggestedAmount: "200-400万元",
+        updateSource: 'API', lastUpdateTime: '2026-04-25 09:30'
     }
 ];
 

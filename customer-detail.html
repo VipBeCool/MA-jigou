@@ -1,641 +1,1109 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>客户详情 - 智能营销平台</title>
   <link rel="stylesheet" href="css/style.css">
-</head>
+  <style>
+    /* 覆盖 main-content，去除两侧强制留白，增加呼吸感 */
+    .main-content { padding: 32px 40px; }
+    .detail-wrap { width: 100%; }
 
+    /* ===== 页头返回按钮定制 ===== */
+    .page-header-with-back {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      margin-bottom: 24px;
+    }
+    .page-header-left-col {
+      display: flex; align-items: center; gap: 16px;
+    }
+    .back-btn {
+      width: 38px; height: 38px; border-radius: 10px;
+      background: white; border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--gray-600); cursor: pointer; transition: all 0.2s;
+      box-shadow: 0 2px 4px rgba(15,23,42,0.02); flex-shrink: 0;
+    }
+    .back-btn:hover { background: var(--gray-50); color: var(--brand); border-color: var(--brand-border); }
+
+    /* ===== Unified Hero Card (合并原先的1和2) ===== */
+    .unified-hero {
+      background: white; border-radius: 20px;
+      padding: 24px 32px; margin-bottom: 20px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 12px rgba(15,23,42,0.03);
+      display: flex; align-items: center; justify-content: space-between; gap: 40px;
+    }
+    .uh-left { flex: 1; }
+    .uh-title-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .uh-title { font-size: 22px; font-weight: 800; color: var(--gray-900); }
+    .uh-status {
+      display: inline-flex; align-items: center;
+      background: var(--brand-light); color: var(--brand); border: 1px solid var(--brand-border);
+      padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 600;
+    }
+    .uh-uscc { font-size: 13px; color: var(--gray-500); font-family: monospace; letter-spacing: 0.5px; margin-bottom: 14px; }
+    .uh-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+    .uh-tag {
+      background: var(--gray-50); color: var(--gray-600); border: 1px solid var(--gray-200);
+      padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: 500;
+    }
+    
+    .uh-divider { width: 1px; height: 80px; background: var(--gray-200); }
+    
+    .uh-right { display: flex; align-items: center; gap: 40px; }
+    .uh-stat { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .uh-stat-label { font-size: 13px; color: var(--gray-500); font-weight: 600; }
+    .uh-stat-val { font-size: 20px; font-weight: 800; color: var(--gray-900); }
+    .uh-stat-val.blue { color: var(--brand); }
+    .uh-stat-val.green { color: var(--success); }
+    
+    .uh-actions { margin-left: 20px; }
+    .hero-btn-primary {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--brand); color: white;
+      padding: 10px 20px; border-radius: 10px; border: none;
+      font-size: 13.5px; font-weight: 600; cursor: pointer; transition: background 0.2s;
+      box-shadow: 0 4px 12px rgba(37,99,235,0.2);
+    }
+    .hero-btn-primary:hover { background: var(--brand-hover); }
+
+    /* ===== AI Banner (横向铺开) ===== */
+    .ai-banner {
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      border: 1px solid #bae6fd; border-radius: 16px;
+      padding: 20px 24px; margin-bottom: 24px;
+      display: flex; align-items: flex-start; gap: 20px;
+    }
+    .ai-banner-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: var(--brand); color: white;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; box-shadow: 0 4px 10px rgba(37,99,235,0.2);
+    }
+    .ai-banner-content { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+    .ai-banner-title { font-size: 16px; font-weight: 700; color: var(--gray-900); display: flex; align-items: center; gap: 8px; }
+    .ai-banner-text { font-size: 13.5px; color: var(--gray-700); line-height: 1.6; }
+    .ai-banner-suggest {
+      background: white; padding: 12px 16px; border-radius: 8px;
+      border: 1px solid rgba(37,99,235,0.15); box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+      font-size: 13.5px; color: var(--gray-800); margin-top: 4px;
+    }
+
+    /* ===== 内容主区（两栏） ===== */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 24px; align-items: start;
+    }
+
+    /* ===== 左侧主内容区 ===== */
+    .main-card {
+      background: white; border-radius: 20px;
+      border: 1px solid var(--border);
+      overflow: hidden; box-shadow: 0 4px 12px rgba(15,23,42,0.02);
+    }
+    .tab-header {
+      display: flex; border-bottom: 1px solid var(--border);
+      background: var(--gray-50); padding: 0 12px;
+      flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden;
+      white-space: nowrap;
+    }
+    .tab-header::-webkit-scrollbar { display: none; } /* 隐藏滚动条 */
+    .tab-item {
+      padding: 16px 20px; font-size: 14.5px; font-weight: 600; color: var(--gray-500);
+      cursor: pointer; position: relative; transition: color 0.2s;
+      border-bottom: 2px solid transparent !important;
+      flex-shrink: 0;
+    }
+    .tab-item:hover { color: var(--gray-700); }
+    .tab-item.active { color: var(--brand); border-bottom-color: transparent !important; }
+    .tab-item.active::after {
+      content: ''; position: absolute;
+      bottom: -1px; left: 16px; right: 16px;
+      height: 3px; background: var(--brand); border-radius: 3px 3px 0 0;
+    }
+    .tab-pane { display: none; padding: 32px; }
+    .tab-pane.active { display: block; }
+
+    /* 基本信息表格 */
+    .info-list { display: flex; flex-direction: column; }
+    .info-row {
+      display: flex; justify-content: space-between; padding: 16px 0;
+      border-bottom: 1px dashed var(--gray-200); font-size: 14px;
+    }
+    .info-row:first-child { padding-top: 0; }
+    .info-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .info-label { color: var(--gray-500); font-weight: 500; width: 140px; flex-shrink: 0; }
+    .info-value { color: var(--gray-900); font-weight: 600; text-align: right; }
+
+    /* 触达路径推荐（Tab中） */
+    .cp-card {
+      border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 16px; transition: all 0.2s;
+    }
+    .cp-card:hover { border-color: var(--brand-border); background: var(--gray-50); }
+    .cp-avatar {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: var(--brand-light); color: var(--brand);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cp-info { flex: 1; }
+    .cp-name { font-size: 14.5px; font-weight: 700; color: var(--gray-900); margin-bottom: 4px; }
+    .cp-role { font-size: 13px; color: var(--gray-500); }
+    .cp-tips { font-size: 12.5px; color: var(--gray-400); margin-top: 6px; }
+    .cp-btn {
+      background: var(--brand-light); color: var(--brand); border: none; border-radius: 8px;
+      padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .cp-btn:hover { background: var(--brand); color: white; }
+
+    /* 模型评分 Tab */
+    .model-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    }
+    .model-card {
+      background: white; border: 1px solid var(--border); border-radius: 16px;
+      padding: 24px 16px; display: flex; flex-direction: column; align-items: center;
+      transition: box-shadow 0.2s;
+    }
+    .model-card:hover { box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+    .mc-name { font-size: 14px; font-weight: 700; color: var(--gray-900); margin-bottom: 16px; }
+    .mc-ring-wrap { position: relative; width: 100px; height: 100px; margin-bottom: 16px; }
+    .mc-ring { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .mc-ring .bg { fill: none; stroke: var(--gray-100); stroke-width: 2.5; }
+    .mc-ring .fg { fill: none; stroke-width: 2.5; stroke-linecap: round; }
+    .mc-score {
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+    .mc-score-val { font-size: 24px; font-weight: 800; color: var(--gray-900); line-height: 1; }
+    .mc-score-divider { width: 20px; height: 2px; background: var(--gray-300); margin: 4px 0; }
+    .mc-score-total { font-size: 11px; color: var(--gray-400); font-weight: 600; }
+    .mc-level { font-size: 12px; font-weight: 700; padding: 4px 16px; border-radius: 100px; }
+    .mc-level.success { background: var(--success-bg); color: var(--success); }
+    .mc-level.warning { background: var(--warning-bg); color: var(--warning); }
+
+    /* 营销轨迹 Tab */
+    .history-list { padding-left: 10px; }
+    .history-item {
+      position: relative; padding-left: 24px; padding-bottom: 24px;
+      border-left: 2px solid var(--gray-200);
+    }
+    .history-item:last-child { border-left-color: transparent; padding-bottom: 0; }
+    .history-dot {
+      position: absolute; left: -7px; top: 0; width: 12px; height: 12px;
+      border-radius: 50%; background: var(--gray-300); border: 2px solid white;
+    }
+    .history-item.primary .history-dot { background: var(--brand); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+    .history-date { font-size: 13px; color: var(--gray-500); font-weight: 500; margin-bottom: 12px; }
+    .history-content {
+      background: var(--gray-50); padding: 16px 20px; border-radius: 12px; border: 1px solid var(--gray-100);
+    }
+    .history-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .history-user { font-size: 13px; font-weight: 600; color: var(--brand); }
+    .history-tag { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; background: var(--info-bg); color: var(--info); }
+    .history-tag.biz { background: var(--success-bg); color: var(--success); }
+    .history-text { font-size: 13.5px; color: var(--gray-700); line-height: 1.6; }
+
+    /* ===== 右侧边栏 ===== */
+    .side-col { display: flex; flex-direction: column; gap: 24px; }
+
+    /* 作业助手 */
+    .assistant-card {
+      background: white; border: 1px solid var(--border); border-radius: 16px; padding: 24px; box-shadow: 0 4px 12px rgba(15,23,42,0.02);
+    }
+    .assistant-title { font-size: 15px; font-weight: 700; color: var(--gray-900); margin-bottom: 18px; }
+    .assistant-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .assistant-item {
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+      padding: 16px 0; border-radius: 12px; cursor: pointer; transition: background 0.2s; border: 1px solid transparent;
+    }
+    .assistant-item:hover { background: var(--gray-50); border-color: var(--gray-100); }
+    .assistant-icon {
+      width: 48px; height: 48px; border-radius: 14px; background: var(--brand-light);
+      color: var(--brand); display: flex; align-items: center; justify-content: center;
+    }
+    .assistant-text { font-size: 13px; font-weight: 600; color: var(--gray-600); }
+
+    /* ===== 状态标记侧边抽屉 ===== */
+    .drawer-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 1000;
+      display: none;
+      backdrop-filter: blur(2px);
+    }
+    .drawer-overlay.show { display: flex; align-items: center; justify-content: center; animation: fadeIn 0.2s; }
+    .drawer-panel {
+      position: fixed;
+      right: -480px;
+      top: 0;
+      bottom: 0;
+      width: 440px;
+      background: var(--bg-card);
+      z-index: 1001;
+      box-shadow: -8px 0 40px rgba(0,0,0,0.12);
+      transition: right 0.3s cubic-bezier(0.4,0,0.2,1);
+      display: flex;
+      flex-direction: column;
+    }
+    .drawer-panel.open { right: 0; }
+    .drawer-header {
+      padding: 22px 24px 18px;
+      border-bottom: 1px solid var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .drawer-title { font-size: 17px; font-weight: 700; color: var(--gray-900); }
+    .drawer-company { font-size: 13px; color: var(--gray-500); margin-top: 3px; }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
+    .drawer-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--gray-100);
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .drawer-btn {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+    .drawer-btn.cancel { background: var(--gray-100); color: var(--gray-600); }
+    .drawer-btn.cancel:hover { background: var(--gray-200); }
+    .drawer-btn.save { background: var(--brand); color: white; box-shadow: 0 4px 12px rgba(37,99,235,0.25); }
+    .drawer-btn.save:hover { background: #1d4ed8; }
+
+    /* 状态标记 Tabs */
+    .mark-tabs {
+      display: flex;
+      background: var(--gray-100);
+      border-radius: 10px;
+      padding: 3px;
+      margin-bottom: 20px;
+    }
+    .mark-tab {
+      flex: 1;
+      text-align: center;
+      padding: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-500);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .mark-tab.active {
+      background: white;
+      color: var(--brand);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .mark-pane { display: none; }
+    .mark-pane.active { display: block; }
+
+    /* Chip 组 */
+    .chip-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .chip {
+      padding: 7px 14px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 500;
+      border: 1.5px solid var(--gray-200);
+      background: var(--gray-50);
+      color: var(--gray-600);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .chip:hover { border-color: var(--brand); color: var(--brand); }
+    .chip.on {
+      border-color: var(--brand);
+      background: var(--brand-light);
+      color: var(--brand);
+      font-weight: 700;
+    }
+    .modal-close {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      border: none;
+      background: var(--gray-100);
+      color: var(--gray-500);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .modal-close:hover { background: var(--gray-200); }
+
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    .quick-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .quick-tag {
+      padding: 4px 10px;
+      background: var(--gray-100);
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--gray-600);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .quick-tag:hover { background: var(--brand-light); color: var(--brand); }
+  </style>
+</head>
 <body>
-  <div class="app-container">
-    <!-- 侧边栏 -->
-    <aside class="sidebar">
-      <div class="sidebar-logo">
-        <div class="logo-icon">💼</div>
-        <h1>智能营销平台</h1>
-      </div>
-      <nav class="nav-menu">
-        <a href="index.html" class="nav-item">
-          <span class="nav-icon">🏠</span>
-          <span class="nav-text">工作台</span>
-        </a>
-        <a href="customers.html" class="nav-item active">
-          <span class="nav-icon">👥</span>
-          <span class="nav-text">客户名单</span>
-        </a>
-        <a href="tasks.html" class="nav-item">
-          <span class="nav-icon">📋</span>
-          <span class="nav-text">任务管理</span>
-        </a>
-        <a href="select.html" class="nav-item">
-          <span class="nav-icon">🎯</span>
-          <span class="nav-text">智能圈选</span>
-        </a>
-        <a href="dashboard.html" class="nav-item">
-          <span class="nav-icon">📊</span>
-          <span class="nav-text">数据看板</span>
-        </a>
-        <a href="risk-alert.html" class="nav-item">
-          <span class="nav-icon">⚠️</span>
-          <span class="nav-text">风险预警</span>
-        </a>
-        <a href="reconciliation.html" class="nav-item">
-          <span class="nav-icon">📑</span>
-          <span class="nav-text">对账确认</span>
-        </a>
-        <a href="downloads.html" class="nav-item">
-          <span class="nav-icon">📥</span>
-          <span class="nav-text">下载中心</span>
-        </a>
-      </nav>
-      <div class="sidebar-footer">
-        <div class="user-info">
-          <div class="user-avatar">朱</div>
+<div class="app-container">
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <main class="main-content anim-fade-in" id="main">
+    <div class="detail-wrap">
+      
+      <!-- 带有强视觉返回按钮的页头 -->
+      <div class="page-header-with-back">
+        <div class="page-header-left-col">
+          <button class="back-btn" onclick="history.back()" title="返回客户名单">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+          </button>
           <div>
-            <div class="user-name">朱某人</div>
-            <div class="user-role">客户经理</div>
+            <h1 class="page-title">客户详情</h1>
+            <div class="page-breadcrumb">
+              <a href="index.html">工作台</a><span class="sep">/</span>客户营销<span class="sep">/</span><a href="customers.html">客户名单</a><span class="sep">/</span><span id="bcName">苏州智云科技有限公司</span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <button class="hero-btn-primary" onclick="openMarkDrawer()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            更新状态
+          </button>
+        </div>
+      </div>
+
+      <!-- Unified Hero (结合原先的企业信息与核心指标) -->
+      <div class="unified-hero">
+        <div class="uh-left">
+          <div class="uh-title-row">
+            <h2 class="uh-title" id="pageTitle">苏州智云科技有限公司</h2>
+            <div class="uh-status" id="pageStatus">有意向 · 已申请</div>
+          </div>
+          <div class="uh-uscc" id="pageUscc">91320594MA1EXAMPLE1</div>
+          <div class="uh-tags" id="pageTags">
+            <div class="uh-tag">民营企业</div>
+            <div class="uh-tag">专精特新小巨人</div>
+            <div class="uh-tag">高新技术企业</div>
+          </div>
+        </div>
+        
+        <div class="uh-divider"></div>
+        
+        <div class="uh-right">
+          <div class="uh-stat">
+            <div class="uh-stat-label">资金需求</div>
+            <div class="uh-stat-val blue">高意向</div>
+          </div>
+          <div class="uh-stat">
+            <div class="uh-stat-label">综合信用评级</div>
+            <div class="uh-stat-val">A+</div>
+          </div>
+          <div class="uh-stat">
+            <div class="uh-stat-label">违约风险</div>
+            <div class="uh-stat-val green">低风险</div>
           </div>
         </div>
       </div>
-    </aside>
 
-    <!-- 主内容区 -->
-    <main class="main-content">
-      <div class="page-header">
-        <h1 class="page-title" id="pageTitle">客户详情</h1>
-        <p class="page-breadcrumb"><a href="index.html">工作台</a> / <a href="customers.html">客户名单</a> / 客户详情</p>
+      <!-- AI 营销洞察 (横向拉宽 Banner) -->
+      <div class="ai-banner">
+        <div class="ai-banner-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"></path><path d="M12 18v4"></path><path d="M4.93 4.93l2.83 2.83"></path><path d="M16.24 16.24l2.83 2.83"></path><path d="M2 12h4"></path><path d="M18 12h4"></path><path d="M4.93 19.07l2.83-2.83"></path><path d="M16.24 7.76l2.83-2.83"></path><rect x="9" y="9" width="6" height="6" rx="1"></rect></svg>
+        </div>
+        <div class="ai-banner-content">
+          <div class="ai-banner-title">AI 营销洞察</div>
+          <div class="ai-banner-text">
+            <span style="color:var(--gray-900);font-weight:600;">资质洞察：</span>该企业近期新增 3 项发明专利，且具备“专精特新”属性，触发贷款资金需求高分 (92分)。<br>
+            <span style="color:var(--gray-900);font-weight:600;">跟进断点：</span>根据历史记录，客户对信贷产品有初步意向，但因顾虑融资成本处于观望状态。
+          </div>
+          <div class="ai-banner-suggest">
+            <span style="color:var(--brand);font-weight:700;">下一步建议：</span>建议立即介入跟进。以“恭喜企业新获专利”为破冰点，向客户传达我行可给予最高 <span style="font-weight:700;color:var(--gray-900);">500万</span> 的预估准入额度。
+          </div>
+        </div>
       </div>
 
-      <!-- 企业头部信息 -->
-      <div class="detail-header" id="detailHeader">
-        <!-- 动态渲染 -->
+      <!-- 横向作业助手 (首屏可见) -->
+      <div style="background: #fff; border-radius: 12px; padding: 16px 24px; margin-bottom: 24px; border: 1px solid var(--hairline); box-shadow: var(--card-shadow); display: flex; align-items: center;">
+        <div style="font-weight: 700; color: var(--gray-900); font-size: 15px; margin-right: 32px; flex-shrink: 0; display: flex; align-items: center; gap: 8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+          作业助手
+        </div>
+        <div style="display: flex; gap: 16px; flex: 1;">
+          <div class="assistant-item" style="flex: 1; flex-direction: row; justify-content: flex-start; padding: 10px 16px; gap: 12px;">
+            <div class="assistant-icon" style="width: 36px; height: 36px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg></div>
+            <div class="assistant-text">企业画像</div>
+          </div>
+          <div class="assistant-item" style="flex: 1; flex-direction: row; justify-content: flex-start; padding: 10px 16px; gap: 12px;">
+            <div class="assistant-icon" style="width: 36px; height: 36px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></div>
+            <div class="assistant-text">AI尽调报告</div>
+          </div>
+          <div class="assistant-item" style="flex: 1; flex-direction: row; justify-content: flex-start; padding: 10px 16px; gap: 12px;">
+            <div class="assistant-icon" style="width: 36px; height: 36px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
+            <div class="assistant-text">智能流水</div>
+          </div>
+          <div class="assistant-item" style="flex: 1; flex-direction: row; justify-content: flex-start; padding: 10px 16px; gap: 12px;">
+            <div class="assistant-icon" style="width: 36px; height: 36px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div>
+            <div class="assistant-text">访谈助手</div>
+          </div>
+        </div>
       </div>
 
-      <!-- 主体内容 -->
-      <div class="detail-body">
-        <!-- 左侧详细信息 -->
-        <div class="detail-main">
-          <!-- AI推荐理由 -->
-          <div class="card">
-            <div class="ai-recommendation" id="aiRecommendation">
+      <div class="content-grid">
+        
+        <!-- 左侧 主内容 -->
+        <div class="main-card">
+          <div class="tab-header">
+            <div class="tab-item active" onclick="switchTab('basic', this)">基本信息</div>
+            <div class="tab-item" onclick="switchTab('data', this)">关键数据</div>
+            <div class="tab-item" onclick="switchTab('models', this)">模型评分</div>
+            <div class="tab-item" onclick="switchTab('history', this)">营销轨迹</div>
+            <!-- 触达路径作为第五个 Tab 放在最后 -->
+            <div class="tab-item" onclick="switchTab('contact', this)">触达路径</div>
+          </div>
+
+          <!-- 基本信息 -->
+          <div class="tab-pane active" id="pane-basic">
+            <div class="info-list" id="basicInfoBody">
+              <div class="info-row"><div class="info-label">法定代表人</div><div class="info-value">张明</div></div>
+              <div class="info-row"><div class="info-label">注册资本</div><div class="info-value">1000 万人民币</div></div>
+              <div class="info-row"><div class="info-label">成立日期</div><div class="info-value">2018-05-20</div></div>
+              <div class="info-row"><div class="info-label">所属行业</div><div class="info-value">软件信息服务</div></div>
+              <div class="info-row"><div class="info-label">注册地址</div><div class="info-value" style="font-weight:400;color:var(--gray-700);">江苏省苏州市工业园区星湖街5号创意产业园 A 栋 8 楼</div></div>
+            </div>
+          </div>
+
+          <!-- 关键数据 (带授权遮罩) -->
+          <div class="tab-pane" id="pane-data">
+            <!-- 前两条露出 -->
+            <div class="info-list" style="margin-bottom: 0; border-bottom: none; border-bottom-left-radius: 0; border-bottom-right-radius: 0;">
+              <div class="info-row"><div class="info-label">经营年限</div><div class="info-value">6 年</div></div>
+              <div class="info-row" style="border-bottom: none;"><div class="info-label">纳税评级</div><div class="info-value">A 级</div></div>
+            </div>
+            
+            <!-- 从第三条开始遮罩 -->
+            <div style="position: relative;">
+              <div class="info-list" id="authDataBlur" style="filter: blur(5px); opacity: 0.6; pointer-events: none; user-select: none; border-top-left-radius: 0; border-top-right-radius: 0;">
+                <div class="info-row"><div class="info-label">近一年营收</div><div class="info-value">4,250 万</div></div>
+                <div class="info-row"><div class="info-label">实控人变更</div><div class="info-value">2.5 年内无变更</div></div>
+                <div class="info-row"><div class="info-label">开票稳定性</div><div class="info-value">优 (近12月无断票)</div></div>
+                <div class="info-row"><div class="info-label">开票同比变动</div><div class="info-value">+12.5%</div></div>
+                <div class="info-row"><div class="info-label">专利新增</div><div class="info-value">近半年新增 3 项发明专利</div></div>
+              </div>
+              <!-- 毛玻璃遮罩引导授权 -->
+              <div id="authOverlay" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(4px); border-radius: 0 0 12px 12px; z-index: 10;">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 12px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <div style="font-size: 15px; font-weight: 700; color: var(--gray-900); margin-bottom: 6px;">获取企业电子授权</div>
+                <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 16px;">邀请企业授权即可解锁多维深度数据</div>
+                <button onclick="openAuthQrModal()" style="background: var(--brand); color: #fff; border: none; padding: 10px 24px; border-radius: 100px; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(37,99,235,0.25); display: flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                  立即获取授权
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 模型评分 -->
+          <div class="tab-pane" id="pane-models">
+            <div class="model-grid">
+              <div class="model-card">
+                <div class="mc-name">资金需求</div>
+                <div class="mc-ring-wrap">
+                  <svg viewBox="0 0 36 36" class="mc-ring">
+                    <path class="bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <path class="fg" stroke-dasharray="92, 100" stroke="#10b981" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                  </svg>
+                  <div class="mc-score">
+                    <div class="mc-score-val">92</div>
+                    <div class="mc-score-divider"></div>
+                    <div class="mc-score-total">100</div>
+                  </div>
+                </div>
+                <div class="mc-level success">高意向</div>
+              </div>
+
+              <div class="model-card">
+                <div class="mc-name">苏信分</div>
+                <div class="mc-ring-wrap">
+                  <svg viewBox="0 0 36 36" class="mc-ring">
+                    <path class="bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <path class="fg" stroke-dasharray="87, 100" stroke="#10b981" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                  </svg>
+                  <div class="mc-score">
+                    <div class="mc-score-val">740</div>
+                    <div class="mc-score-divider"></div>
+                    <div class="mc-score-total">850</div>
+                  </div>
+                </div>
+                <div class="mc-level success">A+ 级</div>
+              </div>
+
+              <div class="model-card">
+                <div class="mc-name">科创评分</div>
+                <div class="mc-ring-wrap">
+                  <svg viewBox="0 0 36 36" class="mc-ring">
+                    <path class="bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <path class="fg" stroke-dasharray="85, 100" stroke="#10b981" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                  </svg>
+                  <div class="mc-score">
+                    <div class="mc-score-val">85</div>
+                    <div class="mc-score-divider"></div>
+                    <div class="mc-score-total">100</div>
+                  </div>
+                </div>
+                <div class="mc-level success">优秀</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 营销轨迹 -->
+          <div class="tab-pane" id="pane-history">
+            <div class="history-list" id="historyList">
+              <!-- JS 渲染 -->
+            </div>
+          </div>
+
+          <!-- 触达路径 Tab -->
+          <div class="tab-pane" id="pane-contact">
+            <div id="contactPaths">
+                 <div class="ai-tabs-nav">
+              <button class="ai-tab-btn active" onclick="switchAITab('ai-tab-a', this)">节点A: 外呼前速读</button>
+              <button class="ai-tab-btn" onclick="switchAITab('ai-tab-b', this)">节点B: 深度跟进</button>
+              <button class="ai-tab-btn" onclick="switchAITab('ai-tab-c', this)">节点C: 进件辅助</button>
+              <button class="ai-tab-btn" onclick="switchAITab('ai-tab-d', this)">节点D: 授信参考</button>
+            </div>
+
+            <!-- 节点A: 外呼前速读 -->
+            <div id="ai-tab-a" class="ai-tab-pane active">
+              <div style="font-size: 13px; font-weight: 600; color: #0f172a; margin-bottom: 4px;">📌 一句话画像</div>
+              <div style="font-size: 12px; color: #475569; margin-bottom: 14px; line-height: 1.6;">苏州某科技是一家专注精密零部件加工的民营企业，年营收约4200万，近两年增长稳健，有自有厂房，核心客户为知名汽车零部件集团。</div>
+              
+              <div style="font-size: 13px; font-weight: 600; color: #059669; margin-bottom: 4px;">✅ 营销亮点（3条）</div>
+              <ul style="font-size: 12px; color: #475569; padding-left: 16px; margin-bottom: 14px; line-height: 1.6;">
+                <li>纳税A级，连续3年无欠税记录</li>
+                <li>名下厂房面积2,800㎡，无抵押</li>
+                <li>近半年新增2项实用新型专利</li>
+              </ul>
+              
+              <div style="font-size: 13px; font-weight: 600; color: #d97706; margin-bottom: 4px;">⚠️ 关注事项（2条）</div>
+              <ul style="font-size: 12px; color: #475569; padding-left: 16px; margin-bottom: 14px; line-height: 1.6;">
+                <li>2025年有1笔已结清的小额诉讼</li>
+                <li>实控人名下有另一家同行业公司</li>
+              </ul>
+              
+              <div style="font-size: 10px; color: #94a3b8; border-top: 1px dashed #cbd5e1; padding-top: 10px; line-height: 1.4;">🕐 生成于 2026-06-20 14:30<br>数据来源：公开工商/司法/知识产权</div>
+            </div>
+
+            <!-- 节点B: 深度跟进 -->
+            <div id="ai-tab-b" class="ai-tab-pane">
+              <div style="font-weight: 700; margin-bottom: 12px; font-size: 14px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; color: #0f172a;">关键数据 <span style="font-size: 10px; font-weight: 600; color: #059669; background: #d1fae5; padding: 3px 6px; border-radius: 4px; float: right;">已授权解锁</span></div>
+              
+              <div style="font-size: 12px; color: #64748b; margin-bottom: 16px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>经营时长</span><span style="color:#0f172a; font-weight: 500;">5.8年</span></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>纳税评级</span><span style="color:#0f172a; font-weight: 500;">A级</span></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>近一年营收</span><span style="color:#0f172a; font-weight: 500;">4,250万</span></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>社保人数</span><span style="color:#0f172a; font-weight: 500;">65人</span></div>
+              </div>
+              
+              <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid #cbd5e1; border-radius: 8px; padding: 20px 16px; text-align: center; cursor: pointer; transition: all .2s;">
+                <div style="font-size: 20px; margin-bottom: 8px;">🔍</div>
+                <div style="font-size: 14px; font-weight: 700; color: #1e40af; margin-bottom: 6px;">查看深度经营分析 →</div>
+                <div style="font-size: 11px; color: #64748b; line-height: 1.5;">基于授权数据的企业全景研判<br>含：经营趋势 · 关联图谱 · 融资可行性分析</div>
+              </div>
+            </div>
+
+            <!-- 节点C: 进件辅助 -->
+            <div id="ai-tab-c" class="ai-tab-pane">
+              <div style="font-weight: 700; font-size: 14px; color: #0f172a; display: flex; align-items: center; gap: 8px; margin-bottom: 12px;"><span style="font-size:16px">📄</span> AI尽调报告</div>
+              
+              <div style="background: #f8fafc; border-radius: 8px; padding: 12px; margin-bottom: 16px; border: 1px solid #e2e8f0;">
+                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px;">
+                  <span style="color: #64748b;">报告状态</span>
+                  <span style="color: #059669; font-weight: 700; display: flex; align-items: center; gap: 4px;">已生成 ✓</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 12px;">
+                  <span style="color: #64748b;">生成时间</span>
+                  <span style="color: #0f172a; font-weight: 600;">2026-06-20 15:30</span>
+                </div>
+              </div>
+              
+              <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                <button style="flex:1; background: #1a4fd6; color: #fff; border: none; padding: 8px 0; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">在线查看</button>
+                <button style="flex:1; background: #fff; color: #1a4fd6; border: 1px solid #1a4fd6; padding: 8px 0; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">导出PDF</button>
+                <button style="flex:1; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 8px 0; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">重新生成</button>
+              </div>
+              
+              <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 10px; display: flex; gap: 8px; align-items: flex-start;">
+                <span style="font-size: 14px; margin-top: -2px;">⚠️</span>
+                <div style="font-size: 11px; color: #92400e; line-height: 1.5; font-weight: 500;">报告基于 2026-06-20 的数据快照生成，如距今超过30天建议重新生成以获取最新风险信息。</div>
+              </div>
+            </div>
+
+            <!-- 节点D: 授信参考 -->
+            <div id="ai-tab-d" class="ai-tab-pane">
+              <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; padding: 20px 0;">
+                <div style="width: 64px; height: 64px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,.05); border: 1px solid #e2e8f0;">🏛️</div>
+                <div style="font-size: 16px; font-weight: 800; color: #0f172a; margin-bottom: 8px; text-align: center;">授信参考：审批系统对接AI尽调数据</div>
+                <div style="font-size: 12px; color: #475569; text-align: center; line-height: 1.6;">
+                  全量尽调报告与智能审批打通，银行审批系统可对接AI尽调报告API。<br><br>审批人在工作台直接调阅关联的深度尽调数据及风险预警，大幅提升贷前审批效率，辅助精准信贷决策。
+                </div>
+              </div>
+            </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧边栏 -->
+        <div class="side-col">
+          <!-- 全周期 AI 锦囊 -->
+          <style>
+            .ai-tabs-nav { display: flex; background: var(--gray-100); border-radius: 8px; padding: 4px; margin-bottom: 16px; }
+            .ai-tab-btn { flex: 1; text-align: center; font-size: 13px; font-weight: 600; color: var(--gray-500); padding: 8px 4px; border-radius: 6px; cursor: pointer; transition: all 0.2s; border: none; background: transparent; }
+            .ai-tab-btn:hover { color: var(--brand); }
+            .ai-tab-btn.active { background: #fff; color: var(--brand); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+            .ai-tab-pane { display: none; animation: fadeIn 0.3s ease; }
+            .ai-tab-pane.active { display: block; }
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+          </style>
+
+          <div class="assistant-card" style="padding: 16px;">
+            <div class="assistant-title" style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+              <span>🤖 AI企业速读</span>
+            </div>
+            
+            <div class="ai-tabs-nav">
+              <button class="ai-tab-btn active" onclick="switchAITab('ai-tab-a', this)">外呼速读</button>
+              <button class="ai-tab-btn" onclick="switchAITab('ai-tab-b', this)">深度了解</button>
+              <button class="ai-tab-btn" onclick="switchAITab('ai-tab-c', this)">进件辅助</button>
+            </div>
+
+            <!-- 节点A: 外呼准备 -->
+            <div id="ai-tab-a" class="ai-tab-pane active">
+              <div style="font-size: 13.5px; color: var(--gray-900); font-weight: 600; margin-bottom: 4px;">📌 一句话画像</div>
+              <div style="font-size: 12.5px; color: var(--gray-600); margin-bottom: 12px; line-height: 1.6;">
+                苏州某科技是一家专注精密零部件加工的民营企业，年营收约4200万，近两年增长稳健，有自有厂房，核心客户为知名汽车零部件集团。
+              </div>
+
+              <div style="font-size: 13.5px; color: var(--success); font-weight: 600; margin-bottom: 4px;">✅ 营销亮点（3条）</div>
+              <ul style="font-size: 12.5px; color: var(--gray-600); padding-left: 16px; margin-bottom: 12px; line-height: 1.6; margin-top: 0;">
+                <li>纳税A级，连续3年无欠税记录</li>
+                <li>名下厂房面积2,800㎡，无抵押</li>
+                <li>近半年新增2项实用新型专利</li>
+              </ul>
+
+              <div style="font-size: 13.5px; color: #d97706; font-weight: 600; margin-bottom: 4px;">⚠️ 关注事项（2条）</div>
+              <ul style="font-size: 12.5px; color: var(--gray-600); padding-left: 16px; margin-bottom: 12px; line-height: 1.6; margin-top: 0;">
+                <li>2025年有1笔已结清的小额诉讼</li>
+                <li>实控人名下有另一家同行业公司</li>
+              </ul>
+              
+              <div style="font-size: 11px; color: var(--gray-400); border-top: 1px dashed var(--gray-300); padding-top: 8px;">
+                🕐 生成于 2026-06-20 14:30<br>数据来源：公开工商/司法/知识产权
+              </div>
+            </div>
+
+            <!-- 节点B: 深度尽调 -->
+            <div id="ai-tab-b" class="ai-tab-pane">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--hairline); padding-bottom: 8px;">
+                <span style="font-weight: 700; font-size: 14px; color: var(--gray-900);">关键数据</span>
+                <span style="font-size: 11px; font-weight: normal; color: var(--success); background: #d1fae5; padding: 2px 6px; border-radius: 4px;">已授权解锁</span>
+              </div>
+              <div style="font-size: 12.5px; color: var(--gray-600); margin-bottom: 16px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>经营时长</span><span style="color:var(--gray-900); font-weight: 500;">5.8年</span></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>纳税评级</span><span style="color:var(--gray-900); font-weight: 500;">A级</span></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>近一年营收</span><span style="color:var(--gray-900); font-weight: 500;">4,250万</span></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>社保人数</span><span style="color:var(--gray-900); font-weight: 500;">65人</span></div>
+              </div>
+
+              <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid var(--gray-300); border-radius: 8px; padding: 16px; text-align: center; cursor: pointer;">
+                <div style="font-size: 16px; margin-bottom: 8px;">🔍</div>
+                <div style="font-size: 14px; font-weight: 700; color: #1e40af; margin-bottom: 4px;">查看深度经营分析 →</div>
+                <div style="font-size: 11.5px; color: var(--gray-500); line-height: 1.5;">基于授权数据的企业全景研判<br>含：经营趋势 · 关联图谱 · 融资可行性分析</div>
+              </div>
+            </div>
+
+            <!-- 节点C: 进件辅助 -->
+            <div id="ai-tab-c" class="ai-tab-pane">
+              <div style="font-weight: 700; font-size: 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                📄 AI尽调报告
+              </div>
+              <div style="background: var(--gray-50); border-radius: 6px; padding: 12px; margin-bottom: 12px; border: 1px solid var(--gray-200);">
+                <div style="display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 6px;">
+                  <span style="color: var(--gray-500);">状态</span>
+                  <span style="color: var(--success); font-weight: 600;">已生成 ✓</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 12.5px;">
+                  <span style="color: var(--gray-500);">生成时间</span>
+                  <span style="color: var(--gray-900); font-weight: 500;">2026-06-20</span>
+                </div>
+              </div>
+              <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <button style="flex: 1; padding: 8px 0; border-radius: 6px; background: var(--brand); color: white; border: none; font-size: 13px; font-weight: 600; cursor: pointer;">[在线查看]</button>
+                <button style="flex: 1; padding: 8px 0; border-radius: 6px; background: #fff; color: var(--brand); border: 1px solid var(--brand); font-size: 13px; font-weight: 600; cursor: pointer;">[导出PDF]</button>
+                <button style="flex: 1; padding: 8px 0; border-radius: 6px; background: var(--gray-100); color: var(--gray-600); border: 1px solid var(--gray-300); font-size: 13px; font-weight: 600; cursor: pointer;">[重新生成]</button>
+              </div>
+              <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 10px; display: flex; gap: 8px; align-items: flex-start;">
+                <span style="font-size: 14px; margin-top: -2px;">⚠</span>
+                <div style="font-size: 11.5px; color: #92400e; line-height: 1.5;">报告基于2026-06-20的数据快照生成，如距今超过30天建议重新生成。</div>
+              </div>
+            </div>
+          </div>
+
+          <script>
+            function switchAITab(tabId, btn) {
+              const nav = btn.parentElement;
+              const card = nav.parentElement;
+              nav.querySelectorAll('.ai-tab-btn').forEach(b => b.classList.remove('active'));
+              card.querySelectorAll('.ai-tab-pane').forEach(p => p.classList.remove('active'));
+              btn.classList.add('active');
+              card.querySelector('#' + tabId).classList.add('active');
+            }
+          </script>
+
+          <!-- 行业背景卡片 -->
+          <div class="assistant-card" style="padding: 16px; margin-bottom: 24px;">
+            <div class="assistant-title" style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+              <span>📊 行业背景</span>
+              <span style="font-size: 12px; color: var(--gray-500); font-weight: 500; background: var(--gray-100); padding: 2px 8px; border-radius: 4px;">制造业-通用设备</span>
+            </div>
+            
+            <div style="font-size: 13.5px; color: var(--brand); font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 4px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> 
+              行业洞察 (2026年6月)
+            </div>
+            <div style="font-size: 13px; color: var(--gray-700); line-height: 1.6; margin-bottom: 12px;">
+              苏南制造业间接融资余额环比下降12%，企业转贷和新增信贷需求旺盛，是该行业客户的最佳触达窗口期。
+            </div>
+
+            <!-- 图表趋势占位 -->
+            <div style="height: 100px; background: var(--gray-50); border: 1px dashed var(--gray-200); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--gray-400); font-size: 12px; margin-bottom: 12px;">
+              [行业信贷需求趋势图表]
+            </div>
+
+            <div style="background: rgba(37,99,235,0.04); padding: 12px; border-radius: 8px; border: 1px solid rgba(37,99,235,0.1);">
+              <div style="font-size: 12.5px; color: var(--gray-600); font-weight: 600; margin-bottom: 6px;">💬 建议话术切入</div>
+              <div style="font-size: 13px; color: var(--gray-900); line-height: 1.6; font-style: italic;">
+                "当前苏南制造业的融资环境正在改善，您的企业条件非常好，现在是争取更优利率的好时机..."
+              </div>
+            </div>
+          </div>
+
+
+          <!-- 分配记录卡片（仅管理员可见） -->
+          <div id="alloc-record-card" class="assistant-card" style="padding: 16px; display: none;">
+            <style>
+              .alloc-record-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+              .alloc-record-title { font-size: 14.5px; font-weight: 700; color: var(--gray-900); display: flex; align-items: center; gap: 6px; }
+              .alloc-record-add { font-size: 12.5px; color: var(--brand); font-weight: 600; cursor: pointer; border: 1.5px solid var(--brand-border); background: var(--brand-light); padding: 4px 10px; border-radius: 6px; transition: all 0.2s; }
+              .alloc-record-add:hover { background: var(--brand); color: #fff; }
+              .alloc-record-item {
+                display: flex; align-items: flex-start; gap: 10px;
+                padding: 11px 0; border-bottom: 1px solid var(--gray-100);
+              }
+              .alloc-record-item:last-child { border-bottom: none; padding-bottom: 0; }
+              .alloc-record-avatar {
+                width: 32px; height: 32px; border-radius: 50%;
+                background: var(--brand); color: #fff;
+                font-size: 12px; font-weight: 700;
+                display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+              }
+              .alloc-record-info { flex: 1; min-width: 0; }
+              .alloc-record-name { font-size: 13.5px; font-weight: 700; color: var(--gray-900); }
+              .alloc-record-batch { font-size: 12px; color: var(--gray-400); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+              .alloc-record-date { font-size: 11.5px; color: var(--gray-400); margin-top: 3px; }
+              .alloc-record-revoke { font-size: 12px; font-weight: 600; color: #dc2626; cursor: pointer; padding: 3px 8px; border-radius: 5px; border: 1px solid #fecaca; background: #fff; white-space: nowrap; flex-shrink: 0; transition: all 0.2s; }
+              .alloc-record-revoke:hover { background: #fef2f2; }
+              .alloc-record-empty { text-align: center; padding: 24px 0; color: var(--gray-400); font-size: 12.5px; line-height: 1.6; }
+            </style>
+            <div class="alloc-record-header">
+              <div class="alloc-record-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                分配记录
+              </div>
+              <span class="alloc-record-add" onclick="goToAlloc()">+ 新增分配</span>
+            </div>
+
+            <div id="alloc-record-list">
               <!-- 动态渲染 -->
             </div>
           </div>
 
-          <!-- Tab信息 -->
-          <div class="card">
-            <div class="tabs">
-              <div class="tab-item active" data-tab="tabBasic">基本信息</div>
-              <div class="tab-item" data-tab="tabBusiness">经营数据</div>
-              <div class="tab-item" data-tab="tabRisk">风险信息</div>
-              <div class="tab-item" data-tab="tabHistory">触达记录</div>
-            </div>
+          <script>
+            // 分配记录 Mock 数据
+            const ALLOC_RECORDS = [
+              { id: 'r1', managerName: '张三', batch: '橙业贷·5月8日批次', date: '2026-04-01' },
+              { id: 'r2', managerName: '李四', batch: '厂房贷·5月1日批次', date: '2026-05-02' },
+            ];
 
-            <div class="tab-content active" id="tabBasic">
-              <table class="table" style="border: none;">
-                <tbody id="basicInfo">
-                  <!-- 动态渲染 -->
-                </tbody>
-              </table>
-            </div>
+            function renderAllocRecords() {
+              const list = document.getElementById('alloc-record-list');
+              if (!list) return;
+              if (ALLOC_RECORDS.length === 0) {
+                list.innerHTML = `<div class="alloc-record-empty">暂无分配记录<br>该企业尚未分配给任何客户经理</div>`;
+                return;
+              }
+              list.innerHTML = ALLOC_RECORDS.map(r => `
+                <div class="alloc-record-item" id="alloc-item-${r.id}">
+                  <div class="alloc-record-avatar">${r.managerName[0]}</div>
+                  <div class="alloc-record-info">
+                    <div class="alloc-record-name">${r.managerName}</div>
+                    <div class="alloc-record-batch">${r.batch}</div>
+                    <div class="alloc-record-date">${r.date}</div>
+                  </div>
+                  <button class="alloc-record-revoke" onclick="revokeAlloc('${r.id}', '${r.managerName}')">解除</button>
+                </div>
+              `).join('');
+            }
 
-            <div class="tab-content" id="tabBusiness">
-              <div class="metric-cards" id="businessMetrics">
-                <!-- 动态渲染 -->
-              </div>
-            </div>
+            function revokeAlloc(id, name) {
+              if (!confirm(`确认解除 ${name} 对该企业的分配关系？\n解除后该企业将从 ${name} 的名单中移除。`)) return;
+              const idx = ALLOC_RECORDS.findIndex(r => r.id === id);
+              if (idx > -1) ALLOC_RECORDS.splice(idx, 1);
+              renderAllocRecords();
+              // Toast 提示
+              const msg = `已解除 ${name} 的分配关系`;
+              let el = document.getElementById('__detail_toast__');
+              if (!el) {
+                el = document.createElement('div');
+                el.id = '__detail_toast__';
+                el.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(15,23,42,0.88);color:#fff;padding:10px 22px;border-radius:100px;font-size:13.5px;font-weight:500;z-index:9999;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap;';
+                document.body.appendChild(el);
+              }
+              el.textContent = msg;
+              el.style.opacity = '1';
+              el.style.transform = 'translateX(-50%) translateY(0)';
+              clearTimeout(el._t);
+              el._t = setTimeout(() => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateX(-50%) translateY(10px)';
+              }, 2500);
+            }
 
-            <div class="tab-content" id="tabRisk">
-              <div id="riskInfo">
-                <!-- 动态渲染 -->
-              </div>
-            </div>
+            function goToAlloc() {
+              window.location.href = 'allocation.html';
+            }
 
-            <div class="tab-content" id="tabHistory">
-              <div id="historyList">
-                <!-- 动态渲染 -->
-              </div>
-            </div>
-          </div>
+            // 判断角色：管理员才显示
+            (function initAllocCard() {
+              const role = sessionStorage.getItem('wb_role') || 'manager';
+              const isAdmin = role !== 'rm'; // rm 是客户经理，其他是管理员
+              const card = document.getElementById('alloc-record-card');
+              if (card && isAdmin) {
+                card.style.display = 'block';
+                renderAllocRecords();
+              }
+              // 演示：若无role信息，默认展示（便于原型演示）
+              if (card && !sessionStorage.getItem('wb_role')) {
+                card.style.display = 'block';
+                renderAllocRecords();
+              }
+            })();
+          </script>
+
+
         </div>
 
-        <!-- 右侧操作栏 -->
-        <div class="detail-sidebar">
-          <!-- 联系信息 -->
-          <div class="contact-card" id="contactCard">
-            <div class="card-header" style="margin-bottom: 0;">
-              <h3 class="card-title">📞 联系方式</h3>
-            </div>
-            <!-- 动态渲染 -->
-          </div>
-
-          <!-- 操作按钮 -->
-          <div class="card">
-            <div class="card-header" style="margin-bottom: 0;">
-              <h3 class="card-title">⚡ 快捷操作</h3>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 16px;">
-              <button class="btn btn-primary" onclick="showScriptModalDetail()" style="width: 100%;">
-                🤖 生成智能话术
-              </button>
-              <button class="btn btn-success" onclick="showFeedbackModal()"
-                style="width: 100%; background: #52c41a; border-color: #52c41a;">
-                📝 录入触达结果
-              </button>
-              <button class="btn btn-default" onclick="showStatusModalDetail()" style="width: 100%;">
-                📋 更新客户状态
-              </button>
-              <button class="btn btn-default" style="width: 100%;">
-                📅 设置跟进提醒
-              </button>
-            </div>
-          </div>
-
-          <!-- 建议额度 -->
-          <div class="card" style="background: linear-gradient(135deg, #f6ffed 0%, #d9f7be 100%);">
-            <div style="text-align: center;">
-              <div style="font-size: 13px; color: #389e0d;">💰 建议授信额度</div>
-              <div id="suggestedAmount" style="font-size: 24px; font-weight: 600; color: #237804; margin-top: 8px;">
-                --
-              </div>
-            </div>
-          </div>
-
-          <!-- 触达时机预测 -->
-          <div class="card" style="background: linear-gradient(135deg, #e6f7ff 0%, #bae7ff 100%);">
-            <div class="card-header" style="margin-bottom: 12px;">
-              <h3 class="card-title" style="color: #0050b3;">⏰ AI触达时机预测</h3>
-            </div>
-            <div id="contactTiming">
-              <div
-                style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 8px; margin-bottom: 8px;">
-                <div style="font-size: 24px;">🎯</div>
-                <div>
-                  <div style="font-weight: 600; color: #1890ff;">本周四 上午 10:00-11:30</div>
-                  <div style="font-size: 12px; color: #52c41a;">接通率预测: 68%</div>
-                </div>
-              </div>
-              <div
-                style="display: flex; align-items: center; gap: 12px; padding: 12px; background: white; border-radius: 8px;">
-                <div style="font-size: 24px;">⌛</div>
-                <div>
-                  <div style="font-weight: 500; color: #595959;">本周五 下午 14:00-16:00</div>
-                  <div style="font-size: 12px; color: #8c8c8c;">接通率预测: 62%</div>
-                </div>
-              </div>
-              <div
-                style="font-size: 12px; color: #595959; margin-top: 10px; padding: 8px; background: rgba(255,255,255,0.7); border-radius: 4px;">
-                💡 该企业所在行业（制造业）通常在周四上午业务相对不忙
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <!-- 模态框 -->
-  <div class="modal-overlay" id="scriptModal">
-    <div class="modal" style="max-width: 600px;">
-      <div class="modal-header">
-        <h3 class="modal-title" id="modalTitle">智能话术</h3>
-        <div class="modal-close" onclick="closeModal('scriptModal')">✕</div>
-      </div>
-      <div class="modal-body" id="modalBody">
-        <!-- 动态内容 -->
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeModal('scriptModal')">关闭</button>
-        <button class="btn btn-primary">确认</button>
       </div>
     </div>
-  </div>
+  </main>
+</div>
 
-  <!-- 反馈录入模态框 -->
-  <div class="modal-overlay" id="feedbackModal">
-    <div class="modal" style="max-width: 500px;">
-      <div class="modal-header">
-        <h3 class="modal-title">📝 录入触达结果</h3>
-        <div class="modal-close" onclick="closeModal('feedbackModal')">✕</div>
-      </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label class="form-label">触达方式</label>
-          <select class="form-select" id="contactMethod">
-            <option value="phone">📞 电话联系</option>
-            <option value="visit">🚗 上门拜访</option>
-            <option value="wechat">📱 微信沟通</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">触达结果 *</label>
-          <select class="form-select" id="contactResult">
-            <option value="connected">✅ 已接通 - 客户有意向</option>
-            <option value="connected_later">📅 已接通 - 稍后联系</option>
-            <option value="connected_no">❌ 已接通 - 无需求</option>
-            <option value="no_answer">📵 未接通 - 无人接听</option>
-            <option value="wrong_number">❓ 未接通 - 号码错误</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">跟进备注</label>
-          <textarea class="form-input" rows="3" id="feedbackNote" placeholder="记录客户反馈、下次跟进计划等..."></textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label">下次跟进时间</label>
-          <input type="date" class="form-input" id="nextFollowUp">
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-default" onclick="closeModal('feedbackModal')">取消</button>
-        <button class="btn btn-primary" onclick="saveFeedback()">保存记录</button>
-      </div>
+<!-- 二维码授权弹窗 - 必须在内联 script 之前定义 -->
+<div class="drawer-overlay" id="authQrModal">
+  <div style="background: var(--bg-card); width: 340px; padding: 32px 24px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); position: relative; animation: slideUp 0.3s ease; text-align: center; margin: auto;">
+    <button class="modal-close" onclick="closeAuthQrModal()" style="position: absolute; right: 16px; top: 16px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div style="font-size: 18px; font-weight: 700; color: var(--gray-900); margin-bottom: 8px;">扫码完成授权</div>
+    <div style="font-size: 13px; color: var(--gray-500); margin-bottom: 24px; line-height: 1.5;">请企业法人或授权人使用微信扫码</div>
+    <div style="background: var(--gray-50); padding: 16px; border-radius: 12px; display: inline-block; border: 1px solid var(--gray-100); margin-bottom: 24px;">
+      <img src="img/auth-qrcode.png" alt="授权二维码" style="width: 170px; height: 170px; object-fit: contain; -webkit-touch-callout: default; display: block; margin: 0 auto;">
+    </div>
+    <div style="display: flex; gap: 12px;">
+      <button onclick="saveAuthQr()" style="flex: 1; padding: 10px; border-radius: 8px; font-size: 14px; font-weight: 600; border: none; background: var(--brand); color: #fff; cursor: pointer;">保存图片</button>
     </div>
   </div>
+</div>
 
-  <script src="js/mock-data.js"></script>
-  <script src="js/app.js"></script>
-  <script src="js/contact-config.js"></script>
-  <script>
-    let currentCustomer = null;
+<script src="js/mock-data.js"></script>
+<script src="js/app.js"></script>
+<script src="js/contact-config.js"></script>
+<script src="js/status-drawer.js"></script>
+<script>
+  let contactPaths = [
+    { role: '法定代表人', maskedPhone: '138****5678', fullPhone: '13812345678', tips: '建议下午工作时间联系' },
+    { role: '财务负责人', maskedPhone: '139****1122', fullPhone: '13900001122', tips: '之前有过沟通记录，对信贷有了解' }
+  ];
 
-    function renderDetail(customer) {
-      currentCustomer = customer;
+  let contactHistory = [
+    { date: '2026-05-13 14:30', statusTag: '业务状态', result: '已放款', note: '客户提取了剩余授信额度用于采购支付，目前该笔500万授信已全额提款。', operator: '李经理' },
+    { date: '2026-05-06 10:15', statusTag: '业务状态', result: '已放款', note: '首次提款200万元，资金已到账。', operator: '李经理' },
+    { date: '2026-04-23 11:20', statusTag: '营销状态', result: '已触达 · 有意向', note: '上门拜访了张总，详细展示了科技信用贷的产品优势和初步额度方案，客户承诺安排财务在网银提单。', operator: '李经理' }
+  ];
 
-      // 页面标题
-      document.getElementById('pageTitle').textContent = customer.name;
-
-      // 头部信息
-      document.getElementById('detailHeader').innerHTML = `
-        <div class="detail-header-top">
-          <div>
-            <h2 class="company-title">${customer.name}</h2>
-            <div class="company-tags">
-              ${customer.tags.map(tag => `<span class="tag ${getTagClass(tag)}">${tag}</span>`).join('')}
-              <span class="status-badge ${getStatusClass(customer.status)}">${customer.status}</span>
-            </div>
-          </div>
-          <div class="detail-actions">
-            <button class="btn btn-default" onclick="history.back()">← 返回列表</button>
-          </div>
+  function renderContactPaths() {
+    const el = document.getElementById('contactPaths');
+    el.innerHTML = contactPaths.map(p => `
+      <div class="cp-card">
+        <div class="cp-avatar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
         </div>
-        <div class="metric-cards" style="margin-top: 20px;">
-          <div class="metric-card">
-            <div class="metric-value" style="color: ${customer.score >= 750 ? '#52c41a' : '#1890ff'}">${customer.score}</div>
-            <div class="metric-label">苏信分</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-value">${customer.revenue}</div>
-            <div class="metric-label">营收(万元)</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-value">${customer.tax}</div>
-            <div class="metric-label">纳税(万元)</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-value">${customer.patents}</div>
-            <div class="metric-label">专利数量</div>
-          </div>
+        <div class="cp-info">
+          <div class="cp-name">${p.role}</div>
+          <div class="cp-role">${p.maskedPhone}</div>
+          <div class="cp-tips">${p.tips}</div>
         </div>
-      `;
+        <button class="cp-btn" onclick="alert('拨打号码：${p.fullPhone}')">拨打</button>
+      </div>
+    `).join('');
+  }
 
-      // AI推荐理由
-      document.getElementById('aiRecommendation').innerHTML = `
-        <div class="ai-recommendation-title">
-          <span class="icon">🤖</span> AI智能推荐理由
-        </div>
-        <div class="ai-recommendation-text">${customer.recommendation}</div>
-      `;
-
-      // 基本信息
-      document.getElementById('basicInfo').innerHTML = `
-        <tr><td style="width: 120px; color: #8c8c8c;">企业名称</td><td>${customer.name}</td></tr>
-        <tr><td style="color: #8c8c8c;">所在地区</td><td>${customer.region}</td></tr>
-        <tr><td style="color: #8c8c8c;">所属行业</td><td>${customer.industry}</td></tr>
-        <tr><td style="color: #8c8c8c;">员工人数</td><td>${customer.employees} 人</td></tr>
-      `;
-
-      // 经营数据
-      document.getElementById('businessMetrics').innerHTML = `
-        <div class="metric-card">
-          <div class="metric-value">${customer.revenue}</div>
-          <div class="metric-label">年营收(万元)</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-value">${customer.tax}</div>
-          <div class="metric-label">年纳税(万元)</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-value">${customer.patents}</div>
-          <div class="metric-label">专利数量</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-value">${customer.employees}</div>
-          <div class="metric-label">员工人数</div>
-        </div>
-      `;
-
-      // 风险信息
-      const risk = customer.riskInfo;
-      document.getElementById('riskInfo').innerHTML = `
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
-          <div style="padding: 16px; background: ${risk.defaultProb <= 1 ? '#f6ffed' : risk.defaultProb <= 2 ? '#fffbe6' : '#fff2f0'}; border-radius: 8px;">
-            <div style="font-size: 13px; color: #8c8c8c;">违约概率</div>
-            <div style="font-size: 24px; font-weight: 600; color: ${risk.defaultProb <= 1 ? '#52c41a' : risk.defaultProb <= 2 ? '#faad14' : '#ff4d4f'};">${risk.defaultProb}%</div>
-            <div style="font-size: 12px; color: #8c8c8c;">${risk.defaultProb <= 1 ? '低风险' : risk.defaultProb <= 2 ? '中等风险' : '较高风险'}</div>
+  function renderHistory() {
+    const el = document.getElementById('historyList');
+    el.innerHTML = contactHistory.map((h, i) => `
+      <div class="history-item ${i===0 ? 'primary' : ''}">
+        <div class="history-dot"></div>
+        <div class="history-date">${h.date}</div>
+        <div class="history-content">
+          <div class="history-meta">
+            <span class="history-user">${h.operator}</span>
+            <span class="history-tag ${h.statusTag === '业务状态' ? 'biz' : ''}">${h.statusTag}</span>
+            <span style="font-size:13px;font-weight:600;color:var(--gray-900);">${h.result}</span>
           </div>
-          <div style="padding: 16px; background: ${risk.lawsuitCount === 0 ? '#f6ffed' : '#fff2f0'}; border-radius: 8px;">
-            <div style="font-size: 13px; color: #8c8c8c;">司法案件</div>
-            <div style="font-size: 24px; font-weight: 600; color: ${risk.lawsuitCount === 0 ? '#52c41a' : '#ff4d4f'};">${risk.lawsuitCount}</div>
-            <div style="font-size: 12px; color: #8c8c8c;">${risk.lawsuitCount === 0 ? '无涉诉记录' : '存在涉诉'}</div>
-          </div>
-          <div style="padding: 16px; background: ${risk.debtRatio <= 60 ? '#f6ffed' : '#fffbe6'}; border-radius: 8px;">
-            <div style="font-size: 13px; color: #8c8c8c;">资产负债率</div>
-            <div style="font-size: 24px; font-weight: 600; color: ${risk.debtRatio <= 60 ? '#52c41a' : '#faad14'};">${risk.debtRatio}%</div>
-            <div style="font-size: 12px; color: #8c8c8c;">${risk.debtRatio <= 60 ? '财务健康' : '略高于行业平均'}</div>
-          </div>
-          <div style="padding: 16px; background: #f6ffed; border-radius: 8px;">
-            <div style="font-size: 13px; color: #8c8c8c;">行政处罚</div>
-            <div style="font-size: 24px; font-weight: 600; color: #52c41a;">0</div>
-            <div style="font-size: 12px; color: #8c8c8c;">无处罚记录</div>
-          </div>
+          <div class="history-text">${h.note}</div>
         </div>
-      `;
+      </div>
+    `).join('');
+  }
 
-      // 联系信息 - 通用卡片生成函数
-      function buildCard(o) {
-        const nm = o.contactName ? '<div style="font-size:12px;color:#8c8c8c;margin-bottom:2px;">👤 '+o.contactName+'</div>' : '';
-        const dim = o.dim ? 'opacity:0.65;' : '';
-        const tier = o.tier ? '<span style="font-size:10px;color:#bfbfbf;background:#fafafa;padding:1px 6px;border-radius:3px;margin-left:6px;">P'+o.tier+'</span>' : '';
-        return '<div style="padding:14px 16px;background:'+(o.bg||'#fafafa')+';border:1px solid '+(o.border||'#f0f0f0')+';border-radius:10px;margin-bottom:10px;'+dim+'">'
-          +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">'
-            +'<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">'
-              +'<span style="font-size:'+(o.phoneSize||'16px')+';font-weight:600;color:'+(o.phoneColor||'#262626')+';">'
-                +'<span class="phone-text">'+o.maskedPhone+'</span>'
-                +'<span style="cursor:pointer;font-size:13px;opacity:0.5;margin-left:3px;" onclick="var s=this.previousElementSibling;if(s.textContent===\''+o.maskedPhone+'\'){s.textContent=\''+o.fullPhone+'\';this.textContent=\'🙈\'}else{s.textContent=\''+o.maskedPhone+'\';this.textContent=\'👁️\'}">👁️</span>'
-              +'</span>'
-              +'<span style="font-size:11px;background:'+o.tagBg+';color:'+o.tagColor+';padding:2px 8px;border-radius:4px;border:1px solid '+o.tagBorder+';">'
-                +'<span style="opacity:0.6;">推测</span> '+o.role
-              +'</span>'
-              +tier
-            +'</div>'
-            +'<span style="font-size:18px;flex-shrink:0;">'+(o.medal||'')+'</span>'
-          +'</div>'
-          +nm
-          +'<div style="font-size:12px;color:#595959;line-height:1.6;background:rgba(255,255,255,0.7);padding:6px 10px;border-radius:6px;margin-bottom:10px;">'
-            +'<span style="opacity:0.6;">Tips：</span>'+o.tips
-          +'</div>'
-          +'<div style="display:flex;flex-wrap:wrap;gap:6px;border-top:1px dashed #e8e8e8;padding-top:10px;">'
-            +'<button class="btn btn-sm" style="padding:3px 10px;font-size:11px;border-radius:4px;background:#f6ffed;color:#52c41a;border:1px solid #b7eb8f;cursor:pointer;" onclick="alert(\'✅ 已标记为有效\')">👍 拨通有效</button>'
-            +'<button class="btn btn-sm" style="padding:3px 10px;font-size:11px;border-radius:4px;background:#fff;color:#8c8c8c;border:1px solid #d9d9d9;cursor:pointer;" onclick="alert(\'📵 已标记为空号/停机\')">空号/停机</button>'
-            +'<button class="btn btn-sm" style="padding:3px 10px;font-size:11px;border-radius:4px;background:#fff;color:#8c8c8c;border:1px solid #d9d9d9;cursor:pointer;" onclick="alert(\'🚫 已标记为代账/非本人\')">代账/非本人</button>'
-            +'<button class="btn btn-sm" style="padding:3px 10px;font-size:11px;border-radius:4px;background:#fff;color:#8c8c8c;border:1px solid #d9d9d9;cursor:pointer;" onclick="alert(\'🔕 已标记为拒绝/勿扰\')">拒绝/勿扰</button>'
-          +'</div>'
-        +'</div>';
+  function switchTab(id, el) {
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('pane-' + id).classList.add('active');
+  }
+
+  // ===== 授权二维码交互 =====
+  function openAuthQrModal() {
+    document.getElementById('authQrModal').classList.add('show');
+  }
+  function closeAuthQrModal() {
+    const modal = document.getElementById('authQrModal');
+    if (modal.classList.contains('show')) {
+      modal.classList.remove('show');
+      
+      // 模拟已完成授权，解开遮罩
+      const authDataBlur = document.getElementById('authDataBlur');
+      const authOverlay = document.getElementById('authOverlay');
+      if (authOverlay && authOverlay.style.display !== 'none') {
+        authDataBlur.style.filter = 'none';
+        authDataBlur.style.opacity = '1';
+        authDataBlur.style.pointerEvents = 'auto';
+        authDataBlur.style.userSelect = 'auto';
+        authOverlay.style.display = 'none';
+        
+        const toast = document.createElement('div');
+        toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#10b981;color:white;padding:10px 24px;border-radius:100px;font-size:13.5px;font-weight:600;z-index:9999;box-shadow:0 4px 12px rgba(16,185,129,0.3);';
+        toast.textContent = '已模拟：企业完成授权';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
       }
-      const paths = MOCK_CONTACT_PATHS.map((p, i) => {
-          if (i === 0) return { ...p, contactName: customer.contact.name || '' };
-          return p;
-      });
-
-      const visCards = paths.slice(0,3).map((p, i) => window.buildContactCard(p, i)).join('');
-      const hidCards = paths.slice(3).map((p, i) => window.buildContactCard(p, i + 3)).join('');
-      const hidN = paths.length - 3;
-
-      document.getElementById('contactCard').innerHTML = `
-        <div class="card-header" style="margin-bottom: 12px;">
-          <h3 class="card-title">📞 触达路径推荐</h3>
-        </div>
-        <div id="detailTabsContainer">
-            <div style="display:flex; border-bottom: 1px solid #f0f0f0; margin-bottom: 16px;">
-                <div class="contact-tab-btn" style="padding: 8px 16px; border-bottom: 2px solid #1890ff; color: #1890ff; font-weight: 500; cursor: pointer; font-size: 13px;" onclick="window.switchContactTab(this, 'contactsTab_detail', 'detailTabsContainer')">🏢 本企直接触达</div>
-                <div class="contact-tab-btn" style="padding: 8px 16px; color: #595959; font-weight: 500; cursor: pointer; font-size: 13px;" onclick="window.switchContactTab(this, 'relEnterpriseTab_detail', 'detailTabsContainer')">🕸️ 关联企业触达</div>
-                <div class="contact-tab-btn" style="padding: 8px 16px; color: #595959; font-weight: 500; cursor: pointer; font-size: 13px;" onclick="window.switchContactTab(this, 'associationTab_detail', 'detailTabsContainer')">🔗 行内存量关联</div>
-            </div>
-
-            <div id="contactsTab_detail" class="contact-tab-panel">
-                <div style="font-size:11px;color:#bfbfbf;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
-                  <span style="display:inline-block;width:4px;height:4px;background:#bfbfbf;border-radius:50%;"></span>
-                  以下角色及排序由系统基于多源数据综合推测，仅供参考
-                </div>
-                ${visCards}
-                <div id="moreContactsDetail" style="display:none;">
-                  ${hidCards}
-                </div>
-                <div style="text-align:center;margin:12px 0;">
-                  <a href="javascript:void(0)" data-count="${hidN}" onclick="window.toggleMoreContacts(this, 'moreContactsDetail')" style="font-size:13px;color:#1890ff;text-decoration:none;padding:6px 20px;background:#f0f5ff;border-radius:16px;display:inline-block;">🔽 展开更多 (${hidN})</a>
-                </div>
-            </div>
-
-            <div id="relEnterpriseTab_detail" class="contact-tab-panel" style="display:none;">
-                <div style="font-size:11px;color:#bfbfbf;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
-                  <span style="display:inline-block;width:4px;height:4px;background:#bfbfbf;border-radius:50%;"></span>
-                  当本企业无法取得联系时，可尝试通过以下强关联企业建立沟通
-                </div>
-                
-                <div style="padding:14px 16px;background:#fafafa;border:1px solid #f0f0f0;border-radius:10px;margin-bottom:12px;">
-                  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
-                    <div>
-                      <div style="font-size:13px;font-weight:600;color:#262626;">无锡市智云科技有限公司</div>
-                      <div style="font-size:11px;color:#722ed1;margin-top:4px;background:#f9f0ff;display:inline-block;padding:2px 6px;border-radius:4px;border:1px solid #d3adf7;">关联关系：控股股东 (持股65%)</div>
-                    </div>
-                    <button style="background:#fff;border:1px solid #d9d9d9;color:#595959;border-radius:4px;padding:3px 10px;font-size:12px;cursor:pointer;" onclick="alert('即将跳转至该企业画像页')">查看画像</button>
-                  </div>
-                  <div style="border-top:1px dashed #e8e8e8;padding-top:10px;">
-                    <div style="display:flex;align-items:center;gap:10px;font-size:14px;">
-                       <span style="color:#1890ff;font-weight:600;">139****8888</span>
-                       <span style="cursor:pointer;opacity:0.5;font-size:13px;" onclick="window.togglePhone(this, '139****8888', '13988888888')">👁️</span>
-                       <span style="font-size:11px;background:#e6f7ff;color:#1890ff;padding:2px 6px;border-radius:4px;border:1px solid #91d5ff;">[企业法人/实控人] 李总</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div style="padding:14px 16px;background:#fafafa;border:1px solid #f0f0f0;border-radius:10px;margin-bottom:12px;">
-                  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
-                    <div>
-                      <div style="font-size:13px;font-weight:600;color:#262626;">苏州工业园区智云软件服务中心</div>
-                      <div style="font-size:11px;color:#fa8c16;margin-top:4px;background:#fff7e6;display:inline-block;padding:2px 6px;border-radius:4px;border:1px solid #ffd591;">关联关系：同法定代表人</div>
-                    </div>
-                    <button style="background:#fff;border:1px solid #d9d9d9;color:#595959;border-radius:4px;padding:3px 10px;font-size:12px;cursor:pointer;" onclick="alert('即将跳转至该企业画像页')">查看画像</button>
-                  </div>
-                  <div style="border-top:1px dashed #e8e8e8;padding-top:10px;">
-                    <div style="display:flex;align-items:center;gap:10px;font-size:14px;">
-                       <span style="color:#262626;font-weight:600;">0512-6888****</span>
-                       <span style="cursor:pointer;opacity:0.5;font-size:13px;" onclick="window.togglePhone(this, '0512-6888****', '0512-68889999')">👁️</span>
-                       <span style="font-size:11px;background:#f5f5f5;color:#8c8c8c;padding:2px 6px;border-radius:4px;border:1px solid #d9d9d9;">[工商预留固话]</span>
-                    </div>
-                  </div>
-                </div>
-            </div>
-
-            <div id="associationTab_detail" class="contact-tab-panel" style="display:none;">
-                <div style="font-size:11px;color:#bfbfbf;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
-                  <span style="display:inline-block;width:4px;height:4px;background:#bfbfbf;border-radius:50%;"></span>
-                  关联关系由系统基于股权、法人、担保等维度自动匹配，仅供参考
-                </div>
-                <div style="background:linear-gradient(135deg,#e6f7ff 0%,#f0f5ff 100%);border:1px solid #91d5ff;border-radius:10px;padding:12px 14px;">
-                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-                    <span style="width:32px;height:32px;background:#1890ff;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:600;flex-shrink:0;">关</span>
-                    <div>
-                      <div style="font-size:13px;font-weight:600;color:#262626;">苏州创芯微电子有限公司</div>
-                      <div style="font-size:10px;color:#8c8c8c;margin-top:1px;">行内授信客户 · 贷款余额 800万 · 客户经理：王强</div>
-                    </div>
-                  </div>
-                  <div style="background:#fff;border-radius:6px;padding:8px 10px;font-size:11px;color:#595959;line-height:1.6;">
-                    <div style="margin-bottom:3px;"><b>关联关系：</b>该企业法人 <span style="color:#1890ff;">张明</span> 同时担任行内存量客户的股东（持股32%）</div>
-                    <div><b>触达建议：</b>可通过存量客户的客户经理王强引荐，或以关联企业授信为切入点沟通。</div>
-                  </div>
-                </div>
-            </div>
-        </div>
-      `;
-
-      // 建议额度
-      document.getElementById('suggestedAmount').textContent = customer.suggestedAmount;
     }
+  }
+  function saveAuthQr() {
+    const toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#10b981;color:white;padding:10px 24px;border-radius:100px;font-size:13.5px;font-weight:600;z-index:9999;box-shadow:0 4px 12px rgba(16,185,129,0.3);';
+    toast.textContent = '✓ 二维码已保存到本地相册';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2000);
+    closeAuthQrModal();
+  }
+  // ===== 状态标记抽屉交互 (适配公共组件) =====
+  function openMarkDrawer() {
+    const pageTitle = document.querySelector('.hero-title')?.textContent || '企业详情';
+    window.openStatusDrawer(1, pageTitle, '40', 'APPLIED');
+  }
 
-    function showScriptModalDetail() {
-      if (!currentCustomer) return;
-      const c = currentCustomer;
-      document.getElementById('modalBody').innerHTML = `
-        <div class="ai-recommendation">
-          <div class="ai-recommendation-title"><span class="icon">🤖</span> AI生成话术</div>
-          <div class="ai-recommendation-text">
-            <p><strong>【开场白】</strong></p>
-            <p>您好，请问是${c.contact.name}吗？我是江苏银行的客户经理朱某人。</p>
-            <p style="margin-top: 12px;">我们注意到贵公司${c.name}近年来发展迅速，${c.recommendation}</p>
-            <p style="margin-top: 12px;">我们银行有一款专门针对科技企业的"科技贷"产品，最高可授信${c.suggestedAmount}，利率优惠，想了解一下您这边是否有融资需求？</p>
-            <hr style="margin: 16px 0; border: none; border-top: 1px dashed #d9d9d9;">
-            <p><strong>【常见问答】</strong></p>
-            <p style="margin-top: 8px;"><strong>Q: 利率多少？</strong></p>
-            <p style="color: #595959;">A: 年化4.5%-5.5%，贵公司信用评分高，可争取到较低利率。</p>
-            <p style="margin-top: 8px;"><strong>Q: 需要抵押吗？</strong></p>
-            <p style="color: #595959;">A: 提供信用贷和抵押贷两种方式，贵公司可申请最高200万纯信用额度。</p>
-          </div>
-        </div>
-      `;
-      document.getElementById('modalTitle').textContent = '智能话术 - ' + c.name;
-      openModal('scriptModal');
-    }
-
-    function showStatusModalDetail() {
-      if (!currentCustomer) return;
-      document.getElementById('modalBody').innerHTML = `
-        <div class="form-group">
-          <label class="form-label">当前状态</label>
-          <div class="status-badge ${getStatusClass(currentCustomer.status)}">${currentCustomer.status}</div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">更新为</label>
-          <select class="form-select" id="newStatus">
-            <option value="已触达">已触达</option>
-            <option value="已意向">已意向</option>
-            <option value="已申请">已申请</option>
-            <option value="已放款">已放款</option>
-            <option value="已拒绝">已拒绝</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">备注</label>
-          <textarea class="form-input" rows="3" placeholder="请输入跟进备注..."></textarea>
-        </div>
-      `;
-      document.getElementById('modalTitle').textContent = '更新状态';
-      openModal('scriptModal');
-    }
-
-    // 反馈录入相关
-    let contactHistory = [
-      { date: '2026-02-05 14:30', method: '📞 电话', result: '✅ 有意向', note: '客户表示感兴趣，约下周详谈', operator: '朱某人' },
-      { date: '2026-02-03 10:15', method: '📞 电话', result: '📵 未接通', note: '无人接听，稍后再试', operator: '朱某人' }
-    ];
-
-    function showFeedbackModal() {
-      openModal('feedbackModal');
-    }
-
-    function saveFeedback() {
-      const method = document.getElementById('contactMethod');
-      const result = document.getElementById('contactResult');
-      const note = document.getElementById('feedbackNote').value;
-
-      const methodMap = { phone: '📞 电话', visit: '🚗 拜访', wechat: '📱 微信' };
-      const resultMap = {
-        connected: '✅ 有意向',
-        connected_later: '📅 稍后联系',
-        connected_no: '❌ 无需求',
-        no_answer: '📵 未接通',
-        wrong_number: '❓ 号码错误'
-      };
-
-      const now = new Date();
-      const dateStr = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 5);
-
-      contactHistory.unshift({
-        date: dateStr,
-        method: methodMap[method.value],
-        result: resultMap[result.value],
-        note: note || '无备注',
-        operator: '朱某人'
-      });
-
-      renderContactHistory();
-      closeModal('feedbackModal');
-      alert('触达记录已保存！');
-    }
-
-    function renderContactHistory() {
-      const container = document.getElementById('historyList');
-      if (contactHistory.length === 0) {
-        container.innerHTML = `
-          <div style="text-align: center; padding: 40px; color: #8c8c8c;">
-            <div style="font-size: 48px; margin-bottom: 16px;">📝</div>
-            <div>暂无触达记录</div>
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = `
-        <table class="table">
-          <thead>
-            <tr>
-              <th>时间</th>
-              <th>方式</th>
-              <th>结果</th>
-              <th>备注</th>
-              <th>操作人</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${contactHistory.map(h => `
-              <tr>
-                <td style="color: #8c8c8c; font-size: 13px;">${h.date}</td>
-                <td>${h.method}</td>
-                <td>${h.result}</td>
-                <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${h.note}</td>
-                <td>${h.operator}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      `;
-    }
-
-    // 页面加载
-    document.addEventListener('DOMContentLoaded', function () {
-      const urlParams = new URLSearchParams(window.location.search);
-      const id = urlParams.get('id') || 1;
-      const customer = customers.find(c => c.id === parseInt(id));
-      if (customer) {
-        renderDetail(customer);
-        renderContactHistory();
-      }
-      initTabs();
+  window.onStatusSaved = function(l1Code, bizCode, reachNoteVal, bizNoteVal) {
+    const reachText = L1_DISPLAY[l1Code] ? L1_DISPLAY[l1Code].l : '待触达';
+    const bizText = BIZ_MAP[bizCode] ? BIZ_MAP[bizCode].l : '未申请';
+    
+    // 更新页面头部卡片状态
+    const statusText = bizText ? `${reachText} · ${bizText}` : reachText;
+    document.getElementById('pageStatus').textContent = statusText;
+    
+    let combinedNote = '';
+    if (reachNoteVal) combinedNote += `【营销反馈】${reachNoteVal} `;
+    if (bizNoteVal) combinedNote += `【业务备注】${bizNoteVal}`;
+    if (!combinedNote) combinedNote = `更新了客户状态。`;
+    
+    const now = new Date();
+    const formatTime = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    
+    // 写入营销轨迹
+    contactHistory.unshift({
+      date: formatTime,
+      statusTag: bizCode !== 'NONE' ? '业务状态' : '营销状态',
+      result: statusText,
+      note: combinedNote,
+      operator: '李经理'
     });
-  </script>
-</body>
+    
+    // 重新渲染跟进历史
+    renderHistory();
+  };
 
+  // 脚本在 body 末尾，DOM 已就绪，直接执行
+  (function() {
+    renderContactPaths();
+    renderHistory();
+    
+    // authQrModal 点击背景关闭
+    const authModal = document.getElementById('authQrModal');
+    if (authModal) {
+      authModal.addEventListener('click', e => {
+        if (e.target === authModal) closeAuthQrModal();
+      });
+    }
+    
+    // 如果有 url 传递的客户名参数，更新面包屑
+    const titleObj = document.getElementById('pageTitle');
+    const bcObj = document.getElementById('bcName');
+    if(titleObj && bcObj) {
+      bcObj.textContent = titleObj.textContent;
+    }
+  })();
+
+  // ESC 键关闭抽屉
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      if(window.closeStatusDrawer) window.closeStatusDrawer();
+    }
+  });
+</script>
+
+<script src="js/sidebar.js"></script>
+<script>
+  const _sideRole = sessionStorage.getItem('wb_role') || 'manager';
+  renderSidebar({ currentPage: 'customers', role: _sideRole });
+</script>
+</body>
 </html>

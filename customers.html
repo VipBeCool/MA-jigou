@@ -1,1697 +1,1846 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>客户名单 - 智能营销平台</title>
-    <link rel="stylesheet" href="css/style.css">
-    <style>
-        /* 名单分组Tab */
-        .list-tabs {
-            display: flex;
-            gap: 8px;
-            padding: 0 0 16px 0;
-            overflow-x: auto;
-            flex-wrap: wrap;
-        }
-
-        .list-tab {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 18px;
-            border: 2px solid #e8e8e8;
-            border-radius: 10px;
-            background: white;
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
-            font-size: 14px;
-            color: #595959;
-        }
-
-        .list-tab:hover {
-            border-color: #91d5ff;
-        }
-
-        .list-tab.active {
-            border-color: #1890ff;
-            background: #e6f7ff;
-            color: #1890ff;
-            font-weight: 600;
-        }
-
-        .list-tab .tab-icon {
-            font-size: 16px;
-        }
-
-        .list-tab .tab-count {
-            background: #f0f0f0;
-            color: #8c8c8c;
-            font-size: 12px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-weight: 500;
-        }
-
-        .list-tab.active .tab-count {
-            background: #bae7ff;
-            color: #1890ff;
-        }
-
-        .list-tab-add {
-            border-style: dashed;
-            color: #8c8c8c;
-        }
-
-        .list-tab-add:hover {
-            border-color: #1890ff;
-            color: #1890ff;
-        }
-
-        /* 名单信息栏 */
-        .list-info-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 16px;
-            background: #fafafa;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            font-size: 13px;
-            color: #8c8c8c;
-        }
-
-        .list-info-bar .info-left {
-            display: flex;
-            gap: 24px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .list-info-bar .info-left span {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .list-info-bar .info-right {
-            display: flex;
-            gap: 8px;
-        }
-
-        /* 产品信息卡 */
-        .product-info-card {
-            background: linear-gradient(135deg, #f0f7ff 0%, #f6f0ff 100%);
-            border: 1px solid #d6e4ff;
-            border-radius: 12px;
-            padding: 16px 20px;
-            margin-bottom: 16px;
-        }
-
-        .product-info-card .prod-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .product-info-card .prod-title {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 15px;
-            font-weight: 600;
-            color: #262626;
-        }
-
-        .product-info-card .prod-badge {
-            padding: 2px 10px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: 500;
-        }
-
-        .product-info-card .prod-badge.auto {
-            background: #e6f7ff;
-            color: #1890ff;
-        }
-
-        .product-info-card .prod-meta {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            font-size: 12px;
-            color: #595959;
-            margin-bottom: 12px;
-        }
-
-        .product-info-card .prod-meta span {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .product-info-card .prod-rules {
-            background: #fff;
-            border-radius: 8px;
-            padding: 12px 14px;
-            margin-bottom: 10px;
-        }
-
-        .product-info-card .prod-rules-title {
-            font-size: 12px;
-            font-weight: 600;
-            color: #595959;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .product-info-card .rule-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-
-        .product-info-card .rule-tag {
-            padding: 3px 10px;
-            background: #e6f7ff;
-            color: #1890ff;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 500;
-        }
-
-        .product-info-card .prod-perms {
-            display: flex;
-            gap: 16px;
-            font-size: 11px;
-            color: #8c8c8c;
-        }
-
-        .product-info-card .prod-perms span {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        /* 产品 Tab 样式 */
-        .list-tab.product-tab {
-            border-style: dashed;
-            border-color: #b7c4ff;
-            background: #f5f0ff;
-        }
-
-        .list-tab.product-tab.active {
-            background: #722ed1;
-            border-color: #722ed1;
-            color: #fff;
-        }
-
-        .list-tab.product-tab .tab-auto {
-            font-size: 10px;
-            opacity: 0.8;
-        }
-
-        /* 批量操作栏 */
-        .batch-bar {
-            display: none;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            background: linear-gradient(135deg, #e6f7ff 0%, #f0f5ff 100%);
-            border-radius: 8px;
-            margin-bottom: 12px;
-            border: 1px solid #91d5ff;
-        }
-
-        .batch-bar.show {
-            display: flex;
-        }
-
-        .batch-bar .batch-count {
-            font-size: 14px;
-            color: #1890ff;
-            font-weight: 500;
-        }
-
-        .batch-bar .batch-actions {
-            display: flex;
-            gap: 8px;
-            margin-left: auto;
-        }
-
-        /* 复选框样式 */
-        .table-checkbox {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-            accent-color: #1890ff;
-        }
-
-        /* 下发弹窗 - 升级版 */
-        .assign-modal .modal {
-            max-width: 680px;
-        }
-
-        /* 步骤指示器 */
-        .assign-steps {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0;
-            margin-bottom: 24px;
-            padding: 0 20px;
-        }
-
-        .assign-step {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            color: #bfbfbf;
-            white-space: nowrap;
-        }
-
-        .assign-step .step-num {
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            font-weight: 600;
-            background: #f0f0f0;
-            color: #bfbfbf;
-            transition: all 0.3s;
-        }
-
-        .assign-step.active .step-num {
-            background: #1890ff;
-            color: white;
-        }
-
-        .assign-step.done .step-num {
-            background: #52c41a;
-            color: white;
-        }
-
-        .assign-step.active,
-        .assign-step.done {
-            color: #262626;
-        }
-
-        .step-line {
-            flex: 1;
-            height: 2px;
-            background: #f0f0f0;
-            margin: 0 12px;
-            min-width: 30px;
-            transition: background 0.3s;
-        }
-
-        .step-line.done {
-            background: #52c41a;
-        }
-
-        /* 步骤内容区 */
-        .assign-step-content {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .assign-step-content.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(8px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* 分配策略卡片 */
-        .strategy-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .strategy-card {
-            padding: 16px;
-            border: 2px solid #e8e8e8;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-        }
-
-        .strategy-card:hover {
-            border-color: #91d5ff;
-            background: #fafafa;
-        }
-
-        .strategy-card.selected {
-            border-color: #1890ff;
-            background: #e6f7ff;
-        }
-
-        .strategy-card .strategy-icon {
-            font-size: 32px;
-            margin-bottom: 8px;
-        }
-
-        .strategy-card .strategy-name {
-            font-weight: 600;
-            font-size: 14px;
-            color: #262626;
-            margin-bottom: 4px;
-        }
-
-        .strategy-card .strategy-desc {
-            font-size: 12px;
-            color: #8c8c8c;
-            line-height: 1.5;
-        }
-
-        .strategy-card.selected .strategy-name {
-            color: #1890ff;
-        }
-
-        /* 目标人员选择 */
-        .target-section-title {
-            font-size: 13px;
-            color: #8c8c8c;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .target-check-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .target-check-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            border: 2px solid #e8e8e8;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .target-check-item:hover {
-            border-color: #91d5ff;
-            background: #fafafa;
-        }
-
-        .target-check-item.selected {
-            border-color: #1890ff;
-            background: #e6f7ff;
-        }
-
-        .target-check-item input[type="checkbox"],
-        .target-check-item input[type="radio"] {
-            accent-color: #1890ff;
-            width: 16px;
-            height: 16px;
-        }
-
-        .target-info {
-            flex: 1;
-        }
-
-        .target-info .target-name {
-            font-weight: 500;
-            color: #262626;
-            font-size: 14px;
-        }
-
-        .target-info .target-meta {
-            font-size: 12px;
-            color: #8c8c8c;
-            margin-top: 2px;
-        }
-
-        .target-info .target-workload {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 4px;
-            margin-top: 4px;
-        }
-
-        .target-info .workload-light {
-            background: #f6ffed;
-            color: #52c41a;
-        }
-
-        .target-info .workload-medium {
-            background: #fff7e6;
-            color: #fa8c16;
-        }
-
-        .target-info .workload-heavy {
-            background: #fff1f0;
-            color: #ff4d4f;
-        }
-
-        /* 预览表格 */
-        .preview-summary {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .preview-stat {
-            text-align: center;
-            padding: 12px;
-            background: #fafafa;
-            border-radius: 8px;
-        }
-
-        .preview-stat .stat-value {
-            font-size: 24px;
-            font-weight: 600;
-            color: #1890ff;
-        }
-
-        .preview-stat .stat-label {
-            font-size: 12px;
-            color: #8c8c8c;
-            margin-top: 4px;
-        }
-
-        .preview-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-
-        .preview-table th {
-            text-align: left;
-            padding: 8px 12px;
-            background: #fafafa;
-            color: #8c8c8c;
-            font-weight: 500;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .preview-table td {
-            padding: 10px 12px;
-            border-bottom: 1px solid #f5f5f5;
-            color: #262626;
-        }
-
-        .preview-table .person-avatar {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .preview-table .avatar-circle {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            color: white;
-            font-weight: 500;
-        }
-
-        .preview-bar {
-            height: 6px;
-            background: #f0f0f0;
-            border-radius: 3px;
-            overflow: hidden;
-            min-width: 80px;
-        }
-
-        .preview-bar-fill {
-            height: 100%;
-            border-radius: 3px;
-            transition: width 0.5s ease;
-        }
-
-        .deadline-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid #f0f0f0;
-        }
-
-        .deadline-row label {
-            font-size: 14px;
-            color: #595959;
-            white-space: nowrap;
-        }
-
-        .deadline-row input[type="date"] {
-            padding: 8px 12px;
-            border: 1px solid #d9d9d9;
-            border-radius: 6px;
-            font-size: 14px;
-            color: #262626;
-        }
-
-        .deadline-row input[type="text"] {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1px solid #d9d9d9;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-
-        /* 加入名单弹窗 */
-        .add-to-list-modal .modal {
-            max-width: 480px;
-        }
-
-        .list-option {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            border: 1px solid #e8e8e8;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-bottom: 8px;
-        }
-
-        .list-option:hover {
-            border-color: #91d5ff;
-            background: #fafafa;
-        }
-
-        .list-option.selected {
-            border-color: #1890ff;
-            background: #e6f7ff;
-        }
-
-        .list-option-icon {
-            font-size: 20px;
-        }
-
-        .list-option-info {
-            flex: 1;
-        }
-
-        .list-option-info .list-name {
-            font-weight: 500;
-            color: #262626;
-        }
-
-        .list-option-info .list-meta {
-            font-size: 12px;
-            color: #8c8c8c;
-            margin-top: 2px;
-        }
-
-        .new-list-input {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-        }
-
-        .new-list-input input {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1px dashed #d9d9d9;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-
-        .new-list-input input:focus {
-            border-color: #1890ff;
-            outline: none;
-        }
-
-        /* Toast提示 */
-        .toast {
-            position: fixed;
-            top: 24px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-100px);
-            background: #262626;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 14px;
-            z-index: 10000;
-            transition: transform 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-        }
-
-        .toast.success {
-            background: linear-gradient(135deg, #52c41a, #73d13d);
-        }
-
-        /* 分配状态标签 */
-        .assign-status {
-            padding: 2px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .assign-status.assigned {
-            background: #f6ffed;
-            color: #52c41a;
-            border: 1px solid #b7eb8f;
-        }
-
-        .assign-status.pending {
-            background: #fff7e6;
-            color: #fa8c16;
-            border: 1px solid #ffd591;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>客户名单 - 智能营销平台</title>
+  <meta name="description" content="客户经理全量客户名单，支持多维筛选、状态标记与触达路径">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ===== 页面布局 ===== */
+    .customers-layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* ===== 左侧筛选面板 ===== */
+    .filter-panel {
+      background: var(--bg-card);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      position: sticky;
+      top: 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+    }
+    .filter-panel-header {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .filter-panel-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--gray-900);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .filter-reset-btn {
+      font-size: 12px;
+      color: var(--brand);
+      cursor: pointer;
+      font-weight: 500;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+    .filter-reset-btn:hover { background: var(--brand-light); }
+
+    .filter-section {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .filter-section:last-child { border-bottom: none; }
+    .filter-section-label {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--gray-400);
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+    .filter-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--gray-700);
+      transition: all 0.15s;
+      margin-bottom: 2px;
+    }
+    .filter-option:hover { background: var(--gray-50); }
+    .filter-option.active {
+      background: var(--brand-light);
+      color: var(--brand);
+      font-weight: 600;
+    }
+    .filter-option-count {
+      font-size: 11.5px;
+      color: var(--gray-400);
+      background: var(--gray-100);
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+    .filter-option.active .filter-option-count {
+      background: rgba(37,99,235,0.15);
+      color: var(--brand);
+    }
+    .filter-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ===== 右侧主内容 ===== */
+    .main-panel { min-width: 0; }
+
+    /* ===== 工具栏 ===== */
+    .toolbar {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .toolbar-search {
+      flex: 1;
+      min-width: 200px;
+      max-width: 400px;
+      position: relative;
+    }
+    .toolbar-search input {
+      width: 100%;
+      padding: 9px 14px 9px 38px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 13.5px;
+      color: var(--gray-900);
+      background: var(--bg-card);
+      transition: all 0.2s;
+      box-sizing: border-box;
+    }
+    .toolbar-search input:focus {
+      outline: none;
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+    }
+    .toolbar-search .search-icon {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray-400);
+      width: 16px;
+      height: 16px;
+    }
+    .toolbar-filters {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .toolbar-filters .custom-singleselect,
+    .toolbar-filters .custom-cascader {
+      width: 135px;
+    }
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+    .toolbar-right .custom-singleselect {
+      width: 140px;
+    }
+    .sort-select {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 13px;
+      color: var(--gray-700);
+      background: var(--bg-card);
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .sort-select:focus { border-color: var(--brand); }
+    .view-toggle {
+      display: flex;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--bg-card);
+    }
+    .view-btn {
+      padding: 8px 12px;
+      cursor: pointer;
+      color: var(--gray-500);
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+    }
+    .view-btn:first-child { border-right: 1px solid var(--border); }
+    .view-btn.active { background: var(--brand-light); color: var(--brand); }
+    .view-btn svg { width: 15px; height: 15px; }
+
+    /* ===== 状态信息栏 ===== */
+    .list-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 11px 16px;
+      background: var(--gray-50);
+      border-radius: 10px;
+      margin-bottom: 14px;
+      font-size: 12.5px;
+      color: var(--gray-500);
+    }
+    .list-meta strong { color: var(--brand); font-size: 15px; font-weight: 700; }
+    .list-meta-divider { width: 1px; height: 14px; background: var(--gray-200); }
+
+    /* ===== 表格视图 ===== */
+    .cust-table-wrapper {
+      background: var(--bg-card);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+    }
+    .cust-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .cust-table thead th {
+      padding: 12px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gray-500);
+      text-align: left;
+      background: var(--gray-50);
+      border-bottom: 1px solid var(--gray-100);
+      white-space: nowrap;
+      letter-spacing: 0.3px;
+    }
+    .cust-table thead th:first-child { border-radius: 0; }
+    .cust-table tbody tr {
+      border-bottom: 1px solid var(--gray-100);
+      transition: background 0.15s;
+    }
+    .cust-table tbody tr:last-child { border-bottom: none; }
+    .cust-table tbody tr:hover { background: var(--gray-50); }
+    .cust-table td {
+      padding: 13px 16px;
+      font-size: 13.5px;
+      color: var(--gray-800);
+      vertical-align: middle;
+    }
+    .company-name-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .company-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: var(--brand-light);
+      color: var(--brand);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .company-name-text { font-weight: 600; color: var(--gray-900); }
+    .company-uscc { font-size: 11.5px; color: var(--gray-400); margin-top: 2px; font-family: monospace; }
+    .product-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+    .product-tag {
+      padding: 2px 8px;
+      background: #eff6ff;
+      color: var(--brand);
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .product-tag.expired {
+      background: var(--gray-100);
+      color: var(--gray-400);
+      text-decoration: line-through;
+    }
+
+    /* 状态徽章 */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .status-badge-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+    /* 行操作 */
+    .row-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .row-action-btn {
+      padding: 5px 10px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-mark {
+      background: var(--gray-100);
+      color: var(--gray-700);
+    }
+    .btn-mark:hover { background: var(--gray-200); }
+    .btn-contact {
+      background: var(--brand-light);
+      color: var(--brand);
+    }
+    .btn-contact:hover { background: rgba(37,99,235,0.2); }
+    .btn-detail {
+      background: var(--brand);
+      color: white;
+      box-shadow: 0 2px 6px rgba(37,99,235,0.25);
+    }
+    .btn-detail:hover { background: #1d4ed8; }
+
+    /* ===== 卡片视图 ===== */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 16px;
+    }
+    
+    /* ===== 分页控件使用全局 style.css 中的 .pagination ===== */
+    .page-btn:hover:not(:disabled) {
+      border-color: var(--brand);
+      color: var(--brand);
+    }
+    .page-btn.active {
+      background: var(--brand);
+      color: white;
+      border-color: var(--brand);
+    }
+    .page-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: var(--gray-50);
+    }
+    .page-info {
+      font-size: 13px;
+      color: var(--gray-500);
+      margin-right: auto;
+    }
+    .cust-card-pc {
+      background: var(--bg-card);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      padding: 18px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.02);
+    }
+    .cust-card-pc:hover {
+      border-color: rgba(37,99,235,0.3);
+      box-shadow: 0 6px 18px rgba(37,99,235,0.1);
+      transform: translateY(-2px);
+    }
+    .card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+    .card-company { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+    .card-company-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--gray-900);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .card-company-uscc {
+      font-size: 11px;
+      color: var(--gray-400);
+      font-family: monospace;
+      margin-top: 2px;
+    }
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--gray-100);
+    }
+    .card-addr {
+      font-size: 12px;
+      color: var(--gray-400);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex: 1;
+      min-width: 0;
+    }
+    .card-addr span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .card-actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .card-action-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .card-action-btn.mark { background: var(--gray-100); color: var(--gray-600); }
+    .card-action-btn.mark:hover { background: var(--gray-200); }
+    .card-action-btn.contact { background: var(--brand-light); color: var(--brand); }
+    .card-action-btn.contact:hover { background: rgba(37,99,235,0.2); }
+
+    /* ===== 触达路径弹窗 (右侧抽屉) ===== */
+    .drawer-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 1000;
+      display: none;
+      justify-content: flex-end;
+      backdrop-filter: blur(3px);
+    }
+    .drawer-overlay.show { display: flex; animation: fadeIn 0.2s ease; }
+    .drawer-box {
+      background: var(--bg-card);
+      width: 440px;
+      max-width: 90vw;
+      height: 100vh;
+      overflow-y: auto;
+      box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+      animation: slideLeft 0.25s cubic-bezier(0.4,0,0.2,1);
+      padding: 28px;
+    }
+    @keyframes slideLeft { from{transform:translateX(100%)} to{transform:translateX(0)} }
+    
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    @keyframes slideUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .modal-title { font-size: 17px; font-weight: 700; color: var(--gray-900); }
+    .modal-subtitle { font-size: 13px; color: var(--gray-500); margin-top: 2px; }
+    .modal-close {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      border: none;
+      background: var(--gray-100);
+      color: var(--gray-500);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .modal-close:hover { background: var(--gray-200); }
+
+    /* 触达路径 Tabs */
+    .contact-tabs {
+      display: flex;
+      gap: 4px;
+      border-bottom: 1px solid var(--gray-100);
+      margin-bottom: 18px;
+    }
+    .contact-tab {
+      padding: 10px 16px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--gray-500);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all 0.2s;
+    }
+    .contact-tab.active {
+      color: var(--brand);
+      font-weight: 700;
+      border-bottom-color: var(--brand);
+    }
+    .contact-pane { display: none; }
+    .contact-pane.active { display: block; }
+
+    /* 触达路径列表 (对齐移动端样式) */
+    .cp-card {
+      background: #fff; border-radius: 12px; padding: 16px;
+      margin-bottom: 12px; border: 1px solid var(--gray-200);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+    .cp-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .cp-phone { font-size: 18px; font-weight: 700; font-family: monospace; color: var(--gray-900); }
+    .cp-role {
+      font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 8px;
+    }
+    .cp-tips { font-size: 13px; color: var(--gray-500); line-height: 1.5; margin-bottom: 12px; background: var(--gray-50); padding: 8px 12px; border-radius: 8px; }
+    .cp-actions-main { display: flex; justify-content: space-between; align-items: center; gap: 8px; border-top: 1px dashed var(--gray-200); padding-top: 12px; margin-top: 12px; }
+    .cp-btn-call { display: inline-flex; align-items: center; justify-content: center; padding: 6px 16px; border-radius: 100px; font-size: 13px; font-weight: 600; color: #fff; background: var(--brand); border: none; cursor: pointer; transition: all 0.2s;}
+    .cp-btn-call:hover { background: #1d4ed8; }
+    .cp-btn-fb { padding: 6px 12px; border-radius: 100px; font-size: 12px; font-weight: 500; color: var(--gray-600); background: var(--gray-100); border: none; cursor: pointer; transition: all 0.2s;}
+    .cp-btn-fb:hover { background: var(--gray-200); }
+
+
+
+    /* ===== 状态标记侧边抽屉 ===== */
+    .drawer-panel {
+      position: fixed;
+      right: -480px;
+      top: 0;
+      bottom: 0;
+      width: 440px;
+      background: var(--bg-card);
+      z-index: 1001;
+      box-shadow: -8px 0 40px rgba(0,0,0,0.12);
+      transition: right 0.3s cubic-bezier(0.4,0,0.2,1);
+      display: flex;
+      flex-direction: column;
+    }
+    .drawer-panel.open { right: 0; }
+    .drawer-header {
+      padding: 22px 24px 18px;
+      border-bottom: 1px solid var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .drawer-title { font-size: 17px; font-weight: 700; color: var(--gray-900); }
+    .drawer-company { font-size: 13px; color: var(--gray-500); margin-top: 3px; }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
+    .drawer-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--gray-100);
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .drawer-btn {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+    .drawer-btn.cancel { background: var(--gray-100); color: var(--gray-600); }
+    .drawer-btn.cancel:hover { background: var(--gray-200); }
+    .drawer-btn.save { background: var(--brand); color: white; box-shadow: 0 4px 12px rgba(37,99,235,0.25); }
+    .drawer-btn.save:hover { background: #1d4ed8; }
+
+    /* 状态标记 Tabs */
+    .mark-tabs {
+      display: flex;
+      background: var(--gray-100);
+      border-radius: 10px;
+      padding: 3px;
+      margin-bottom: 20px;
+    }
+    .mark-tab {
+      flex: 1;
+      text-align: center;
+      padding: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-500);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .mark-tab.active {
+      background: white;
+      color: var(--brand);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .mark-pane { display: none; }
+    .mark-pane.active { display: block; }
+
+    /* Chip 组 */
+    .chip-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .chip {
+      padding: 7px 14px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 500;
+      border: 1.5px solid var(--gray-200);
+      background: var(--gray-50);
+      color: var(--gray-600);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .chip:hover { border-color: var(--brand); color: var(--brand); }
+    .chip.on {
+      border-color: var(--brand);
+      background: var(--brand-light);
+      color: var(--brand);
+      font-weight: 700;
+    }
+    .form-label {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin-bottom: 12px;
+      margin-top: 20px;
+    }
+    .form-label:first-child { margin-top: 0; }
+    .form-textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1.5px solid var(--gray-200);
+      font-size: 13.5px;
+      color: var(--gray-800);
+      resize: vertical;
+      min-height: 80px;
+      transition: border-color 0.2s;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+    .form-textarea:focus { outline: none; border-color: var(--brand); }
+    .quick-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .quick-tag {
+      padding: 4px 10px;
+      background: var(--gray-100);
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--gray-600);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .quick-tag:hover { background: var(--brand-light); color: var(--brand); }
+
+    /* ===== 空状态 ===== */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--gray-400);
+    }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-text { font-size: 14px; font-weight: 600; }
+    .empty-sub { font-size: 13px; margin-top: 4px; }
+    
+    /* 左侧 Tab 筛选样式 */
+    .filter-tabs {
+      display: flex;
+      background: var(--gray-100);
+      border-radius: 8px;
+      padding: 3px;
+      margin: 12px 16px;
+    }
+    .filter-tab-btn {
+      flex: 1;
+      text-align: center;
+      padding: 7px 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-500);
+      cursor: pointer;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      transition: all 0.15s ease;
+    }
+    .filter-tab-btn.active {
+      background: #fff;
+      color: var(--brand);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+  
+    /* ===== 客户名单表格增强 & 列设置面板 ===== */
+    .cust-table-wrapper {
+      overflow-x: auto;
+      max-width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    .cust-table {
+      min-width: 1200px; /* Force scroll */
+    }
+    .cust-table th, .cust-table td {
+      white-space: nowrap;
+    }
+    
+    .col-settings {
+      position: relative;
+    }
+    .col-settings-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: white;
+      color: var(--gray-700);
+      font-size: 13.5px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .col-settings-btn:hover {
+      background: var(--gray-50);
+      border-color: var(--brand);
+      color: var(--brand);
+    }
+    .col-popover {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      width: 220px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+      border: 1px solid var(--border);
+      z-index: 100;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-5px);
+      transition: all 0.2s;
+    }
+    .col-popover.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .col-pop-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gray-800);
+    }
+    .col-pop-reset {
+      font-size: 12.5px;
+      color: var(--brand);
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .col-pop-body {
+      padding: 8px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .col-pop-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .col-pop-item:hover {
+      background: var(--gray-50);
+    }
+    .col-pop-item input {
+      cursor: pointer;
+    }
+    .col-pop-item span {
+      font-size: 13.5px;
+      color: var(--gray-700);
+    }
+
+  </style>
 </head>
-
 <body>
-    <div class="app-container">
-        <!-- 侧边栏 -->
-        <aside class="sidebar">
-            <div class="sidebar-logo">
-                <div class="logo-icon">💼</div>
-                <h1>智能营销平台</h1>
-            </div>
-            <nav class="nav-menu">
-                <a href="index.html" class="nav-item">
-                    <span class="nav-icon">🏠</span>
-                    <span class="nav-text">工作台</span>
-                </a>
-                <a href="customers.html" class="nav-item active">
-                    <span class="nav-icon">👥</span>
-                    <span class="nav-text">客户名单</span>
-                </a>
-                <a href="tasks.html" class="nav-item">
-                    <span class="nav-icon">📋</span>
-                    <span class="nav-text">任务管理</span>
-                </a>
-                <a href="select.html" class="nav-item">
-                    <span class="nav-icon">🎯</span>
-                    <span class="nav-text">智能圈选</span>
-                </a>
-                <a href="dashboard.html" class="nav-item">
-                    <span class="nav-icon">📊</span>
-                    <span class="nav-text">数据看板</span>
-                </a>
-                <a href="risk-alert.html" class="nav-item">
-                    <span class="nav-icon">⚠️</span>
-                    <span class="nav-text">风险预警</span>
-                </a>
-                <a href="reconciliation.html" class="nav-item">
-                    <span class="nav-icon">📑</span>
-                    <span class="nav-text">对账确认</span>
-                </a>
-                <a href="downloads.html" class="nav-item">
-                    <span class="nav-icon">📥</span>
-                    <span class="nav-text">下载中心</span>
-                </a>
-            </nav>
-            <div class="sidebar-footer">
-                <div class="user-info">
-                    <div class="user-avatar">朱</div>
-                    <div>
-                        <div class="user-name">朱某人</div>
-                        <div class="user-role">客户经理</div>
-                    </div>
-                </div>
-            </div>
-        </aside>
+<div class="app-container">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main-content anim-fade-in" id="main">
 
-        <!-- 主内容区 -->
-        <main class="main-content">
-            <div class="page-header">
-                <h1 class="page-title">客户名单</h1>
-                <p class="page-breadcrumb"><a href="index.html">工作台</a> / 客户名单</p>
-            </div>
-
-            <!-- 名单分组Tab -->
-            <div class="list-tabs" id="listTabs">
-                <!-- 动态渲染 -->
-            </div>
-
-            <!-- 名单信息栏（普通名单）-->
-            <div class="list-info-bar" id="listInfoBar">
-                <div class="info-left">
-                    <span>📁 来源：<strong id="listSource">系统汇总</strong></span>
-                    <span>📅 创建：<strong id="listDate">2025-01-15</strong></span>
-                    <span>📝 说明：<span id="listDesc">所有客户合集</span></span>
-                </div>
-                <div class="info-right">
-                    <span class="assign-status pending" id="listAssignStatus">待下发</span>
-                </div>
-            </div>
-
-            <!-- 产品信息卡（产品推送名单时显示）-->
-            <div class="product-info-card" id="productInfoCard" style="display:none;">
-                <div class="prod-header">
-                    <div class="prod-title">
-                        <span>📦</span>
-                        <span id="prodCardName">科技贷</span>
-                        <span class="prod-badge auto" id="prodCardBadge">🔄 自动推送 · 每天</span>
-                    </div>
-                    <span class="assign-status pending" id="prodAssignStatus">待下发</span>
-                </div>
-                <div class="prod-meta">
-                    <span>🏛️ <span id="prodCardOrg">江苏银行</span></span>
-                    <span>💳 <span id="prodCardType">信用贷</span></span>
-                    <span>📊 准入评分 <strong id="prodCardScore">≥750</strong></span>
-                    <span>💰 最高额度 <strong id="prodCardLimit">500万</strong></span>
-                    <span>📈 利率 <span id="prodCardRate">4.5%-5.5%</span></span>
-                </div>
-                <div class="prod-meta">
-                    <span>🕐 上次更新：<strong id="prodCardLast">2026-02-11 06:00</strong></span>
-                    <span>⏰ 下次更新：<strong id="prodCardNext">2026-02-12 06:00</strong></span>
-                    <span>📋 排序：<span id="prodCardSort">苏信分由高到低</span></span>
-                    <span>🔄 名单处理：<span id="prodCardProcess">排除已触达客户</span></span>
-                </div>
-                <div class="prod-rules">
-                    <div class="prod-rules-title">🎯 获客规则：<span id="prodRuleName">科技企业筛选规则</span></div>
-                    <div class="rule-tags" id="prodRuleTags">
-                        <!-- 动态渲染规则条件 -->
-                    </div>
-                </div>
-                <div class="prod-perms">
-                    <span>📤 导出权限：<strong id="prodExportPerm">允许导出</strong></span>
-                    <span>👁️ 展示字段：<span id="prodVisibleFields">企业名称、统一社会信用代码、联系方式</span></span>
-                </div>
-            </div>
-
-            <!-- 筛选栏 -->
-            <div class="filter-bar">
-                <div class="filter-item">
-                    <label>状态</label>
-                    <select class="form-select" id="filterStatus" onchange="filterCustomers()">
-                        <option value="">全部状态</option>
-                        <option value="待触达">待触达</option>
-                        <option value="已触达">已触达</option>
-                        <option value="已意向">已意向</option>
-                        <option value="已放款">已放款</option>
-                    </select>
-                </div>
-                <div class="filter-item">
-                    <label>行业</label>
-                    <select class="form-select" id="filterIndustry" onchange="filterCustomers()">
-                        <option value="">全部行业</option>
-                        <option value="软件信息技术服务业">软件信息技术服务业</option>
-                        <option value="通用设备制造业">通用设备制造业</option>
-                        <option value="电子器件制造">电子器件制造</option>
-                        <option value="医药制造业">医药制造业</option>
-                    </select>
-                </div>
-                <div class="filter-item search-input">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" class="form-input" placeholder="搜索企业名称..." id="searchInput"
-                        oninput="filterCustomers()">
-                </div>
-                <div style="margin-left: auto; display: flex; gap: 8px;">
-                    <button class="btn btn-default" onclick="openAssignModal()">
-                        📤 下发名单
-                    </button>
-                    <button class="btn btn-primary" onclick="location.href='select.html'">
-                        <span class="btn-icon">🎯</span> 智能圈选
-                    </button>
-                </div>
-            </div>
-
-            <!-- 批量操作栏 -->
-            <div class="batch-bar" id="batchBar">
-                <input type="checkbox" class="table-checkbox" id="selectAll" onchange="toggleSelectAll(this)">
-                <span class="batch-count">已选 <strong id="selectedCount">0</strong> 家企业</span>
-                <div class="batch-actions">
-                    <button class="btn btn-primary btn-sm" onclick="openAssignModal()">📤 批量下发</button>
-                    <button class="btn btn-default btn-sm" onclick="batchRemove()">移出名单</button>
-                    <button class="btn btn-text btn-sm" onclick="cancelSelection()">取消选择</button>
-                </div>
-            </div>
-
-            <!-- 客户列表 -->
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">客户列表</h3>
-                    <span class="card-extra">共 <span id="customerCount">6</span> 家企业</span>
-                </div>
-                <div class="table-wrapper">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th style="width: 40px;">
-                                    <input type="checkbox" class="table-checkbox" id="headerCheckbox"
-                                        onchange="toggleSelectAll(this)">
-                                </th>
-                                <th>企业名称</th>
-                                <th>地区</th>
-                                <th>行业</th>
-                                <th>苏信分</th>
-                                <th>推荐理由</th>
-                                <th>状态</th>
-                                <th>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="customerTableBody">
-                            <!-- 动态渲染 -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </main>
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1 class="page-title">客户名单</h1>
+        <p class="page-breadcrumb">
+          <a href="index.html">工作台</a><span class="sep">/</span>客户营销<span class="sep">/</span>客户名单
+        </p>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <span id="totalBadge" style="font-size:14px;color:var(--brand);font-weight:700;background:#eff6ff;padding:6px 14px;border-radius:100px;">13 家企业</span>
+        <button class="btn btn-default" onclick="exportData()">
+          <span style="width:15px;height:15px;display:flex;"><svg viewBox="0 0 24 24" style="width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
+          导出
+        </button>
+      </div>
     </div>
 
-    <script src="js/contact-config.js"></script>
-
-    <!-- 话术/状态模态框 -->
-    <div class="modal-overlay" id="scriptModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 class="modal-title" id="modalTitle">智能话术</h3>
-                <div class="modal-close" onclick="closeModal('scriptModal')">✕</div>
-            </div>
-            <div class="modal-body" id="modalBody">
-                <!-- 动态内容 -->
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-default" onclick="closeModal('scriptModal')">关闭</button>
-                <button class="btn btn-primary">复制话术</button>
-            </div>
+    <div class="customers-layout">
+      <!-- ========== 左侧筛选面板 ========== -->
+      <div class="filter-panel">
+        <div class="filter-panel-header">
+          <div class="filter-panel-title">
+            <svg style="width:15px;height:15px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            筛选
+          </div>
+          <div class="filter-reset-btn" onclick="resetAllFilters()">重置</div>
         </div>
-    </div>
 
-    <!-- 触达路径推荐模态框 -->
-    <div class="modal-overlay" id="contactPathModal">
-        <div class="modal" style="width: 650px;">
-            <div class="modal-header">
-                <h3 class="modal-title" id="contactPathModalTitle">📞 触达路径推荐</h3>
-                <div class="modal-close" onclick="closeModal('contactPathModal')">✕</div>
-            </div>
-            <div class="modal-body" id="contactPathModalBody" style="max-height: 60vh; overflow-y: auto; padding: 20px;">
-                <!-- 动态内容 -->
-            </div>
+        <!-- Tab 切换按钮 -->
+        <div class="filter-tabs">
+          <button class="filter-tab-btn active" id="tabStatusBtn" onclick="switchFilterTab('status')">按状态</button>
+          <button class="filter-tab-btn" id="tabBatchBtn" onclick="switchFilterTab('batch')">按名单批次</button>
         </div>
-    </div>
 
-    <!-- 名单下发弹窗 - 多步骤向导 -->
-    <div class="modal-overlay assign-modal" id="assignModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 class="modal-title">📤 名单下发</h3>
-                <div class="modal-close" onclick="closeAssignModal()">✕</div>
+        <!-- Tab 1: 按状态 -->
+        <div id="filterTabContentStatus" style="display:block;">
+          <!-- 营销状态 -->
+          <div class="filter-section">
+            <div class="filter-section-label">营销状态</div>
+            <div class="filter-option active" data-filter="rs" data-val="ALL" onclick="setFilter('rs','ALL',this)">
+              <span>全部</span>
             </div>
-            <div class="modal-body">
-                <!-- 步骤指示器 -->
-                <div class="assign-steps">
-                    <div class="assign-step active" id="stepIndicator1">
-                        <span class="step-num">1</span>
-                        <span>分配方式</span>
-                    </div>
-                    <div class="step-line" id="stepLine1"></div>
-                    <div class="assign-step" id="stepIndicator2">
-                        <span class="step-num">2</span>
-                        <span>选择人员</span>
-                    </div>
-                    <div class="step-line" id="stepLine2"></div>
-                    <div class="assign-step" id="stepIndicator3">
-                        <span class="step-num">3</span>
-                        <span>预览确认</span>
-                    </div>
-                </div>
-
-                <!-- 第一步：选择分配方式 -->
-                <div class="assign-step-content active" id="assignStep1">
-                    <div class="strategy-grid">
-                        <div class="strategy-card selected" onclick="selectStrategy(this, 'manual')">
-                            <div class="strategy-icon">🎯</div>
-                            <div class="strategy-name">手动指定</div>
-                            <div class="strategy-desc">选择一个目标，将整个名单下发给指定网点或客户经理</div>
-                        </div>
-                        <div class="strategy-card" onclick="selectStrategy(this, 'random')">
-                            <div class="strategy-icon">🎲</div>
-                            <div class="strategy-name">随机平均分配</div>
-                            <div class="strategy-desc">将名单随机打散后均匀分配给多个客户经理</div>
-                        </div>
-                        <div class="strategy-card" onclick="selectStrategy(this, 'region')">
-                            <div class="strategy-icon">📍</div>
-                            <div class="strategy-name">按区域就近</div>
-                            <div class="strategy-desc">根据企业所在区域，自动匹配对口网点的客户经理</div>
-                        </div>
-                        <div class="strategy-card" onclick="selectStrategy(this, 'workload')">
-                            <div class="strategy-icon">⚖️</div>
-                            <div class="strategy-name">按负载均衡</div>
-                            <div class="strategy-desc">当前任务少的经理多分，任务满的少分，避免忙闲不均</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 第二步：选择目标人员 -->
-                <div class="assign-step-content" id="assignStep2">
-                    <p id="step2Hint" style="color: #595959; font-size: 13px; margin-bottom: 12px;"></p>
-                    <div id="targetListContainer">
-                        <!-- 动态渲染 -->
-                    </div>
-                    <div class="deadline-row">
-                        <label>截止日期：</label>
-                        <input type="date" id="assignDeadline" value="2025-03-15">
-                        <label style="margin-left: 12px;">任务说明：</label>
-                        <input type="text" id="assignNote" placeholder="请输入任务描述...">
-                    </div>
-                </div>
-
-                <!-- 第三步：预览分配结果 -->
-                <div class="assign-step-content" id="assignStep3">
-                    <div class="preview-summary" id="previewSummary">
-                        <!-- 动态渲染 -->
-                    </div>
-                    <div style="max-height: 300px; overflow-y: auto; border: 1px solid #f0f0f0; border-radius: 8px;">
-                        <table class="preview-table" id="previewTable">
-                            <thead>
-                                <tr>
-                                    <th>客户经理</th>
-                                    <th>分配企业数</th>
-                                    <th>分配占比</th>
-                                    <th>企业列表</th>
-                                </tr>
-                            </thead>
-                            <tbody id="previewTableBody">
-                                <!-- 动态渲染 -->
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="deadline-row" style="margin-top: 12px;">
-                        <label>📅 截止：</label>
-                        <span id="previewDeadline" style="font-weight: 500;"></span>
-                        <label style="margin-left: 16px;">📝 说明：</label>
-                        <span id="previewNote" style="color: #595959;"></span>
-                    </div>
-                </div>
+            <div class="filter-option" data-filter="rs" data-val="PENDING" onclick="setFilter('rs','PENDING',this)">
+              <div style="display:flex;align-items:center;gap:7px;">
+                <div class="filter-dot" style="background:#2563eb;"></div>待触达
+              </div>
+              
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-default" id="assignBackBtn" onclick="assignPrevStep()"
-                    style="display: none;">上一步</button>
-                <div style="flex: 1;"></div>
-                <button class="btn btn-default" onclick="closeAssignModal()">取消</button>
-                <button class="btn btn-primary" id="assignNextBtn" onclick="assignNextStep()">下一步</button>
+            <div class="filter-option" data-filter="rs" data-val="FOLLOWING" onclick="setFilter('rs','FOLLOWING',this)">
+              <div style="display:flex;align-items:center;gap:7px;">
+                <div class="filter-dot" style="background:#f59e0b;"></div>跟进中
+              </div>
+              
             </div>
+            <div class="filter-option" data-filter="rs" data-val="REACHED_INTERESTED" onclick="setFilter('rs','REACHED_INTERESTED',this)">
+              <div style="display:flex;align-items:center;gap:7px;">
+                <div class="filter-dot" style="background:#10b981;"></div>有意向
+              </div>
+              
+            </div>
+            <div class="filter-option" data-filter="rs" data-val="REACHED_NO_INTEREST" onclick="setFilter('rs','REACHED_NO_INTEREST',this)">
+              <div style="display:flex;align-items:center;gap:7px;">
+                <div class="filter-dot" style="background:#6b7280;"></div>无意向
+              </div>
+              
+            </div>
+            <div class="filter-option" data-filter="rs" data-val="UNREACHED" onclick="setFilter('rs','UNREACHED',this)">
+              <div style="display:flex;align-items:center;gap:7px;">
+                <div class="filter-dot" style="background:#ef4444;"></div>触达失败
+              </div>
+              
+            </div>
+          </div>
+
+          <!-- 业务状态 -->
+          <div class="filter-section">
+            <div class="filter-section-label">业务状态</div>
+            <div class="filter-option active" data-filter="bs" data-val="ALL" onclick="setFilter('bs','ALL',this)">
+              <span>全部</span>
+            </div>
+            <div class="filter-option" data-filter="bs" data-val="NONE" onclick="setFilter('bs','NONE',this)">
+              <span>未申请</span>
+            </div>
+            <div class="filter-option" data-filter="bs" data-val="APPLIED" onclick="setFilter('bs','APPLIED',this)">
+              <span>已申请</span>
+            </div>
+            <div class="filter-option" data-filter="bs" data-val="REVIEWING" onclick="setFilter('bs','REVIEWING',this)">
+              <span>审批中</span>
+            </div>
+            <div class="filter-option" data-filter="bs" data-val="APPROVED" onclick="setFilter('bs','APPROVED',this)">
+              <span>已授信</span>
+            </div>
+            <div class="filter-option" data-filter="bs" data-val="DISBURSED" onclick="setFilter('bs','DISBURSED',this)">
+              <span>已放款</span>
+            </div>
+            <div class="filter-option" data-filter="bs" data-val="SETTLED" onclick="setFilter('bs','SETTLED',this)">
+              <span>已结清</span>
+            </div>
+          </div>
         </div>
+
+        <!-- Tab 2: 按产品批次（客户来源平铺单独展示） -->
+        <div id="filterTabContentBatch" style="display:none;">
+          <div class="filter-section">
+            <div class="filter-section-label">名单批次</div>
+            <div class="filter-option active" data-filter="batch" data-val="ALL" onclick="setFilter('batch','ALL',this)">
+              <span>全部批次</span>
+            </div>
+            
+            <div style="font-size:11px;font-weight:700;color:var(--gray-400);margin:14px 0 6px 12px;text-transform:uppercase;letter-spacing:0.5px;">橙业贷</div>
+            <div class="filter-option" data-filter="batch" data-val="橙业贷20160508" onclick="setFilter('batch','橙业贷20160508',this)">
+              <span style="padding-left:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px; display:inline-block; vertical-align:middle;" title="橙业贷20160508">橙业贷20160508</span>
+            </div>
+            <div class="filter-option" data-filter="batch" data-val="橙业贷20160509" onclick="setFilter('batch','橙业贷20160509',this)">
+              <span style="padding-left:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px; display:inline-block; vertical-align:middle;" title="橙业贷20160509">橙业贷20160509</span>
+            </div>
+            <div class="filter-option" data-filter="batch" data-val="橙业贷20160510" onclick="setFilter('batch','橙业贷20160510',this)">
+              <span style="padding-left:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px; display:inline-block; vertical-align:middle;" title="橙业贷20160510">橙业贷20160510</span>
+            </div>
+            <div class="filter-option" data-filter="batch" data-val="橙业贷20260615" onclick="setFilter('batch','橙业贷20260615',this)" style="display:flex; justify-content:space-between; align-items:center; padding-right:8px;">
+              <span style="padding-left:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:110px;" title="橙业贷20260615">橙业贷20260615</span>
+              <span style="font-size:10px; color:#c2410c; background:#ffedd5; padding:2px 4px; border-radius:4px; font-weight:600; flex-shrink:0;">导入</span>
+            </div>
+
+            <div style="font-size:11px;font-weight:700;color:var(--gray-400);margin:14px 0 6px 12px;text-transform:uppercase;letter-spacing:0.5px;">厂房贷</div>
+            <div class="filter-option" data-filter="batch" data-val="厂房贷20160501" onclick="setFilter('batch','厂房贷20160501',this)">
+              <span style="padding-left:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px; display:inline-block; vertical-align:middle;" title="厂房贷20160501">厂房贷20160501</span>
+            </div>
+            <div class="filter-option" data-filter="batch" data-val="厂房贷20160502" onclick="setFilter('batch','厂房贷20160502',this)">
+              <span style="padding-left:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px; display:inline-block; vertical-align:middle;" title="厂房贷20160502">厂房贷20160502</span>
+            </div>
+
+            <div style="font-size:11px;font-weight:700;color:var(--gray-400);margin:14px 0 6px 12px;text-transform:uppercase;letter-spacing:0.5px;">税务贷</div>
+            <div class="filter-option" data-filter="batch" data-val="税务贷20160501" onclick="setFilter('batch','税务贷20160501',this)">
+              <span style="padding-left:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px; display:inline-block; vertical-align:middle;" title="税务贷20160501">税务贷20160501</span>
+            </div>
+            <div class="filter-option" data-filter="batch" data-val="税务贷20160502" onclick="setFilter('batch','税务贷20160502',this)">
+              <span style="padding-left:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px; display:inline-block; vertical-align:middle;" title="税务贷20160502">税务贷20160502</span>
+            </div>
+          </div>
+        </div>
+
+
+
+        <!-- 快速筛选 -->
+        
+      </div>
+
+      <!-- ========== 右侧主内容 ========== -->
+      <div class="main-panel">
+        <!-- 工具栏 -->
+        
+        <!-- 工具栏 -->
+        <div class="toolbar">
+          <div class="toolbar-top" style="display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%;">
+            <div class="toolbar-search">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="searchInput" placeholder="搜索企业名称、统一社会信用代码" oninput="doFilter()">
+          </div>
+            
+            <div class="toolbar-right" style="display:flex; align-items:center; gap:8px;">
+              
+            <select class="form-control sort-select" id="sortSelect" onchange="doFilter()">
+              <option value="default">综合排序</option>
+              <option value="intent_desc">需求意向最高</option>
+              <option value="risk_asc">违约风险最低</option>
+              <option value="alloc_desc">分配时间最近</option>
+              <option value="alloc_asc">分配时间最早</option>
+            </select>
+            
+            <div class="col-settings">
+              <button class="col-settings-btn" id="colSettingsBtn" onclick="toggleColPopover(event)">
+                <svg style="width:15px;height:15px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+                列展示
+              </button>
+              <div class="col-popover" id="colPopover">
+                <div class="col-pop-header">
+                  <span>列展示</span>
+                  <span class="col-pop-reset" onclick="resetColumns()">重置</span>
+                </div>
+                <div class="col-pop-body" id="colPopBody">
+                  <!-- JS generated -->
+                </div>
+              </div>
+            </div>
+          
+              <button class="btn btn-default" id="toggleAdvFilterBtn" onclick="toggleAdvFilters()" style="padding:7px 12px; border-radius:8px; font-size:13.5px; border:1px solid var(--border); background:white; color:var(--gray-700); cursor:pointer; display:flex; align-items:center; gap:6px; transition:all 0.2s;">
+                <svg style="width:15px;height:15px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                筛选
+                <svg id="advFilterArrow" style="width:14px;height:14px;flex-shrink:0;transition:transform 0.2s;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform 0.2s;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </button>
+            </div>
+          </div>
+          
+          <div class="toolbar-advanced" id="advancedFilters" style="display:none; padding:16px; background:var(--gray-50); border-radius:12px; border:1px solid var(--border); width:100%; box-sizing:border-box;">
+            <div class="toolbar-filters">
+            <!-- 级联多选区域组件 -->
+            <div class="custom-cascader" id="regionCascader">
+              <div class="custom-singleselect-display" id="regionCascaderDisplay" onclick="toggleRegionCascader(event)">
+                <span class="custom-singleselect-text" id="regionCascaderText">区域</span>
+                <span style="display:flex;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </span>
+              </div>
+              <div class="cascader-dropdown" id="regionCascaderDropdown" style="display:none;">
+                <div class="cascader-columns">
+                  <!-- 省份列 -->
+                  <div class="cascader-col" id="colProv"></div>
+                  <div class="cascader-divider"></div>
+                  <!-- 城市列 -->
+                  <div class="cascader-col" id="colCity"></div>
+                  <div class="cascader-divider"></div>
+                  <!-- 区县列 -->
+                  <div class="cascader-col" id="colDist"></div>
+                </div>
+                <div class="cascader-footer">
+                  <div class="cascader-selected-count">已选: <span id="regionSelCount">0</span> 项</div>
+                  <div style="display:flex;gap:8px;">
+                    <button class="btn btn-default btn-sm" onclick="resetRegionCascader(event)">重置</button>
+                    <button class="btn btn-primary btn-sm" onclick="confirmRegionCascader(event)">确定</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <select class="form-control sort-select" id="filterContact" onchange="doFilter()">
+              <option value="ALL">联系方式</option>
+              <option value="有号码">有号码</option>
+              <option value="无号码">无号码</option>
+            </select>
+            <select class="form-control sort-select" id="filterProduct" onchange="doFilter()">
+              <option value="ALL">适配产品</option>
+              <option value="橙业贷">橙业贷</option>
+              <option value="厂房贷">厂房贷</option>
+              <option value="税务贷">税务贷</option>
+            </select>
+            <select class="form-control sort-select" id="filterScenario" onchange="doFilter()">
+              <option value="ALL">客群场景</option>
+              <option value="厂房实体">🏭 厂房实体</option>
+              <option value="外贸客群">🌐 外贸客群</option>
+              <option value="纯民营">🏢 纯民营中小微</option>
+            </select>
+            <select class="form-control sort-select" id="filterNature" onchange="doFilter()">
+              <option value="ALL">企业性质</option>
+              <option value="国有企业">国有企业</option>
+              <option value="民营企业">民营企业</option>
+              <option value="外资企业">外资企业</option>
+              <option value="合资企业">合资企业</option>
+            </select>
+            <select class="form-control sort-select" id="filterHonor" onchange="doFilter()">
+              <option value="ALL">荣誉标签</option>
+              <option value="专精特新">专精特新</option>
+              <option value="高新技术">高新技术</option>
+              <option value="瞪羚企业">瞪羚企业</option>
+              <option value="独角兽企业">独角兽企业</option>
+            </select>
+            <select class="form-control sort-select" id="filterIntent" onchange="doFilter()">
+              <option value="ALL">资金意向</option>
+              <option value="高">高意向</option>
+              <option value="中">中意向</option>
+              <option value="低">低意向</option>
+            </select>
+            <select class="form-control sort-select" id="filterRisk" onchange="doFilter()">
+              <option value="ALL">违约风险</option>
+              <option value="低">低风险</option>
+              <option value="中">中风险</option>
+              <option value="高">高风险</option>
+            </select>
+            
+          </div>
+          </div>
+        </div>
+        
+        <!-- 列表信息栏 -->
+        <div class="list-meta">
+          <span>共 <strong id="listCount">13</strong> 家企业</span>
+          <div class="list-meta-divider"></div>
+          <span>有意向 <strong id="intentCount" style="color:#10b981;">6</strong> 家</span>
+          <div class="list-meta-divider"></div>
+          <span>业务进行中 <strong id="bizCount" style="color:#f59e0b;">5</strong> 家</span>
+        </div>
+
+        <!-- 表格视图 -->
+        <div id="tableView">
+          <div class="cust-table-wrapper">
+            <table class="cust-table">
+              <thead id="tableHead"></thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        
+
+        <!-- 分页控件 -->
+        <div class="pagination" id="pagination">
+          <div class="pagination-info" style="display:flex;align-items:center;gap:12px;">
+            <span>显示 1 到 10 条，共 13 条记录</span>
+            <select class="filter-input form-control" style="width: 100px; height: 32px; min-width:unset; padding: 0 10px; font-size: 13px;">
+                <option>10 条/页</option>
+                <option>20 条/页</option>
+            </select>
+          </div>
+          <div class="pagination-controls">
+            <button class="btn btn-ghost btn-sm" disabled>上一页</button>
+            <button class="btn btn-primary btn-sm page-num">1</button>
+            <button class="btn btn-ghost btn-sm page-num">2</button>
+            <button class="btn btn-ghost btn-sm">下一页</button>
+          </div>
+        </div>
+
+        <!-- 空状态 -->
+        <div class="empty-state" id="emptyState" style="display:none;">
+          <div class="empty-state-icon">
+            <svg viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"></path><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
+          </div>
+          <div class="empty-title">暂无数据</div>
+          
+        </div>
+      </div>
     </div>
 
-    <!-- Toast提示 -->
-    <div class="toast" id="toast"></div>
+  </main>
+</div>
 
-    <script src="js/mock-data.js"></script>
-    <script src="js/app.js"></script>
-    <script>
-        // 当前选中的名单ID
-        let currentListId = 'all';
-        // 选中的客户ID集合
-        let selectedCustomerIds = new Set();
+<!-- ===== 触达路径抽屉 ===== -->
+<div class="drawer-overlay" id="contactModal">
+  <div class="drawer-box">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="contactModalTitle">触达路径</div>
+        <div class="modal-subtitle" id="contactModalSub">选择最优触达方式</div>
+      </div>
+      <button class="modal-close" onclick="closeContactModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="contact-tabs">
+      <div class="contact-tab active" onclick="contactTab(this,0)">本企触达</div>
+      <div class="contact-tab" onclick="contactTab(this,1)">关联企业</div>
+      <div class="contact-tab" onclick="contactTab(this,2)">行内关联</div>
+    </div>
+    <div class="contact-pane active" id="cPane0">
+      <div style="font-size: 12px; color: var(--gray-400); margin-bottom: 16px; line-height: 1.5; text-align: center;">以下角色及排序由系统基于多源大数据综合预测，仅供参考</div>
+      <div class="cp-card">
+          <div class="cp-top">
+              <span class="cp-phone">138****1234</span>
+              <span class="cp-role" style="background:rgba(37, 99, 235, 0.08);color:var(--brand);"><span style="opacity:0.5;">预测</span> 财务负责人</span>
+          </div>
+          <div class="cp-tips" style="display:flex;align-items:flex-start;gap:6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;color:var(--brand);opacity:0.7;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+              企业财税核心负责人，熟悉资金流向，信贷和结算类产品的关键对接人。
+          </div>
+          <div class="cp-actions-main">
+              <button class="cp-btn-fb">联系不上？反馈一下 ▾</button>
+              <button class="cp-btn-call" onclick="makeCall('13812341234')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>拨打
+              </button>
+          </div>
+      </div>
+      <div class="cp-card">
+          <div class="cp-top">
+              <span class="cp-phone">186****8888</span>
+              <span class="cp-role" style="background:rgba(37, 99, 235, 0.08);color:var(--brand);"><span style="opacity:0.5;">预测</span> 融资对接人</span>
+          </div>
+          <div class="cp-tips" style="display:flex;align-items:flex-start;gap:6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;color:var(--brand);opacity:0.7;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+              曾主导企业融资项目，有明确资金需求，转化意向高。
+          </div>
+          <div class="cp-actions-main">
+              <button class="cp-btn-fb">联系不上？反馈一下 ▾</button>
+              <button class="cp-btn-call" onclick="makeCall('18688888888')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>拨打
+              </button>
+          </div>
+      </div>
+      <div class="cp-card">
+          <div class="cp-top">
+              <span class="cp-phone">139****5678</span>
+              <span class="cp-role" style="background:rgba(37, 99, 235, 0.08);color:var(--brand);"><span style="opacity:0.5;">预测</span> 资质项目申报人</span>
+          </div>
+          <div class="cp-tips" style="display:flex;align-items:flex-start;gap:6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;color:var(--brand);opacity:0.7;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+              高新/专精特新资质申报负责人，多为高管或核心骨干。
+          </div>
+          <div class="cp-actions-main">
+              <button class="cp-btn-fb">联系不上？反馈一下 ▾</button>
+              <button class="cp-btn-call" onclick="makeCall('13956785678')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>拨打
+              </button>
+          </div>
+      </div>
+      <div class="cp-card" style="opacity:0.65;">
+          <div class="cp-top">
+              <span class="cp-phone">0512-6888****</span>
+              <span class="cp-role" style="background:rgba(239, 68, 68, 0.08);color:var(--danger);"><span style="opacity:0.5;">预测</span> 工商预留固话</span>
+          </div>
+          <div class="cp-tips" style="display:flex;align-items:flex-start;gap:6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;color:var(--danger);opacity:0.7;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              工商注册预留固话，接通率较低，建议作兜底使用。
+          </div>
+          <div class="cp-actions-main">
+              <button class="cp-btn-fb">联系不上？反馈一下 ▾</button>
+              <button class="cp-btn-call" style="background:var(--gray-300);color:var(--gray-700);" onclick="makeCall('051268881234')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>拨打
+              </button>
+          </div>
+      </div>
+    </div>
+    <div class="contact-pane" id="cPane1">
+      <div class="cp-card" style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid var(--border);">
+        <div style="margin-bottom:12px;">
+          <div style="font-size:15px;font-weight:700;color:var(--gray-900);">无锡市智云科技有限公司</div>
+          <span style="font-size:11px;padding:4px 8px;border-radius:6px;background:rgba(139,92,246,0.1);color:var(--info);margin-top:6px;display:inline-block;font-weight:600;">控股股东 (持股65%)</span>
+        </div>
+        <div style="border-top:1px dashed var(--gray-200);padding-top:12px;margin-top:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:15px;font-weight:700;color:var(--gray-900);font-family:monospace;">139****8888</span>
+            <span style="font-size:13px;color:var(--gray-500);font-weight:500;">联系方式</span>
+          </div>
+        </div>
+      </div>
+      <div class="cp-card" style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid var(--border);">
+        <div style="margin-bottom:12px;">
+          <div style="font-size:15px;font-weight:700;color:var(--gray-900);">苏州蓝天商贸有限公司</div>
+          <span style="font-size:11px;padding:4px 8px;border-radius:6px;background:rgba(245,158,11,0.1);color:var(--warning);margin-top:6px;display:inline-block;font-weight:600;">法定代表人其他企业</span>
+        </div>
+        <div style="border-top:1px dashed var(--gray-200);padding-top:12px;margin-top:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:15px;font-weight:700;color:var(--gray-900);font-family:monospace;">137****1111</span>
+            <span style="font-size:13px;color:var(--gray-500);font-weight:500;">联系方式</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="contact-pane" id="cPane2">
+      <div style="padding:16px;background:linear-gradient(135deg,rgba(37,99,235,0.06),rgba(139,92,246,0.06));border:1px solid rgba(37,99,235,0.15);border-radius:12px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+          <span style="width:40px;height:40px;background:var(--brand);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:600;box-shadow:0 4px 10px rgba(37,99,235,0.2);">关</span>
+          <div>
+            <div style="font-size:16px;font-weight:700;color:var(--gray-900);">苏州创芯微电子有限公司</div>
+            <div style="font-size:12px;color:var(--gray-500);margin-top:4px;">行内授信 · 贷款余额800万 · 经理：王强</div>
+          </div>
+        </div>
+        <div style="background:rgba(255,255,255,0.6);border-radius:8px;padding:12px;font-size:13px;color:var(--gray-700);line-height:1.6;border:1px solid rgba(255,255,255,0.8);">
+          <div style="margin-bottom:6px;"><b>关联关系：</b>该企业法人 <span style="color:var(--brand);font-weight:600;">张明</span> 同时担任行内存量客户的股东（持股32%）</div>
+          <div><b>触达建议：</b>可通过存量客户经理王强引荐，或以关联企业授信为切入点沟通</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-        // 渲染名单Tab
-        function renderListTabs() {
-            const container = document.getElementById('listTabs');
-            container.innerHTML = customerLists.map(list => {
-                const count = list.id === 'all' ? customers.length : customers.filter(c => c.listId === list.id).length;
-                const isProduct = list.isProduct;
-                const cls = [
-                    'list-tab',
-                    list.id === currentListId ? 'active' : '',
-                    isProduct ? 'product-tab' : ''
-                ].filter(Boolean).join(' ');
-                return `
-                    <div class="${cls}" onclick="switchList('${list.id}')">
-                        <span class="tab-icon">${list.icon}</span>
-                        <span>${list.name}${isProduct ? ' <span class="tab-auto">🔄</span>' : ''}</span>
-                        <span class="tab-count">${count}</span>
-                    </div>
-                `;
-            }).join('') + `
-                <div class="list-tab list-tab-add" onclick="showToast('💡 请先通过智能圈选创建名单')">
-                    ＋ 新建名单
-                </div>
-            `;
+<!-- 状态标记抽屉统一组件由 js/status-drawer.js 动态生成 --><script src="js/sidebar.js"></script>
+<script src="js/status-drawer.js"></script>
+<script>
+// ===== 初始化侧边栏 =====
+const role = sessionStorage.getItem('wb_role') || 'manager';
+renderSidebar({ currentPage: 'customers', role });
+
+// ===== 状态配置（与移动端完全对应） =====
+const RS_MAP = {
+  PENDING:             { l: '待触达',   c: 'var(--brand)',  bg: '#eff6ff',          dot: '#2563eb' },
+  FOLLOWING:           { l: '跟进中',   c: '#d97706',       bg: '#fffbeb',          dot: '#f59e0b' },
+  REACHED_INTERESTED:  { l: '有意向',   c: '#059669',       bg: '#ecfdf5',          dot: '#10b981' },
+  REACHED_NO_INTEREST: { l: '无意向',   c: '#6b7280',       bg: '#f3f4f6',          dot: '#9ca3af' },
+  UNREACHED_NO_ANSWER: { l: '触达失败', c: '#dc2626',       bg: '#fef2f2',          dot: '#ef4444' },
+  UNREACHED_REJECTED:  { l: '触达失败', c: '#dc2626',       bg: '#fef2f2',          dot: '#ef4444' },
+  UNREACHED_OTHER:     { l: '触达失败', c: '#dc2626',       bg: '#fef2f2',          dot: '#ef4444' },
+  UNREACHED_EMPTY:     { l: '触达失败', c: '#dc2626',       bg: '#fef2f2',          dot: '#ef4444' },
+};
+const BS_MAP = {
+  NONE:         { l: '',      c: '',         bg: '' },
+  APPLIED:      { l: '已申请', c: '#2563eb',  bg: '#eff6ff' },
+  REVIEWING:    { l: '审批中', c: '#d97706',  bg: '#fffbeb' },
+  APPROVED:     { l: '已授信', c: '#059669',  bg: '#ecfdf5' },
+  DISBURSED:    { l: '已放款', c: '#0891b2',  bg: '#ecfeff' },
+  SETTLED:      { l: '已结清', c: '#6b7280',  bg: '#f3f4f6' },
+  REJECTED_BIZ: { l: '已拒绝', c: '#dc2626',  bg: '#fef2f2' },
+};
+
+// 营销状态二级联动
+const L2_OPTIONS = {
+  '10': ['未接通', '拒绝沟通', '无效号码', '其他原因'],
+  '20': ['利率太高', '已在他行', '近期无需求', '其他原因'],
+  '30': ['意向沟通中', '材料准备中', '等待回复', '多次跟进中'],
+  '40': ['明确有意向', '已预约面谈', '引导申请中'],
+};
+
+// ===== Mock 数据 =====
+const ALL_DATA = [
+  { id:1, name:'苏州智云科技有限公司', uscc:'91320594MA1EXAMPLE1', region: '江苏省/苏州市/工业园区', addr:'苏州市工业园区星湖街5号', rs:'PENDING', bs:'NONE', product:'橙业贷, 厂房贷', nature:'民营企业', honor:'高新技术', intent:'高', risk:'低', batch:'橙业贷20160508', batchSource:'auto', lastContact: '3天前', ds:92, legalPerson: '张三', status: '存续', entityType: '有限责任公司', indCat: '信息传输、软件 and 信息技术服务业', indType: '软件开发', regCap: '1000万人民币', regDate: '2016-05-08' },
+  { id:2, name:'苏州生物医药研究院有限公司', uscc:'91320594MA5EXAMPLE5', region: '江苏省/苏州市/工业园区', addr:'苏州市工业园区独墅湖大道88号', rs:'UNREACHED_NO_ANSWER', bs:'NONE', product:'橙业贷', nature:'外资企业', honor:'独角兽企业', intent:'中', risk:'高', batch:'橙业贷20160508', batchSource:'auto', lastContact: '2天前', ds:81, legalPerson: '李四', status: '存续', entityType: '外商独资', indCat: '科学研究 and 技术服务业', indType: '医学研究 and 试验发展', regCap: '5000万人民币', regDate: '2018-09-12' },
+  { id:3, name:'常州新能源科技股份有限公司', uscc:'91320412MA4EXAMPLE4', region: '江苏省/常州市/武进区', addr:'常州市武进区高新区南区', rs:'REACHED_NO_INTEREST', bs:'NONE', product:'橙业贷, 税务贷', nature:'国有企业', honor:'专精特新', intent:'低', risk:'中', batch:'橙业贷20160509', batchSource:'auto', lastContact: '1天前', ds:72, legalPerson: '王五', status: '存续', entityType: '股份有限公司', indCat: '制造业', indType: '电气机械 and 器材制造业', regCap: '1亿人民币', regDate: '2015-03-20' },
+  { id:4, name:'南京创新智造集团有限公司', uscc:'91320115MA2EXAMPLE2', region: '江苏省/南京市/江宁区', addr:'南京市江宁区将军大道100号', rs:'FOLLOWING', bs:'NONE', product:'厂房贷', nature:'民营企业', honor:'高新技术', intent:'高', risk:'低', batch:'厂房贷20160501', batchSource:'auto', lastContact: '今天', ds:88, legalPerson: '赵六', status: '存续', entityType: '集团公司', indCat: '制造业', indType: '专用设备制造业', regCap: '2亿人民币', regDate: '2010-11-11' },
+  { id:5, name:'苏州纳米智能装备有限公司', uscc:'91320594MA7EXAMPLE7', region: '江苏省/苏州市/高新区', addr:'苏州市高新区科技城锦峰路10号', rs:'REACHED_INTERESTED', bs:'NONE', product:'厂房贷', nature:'合资企业', honor:'瞪羚企业', intent:'高', risk:'低', batch:'厂房贷20160501', batchSource:'auto', lastContact: '1天前', ds:78, legalPerson: '孙七', status: '存续', entityType: '中外合资', indCat: '制造业', indType: '通用设备制造业', regCap: '3000万美元', regDate: '2019-07-01' },
+  { id:6, name:'无锡光电半导体有限公司', uscc:'91320214MA3EXAMPLE3', region: '江苏省/无锡市/新吴区', addr:'无锡市新吴区太湖国际科技园', rs:'REACHED_INTERESTED', bs:'APPLIED', product:'厂房贷, 橙业贷', nature:'民营企业', honor:'高新技术', intent:'高', risk:'中', batch:'厂房贷20160502', batchSource:'auto', lastContact: '今天', ds:95, legalPerson: '周八', status: '存续', entityType: '有限责任公司', indCat: '制造业', indType: '计算机、通信 and 其他电子设备制造业', regCap: '5亿人民币', regDate: '2020-01-15' },
+  { id:7, name:'常州智能制造系统有限公司', uscc:'91320402MAAEXAMPLEC', region: '江苏省/常州市/新北区', addr:'常州市新北区通江南路88号', rs:'FOLLOWING', bs:'REVIEWING', product:'税务贷', nature:'民营企业', honor:'专精特新', intent:'中', risk:'低', batch:'税务贷20160501', batchSource:'auto', lastContact: '5天前', ds:76, legalPerson: '吴九', status: '存续', entityType: '有限责任公司', indCat: '信息传输、软件和信息技术服务业', indType: '软件开发', regCap: '2000万人民币', regDate: '2021-08-08' },
+  { id:8, name:'南京云端数据技术有限公司', uscc:'91320114MA8EXAMPLE8', region: '江苏省/南京市/雨花台区', addr:'南京市雨花台区软件大道1号', rs:'REACHED_INTERESTED', bs:'APPROVED', product:'税务贷', nature:'民营企业', honor:'瞪羚企业', intent:'高', risk:'低', batch:'税务贷20160501', batchSource:'auto', lastContact: '3天前', ds:90, legalPerson: '郑十', status: '存续', entityType: '有限责任公司', indCat: '信息传输、软件和信息技术服务业', indType: '互联网和相关服务', regCap: '8000万人民币', regDate: '2017-05-25' },
+  { id:9, name:'南通精密机械制造有限公司', uscc:'91320602MA6EXAMPLE6', region: '江苏省/南通市/崇川区', addr:'南通市崇川区工农路20号', rs:'FOLLOWING', bs:'DISBURSED', product:'税务贷', nature:'民营企业', honor:'高新技术', intent:'中', risk:'低', batch:'税务贷20160501', batchSource:'auto', lastContact: '2天前', ds:82, legalPerson: '刘一', status: '存续', entityType: '有限责任公司', indCat: '制造业', indType: '通用设备制造业', regCap: '1500万人民币', regDate: '2014-10-10' },
+  { id:10, name:'泰州华科电子科技有限公司', uscc:'91321203MA3EXAMPLED', region: '江苏省/泰州市/高港区', addr:'泰州市高港区科技大道8号', rs:'REACHED_NO_INTEREST', bs:'NONE', product:'橙业贷', nature:'合资企业', honor:'瞪羚企业', intent:'低', risk:'高', batch:'橙业贷20160508', batchSource:'auto', lastContact: '10天前', ds:65, legalPerson: '陈二', status: '注销', entityType: '有限责任公司', indCat: '制造业', indType: '计算机、通信和其他电子设备制造业', regCap: '500万人民币', regDate: '2012-12-12' },
+  { id:11, name:'无锡集成电路设计有限公司', uscc:'91320214MA9EXAMPLEB', region: '江苏省/无锡市/滨湖区', addr:'无锡市滨湖区建筑路300号', rs:'PENDING', bs:'NONE', product:'橙业贷', nature:'国有企业', honor:'高新技术', intent:'中', risk:'中', batch:'橙业贷20160510', batchSource:'auto', lastContact: '暂无跟进', ds:70, legalPerson: '王三', status: '存续', entityType: '国有独资', indCat: '科学研究和技术服务业', indType: '专业技术服务业', regCap: '3亿人民币', regDate: '2008-08-08' },
+  { id:12, name:'扬州苏仪自控系统有限公司', uscc:'91321002MA4EXAMPLEE', region: '江苏省/扬州市/广陵区', addr:'扬州市广陵区新城路12号', rs:'FOLLOWING', bs:'SETTLED', product:'橙业贷', nature:'民营企业', honor:'专精特新', intent:'高', risk:'低', batch:'橙业贷20260615', batchSource:'manual', lastContact: '今天', ds:85, legalPerson: '李梅', status: '存续', entityType: '有限责任公司', indCat: '制造业', indType: '仪器仪表制造业', regCap: '2500万人民币', regDate: '2013-04-18' },
+  { id:13, name:'苏州工业机器人研发有限公司', uscc:'91320594MA2EXAMPLEG', region: '江苏省/苏州市/工业园区', addr:'苏州市工业园区独墅湖大道90号', rs:'REACHED_INTERESTED', bs:'APPLIED', product:'橙业贷', nature:'外资企业', honor:'高新技术', intent:'高', risk:'中', batch:'橙业贷20260615', batchSource:'manual', lastContact: '1天前', ds:93, legalPerson: '张伟', status: '存续', entityType: '外商独资', indCat: '科学研究和技术服务业', indType: '科技推广和应用服务业', regCap: '1000万美元', regDate: '2022-02-22' },
+  { id:14, name:'盐城风电装备制造有限公司', uscc:'91320902MA1EXAMPLEF', region: '江苏省/盐城市/亭湖区', addr:'盐城市亭湖区环保产业园', rs:'UNREACHED_OTHER', bs:'NONE', product:'厂房贷', nature:'国有企业', honor:'无', intent:'低', risk:'低', batch:'厂房贷20160502', batchSource:'auto', lastContact: '7天前', ds:68, legalPerson: '赵云', status: '存续', entityType: '国有控股', indCat: '制造业', indType: '专用设备制造业', regCap: '1.5亿人民币', regDate: '2011-05-15' },
+  { id:15, name:'镇江新材料技术有限公司', uscc:'91321102MA3EXAMPLEH', region: '江苏省/镇江市/京口区', addr:'镇江市京口区学府路66号', rs:'PENDING', bs:'NONE', product:'税务贷', nature:'合资企业', honor:'高新技术', intent:'中', risk:'中', batch:'税务贷20160502', batchSource:'auto', lastContact: '暂无跟进', ds:75, legalPerson: '马超', status: '存续', entityType: '中外合资', indCat: '制造业', indType: '化学原料和化学制品制造业', regCap: '6000万人民币', regDate: '2016-09-09' }
+];
+
+// ===== 筛选状态 =====
+let filterState = { rs: 'ALL', bs: 'ALL', product: 'ALL', batch: 'ALL', quick: '' };
+
+let currentMarkId = null;
+
+// ===== 辅助函数 =====
+function getRsBadge(rs, bs) {
+  // 业务状态优先显示
+  if (bs === 'DISBURSED') return { l: '已放款', c: '#0891b2', bg: '#ecfeff', dot: '#0891b2' };
+  if (bs === 'SETTLED')   return { l: '已结清', c: '#6b7280', bg: '#f3f4f6', dot: '#9ca3af' };
+  if (bs === 'REJECTED_BIZ') return { l: '审批拒绝', c: '#dc2626', bg: '#fef2f2', dot: '#ef4444' };
+  const r = RS_MAP[rs] || RS_MAP.PENDING;
+  const b = BS_MAP[bs];
+  if (bs && bs !== 'NONE' && b && b.l) {
+    return { l: `${r.l} · ${b.l}`, c: r.c, bg: r.bg, dot: r.dot };
+  }
+  return r;
+}
+
+function getBsOnlyBadge(bs) {
+  const b = BS_MAP[bs];
+  if (!b || !b.l) return `<span style="color:var(--gray-300);font-size:12px;">—</span>`;
+  return `<span class="status-badge" style="background:${b.bg};color:${b.c};">${b.l}</span>`;
+}
+
+function isUnreached(rs) { return rs && rs.startsWith('UNREACHED'); }
+
+// ===== 渲染 =====
+function doFilter() {
+  const search = document.getElementById('searchInput').value.trim().toLowerCase();
+  const sort = document.getElementById('sortSelect').value;
+  
+  const fRegion = window.cascaderSelectedDists ? Array.from(window.cascaderSelectedDists) : [];
+  const fContact = document.getElementById('filterContact').value;
+  const fProduct = document.getElementById('filterProduct').value;
+  const fNature = document.getElementById('filterNature').value;
+  const fHonor = document.getElementById('filterHonor').value;
+  const fIntent = document.getElementById('filterIntent').value;
+  const fRisk = document.getElementById('filterRisk').value;
+
+  let list = ALL_DATA.filter(c => {
+    if (search && !c.name.toLowerCase().includes(search) && !c.uscc.toLowerCase().includes(search)) return false;
+    if (filterState.rs !== 'ALL') {
+      if (filterState.rs === 'UNREACHED') {
+        if (!isUnreached(c.rs)) return false;
+      } else {
+        if (c.rs !== filterState.rs) return false;
+      }
+    }
+    if (filterState.bs !== 'ALL' && c.bs !== filterState.bs) return false;
+    if (filterState.batch !== 'ALL' && c.batch !== filterState.batch) return false;
+    if (fRegion.length > 0) {
+      if (!c.addr || !fRegion.some(dist => c.addr.includes(dist))) return false;
+    }
+    if (fContact === '无号码') return false;
+    if (fProduct !== 'ALL' && !c.product.includes(fProduct)) return false;
+    if (fNature !== 'ALL' && c.nature !== fNature) return false;
+    if (fHonor !== 'ALL' && c.honor !== fHonor) return false;
+    if (fIntent !== 'ALL' && c.intent !== fIntent) return false;
+    if (fRisk !== 'ALL' && c.risk !== fRisk) return false;
+    if (filterState.quick === 'high_intent') {
+      if (c.rs !== 'REACHED_INTERESTED' || c.bs !== 'NONE') return false;
+    }
+    if (filterState.quick === 'no_contact') {
+      if (!isUnreached(c.rs)) return false;
+    }
+    return true;
+  });
+
+  if (sort === 'intent_desc') list.sort((a,b) => b.ds - a.ds);
+  else if (sort === 'alloc_desc') list.sort((a,b) => b.id - a.id);
+  else if (sort === 'alloc_asc') list.sort((a,b) => a.id - b.id);
+  else if (sort === 'risk_asc') {
+    const riskMap = { '低': 1, '中': 2, '高': 3 };
+    list.sort((a,b) => (riskMap[a.risk] || 9) - (riskMap[b.risk] || 9));
+  }
+
+  document.getElementById('listCount').textContent = list.length;
+  document.getElementById('intentCount').textContent = list.filter(c => c.rs === 'REACHED_INTERESTED').length;
+  document.getElementById('bizCount').textContent = list.filter(c => c.bs && c.bs !== 'NONE' && c.bs !== 'SETTLED' && c.bs !== 'REJECTED_BIZ').length;
+  document.getElementById('totalBadge').textContent = `${list.length} 家企业`;
+
+  window.filtered = list; renderTable(list);
+
+  
+  document.getElementById('pagination').style.display = list.length > 0 ? 'flex' : 'none';
+}
+
+function resetFilters() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('sortSelect').value = 'default';
+  document.getElementById('filterRegion').value = 'ALL';
+  document.getElementById('filterSource').value = 'ALL';
+  document.getElementById('filterContact').value = 'ALL';
+  document.getElementById('filterProduct').value = 'ALL';
+  document.getElementById('filterNature').value = 'ALL';
+  document.getElementById('filterHonor').value = 'ALL';
+  document.getElementById('filterIntent').value = 'ALL';
+  document.getElementById('filterRisk').value = 'ALL';
+  document.querySelectorAll('.filter-option').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.filter-option[data-val="ALL"]').forEach(el => el.classList.add('active'));
+  filterState = { rs: 'ALL', bs: 'ALL', product: 'ALL', batch: 'ALL', quick: '' };
+  doFilter();
+}
+
+
+
+function toggleAdvFilters() {
+  const panel = document.getElementById('advancedFilters');
+  const arrow = document.getElementById('advFilterArrow');
+  if (panel.style.display === 'none') {
+    panel.style.display = 'block';
+    arrow.style.transform = 'rotate(180deg)';
+  } else {
+    panel.style.display = 'none';
+    arrow.style.transform = 'rotate(0deg)';
+  }
+}
+
+// ==================== 列配置逻辑 ====================
+const allColumns = [
+  { key: 'name', label: '企业名称', fixed: true, default: true },
+  { key: 'uscc', label: '统一社会信用代码', fixed: true, default: true },
+  { key: 'region', label: '区域', fixed: false, default: true },
+  { key: 'product', label: '适配产品', fixed: false, default: true },
+  { key: 'rs', label: '营销状态', fixed: true, default: true },
+  { key: 'bs', label: '业务状态', fixed: true, default: true },
+  { key: 'lastContact', label: '最近跟进', fixed: true, default: true },
+  { key: 'legalPerson', label: '法定代表人', fixed: false, default: false },
+  { key: 'status', label: '企业状态', fixed: false, default: false },
+  { key: 'entityType', label: '实体类型', fixed: false, default: false },
+  { key: 'indCat', label: '行业门类', fixed: false, default: false },
+  { key: 'indType', label: '行业大类', fixed: false, default: false },
+  { key: 'regCap', label: '注册资本', fixed: false, default: false },
+  { key: 'regDate', label: '成立日期', fixed: false, default: false },
+  { key: 'addr', label: '企业住所', fixed: false, default: false },
+  { key: 'action', label: '操作', fixed: true, default: true }
+];
+
+let visibleCols = JSON.parse(localStorage.getItem('wb_list_cols_v2'));
+if (!visibleCols) {
+  visibleCols = allColumns.filter(c => c.fixed || c.default).map(c => c.key);
+} else {
+  // Ensure fixed columns are always included
+  allColumns.forEach(c => {
+    if (c.fixed && !visibleCols.includes(c.key)) {
+      visibleCols.push(c.key);
+    }
+  });
+}
+
+function toggleColPopover(e) {
+  e.stopPropagation();
+  const pop = document.getElementById('colPopover');
+  pop.classList.toggle('show');
+}
+document.addEventListener('click', e => {
+  const pop = document.getElementById('colPopover');
+  if (pop && pop.classList.contains('show') && !e.target.closest('.col-settings')) {
+    pop.classList.remove('show');
+  }
+});
+function initColPopover() {
+  const body = document.getElementById('colPopBody');
+  if(!body) return;
+  let html = '';
+  allColumns.forEach(c => {
+    const isChecked = visibleCols.includes(c.key) ? 'checked' : '';
+    const isFixed = c.fixed ? 'disabled' : '';
+    const fixedStyle = c.fixed ? 'opacity: 0.5; cursor: not-allowed;' : '';
+    html += `<label class="col-pop-item" style="${fixedStyle}">
+      <input type="checkbox" value="${c.key}" ${isChecked} ${isFixed} onchange="onColChange(this)">
+      <span>${c.label}</span>
+    </label>`;
+  });
+  body.innerHTML = html;
+}
+function onColChange(cb) {
+  if (cb.checked) {
+    if (!visibleCols.includes(cb.value)) visibleCols.push(cb.value);
+  } else {
+    visibleCols = visibleCols.filter(v => v !== cb.value);
+  }
+  localStorage.setItem('wb_list_cols_v2', JSON.stringify(visibleCols));
+  renderTable(window.filtered || ALL_DATA);
+}
+function resetColumns() {
+  visibleCols = allColumns.filter(c => c.fixed || c.default).map(c => c.key);
+  localStorage.setItem('wb_list_cols_v2', JSON.stringify(visibleCols));
+  initColPopover();
+  renderTable(window.filtered || ALL_DATA);
+}
+
+// 覆盖原本的 renderTable
+function renderTable(list) {
+  if(!list) list = [];
+  const thead = document.getElementById('tableHead');
+  const tbody = document.getElementById('tableBody');
+  if(!thead || !tbody) return;
+
+  // Render Head
+  let thHtml = '<tr>';
+  thHtml += `<th style="width:50px;text-align:center;">序号</th>`;
+  allColumns.forEach(c => {
+    if (visibleCols.includes(c.key)) {
+      if (c.key === 'action' || c.key === 'rs' || c.key === 'bs') thHtml += `<th style="text-align:center;">${c.label}</th>`;
+      else thHtml += `<th>${c.label}</th>`;
+    }
+  });
+  thHtml += '</tr>';
+  thead.innerHTML = thHtml;
+
+  // Render Body
+  if (list.length === 0) {
+    tbody.innerHTML = '';
+    document.getElementById('emptyState').style.display = 'flex';
+    document.getElementById('tableView').style.display = 'none';
+    return;
+  }
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('tableView').style.display = 'block';
+
+  let tbHtml = '';
+  list.forEach((item, index) => {
+    tbHtml += `<tr>`;
+    tbHtml += `<td style="text-align:center;color:var(--gray-500);">${index + 1}</td>`;
+    allColumns.forEach(c => {
+      if (visibleCols.includes(c.key)) {
+        if (c.key === 'name') tbHtml += `<td><a href="javascript:void(0)" class="table-link" onclick="goDetail(${item.id})">${item.name}</a></td>`;
+        else if (c.key === 'uscc') tbHtml += `<td style="color:var(--gray-500);">${item.uscc || '-'}</td>`;
+        else if (c.key === 'region') tbHtml += `<td>${item.region || '-'}</td>`;
+        else if (c.key === 'legalPerson') tbHtml += `<td style="color:var(--gray-800);">${item.legalPerson || '-'}</td>`;
+        else if (c.key === 'status') tbHtml += `<td>${item.status || '-'}</td>`;
+        else if (c.key === 'entityType') tbHtml += `<td>${item.entityType || '-'}</td>`;
+        else if (c.key === 'indCat') tbHtml += `<td style="max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${item.indCat || ''}">${item.indCat || '-'}</td>`;
+        else if (c.key === 'indType') tbHtml += `<td style="max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${item.indType || ''}">${item.indType || '-'}</td>`;
+        else if (c.key === 'regCap') tbHtml += `<td>${item.regCap || '-'}</td>`;
+        else if (c.key === 'regDate') tbHtml += `<td>${item.regDate || '-'}</td>`;
+        else if (c.key === 'addr') tbHtml += `<td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${item.addr || ''}">${item.addr || '-'}</td>`;
+        else if (c.key === 'product') tbHtml += `<td>${item.product}</td>`;
+        else if (c.key === 'rs') {
+          const r = RS_MAP[item.rs] || { l: '-', c: 'var(--gray-500)', bg: 'var(--gray-100)' };
+          tbHtml += `<td style="text-align:center;"><span class="status-badge" style="background:${r.bg};color:${r.c};">${r.l}</span></td>`;
         }
-
-        // 切换名单
-        function switchList(listId) {
-            currentListId = listId;
-            selectedCustomerIds.clear();
-            updateBatchBar();
-            renderListTabs();
-            updateListInfo();
-            filterCustomers();
+        else if (c.key === 'bs') {
+          const b = BS_MAP[item.bs];
+          if (b && b.l) tbHtml += `<td style="text-align:center;"><span class="status-badge" style="background:${b.bg};color:${b.c};">${b.l}</span></td>`;
+          else tbHtml += `<td style="text-align:center;"><span style="color:var(--gray-300);">-</span></td>`;
         }
+        else if (c.key === 'lastContact') tbHtml += `<td style="color:var(--gray-500);">${item.lastContact}</td>`;
+        else if (c.key === 'action') tbHtml += `<td style="text-align:center;">
+            <div class="action-btns">
+              <button class="action-btn primary" onclick="goDetail(${item.id})">详情</button>
+              <button class="action-btn" onclick="openMarkDrawer(${item.id})">状态</button>
+              <button class="action-btn" onclick="openContactModal(${item.id})">触达</button>
+            </div>
+          </td>`;
+      }
+    });
+    tbHtml += `</tr>`;
+  });
+  tbody.innerHTML = tbHtml;
+}
 
-        // 更新名单信息栏
-        function updateListInfo() {
-            const list = customerLists.find(l => l.id === currentListId);
-            if (!list) return;
+function setView(v) {
+  // dummy to prevent errors from leftover calls
+}
 
-            const infoBar = document.getElementById('listInfoBar');
-            const prodCard = document.getElementById('productInfoCard');
+document.addEventListener('DOMContentLoaded', () => {
+  initColPopover();
+  doFilter();
+});
 
-            if (list.isProduct && list.product) {
-                // 产品推送名单 → 显示产品信息卡
-                infoBar.style.display = 'none';
-                prodCard.style.display = 'block';
 
-                const p = list.product;
-                document.getElementById('prodCardName').textContent = p.name;
-                document.getElementById('prodCardBadge').textContent = `🔄 自动推送 · ${p.freq}`;
-                document.getElementById('prodCardOrg').textContent = p.org;
-                document.getElementById('prodCardType').textContent = p.type;
-                document.getElementById('prodCardScore').textContent = p.score;
-                document.getElementById('prodCardLimit').textContent = p.limit;
-                document.getElementById('prodCardRate').textContent = p.rate;
-                document.getElementById('prodCardLast').textContent = p.lastUpdate;
-                document.getElementById('prodCardNext').textContent = p.nextUpdate;
-                document.getElementById('prodCardSort').textContent = p.sortBy;
-                document.getElementById('prodCardProcess').textContent = p.listProcess;
-                document.getElementById('prodRuleName').textContent = p.rule.name;
-                document.getElementById('prodRuleTags').innerHTML = p.rule.conditions.map(
-                    c => `<span class="rule-tag">${c}</span>`
-                ).join('');
-                document.getElementById('prodExportPerm').textContent = p.allowExport ? '✅ 允许导出' : '🔒 不可导出';
-                document.getElementById('prodVisibleFields').textContent = p.visibleFields.join('、');
+// ===== 筛选 =====
+function setFilter(type, val, el) {
+  filterState[type] = val;
+  // 同组高亮
+  document.querySelectorAll(`[data-filter="${type}"]`).forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+  doFilter();
+}
+function resetAllFilters() {
+  filterState = { rs: 'ALL', bs: 'ALL', product: 'ALL', batch: 'ALL', quick: '' };
+  document.querySelectorAll('.filter-option').forEach(e => {
+    e.classList.remove('active');
+    if (e.dataset.val === 'ALL') e.classList.add('active');
+  });
+  document.getElementById('searchInput').value = '';
+  // 恢复所有的 select
+  document.querySelectorAll('.toolbar-filters select').forEach(sel => {
+    sel.selectedIndex = 0;
+    if(sel.dispatchEvent) sel.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+  if(window.resetRegionCascader) window.resetRegionCascader(null, false);
+  // 还要恢复 Tab 状态为“全部”
+  switchFilterTab('status');
+  doFilter();
+}
 
-                // 下发状态
-                const statusEl = document.getElementById('prodAssignStatus');
-                if (list.assignStatus === '已下发') {
-                    statusEl.textContent = '已下发';
-                    statusEl.className = 'assign-status assigned';
-                } else {
-                    statusEl.textContent = '待下发';
-                    statusEl.className = 'assign-status pending';
-                }
-            } else {
-                // 普通名单 → 显示普通信息栏
-                infoBar.style.display = 'flex';
-                prodCard.style.display = 'none';
+// ===== 导航 =====
+function goDetail(id) { location.href = 'customer-detail.html?id=' + id; }
+function exportData() { document.getElementById('exportModal').style.display = 'flex'; }
+function closeExportModal() { document.getElementById('exportModal').style.display = 'none'; }
+function goToDownloadCenter() { location.href = 'downloads.html'; }
 
-                document.getElementById('listSource').textContent = list.source;
-                document.getElementById('listDate').textContent = list.createdAt;
-                document.getElementById('listDesc').textContent = list.description;
-                const statusEl = document.getElementById('listAssignStatus');
-                if (list.assignStatus === '已下发') {
-                    statusEl.textContent = '已下发';
-                    statusEl.className = 'assign-status assigned';
-                } else if (list.assignStatus === '待下发') {
-                    statusEl.textContent = '待下发';
-                    statusEl.className = 'assign-status pending';
-                } else {
-                    statusEl.textContent = '-';
-                    statusEl.className = 'assign-status';
-                }
-            }
-        }
+// ===== 触达路径弹窗 =====
+function openContactModal(id) {
+  const c = ALL_DATA.find(x => x.id === id);
+  document.getElementById('contactModalTitle').textContent = '触达路径';
+  document.getElementById('contactModalSub').textContent = c ? c.name : '';
+  document.getElementById('contactModal').classList.add('show');
+}
+function closeContactModal() {
+  document.getElementById('contactModal').classList.remove('show');
+}
+function contactTab(el, idx) {
+  document.querySelectorAll('.contact-tab').forEach((t,i) => {
+    t.className = 'contact-tab' + (i === idx ? ' active' : '');
+    document.getElementById('cPane' + i).className = 'contact-pane' + (i === idx ? ' active' : '');
+  });
+}
+function makeCall(phone) {
+  document.getElementById('callModalPhone').innerText = phone;
+  document.getElementById('callModal').classList.add('show');
+}
+function closeCallModal() {
+  document.getElementById('callModal').classList.remove('show');
+}
 
-        // 渲染客户列表
-        function renderCustomerTable(data) {
-            const tbody = document.getElementById('customerTableBody');
-            tbody.innerHTML = data.map(c => `
-                <tr>
-                    <td>
-                        <input type="checkbox" class="table-checkbox" value="${c.id}"
-                            ${selectedCustomerIds.has(c.id) ? 'checked' : ''}
-                            onchange="toggleCustomerSelect(${c.id}, this.checked)">
-                    </td>
-                    <td>
-                        <a href="customer-detail.html?id=${c.id}" class="company-name">${c.name}</a>
-                        <div style="margin-top: 4px;">
-                            ${c.tags.map(tag => `<span class="tag ${getTagClass(tag)}">${tag}</span>`).join('')}
-                        </div>
-                    </td>
-                    <td>${c.region}</td>
-                    <td>${c.industry}</td>
-                    <td>
-                        <span style="font-weight: 600; color: ${c.score >= 750 ? '#52c41a' : c.score >= 700 ? '#1890ff' : '#faad14'}">
-                            ${c.score}
-                        </span>
-                    </td>
-                    <td style="max-width: 200px;">
-                        <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #595959;">
-                            ${c.recommendation}
-                        </div>
-                    </td>
-                    <td>
-                        <span class="status-badge ${getStatusClass(c.status)}">${c.status}</span>
-                    </td>
-                    <td>
-                        <button class="btn btn-text btn-sm" onclick="location.href='customer-detail.html?id=${c.id}'">详情</button>
-                        <button class="btn btn-text btn-sm" onclick="showScriptModal(${c.id})">话术</button>
-                        <button class="btn btn-text btn-sm" onclick="showContactPathModal(${c.id})" style="color:#1890ff;">触达路径</button>
-                        <button class="btn btn-text btn-sm" onclick="showStatusModal(${c.id})">更新</button>
-                    </td>
-                </tr>
-            `).join('');
-            document.getElementById('customerCount').textContent = data.length;
-        }
+// ===== 状态标记抽屉 =====
+// 包装器，适配本地列表调用 window.openStatusDrawer (公共组件)
+function openMarkDrawer(id) {
+  const c = ALL_DATA.find(x => x.id === id);
+  const mktInit = '00'; // 可根据 c.rs 映射
+  const bizInit = c && c.bs && c.bs !== 'ALL' ? c.bs : 'NONE';
+  window.openStatusDrawer(id, c ? c.name : '未知企业', mktInit, bizInit);
+}
 
-        // 展示触达路径模态框 - 使用 contact-config.js 中的共享配置
-        function showContactPathModal(customerId) {
-            const customer = customers.find(c => c.id === customerId);
-            if (!customer) return;
+// ===== ESC关闭 =====
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeContactModal();
+    if(window.closeStatusDrawer) window.closeStatusDrawer();
+  }
+});
+document.getElementById('contactModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('contactModal')) closeContactModal();
+});
 
-            document.getElementById('contactPathModalTitle').textContent = '📞 触达路径推荐 — ' + customer.name;
+// ===== Tab 切换逻辑 =====
+function switchFilterTab(tab) {
+  const statusBtn = document.getElementById('tabStatusBtn');
+  const batchBtn = document.getElementById('tabBatchBtn');
+  const statusContent = document.getElementById('filterTabContentStatus');
+  const batchContent = document.getElementById('filterTabContentBatch');
+  
+  if (tab === 'status') {
+    statusBtn.classList.add('active');
+    batchBtn.classList.remove('active');
+    statusContent.style.display = 'block';
+    batchContent.style.display = 'none';
+  } else {
+    batchBtn.classList.add('active');
+    statusBtn.classList.remove('active');
+    statusContent.style.display = 'none';
+    batchContent.style.display = 'block';
+  }
+}
 
-            // Mock 样例 - 实际接入后替换为 API 返回的 customer.contacts 数组
-            const paths = MOCK_CONTACT_PATHS.map((p, i) => {
-                if (i === 0) return { ...p, contactName: customer.contact.name || '' };
-                return p;
-            });
+// ===== 区域级联多选组件逻辑 =====
+const REGION_DATA = [
+  {
+    name: '江苏省',
+    children: [
+      { name: '苏州市', children: ['工业园区', '高新区', '吴中区', '相城区', '姑苏区'] },
+      { name: '南京市', children: ['玄武区', '秦淮区', '建邺区'] },
+      { name: '南通市', children: ['崇川区', '通州区'] }
+    ]
+  },
+  {
+    name: '浙江省',
+    children: [
+      { name: '杭州市', children: ['西湖区', '上城区', '余杭区'] },
+      { name: '宁波市', children: ['海曙区', '江北区'] }
+    ]
+  }
+];
 
-            const visibleCards = paths.slice(0, 3).map((p, i) => window.buildContactCard(p, i)).join('');
-            const hiddenCards = paths.slice(3).map((p, i) => window.buildContactCard(p, i + 3)).join('');
-            const hiddenCount = paths.length - 3;
+let cascaderState = { provIdx: 0, cityIdx: 0 };
+window.cascaderSelectedDists = new Set();
 
-            document.getElementById('contactPathModalBody').innerHTML = `
-                <div id="modalTabsContainer_${customer.id}">
-                    <div style="display:flex; border-bottom: 1px solid #f0f0f0; margin-bottom: 16px;">
-                        <div class="contact-tab-btn" style="padding: 8px 16px; border-bottom: 2px solid #1890ff; color: #1890ff; font-weight: 500; cursor: pointer;" onclick="window.switchContactTab(this, 'contactsTab_${customer.id}', 'modalTabsContainer_${customer.id}')">🏢 本企直接触达</div>
-                        <div class="contact-tab-btn" style="padding: 8px 16px; color: #595959; font-weight: 500; cursor: pointer;" onclick="window.switchContactTab(this, 'relEnterpriseTab_${customer.id}', 'modalTabsContainer_${customer.id}')">🕸️ 关联企业触达</div>
-                        <div class="contact-tab-btn" style="padding: 8px 16px; color: #595959; font-weight: 500; cursor: pointer;" onclick="window.switchContactTab(this, 'associationTab_${customer.id}', 'modalTabsContainer_${customer.id}')">🔗 行内存量关联</div>
-                    </div>
+function renderCascader() {
+  const colProv = document.getElementById('colProv');
+  const colCity = document.getElementById('colCity');
+  const colDist = document.getElementById('colDist');
+  
+  // Render Prov
+  colProv.innerHTML = REGION_DATA.map((prov, i) => `
+    <div class="cascader-item ${i === cascaderState.provIdx ? 'active' : ''}" onclick="cascaderSetProv(${i}, event)">
+      ${prov.name}
+      <div class="cascader-item-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+    </div>
+  `).join('');
+  
+  // Render City
+  const cities = REGION_DATA[cascaderState.provIdx]?.children || [];
+  colCity.innerHTML = cities.map((city, i) => `
+    <div class="cascader-item ${i === cascaderState.cityIdx ? 'active' : ''}" onclick="cascaderSetCity(${i}, event)">
+      ${city.name}
+      <div class="cascader-item-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+    </div>
+  `).join('');
+  
+  // Render Dist
+  const dists = cities[cascaderState.cityIdx]?.children || [];
+  colDist.innerHTML = dists.map((dist) => `
+    <label class="cascader-checkbox-item" onclick="event.stopPropagation()">
+      <input type="checkbox" value="${dist}" ${window.cascaderSelectedDists.has(dist) ? 'checked' : ''} onchange="cascaderToggleDist('${dist}', this.checked)">
+      ${dist}
+    </label>
+  `).join('');
+  
+  document.getElementById('regionSelCount').textContent = window.cascaderSelectedDists.size;
+}
 
-                    <div id="contactsTab_${customer.id}" class="contact-tab-panel">
-                        <div style="font-size:12px;color:#bfbfbf;margin-bottom:14px;display:flex;align-items:center;gap:6px;">
-                            <span style="display:inline-block;width:4px;height:4px;background:#bfbfbf;border-radius:50%;"></span>
-                            以下角色及排序由系统基于多源数据综合推测，仅供参考
-                        </div>
-                        ${visibleCards}
-                        <div id="moreContactsList_${customer.id}" style="display:none;">
-                            ${hiddenCards}
-                        </div>
-                        <div style="text-align:center;margin:12px 0 20px;">
-                            <a href="javascript:void(0)" data-count="${hiddenCount}" onclick="window.toggleMoreContacts(this,'moreContactsList_${customer.id}')" style="font-size:13px;color:#1890ff;text-decoration:none;padding:6px 20px;background:#f0f5ff;border-radius:16px;display:inline-block;">🔽 展开更多 (${hiddenCount})</a>
-                        </div>
-                    </div>
+function cascaderSetProv(idx, e) {
+  e.stopPropagation();
+  cascaderState.provIdx = idx;
+  cascaderState.cityIdx = 0;
+  renderCascader();
+}
 
-                    <div id="relEnterpriseTab_${customer.id}" class="contact-tab-panel" style="display:none;">
-                        <div style="font-size:12px;color:#bfbfbf;margin-bottom:14px;display:flex;align-items:center;gap:6px;">
-                          <span style="display:inline-block;width:4px;height:4px;background:#bfbfbf;border-radius:50%;"></span>
-                          当本企业无法取得联系时，可尝试通过以下强关联企业建立沟通
-                        </div>
-                        
-                        <div style="padding:14px 16px;background:#fafafa;border:1px solid #f0f0f0;border-radius:10px;margin-bottom:12px;">
-                          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
-                            <div>
-                              <div style="font-size:14px;font-weight:600;color:#262626;">无锡市智云科技有限公司</div>
-                              <div style="font-size:11px;color:#722ed1;margin-top:4px;background:#f9f0ff;display:inline-block;padding:2px 6px;border-radius:4px;border:1px solid #d3adf7;">关联关系：控股股东 (持股65%)</div>
-                            </div>
-                            <button style="background:#fff;border:1px solid #d9d9d9;color:#595959;border-radius:4px;padding:3px 10px;font-size:12px;cursor:pointer;" onclick="alert('即将跳转至该企业画像页')">查看画像</button>
-                          </div>
-                          <div style="border-top:1px dashed #e8e8e8;padding-top:10px;">
-                            <div style="display:flex;align-items:center;gap:10px;font-size:14px;">
-                               <span style="color:#1890ff;font-weight:600;">139****8888</span>
-                               <span style="cursor:pointer;opacity:0.5;font-size:13px;" onclick="window.togglePhone(this, '139****8888', '13988888888')">👁️</span>
-                               <span style="font-size:11px;background:#e6f7ff;color:#1890ff;padding:2px 6px;border-radius:4px;border:1px solid #91d5ff;">[企业法人/实控人] 李总</span>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div style="padding:14px 16px;background:#fafafa;border:1px solid #f0f0f0;border-radius:10px;margin-bottom:12px;">
-                          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
-                            <div>
-                              <div style="font-size:14px;font-weight:600;color:#262626;">苏州工业园区智云软件服务中心</div>
-                              <div style="font-size:11px;color:#fa8c16;margin-top:4px;background:#fff7e6;display:inline-block;padding:2px 6px;border-radius:4px;border:1px solid #ffd591;">关联关系：同法定代表人</div>
-                            </div>
-                            <button style="background:#fff;border:1px solid #d9d9d9;color:#595959;border-radius:4px;padding:3px 10px;font-size:12px;cursor:pointer;" onclick="alert('即将跳转至该企业画像页')">查看画像</button>
-                          </div>
-                          <div style="border-top:1px dashed #e8e8e8;padding-top:10px;">
-                            <div style="display:flex;align-items:center;gap:10px;font-size:14px;">
-                               <span style="color:#262626;font-weight:600;">0512-6888****</span>
-                               <span style="cursor:pointer;opacity:0.5;font-size:13px;" onclick="window.togglePhone(this, '0512-6888****', '0512-68889999')">👁️</span>
-                               <span style="font-size:11px;background:#f5f5f5;color:#8c8c8c;padding:2px 6px;border-radius:4px;border:1px solid #d9d9d9;">[工商预留固话]</span>
-                            </div>
-                          </div>
-                        </div>
-                    </div>
+function cascaderSetCity(idx, e) {
+  e.stopPropagation();
+  cascaderState.cityIdx = idx;
+  renderCascader();
+}
 
-                    <div id="associationTab_${customer.id}" class="contact-tab-panel" style="display:none;">
-                        <div style="font-size:12px;color:#bfbfbf;margin-bottom:14px;display:flex;align-items:center;gap:6px;">
-                          <span style="display:inline-block;width:4px;height:4px;background:#bfbfbf;border-radius:50%;"></span>
-                          关联关系由系统基于股权、法人、担保等维度自动匹配，仅供参考
-                        </div>
-                        <div style="background:linear-gradient(135deg,#e6f7ff 0%,#f0f5ff 100%);border:1px solid #91d5ff;border-radius:10px;padding:14px 16px;">
-                            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-                                <span style="width:36px;height:36px;background:#1890ff;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:600;flex-shrink:0;">关</span>
-                                <div>
-                                    <div style="font-size:14px;font-weight:600;color:#262626;">苏州创芯微电子有限公司</div>
-                                    <div style="font-size:11px;color:#8c8c8c;margin-top:2px;">行内授信客户 · 贷款余额 800万 · 客户经理：王强</div>
-                                </div>
-                            </div>
-                            <div style="background:#fff;border-radius:8px;padding:10px 12px;font-size:12px;color:#595959;line-height:1.6;">
-                                <div style="margin-bottom:4px;"><b>关联关系：</b>该企业法人 <span style="color:#1890ff;">张明</span> 同时担任行内存量客户的股东（持股32%）</div>
-                                <div><b>触达建议：</b>可通过存量客户的客户经理王强引荐，或以关联企业授信为切入点沟通。</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            openModal('contactPathModal');
-        }
+function cascaderToggleDist(dist, checked) {
+  if(checked) window.cascaderSelectedDists.add(dist);
+  else window.cascaderSelectedDists.delete(dist);
+  document.getElementById('regionSelCount').textContent = window.cascaderSelectedDists.size;
+}
 
-        // 筛选客户
-        function filterCustomers() {
-            const status = document.getElementById('filterStatus').value;
-            const industry = document.getElementById('filterIndustry').value;
-            const search = document.getElementById('searchInput').value.toLowerCase();
+window.toggleRegionCascader = function(e) {
+  e.stopPropagation();
+  const dropdown = document.getElementById('regionCascaderDropdown');
+  const display = document.getElementById('regionCascaderDisplay');
+  const isShowing = dropdown.style.display === 'flex';
+  
+  // 关闭所有的 sidebar 模拟 select
+  document.querySelectorAll('.custom-singleselect-dropdown.show').forEach(el => el.classList.remove('show'));
+  document.querySelectorAll('.custom-singleselect-display.focus').forEach(el => el.classList.remove('focus'));
+  
+  if (isShowing) {
+    dropdown.style.display = 'none';
+    display.classList.remove('focus');
+  } else {
+    dropdown.style.display = 'flex';
+    display.classList.add('focus');
+    renderCascader();
+  }
+};
 
-            let filtered = customers.filter(c => {
-                // 名单筛选
-                if (currentListId !== 'all' && c.listId !== currentListId) return false;
-                if (status && c.status !== status) return false;
-                if (industry && c.industry !== industry) return false;
-                if (search && !c.name.toLowerCase().includes(search)) return false;
-                return true;
-            });
+window.resetRegionCascader = function(e, triggerFilter = true) {
+  if (e) e.stopPropagation();
+  window.cascaderSelectedDists.clear();
+  renderCascader();
+  document.getElementById('regionCascaderText').textContent = '区域';
+  document.getElementById('regionCascaderText').style.color = '';
+  document.getElementById('regionCascaderText').style.fontWeight = '';
+  if (triggerFilter) doFilter();
+};
 
-            renderCustomerTable(filtered);
-        }
+window.confirmRegionCascader = function(e) {
+  e.stopPropagation();
+  document.getElementById('regionCascaderDropdown').style.display = 'none';
+  document.getElementById('regionCascaderDisplay').classList.remove('focus');
+  const count = window.cascaderSelectedDists.size;
+  const txt = document.getElementById('regionCascaderText');
+  if (count > 0) {
+    txt.textContent = `已选区域 (${count})`;
+    txt.style.color = 'var(--brand)';
+    txt.style.fontWeight = '600';
+  } else {
+    txt.textContent = '区域';
+    txt.style.color = '';
+    txt.style.fontWeight = '';
+  }
+  doFilter();
+};
 
-        // 勾选/取消单个客户
-        function toggleCustomerSelect(id, checked) {
-            if (checked) {
-                selectedCustomerIds.add(id);
-            } else {
-                selectedCustomerIds.delete(id);
-            }
-            updateBatchBar();
-        }
+document.addEventListener('click', e => {
+  if (!e.target.closest('#regionCascader')) {
+    const dropdown = document.getElementById('regionCascaderDropdown');
+    const display = document.getElementById('regionCascaderDisplay');
+    if (dropdown) dropdown.style.display = 'none';
+    if (display) display.classList.remove('focus');
+  }
+});
 
-        // 全选/取消全选
-        function toggleSelectAll(checkbox) {
-            const checkboxes = document.querySelectorAll('#customerTableBody .table-checkbox');
-            checkboxes.forEach(cb => {
-                cb.checked = checkbox.checked;
-                const id = parseInt(cb.value);
-                if (checkbox.checked) {
-                    selectedCustomerIds.add(id);
-                } else {
-                    selectedCustomerIds.delete(id);
-                }
-            });
-            // 同步表头复选框
-            document.getElementById('headerCheckbox').checked = checkbox.checked;
-            updateBatchBar();
-        }
-
-        // 更新批量操作栏
-        function updateBatchBar() {
-            const bar = document.getElementById('batchBar');
-            const count = selectedCustomerIds.size;
-            document.getElementById('selectedCount').textContent = count;
-            if (count > 0) {
-                bar.classList.add('show');
-            } else {
-                bar.classList.remove('show');
-            }
-        }
-
-        // 取消选择
-        function cancelSelection() {
-            selectedCustomerIds.clear();
-            document.querySelectorAll('.table-checkbox').forEach(cb => cb.checked = false);
-            updateBatchBar();
-        }
-
-        // 批量移出
-        function batchRemove() {
-            if (currentListId === 'all') {
-                showToast('⚠️ 不能从"全部客户"中移除');
-                return;
-            }
-            showToast(`✅ 已将 ${selectedCustomerIds.size} 家企业移出名单`);
-            cancelSelection();
-        }
-
-        // ========== 名单下发 - 多步骤向导 ==========
-        let assignStep = 1;
-        let selectedStrategy = 'manual';
-        let selectedTargets = new Set();
-
-        // Mock 人员数据
-        const assignTargets = [
-            { id: 'branch1', type: 'branch', name: '科技支行 - 园区网点', icon: '🏢', region: '苏州工业园区', managers: ['朱某人', '李明'], currentLoad: 156, capacity: 200, monthDone: 12 },
-            { id: 'branch2', type: 'branch', name: '科技支行 - 高新区网点', icon: '🏢', region: '苏州高新区', managers: ['王芳', '张伟'], currentLoad: 98, capacity: 200, monthDone: 9 },
-            { id: 'mgr1', type: 'manager', name: '朱某人', icon: '👤', region: '苏州工业园区', branch: '园区网点', currentLoad: 86, capacity: 100, monthDone: 12 },
-            { id: 'mgr2', type: 'manager', name: '王芳', icon: '👤', region: '苏州高新区', branch: '高新区网点', currentLoad: 48, capacity: 100, monthDone: 9 },
-            { id: 'mgr3', type: 'manager', name: '李明', icon: '👤', region: '苏州工业园区', branch: '园区网点', currentLoad: 70, capacity: 100, monthDone: 7 },
-            { id: 'mgr4', type: 'manager', name: '张伟', icon: '👤', region: '南京江宁区', branch: '高新区网点', currentLoad: 50, capacity: 100, monthDone: 6 },
-        ];
-
-        // 打开下发弹窗
-        function openAssignModal() {
-            assignStep = 1;
-            selectedStrategy = 'manual';
-            selectedTargets.clear();
-            updateAssignStepUI();
-            openModal('assignModal');
-        }
-
-        // 关闭下发弹窗
-        function closeAssignModal() {
-            closeModal('assignModal');
-        }
-
-        // 选择分配策略
-        function selectStrategy(el, strategy) {
-            document.querySelectorAll('.strategy-card').forEach(c => c.classList.remove('selected'));
-            el.classList.add('selected');
-            selectedStrategy = strategy;
-        }
-
-        // 下一步
-        function assignNextStep() {
-            if (assignStep === 1) {
-                assignStep = 2;
-                selectedTargets.clear();
-                renderTargetList();
-            } else if (assignStep === 2) {
-                // 验证：手动指定需要至少选1个，批量策略至少选2个经理
-                if (selectedStrategy === 'manual' && selectedTargets.size === 0) {
-                    showToast('⚠️ 请选择一个下发目标');
-                    return;
-                }
-                if (selectedStrategy !== 'manual' && selectedTargets.size < 2) {
-                    showToast('⚠️ 批量分配至少需要选择2名客户经理');
-                    return;
-                }
-                assignStep = 3;
-                renderPreview();
-            } else if (assignStep === 3) {
-                confirmAssign();
-                return;
-            }
-            updateAssignStepUI();
-        }
-
-        // 上一步
-        function assignPrevStep() {
-            if (assignStep > 1) {
-                assignStep--;
-                updateAssignStepUI();
-            }
-        }
-
-        // 更新步骤UI
-        function updateAssignStepUI() {
-            // 步骤指示器
-            for (let i = 1; i <= 3; i++) {
-                const indicator = document.getElementById('stepIndicator' + i);
-                indicator.className = 'assign-step';
-                if (i < assignStep) indicator.classList.add('done');
-                else if (i === assignStep) indicator.classList.add('active');
-            }
-            document.getElementById('stepLine1').className = assignStep > 1 ? 'step-line done' : 'step-line';
-            document.getElementById('stepLine2').className = assignStep > 2 ? 'step-line done' : 'step-line';
-
-            // 步骤内容
-            for (let i = 1; i <= 3; i++) {
-                document.getElementById('assignStep' + i).className = 'assign-step-content' + (i === assignStep ? ' active' : '');
-            }
-
-            // 按钮
-            document.getElementById('assignBackBtn').style.display = assignStep > 1 ? '' : 'none';
-            const nextBtn = document.getElementById('assignNextBtn');
-            if (assignStep === 3) {
-                nextBtn.textContent = '✅ 确认下发';
-            } else {
-                nextBtn.textContent = '下一步';
-            }
-        }
-
-        // 渲染目标人员列表
-        function renderTargetList() {
-            const container = document.getElementById('targetListContainer');
-            const hint = document.getElementById('step2Hint');
-
-            if (selectedStrategy === 'manual') {
-                hint.textContent = '选择一个下发目标（网点或客户经理），将整个名单交给其跟进：';
-                const allTargets = assignTargets;
-                container.innerHTML = `
-                    <div class="target-section-title">🏢 支行网点</div>
-                    <div class="target-check-list">
-                        ${allTargets.filter(t => t.type === 'branch').map(t => `
-                            <div class="target-check-item" onclick="toggleManualTarget(this, '${t.id}')">
-                                <input type="radio" name="manualTarget">
-                                <div class="target-info">
-                                    <div class="target-name">${t.icon} ${t.name}</div>
-                                    <div class="target-meta">覆盖${t.region}，${t.managers.length}名客户经理</div>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                    <div class="target-section-title">👤 客户经理</div>
-                    <div class="target-check-list">
-                        ${allTargets.filter(t => t.type === 'manager').map(t => {
-                    const loadPct = Math.round(t.currentLoad / t.capacity * 100);
-                    const loadClass = loadPct < 60 ? 'workload-light' : loadPct < 85 ? 'workload-medium' : 'workload-heavy';
-                    return `
-                            <div class="target-check-item" onclick="toggleManualTarget(this, '${t.id}')">
-                                <input type="radio" name="manualTarget">
-                                <div class="target-info">
-                                    <div class="target-name">${t.icon} ${t.name}（${t.branch}）</div>
-                                    <div class="target-meta">管理 ${t.currentLoad} 家客户 · 本月完成 ${t.monthDone} 笔</div>
-                                    <div class="target-workload ${loadClass}">负载 ${loadPct}%</div>
-                                </div>
-                            </div>
-                            `;
-                }).join('')}
-                    </div>
-                `;
-            } else {
-                // 批量分配模式：只能选客户经理，可多选
-                const managers = assignTargets.filter(t => t.type === 'manager');
-                const strategyName = { random: '随机平均', region: '按区域就近', workload: '按负载均衡' }[selectedStrategy];
-                hint.textContent = `选择参与「${strategyName}」分配的客户经理（至少2人）：`;
-                container.innerHTML = `
-                    <div class="target-check-list">
-                        ${managers.map(t => {
-                    const loadPct = Math.round(t.currentLoad / t.capacity * 100);
-                    const loadClass = loadPct < 60 ? 'workload-light' : loadPct < 85 ? 'workload-medium' : 'workload-heavy';
-                    return `
-                            <div class="target-check-item" onclick="toggleBatchTarget(this, '${t.id}')">
-                                <input type="checkbox">
-                                <div class="target-info">
-                                    <div class="target-name">${t.icon} ${t.name}（${t.branch}）</div>
-                                    <div class="target-meta">
-                                        管辖区域：${t.region} · 当前 ${t.currentLoad} 家客户 · 本月 ${t.monthDone} 笔
-                                    </div>
-                                    <div class="target-workload ${loadClass}">负载 ${loadPct}%</div>
-                                </div>
-                            </div>
-                            `;
-                }).join('')}
-                    </div>
-                `;
-            }
-        }
-
-        // 手动指定 - 单选
-        function toggleManualTarget(el, id) {
-            document.querySelectorAll('.target-check-item').forEach(item => {
-                item.classList.remove('selected');
-                const input = item.querySelector('input');
-                if (input) input.checked = false;
-            });
-            el.classList.add('selected');
-            el.querySelector('input').checked = true;
-            selectedTargets.clear();
-            selectedTargets.add(id);
-        }
-
-        // 批量分配 - 多选
-        function toggleBatchTarget(el, id) {
-            const input = el.querySelector('input[type="checkbox"]');
-            if (selectedTargets.has(id)) {
-                selectedTargets.delete(id);
-                el.classList.remove('selected');
-                input.checked = false;
-            } else {
-                selectedTargets.add(id);
-                el.classList.add('selected');
-                input.checked = true;
-            }
-        }
-
-        // 渲染预览
-        function renderPreview() {
-            // 获取当前名单的客户
-            let listCustomers = currentListId === 'all' ? [...customers] : customers.filter(c => c.listId === currentListId);
-            const targetArray = Array.from(selectedTargets).map(id => assignTargets.find(t => t.id === id)).filter(Boolean);
-
-            let distribution = []; // { target, customers[] }
-
-            if (selectedStrategy === 'manual') {
-                // 手动指定整个名单给一个目标
-                distribution = [{ target: targetArray[0], customers: listCustomers }];
-            } else if (selectedStrategy === 'random') {
-                // 随机打散后均匀分配
-                const shuffled = listCustomers.sort(() => Math.random() - 0.5);
-                distribution = targetArray.map(t => ({ target: t, customers: [] }));
-                shuffled.forEach((c, i) => {
-                    distribution[i % distribution.length].customers.push(c);
-                });
-            } else if (selectedStrategy === 'region') {
-                // 按区域匹配
-                distribution = targetArray.map(t => ({ target: t, customers: [] }));
-                listCustomers.forEach(c => {
-                    const matched = distribution.find(d => c.region && c.region.includes(d.target.region.substring(0, 2)));
-                    if (matched) {
-                        matched.customers.push(c);
-                    } else {
-                        // 没匹配到的随机分
-                        distribution[Math.floor(Math.random() * distribution.length)].customers.push(c);
-                    }
-                });
-            } else if (selectedStrategy === 'workload') {
-                // 按负载均衡 - 负载低的多分
-                distribution = targetArray.map(t => ({
-                    target: t,
-                    customers: [],
-                    availableCapacity: t.capacity - t.currentLoad
-                }));
-                const totalCapacity = distribution.reduce((s, d) => s + Math.max(d.availableCapacity, 1), 0);
-                // 按可用容量比例分配
-                let remaining = [...listCustomers];
-                distribution.forEach((d, idx) => {
-                    const ratio = Math.max(d.availableCapacity, 1) / totalCapacity;
-                    const count = idx === distribution.length - 1 ? remaining.length : Math.round(listCustomers.length * ratio);
-                    d.customers = remaining.splice(0, count);
-                });
-                // 兜底
-                if (remaining.length > 0) distribution[0].customers.push(...remaining);
-            }
-
-            // 渲染统计
-            const totalCustomers = listCustomers.length;
-            const totalManagers = distribution.length;
-            const avgPerPerson = totalManagers > 0 ? Math.round(totalCustomers / totalManagers) : 0;
-            const strategyNames = { manual: '🎯 手动指定', random: '🎲 随机平均', region: '📍 区域就近', workload: '⚖️ 负载均衡' };
-
-            document.getElementById('previewSummary').innerHTML = `
-                <div class="preview-stat">
-                    <div class="stat-value">${totalCustomers}</div>
-                    <div class="stat-label">待分配企业</div>
-                </div>
-                <div class="preview-stat">
-                    <div class="stat-value">${totalManagers}</div>
-                    <div class="stat-label">分配对象</div>
-                </div>
-                <div class="preview-stat">
-                    <div class="stat-value">${strategyNames[selectedStrategy]}</div>
-                    <div class="stat-label">分配策略</div>
-                </div>
-            `;
-
-            // 渲染表格
-            const colors = ['#1890ff', '#52c41a', '#722ed1', '#fa8c16', '#eb2f96', '#13c2c2'];
-            document.getElementById('previewTableBody').innerHTML = distribution.map((d, i) => {
-                const pct = totalCustomers > 0 ? Math.round(d.customers.length / totalCustomers * 100) : 0;
-                const names = d.customers.slice(0, 3).map(c => c.name.substring(0, 4) + '..').join('、');
-                const more = d.customers.length > 3 ? ` 等${d.customers.length}家` : '';
-                return `
-                    <tr>
-                        <td>
-                            <div class="person-avatar">
-                                <div class="avatar-circle" style="background: ${colors[i % colors.length]}">${d.target.name.charAt(0)}</div>
-                                <span>${d.target.name}</span>
-                            </div>
-                        </td>
-                        <td><strong>${d.customers.length}</strong> 家</td>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <div class="preview-bar">
-                                    <div class="preview-bar-fill" style="width: ${pct}%; background: ${colors[i % colors.length]};"></div>
-                                </div>
-                                <span>${pct}%</span>
-                            </div>
-                        </td>
-                        <td style="font-size: 12px; color: #8c8c8c; max-width: 180px;">${names}${more}</td>
-                    </tr>
-                `;
-            }).join('');
-
-            // 预览截止日期和说明
-            document.getElementById('previewDeadline').textContent = document.getElementById('assignDeadline').value || '未设置';
-            document.getElementById('previewNote').textContent = document.getElementById('assignNote').value || '无';
-        }
-
-        // 确认下发
-        function confirmAssign() {
-            closeAssignModal();
-            const strategyNames = { manual: '手动指定', random: '随机平均分配', region: '按区域就近分配', workload: '按负载均衡分配' };
-            showToast(`✅ 名单已通过「${strategyNames[selectedStrategy]}」成功下发！`);
-
-            // 更新当前名单状态
-            if (currentListId !== 'all') {
-                const list = customerLists.find(l => l.id === currentListId);
-                if (list) {
-                    list.assignStatus = '已下发';
-                    updateListInfo();
-                }
-            }
-        }
-
-        // Toast提示
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = 'toast show success';
-            setTimeout(() => {
-                toast.className = 'toast';
-            }, 2500);
-        }
-
-        // 页面加载
-        document.addEventListener('DOMContentLoaded', function () {
-            renderListTabs();
-            updateListInfo();
-
-            // 检查URL参数
-            const urlParams = new URLSearchParams(window.location.search);
-            const statusParam = urlParams.get('status');
-            const listParam = urlParams.get('list');
-            if (listParam) {
-                currentListId = listParam;
-                renderListTabs();
-                updateListInfo();
-            }
-            if (statusParam) {
-                document.getElementById('filterStatus').value = statusParam;
-            }
-            filterCustomers();
-        });
-    </script>
+// ===== 初始渲染 =====
+renderCascader();
+doFilter();
+</script>
+<!-- 导出弹窗 -->
+<div id="exportModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:999999; align-items:center; justify-content:center;">
+  <div class="modal-content" style="background:#fff; width:400px; border-radius:8px; padding:24px; box-shadow:0 4px 12px rgba(0,0,0,0.15); position:relative;">
+    <div style="position:absolute; top:16px; right:16px; cursor:pointer; color:#999; transition:color 0.2s;" onclick="closeExportModal()" onmouseover="this.style.color='#333'" onmouseout="this.style.color='#999'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#52c41a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+      <h3 style="margin:0; font-size:16px; color:#262626;">导出任务已提交</h3>
+    </div>
+    <div style="margin-bottom:24px; color:#595959; font-size:14px; padding-left:36px;">
+      后台正在为您生成导出文件，请稍后前往「下载中心」查看和下载。
+    </div>
+    <div style="display:flex; justify-content:flex-end; gap:12px;">
+      <button class="btn btn-default" onclick="closeExportModal()">我知道了</button>
+      <button class="btn btn-primary" onclick="goToDownloadCenter()">前往下载中心</button>
+    </div>
+  </div>
+</div>
+<!-- 拨号弹窗 -->
+<div class="modal-overlay" id="callModal">
+  <div class="modal" style="max-width: 400px;">
+    <div class="modal-header">
+      <span class="modal-title">系统提示</span>
+      <button class="modal-close" onclick="closeCallModal()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <div class="modal-body" style="padding:40px 24px; text-align:center;">
+      <div style="width:64px;height:64px;border-radius:50%;background:#eff6ff;color:var(--brand);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+      </div>
+      <div style="font-size:16px;color:var(--gray-600);margin-bottom:8px;">即将拨打真实号码</div>
+      <div style="font-size:28px;font-weight:700;font-family:monospace;color:var(--gray-900);margin-bottom:12px;" id="callModalPhone"></div>
+      <div style="font-size:13px;color:var(--gray-400);">（演示模式，实际部署后将直接拉起外呼终端）</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeCallModal()">取消</button>
+      <button class="btn btn-primary" onclick="closeCallModal()">确认呼出</button>
+    </div>
+  </div>
+</div>
 </body>
-
 </html>

@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>获客智能体管理 - 智能营销平台</title>
+  <meta name="description" content="配置获客智能体规则引擎，管理名单批次与白名单快照">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* === 主列表：全宽单栏 === */
+    .agents-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .agents-search-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      background: var(--bg-card);
+      transition: border-color 0.2s;
+      min-width: 220px;
+    }
+
+    .agents-search-box:focus-within {
+      border-color: var(--brand);
+    }
+
+    .agents-search-box input {
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 13px;
+      color: var(--gray-900);
+      flex: 1;
+    }
+
+    .agents-search-box svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      color: var(--gray-400);
+      flex-shrink: 0;
+    }
+
+    .agent-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(460px, 1fr));
+      gap: 24px;
+    }
+
+    /* 主列表卡片 */
+    .agent-main-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .agent-main-card:hover {
+      border-color: var(--brand);
+      box-shadow: 0 4px 20px rgba(37, 99, 235, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .create-card:hover {
+      border-color: var(--brand) !important;
+      background: rgba(37, 99, 235, 0.02) !important;
+    }
+
+    .create-card:hover .cc-icon {
+      background: rgba(37, 99, 235, 0.1) !important;
+      color: var(--brand) !important;
+    }
+
+    .agent-main-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+    }
+
+    .agent-main-card.running::before {
+      background: #2563eb;
+    }
+
+    .agent-main-card.paused::before {
+      background: #d97706;
+    }
+
+    .agent-main-card.draft::before {
+      background: #9ca3af;
+    }
+
+    .amc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+        <h1 class="page-title">获客智能体管理</h1>
+        <p class="page-breadcrumb">
+          <a href="index.html">工作台</a><span class="sep">/</span>系统配置<span class="sep">/</span>获客智能体管理
+        </p>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <button class="btn btn-default" onclick="openImportModal()" style="display:inline-flex;align-items:center;gap:6px;white-space:nowrap;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;flex-shrink:0;display:block;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          手工导入名单
+    </div>
+
+    <!-- KPI 汇总 -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">已配置智能体</div>
+        <div class="kpi-value">4 <span class="kpi-suffix">个</span></div>
+      </div>
+      <div class="kpi-card featured">
+        <div class="kpi-label">本月生成批次名单</div>
+
+    .amc-body {
+      width: 100%;
+      margin-bottom: 24px;
+      flex: 1;
+    }
+
+    .amc-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .amc-sub {
+      font-size: 13px;
+      color: var(--gray-500);
+      line-height: 1.6;
+    }
+
+    .amc-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      width: 100%;
+      padding-top: 20px;
+      border-top: 1px dashed var(--gray-200);
+    }
+
+    .amc-stat {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .amc-stat .sv {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--gray-900);
+    }
+
+    .amc-stat .sk {
+      font-size: 12px;
+      color: var(--gray-500);
+      margin-bottom: 4px;
+    }
+
+    .amc-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* 详情抽屉内部Tab */
+    .detail-tabs {
+      display: flex;
+      border-bottom: 2px solid var(--gray-100);
+      margin-bottom: 20px;
+      flex-shrink: 0;
+    }
+
+    .detail-tab {
+      padding: 10px 18px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--gray-500);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .detail-tab:hover {
+      color: var(--brand);
+    }
+
+    .detail-tab.active {
+      color: var(--brand);
+      border-bottom-color: var(--brand);
+      font-weight: 600;
+    }
+
+    /* 详情抽屉头部 */
+    .detail-drawer-header {
+      padding: 18px 22px 14px;
+      border-bottom: 1px solid var(--gray-100);
+      flex-shrink: 0;
+    }
+
+    .detail-drawer-agent-info {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+
+    .detail-drawer-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .detail-drawer-icon svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .detail-drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 22px;
+    }
+
+    .detail-drawer-body::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .detail-drawer-body::-webkit-scrollbar-thumb {
+      background: var(--gray-200);
+      border-radius: 4px;
+    }
+
+    /* 其余复用样式 */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 15px 18px;
+    }
+
+    .kpi-card.featured {
+      background: var(--brand-light);
+      border-color: var(--brand);
+    }
+
+    .kpi-card .kpi-label {
+      font-size: 12px;
+      color: var(--gray-500);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .kpi-card.featured .kpi-label {
+      color: var(--brand);
+    }
+
+    .kpi-card .kpi-value {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--gray-900);
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .kpi-card.featured .kpi-value {
+      color: var(--brand);
+    }
+
+    .kpi-card .kpi-suffix {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--gray-400);
+    }
+
+    .batch-source-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+
+    .batch-source-tag.auto {
+      background: #eff6ff;
+      color: #2563eb;
+    }
+
+    .batch-source-tag.manual {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--gray-100);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title::before {
+      content: '';
+      display: block;
+      width: 4px;
+      height: 15px;
+      background: var(--gray-400);
+      border-radius: 2px;
+    }
+
+    .section-title svg {
+      display: none;
+    }
+
+    .day-tag {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      font-size: 13px;
+      color: var(--gray-700);
+      background: #fff;
+      border-radius: 6px;
+        <div style="background:var(--gray-50);border-radius:9px;padding:12px 14px;border:1px solid var(--border);margin-bottom:16px;font-size:12.5px;color:var(--gray-600);line-height:1.8;">
+          <strong style="color:var(--gray-900);">什么是白名单快照？</strong><br>
+          将<strong>全量规则过筛后</strong>所有符合条件的企业生成一份快照，同步给银行用于<strong>对账分润</strong>。部分银行要求后续各批次名单必须在白名单内，超范围不计佣金。可下载 Excel 手动发送给银行侧。
+        </div>
+        <div class="form-group">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13.5px;cursor:pointer;margin-bottom:16px;">
+            <input type="checkbox" id="f-enableWhitelist" onchange="toggleWhitelistConfig()">
+            <strong>启用白名单同步</strong>（全量过筛结果生成可下载的快照文件）
+          </label>
+        </div>
+        <div id="whitelistConfig" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px;">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">白名单更新周期</label>
+              <select class="form-control" id="f-wlCycle">
+                <option value="3m">每 3 个月更新一次</option>
+                <option value="6m">每 6 个月更新一次</option>
+                <option value="once">一次性（跑出后不再更新）</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">约束模式</label>
+              <select class="form-control" id="f-wlMode">
+                <option value="strict">严格模式（批次名单必须在白名单内）</option>
+                <option value="loose">宽松模式（不强制约束，按批次直接输出）</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">快照保留版本数</label>
+              <select class="form-control" id="f-wlRetain">
+                <option value="3">保留最近 3 个版本</option>
+                <option value="6">保留最近 6 个版本</option>
+                <option value="12">保留最近 12 个版本</option>
+                <option value="-1">永久保留（不删除）</option>
+              </select>
+            </div>
+          </div>
+          <div style="font-size:12.5px;color:var(--gray-500);line-height:1.8;padding:10px 14px;background:var(--brand-light);border-radius:8px;border:1px solid var(--brand-border, #bfdbfe);">
+            ⓘ 多次快照之间，企业按统一社会信用代码<strong>取并集后去重</strong>；手工导入的名单在严格模式下超出白名单范围的企业会标记警告；超过保留版本数的旧快照文件自动归档。
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5: 字段展示配置 -->
+      <div id="wpage-4" style="display:none;">
+        <div class="section-title">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+          客户名单展示字段配置
+        </div>
+        <p style="font-size:12.5px;color:var(--gray-500);margin-bottom:16px;line-height:1.7;">
+          控制在<strong>客户名单页</strong>展示哪些字段列。灰色为系统必显字段，不可取消。配置后自动同步至该智能体对应的批次名单列表。
+        </p>
+        <div style="background:var(--gray-50);border-radius:10px;padding:16px;border:1px solid var(--border);">
+          <div style="font-size:12px;font-weight:700;color:var(--gray-400);margin-bottom:10px;letter-spacing:0.5px;">系统必显字段（不可取消）</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px;">
+            <div style="display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:7px;background:#fff;border:1.5px solid var(--brand);opacity:0.65;font-size:13px;color:var(--brand);font-weight:600;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>企业名称
+            </div>
+            <div style="display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:7px;background:#fff;border:1.5px solid var(--brand);opacity:0.65;font-size:13px;color:var(--brand);font-weight:600;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>统一社会信用代码
+            </div>
+            <div style="display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:7px;background:#fff;border:1.5px solid var(--brand);opacity:0.65;font-size:13px;color:var(--brand);font-weight:600;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>适配产品
+            </div>
+            <div style="display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:7px;background:#fff;border:1.5px solid var(--brand);opacity:0.65;font-size:13px;color:var(--brand);font-weight:600;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>营销状态
+            </div>
+            <div style="display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:7px;background:#fff;border:1.5px solid var(--brand);opacity:0.65;font-size:13px;color:var(--brand);font-weight:600;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>业务状态
+            </div>
+            <div style="display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:7px;background:#fff;border:1.5px solid var(--brand);opacity:0.65;font-size:13px;color:var(--brand);font-weight:600;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>名单批次
+            </div>
+          </div>
+          <div style="font-size:12px;font-weight:700;color:var(--gray-400);margin-bottom:10px;letter-spacing:0.5px;">可选扩展字段</div>
+          <div id="fieldToggles" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;"></div>
+        </div>
+        <div style="margin-top:12px;display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-size:12.5px;color:var(--gray-500);">已选 <span id="fieldCount" style="font-weight:700;color:var(--brand);">0</span> 个扩展字段&nbsp;·&nbsp;建议不超过 6 个，避免列过多影响可读性</div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-ghost btn-sm" onclick="toggleAllFields(false)">全部取消</button>
+            <button class="btn btn-default btn-sm" onclick="toggleAllFields(true)">全部选中</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="wizardPrev()" id="wizardPrevBtn" style="display:none;">← 上一步</button>
+      <div style="flex:1;"></div>
+      <button class="btn btn-default" onclick="closeModal('wizardModal')">取消</button>
+      <button class="btn btn-default" onclick="saveAgentDraft()">保存草稿</button>
+      <button class="btn btn-primary" onclick="wizardNext()" id="wizardNextBtn">下一步 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 手工导入 Modal ===== -->
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="wizardPrev()" id="wizardPrevBtn" style="display:none;">← 上一步</button>
+      <div style="flex:1;"></div>
+      <button class="btn btn-default" onclick="closeModal('wizardModal')">取消</button>
+      <button class="btn btn-default" onclick="saveAgentDraft()">保存草稿</button>
+      <button class="btn btn-primary" onclick="wizardNext()" id="wizardNextBtn">下一步 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 手工导入 Modal ===== -->
+<div class="drawer-overlay" id="importModal">
+  <div class="drawer-box" style="width:580px;max-width:95vw;">
+    <div class="modal-header">
+      <span class="modal-title">手工导入名单</span>
+      <button class="modal-close" onclick="closeModal('importModal')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div style="font-size:13.5px;font-weight:700;color:var(--gray-800);margin-bottom:5px;">${t.name}</div>
+      <div style="font-size:12px;color:var(--gray-400);line-height:1.5;">${t.desc}</div>
+    </div>
+  `).join('');
+        <select class="form-control" id="import-agent"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">批次名称</label>
+        <input type="text" class="form-control" id="import-name" placeholder="留空则自动生成">
+        <div class="form-hint">自动格式：{机构简称}{产品名}{日期}，如：平安橙业贷20260615</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">上传名单文件 <span class="req">*</span></label>
+        <div class="upload-zone" onclick="document.getElementById('importFile').click()">
+          <div style="font-size:28px;margin-bottom:8px;">📋</div>
+          <div style="font-size:14px;font-weight:600;color:var(--gray-700);margin-bottom:4px;">点击上传 Excel 文件</div>
+          <div style="font-size:12.5px;color:var(--gray-400);">支持 .xlsx/.xls，需包含：<strong>企业名称</strong>、<strong>统一社会信用代码</strong></div>
+          <input type="file" id="importFile" accept=".xlsx,.xls" style="display:none;" onchange="handleFileSelect(this)">
+        </div>
+        <div id="importFileInfo" style="display:none;margin-top:8px;padding:8px 12px;background:var(--gray-50);border-radius:7px;font-size:12.5px;color:var(--gray-700);"></div>
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">白名单校验</label>
+        <select class="form-control" id="import-check">
+          <option value="check">自动校验（超范围企业标记警告，仍可导入）</option>
+          <option value="strict">严格剔除（超范围企业不导入）</option>
+          <option value="skip">跳过校验</option>
+        </select>
+<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        下载模板
+      </button>
+      <button class="btn btn-primary" onclick="doImport()">确认导入</button>
+    </div>
+  </div>
+</div>
+
+    <script src="js/sidebar.js"></script>
+    <script>
+      const role = sessionStorage.getItem('wb_role') || 'manager';
+      renderSidebar({ currentPage: 'agents', role });
+
+      /* ---- Mock 数据 ---- */
+      const AGENTS_DATA = [
+        {
+          id: 'a1', name: '橙业贷', org: '平安银行股份有限公司', orgShort: '平安银行', type: '小微贷款', region: '全省', status: 'running', totalBatches: 5, totalOutput: 1248, thisMonth: 280, lastRun: '2026-06-25 06:00', whitelist: true, wlMode: 'strict', freq: 'weekly', outputLimit: 300,
+          dataPool: 'whitelist', listProcess: 'direct', listExport: true, listSort: 'fund', allowManual: true, wlGenMode: 'sync',
+          rules: [
+            { field: '主体划型', op: '=', val: '是小微企业' },
+            { field: '企业状态', op: '=', val: '在业' },
+            { field: '成立年限', op: '>', val: '2' },
+            { field: '无贷户', op: '=', val: '非无贷户' },
+            { field: '特色认证', op: '包含', val: '高新技术企业, 专精特新企业' }
+          ]
+        },
+        {
+          id: 'a2', name: '厂房贷', org: '招商银行股份有限公司', orgShort: '招商银行', type: '厂房贷款', region: '苏州', status: 'running', totalBatches: 4, totalOutput: 980, thisMonth: 220, lastRun: '2026-06-01 06:00', whitelist: false, wlMode: 'loose', freq: 'monthly', outputLimit: 200,
+          dataPool: 'province', listProcess: 'direct', listExport: true, listSort: 'fund', allowManual: false, wlGenMode: 'none',
+          rules: [
+            { field: '实体类型', op: '=', val: '法人企业' },
+            { field: '房地产数量', op: '>', val: '0' },
+            { field: '纳税信用等级', op: '属于', val: 'A级, B级' }
+          ]
+        },
+        {
+          id: 'a3', name: '惠农贷', org: '中国农业银行股份有限公司', orgShort: '农业银行', type: '经营贷', region: '南通', status: 'paused', totalBatches: 2, totalOutput: 456, thisMonth: 0, lastRun: '2026-05-20 06:00', whitelist: true, wlMode: 'loose', freq: 'manual', outputLimit: 500,
+          dataPool: 'whitelist', listProcess: 'intersect', listExport: false, listSort: 'time', allowManual: true, wlGenMode: 'manual',
+          rules: [
+            { field: '实体类型', op: '=', val: '农民专业合作社' },
+            { field: '注册资本', op: '<', val: '500' }
+          ]
+        },
+        {
+          id: 'a4', name: '科创贷', org: '江苏银行股份有限公司', orgShort: '江苏银行', type: '科技贷', region: '苏州', status: 'draft', totalBatches: 0, totalOutput: 0, thisMonth: 0, lastRun: '—', whitelist: true, wlMode: 'strict', freq: 'monthly', outputLimit: 1000,
+          dataPool: 'whitelist', listProcess: 'direct', listExport: true, listSort: 'fund', allowManual: true, wlGenMode: 'timer'
+        },
+      ];
+
+      const BATCHES_DATA = [
+        { id: 'b1', agentId: 'a1', name: '平安橙业贷20260625', source: 'auto', count: 298, time: '2026-06-25 06:18', status: '已分配' },
+        { id: 'b2', agentId: 'a1', name: '平安橙业贷手工20260615', source: 'manual', count: 82, time: '2026-06-15 14:30', status: '已分配' },
+        { id: 'b3', agentId: 'a1', name: '平安橙业贷20260618', source: 'auto', count: 311, time: '2026-06-18 06:14', status: '已分配' },
+        { id: 'b4', agentId: 'a2', name: '招行厂房贷20260601', source: 'auto', count: 204, time: '2026-06-01 06:20', status: '分配中' },
+        { id: 'b5', agentId: 'a2', name: '招行厂房贷手工20260614', source: 'manual', count: 47, time: '2026-06-14 09:45', status: '已分配' },
+        { id: 'b6', agentId: 'a3', name: '农行惠农贷20260520', source: 'auto', count: 195, time: '2026-05-20 06:08', status: '已完成' },
+        { id: 'b7', agentId: 'a1', name: '平安橙业贷20260611', source: 'auto', count: 302, time: '2026-06-11 06:11', status: '分配中' },
+        { id: 'b8', agentId: 'a1', name: '平安橙业贷20260626', source: 'auto', count: 150, time: '2026-06-26 09:00', status: '待分配' },
+      ];
+
+      const WHITELIST_DATA = [
+        { agentId: 'a1', version: '快照_20260601_001', genTime: '2026-06-01 02:00', count: 3842, status: '已同步银行', source: '系统自动生成', desc: '全量过筛符合规则企业' },
+        { agentId: 'a1', version: '快照_20260301_001', genTime: '2026-03-01 02:00', count: 3619, status: '历史版本', source: '手动生成', desc: '全量过筛符合规则企业' },
+        { agentId: 'a3', version: '快照_20260501_001', genTime: '2026-05-01 02:00', count: 1205, status: '待同步', source: '基于历史批次', desc: '全量过筛符合规则企业' },
+      ];
+
+
+      const LOGS_DATA = [
+        { agentId: 'a1', time: '06:18', agent: '平安橙业贷', action: '定时任务执行完成', detail: '命中3,842家，输出298户（上限300）', count: '+298', status: 'success' },
+        { agentId: 'a2', time: '06:14', agent: '招行厂房贷', action: '定时任务执行完成', detail: '命中1,204家，输出204户（上限200）', count: '+204', status: 'success' },
+        { agentId: 'a1', time: '14:30', agent: '平安橙业贷', action: '手工导入完成', detail: '导入82条，白名单校验：80通过 / 2超范围已标记', count: '+82', status: 'warn' },
+        { agentId: 'a3', time: '06:00', agent: '农行惠农贷', action: '任务已暂停跳过', detail: '智能体处于暂停状态，本次定时任务跳过', count: '—', status: 'warn' },
+        { agentId: 'a1', time: '昨日', agent: '平安橙业贷', action: '白名单快照生成', detail: '全量过筛完成，白名单3,842户，版本 v2026-06，可下载', count: '3842', status: 'success' },
+        { agentId: 'a4', time: '昨日', agent: '江苏科创贷', action: '草稿未部署', detail: '智能体为草稿状态，规则未完善，定时任务未激活', count: '—', status: 'error' },
+      ];
+
+      const INDICATOR_LIB = [
+        { label: '营业收入', field: 'revenueAmt', unit: '万元', type: 'number' },
+        { label: '注册资本', field: 'regCapi', unit: '万元', type: 'number' },
+        { label: '成立年限', field: 'establishPeriod', unit: '年', type: 'number' },
+        { label: '从业人数', field: 'employeeNum', unit: '人', type: 'number' },
+        { label: '当前贷款笔数', field: 'nCurrLoan', unit: '笔', type: 'number' },
+        { label: '贷款银行数', field: 'nCurrOrg', unit: '家', type: 'number' },
+        { label: '工商变更次数(近6月)', field: 'changeCorpOperManCnt6m', unit: '次', type: 'number' },
+        { label: '贷销比', field: 'rLoanSale', unit: '[0~1]', type: 'number' },
+        { label: '房地产数量', field: 'houseLandCnt', unit: '处', type: 'number' },
+        { label: '主体划型', field: 'entity_type', unit: '', type: 'enum', options: ['是小微企业', '不是小微企业'] },
+        { label: '实体类型', field: 'entityTypeCd', unit: '', type: 'enum', options: ['法人企业', '个体工商户', '农民专业合作社', '其他'] },
+        { label: '企业状态', field: 'corpStatusCd', unit: '', type: 'enum', options: ['在业', '迁出', '撤销', '注销', '其他'] },
+        { label: '纳税信用等级', field: 'taxLevelCd', unit: '', type: 'enum', options: ['A级', 'B级', 'M级', '其他'] },
+        { label: '贷款状态', field: 'worstLoanStatusCd', unit: '', type: 'enum', options: ['正常', '关注', '不良'] },
+        { label: '环保评级', field: 'envLevelCd', unit: '', type: 'enum', options: ['绿色', '蓝色', '黄色', '红色', '黑色', '无评级'] },
+        { label: '无贷户', field: 'hasLoanHistory', unit: '', type: 'enum', options: ['是无贷户', '非无贷户'] },
+        { label: '特色认证', field: 'corpCertificate', unit: '', type: 'multi', options: ['专精特新企业', '专精特新小巨人企业', '高新技术企业'] },
+        { label: '失信信息', field: 'dishonestExecutorFlag', unit: '', type: 'bool', options: ['有失信信息', '无失信信息'] },
+        { label: '行政处罚', field: 'adminPunishFlag', unit: '', type: 'bool', options: ['有行政处罚', '无行政处罚'] },
+        { label: '经营异常', field: 'manageAbnormalFlag', unit: '', type: 'bool', options: ['有经营异常', '无经营异常'] },
+        { label: '股权出质', field: 'equityPledgeFlag', unit: '', type: 'bool', options: ['有股权出质', '无股权出质'] },
+        { label: '海关注册', field: 'customsRegFlag', unit: '', type: 'bool', options: ['有海关注册信息', '无海关注册信息'] },
+        { label: '授权状态', field: 'jfAuthFlag', unit: '', type: 'bool', options: ['已授权', '未授权'] },
+        { label: '被执行人', field: 'executorFlag', unit: '', type: 'bool', options: ['是被执行人', '非被执行人'] },
+        { label: '行业分类', field: 'belongTradeCd', unit: '国民经济行业代码', type: 'text' },
+      ];
+
+      const STATUS_MAP = { running: { cls: 'tag-green', text: '运行中' }, paused: { cls: 'tag-amber', text: '已暂停' }, draft: { cls: 'tag-gray', text: '草稿' } };
+
+      /* ---- 主列表：全宽卡片渲染 ---- */
+      function filterAgentList() {
+        const q = document.getElementById('agentSearch').value.toLowerCase();
+        const org = document.getElementById('agentOrgFilter').value;
+        const status = document.getElementById('agentStatusFilter').value;
+        const filtered = AGENTS_DATA.filter(a =>
+          (!q || (a.name + a.orgShort).toLowerCase().includes(q)) &&
+          (!org || a.orgShort === org) &&
+          (!status || a.status === status)
+        );
+        renderAgentGrid(filtered);
+      }
+
+      function renderAgentGrid(list) {
+        if (!list) list = AGENTS_DATA;
+        const s = STATUS_MAP;
+        const colorMap = { running: ['#2563eb', '#eff6ff'], paused: ['#d97706', '#fffbeb'], draft: ['#9ca3af', '#f3f4f6'] };
+        const freqLabel = { daily: '按天', weekly: '按周', monthly: '按月', manual: '手动触发' };
+        const el = document.getElementById('agentCount');
+        if (el) el.textContent = '共 ' + list.length + ' 个智能体';
+        const grid = document.getElementById('agentGrid');
+        if (!grid) return;
+        if (!list.length) {
+          grid.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--gray-400);font-size:14px;">未找到匹配的智能体</div>';
+          return;
+        }
+        const listHTML = list.map(function (a) {
+          const c = colorMap[a.status][0], bg = colorMap[a.status][1];
+          const statusBtn = a.status === 'running'
+            ? '<button class="btn btn-default btn-sm" onclick="event.stopPropagation();showToast(\'' + a.orgShort + '·' + a.name + ' 已暂停\')"> 暂停</button>'
+            : a.status === 'paused'
+              ? '<button class="btn btn-primary btn-sm" onclick="event.stopPropagation();showToast(\'' + a.orgShort + '·' + a.name + ' 已启动\',\'success\')"> 启动</button>'
+              : '<button class="btn btn-primary btn-sm" onclick="event.stopPropagation();showToast(\'正在部署...\')"> 部署</button>';
+          return '<div class="agent-main-card ' + a.status + '">' +
+            '<div class="amc-header">' +
+            '<div class="amc-icon" style="background:' + bg + ';color:' + c + ';">' +
+            '<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/></svg>' +
+            '</div>' +
+            '<div class="amc-actions">' +
+            statusBtn +
+            '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openWizard(\'' + a.id + '\')" style="display:inline-flex;align-items:center;gap:4px;padding:0 8px;">' +
+            '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;flex-shrink:0;display:block;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>编辑' +
+            '</button>' +
+            '<button class="btn btn-default btn-sm" onclick="openAgentDetail(\'' + a.id + '\')" style="display:inline-flex;align-items:center;gap:4px;">' +
+            '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;flex-shrink:0;display:block;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>详情' +
+            '</button>' +
+            '</div>' +
+            '</div>' +
+            '<div class="amc-body">' +
+            '<div class="amc-title">' + a.orgShort + ' &middot; ' + a.name +
+            '<span class="tag ' + s[a.status].cls + '">' + s[a.status].text + '</span>' +
+            '</div>' +
+            '<div class="amc-sub">' + a.org + ' &middot; ' + a.type + ' &middot; 辖区：' + a.region + '<br>' +
+            (freqLabel[a.freq] || '按周') + '更新 &middot; ' + (a.whitelist ? '白名单已启用' : '不启用白名单') + '</div>' +
+
+        const createCardHTML =
+          '<div class="agent-main-card create-card" onclick="openWizard()" style="cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; border: 2px dashed var(--gray-300); background: transparent; box-shadow: none; min-height: 250px;">' +
+          '<div class="cc-icon" style="width:56px;height:56px;border-radius:14px;background:var(--gray-100);display:flex;align-items:center;justify-content:center;margin-bottom:16px;color:var(--gray-500);transition:all 0.15s;">' +
+          '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
+          '</div>' +
+          '<div style="font-size:16px;font-weight:600;color:var(--gray-800);margin-bottom:8px;">新建智能体</div>' +
+          '<div style="font-size:13px;color:var(--gray-500);text-align:center;line-height:1.5;">基于行内指标库<br>配置全新的客群筛选策略</div>' +
+          '</div>';
+
+          '<button class="btn btn-outline btn-sm" style="border-color:#ef4444;color:#ef4444;margin-right:16px;" onclick="openDeleteConfirmModal()">删除智能体</button>' +
+          '<button class="modal-close" onclick="closeModal(\'detailDrawer\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
+        document.querySelectorAll('#drawerTabs .detail-tab').forEach(function (t, i) { t.classList.toggle('active', i === 0); });
+        ['config', 'batches', 'whitelist', 'logs'].forEach(function (t) {
+          document.getElementById('dtab-' + t).style.display = t === 'config' ? 'block' : 'none';
+        });
+        renderDrawerConfig();
+      function openAgentDetail(agentId) {
+        currentDrawerAgentId = agentId;
+        currentDrawerTab = 'config';
+        const a = AGENTS_DATA.find(function (x) { return x.id === agentId; });
+        if (!a) return;
+        const colorMap = { running: ['#2563eb', '#eff6ff'], paused: ['#d97706', '#fffbeb'], draft: ['#9ca3af', '#f3f4f6'] };
+        const c = colorMap[a.status][0], bg = colorMap[a.status][1];
+        const freqLabel = { daily: '按天', weekly: '按周', monthly: '按月', manual: '手动触发' };
+        document.getElementById('drawerAgentInfo').innerHTML =
+          '<div style="display:flex;align-items:center;gap:14px;flex:1;">' +
+          '<div class="detail-drawer-icon" style="background:' + bg + ';color:' + c + ';">' +
+          '<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/></svg>' +
+          '</div>' +
+          '<div>' +
+          '<div style="font-size:16px;font-weight:700;color:var(--gray-900);display:flex;align-items:center;gap:8px;">' + a.orgShort + ' &nbsp;&middot;&nbsp; ' + a.name +
+          '<span class="tag ' + STATUS_MAP[a.status].cls + '">' + STATUS_MAP[a.status].text + '</span>' +
+          '</div>' +
+          '<div style="font-size:12.5px;color:var(--gray-500);margin-top:2px;">' + a.org + ' &nbsp;&middot;&nbsp; ' + a.type + ' &nbsp;&middot;&nbsp; 辖区：' + a.region + ' &nbsp;&middot;&nbsp; ' + (freqLabel[a.freq] || '按周') + '更新</div>' +
+          '</div>' +
+          '</div>' +
+          '<button class="btn btn-outline btn-sm" style="border-color:#ef4444;color:#ef4444;margin-right:16px;" onclick="openDeleteConfirmModal()">删除智能体</button>' +
+          '<button class="modal-close" onclick="closeModal(\'detailDrawer\')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
+        document.querySelectorAll('#drawerTabs .detail-tab').forEach(function (t, i) { t.classList.toggle('active', i === 0); });
+        ['config', 'batches', 'whitelist', 'logs'].forEach(function (t) {
+          document.getElementById('dtab-' + t).style.display = t === 'config' ? 'block' : 'none';
+        });
+        renderDrawerConfig();
+        openModal('detailDrawer');
+      }
+
+      function switchDrawerTab(tab, el) {
+        document.querySelectorAll('#drawerTabs .detail-tab').forEach(function (t) { t.classList.remove('active'); });
+        el.classList.add('active');
+        ['config', 'batches', 'whitelist', 'logs'].forEach(function (t) {
+          document.getElementById('dtab-' + t).style.display = t === tab ? 'block' : 'none';
+        });
+        currentDrawerTab = tab;
+        if (tab === 'config') renderDrawerConfig();
+        if (tab === 'batches') renderDrawerBatches();
+        if (tab === 'whitelist') renderDrawerWhitelist();
+        if (tab === 'logs') renderDrawerLogs();
+      }
+
+      function renderDrawerConfig() {
+        const a = AGENTS_DATA.find(function (x) { return x.id === currentDrawerAgentId; });
+        if (!a) return;
+        const freqLabel = { daily: '按天 (02:00)', weekly: '按周 (周一 02:00)', monthly: '按月 (1日 02:00)', quarterly: '按季度 (第1月1日 02:00)', manual: '手动触发' };
+        let rulesHtml = '';
+        if (a.rules && a.rules.length > 0) {
+          rulesHtml = a.rules.map(function (r, i) {
+            return '<div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;padding:12px;background:var(--gray-50);border-radius:6px;border:1px solid var(--gray-100);">' +
+              '<div style="width:24px;height:24px;border-radius:12px;background:white;border:1px solid var(--gray-200);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--gray-500);flex-shrink:0;">' + (i + 1) + '</div>' +
+              '<div style="flex:1;">' +
+              '<div style="font-size:13.5px;font-weight:600;color:var(--gray-900);margin-bottom:4px;">' + r.field + '</div>' +
+              '<div style="font-size:13px;color:var(--gray-600);">' + r.op + ' <strong style="color:var(--primary-600);">' + r.val + '</strong></div>' +
+              '</div>' +
+              '</div>';
+        const listProcessLabel = { direct: '原始名单直出', intersect: '取交', union: '求并', exclude: '排除' };
+        const listSortLabel = { time: '按生成时间倒排', fund: '按资金需求分倒排' };
+        let rulesHtml = '';
+        if (a.rules && a.rules.length > 0) {
+          rulesHtml = a.rules.map(function (r, i) {
+            return '<div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;padding:12px;background:var(--gray-50);border-radius:6px;border:1px solid var(--gray-100);">' +
+              '<div style="width:24px;height:24px;border-radius:12px;background:white;border:1px solid var(--gray-200);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--gray-500);flex-shrink:0;">' + (i + 1) + '</div>' +
+              '<div style="flex:1;">' +
+              '<div style="font-size:13.5px;font-weight:600;color:var(--gray-900);margin-bottom:4px;">' + r.field + '</div>' +
+              '<div style="font-size:13px;color:var(--gray-600);">' + r.op + ' <strong style="color:var(--primary-600);">' + r.val + '</strong></div>' +
+              '</div>' +
+              '</div>';
+          }).join('');
+        } else {
+          rulesHtml = '<div style="font-size:13px;color:var(--gray-500);padding:10px 0;">该智能体暂未配置具体过筛规则，或为草稿状态。</div>';
+        }
+
+        document.getElementById('dtab-config').innerHTML =
+          '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">' +
+          '<div style="font-size:15px;font-weight:700;color:var(--gray-900);">智能体规则配置</div>' +
+          '<button class="btn btn-default btn-sm" onclick="openWizard(\'' + a.id + '\')" style="display:inline-flex;align-items:center;gap:4px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;flex-shrink:0;display:block;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>编辑配置</button>' +
+          '</div>' +
+          '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">' +
+          '<div class="card" style="padding:14px 16px;">' +
+          '<div style="font-size:12px;color:var(--gray-500);margin-bottom:4px;">运行频次</div>' +
+          '<div style="font-size:14px;font-weight:600;color:var(--gray-900);">' + (freqLabel[a.freq] || '未知') + '</div>' +
+          '</div>' +
+          '<div class="card" style="padding:14px 16px;">' +
+          '<div style="font-size:12px;color:var(--gray-500);margin-bottom:4px;">筛查数据源</div>' +
+          '<div style="font-size:14px;font-weight:600;color:var(--gray-900);">' + (dataPoolLabel[a.dataPool] || '营销白名单') + '</div>' +
+          '</div>' +
+          '<div class="card" style="padding:14px 16px;">' +
+          '<div style="font-size:12px;color:var(--gray-500);margin-bottom:4px;">名单处理</      function renderDrawerWhitelist() {
+        const a = AGENTS_DATA.find(function (x) { return x.id === currentDrawerAgentId; });
+        const list = WHITELIST_DATA.filter(function (w) { return w.agentId === currentDrawerAgentId; });
+        // 计算去重总数(模拟数据，根据已有批次数叠加)
+        const totalCount = list.reduce(function (sum, w) { return sum + w.count; }, 0) * 0.85;
+        const totalCountFormatted = Math.floor(totalCount || 24805).toLocaleString();
+        const wlGenModeLabel = { sync: '随名单同步生成', timer: '独立定时任务生成', manual: '手动上传白名单', none: '未启用' };
+        const wlEnabled = a ? a.whitelist : true;
+        const wlGenModeText = a ? (wlGenModeLabel[a.wlGenMode] || '随名单同步生成') : '随名单同步生成';
+
+        document.getElementById('dtab-whitelist').innerHTML =
+          // 新增：全量汇总白名单模块（相对独立）
+          '<div class="card" style="margin-bottom: 24px; padding: 20px 24px; background: var(--brand-light); border: 1px solid #91caff;">' +
+          '<div style="display:flex; justify-content:space-between; align-items:center;">' +
+          '<div>' +
+          '<div style="font-size:16px; font-weight:700; color:var(--brand); margin-bottom:4px; display:flex; align-items:center; gap:6px;">' +
+          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;flex-shrink:0;display:block;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>' +
+          '全量汇总白名单' +
+          '</div>' +
+          '<div style="font-size:12px; color:var(--gray-500);">包含所有批次去重后的总数据，直接用于线下下发</div>' +
+          '</div>' +
+          '<div style="display:flex; align-items:center; gap:24px;">' +
+          '<div style="display:flex; flex-direction:column; align-items:flex-end;">' +
+          '<div style="font-size:24px; font-weight:800; color:var(--gray-900); line-height:1;">' + totalCountFormatted + ' <span style="font-size:12px; font-weight:400; color:var(--gray-500);">户</span></div>' +
+          '<div style="font-size:12px; color:var(--gray-500); margin-top:4px;">去重后总企业数</div>' +
+          '</div>' +
+          '<button class="btn btn-primary" onclick="openExportModal()" style="white-space:nowrap; display:inline-flex; align-items:center; gap:6px;">' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0;display:block;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' +
+          '下载总清单' +
+          '</button>' +
+          '</div>' +
+          '</div>' +
+          '</div>' +
+          // 快照生成方式：从配置读取，只读展示
+          '<div class="card" style="margin-bottom: 24px; padding:14px 16px; display:flex; align-items:center; justify-content:space-between;">' +
+          '<div>' +
+          '<div style="font-size:14px;font-weight:600;color:var(--gray-900);margin-bottom:3px;">快照生成方式</div>' +
+          '<div style="font-size:12.5px;color:var(--gray-500);">白名单快照的生成来源，可在编辑配置中修改</div>' +
+          '</div>' +
+          '<span style="font-size:13.5px;font-weight:600;color:' + (wlEnabled ? 'var(--brand)' : 'var(--gray-400)') + ';">' + (wlEnabled ? wlGenModeText : '未启用白名单') + '</span>' +
+          '</div>' +
+</th><th>客户数</th><th>生成时间</th><th>状态</th><th style="text-align:center;">操作</th></tr></thead>' +
+          '<tbody>' +
+          (list.length ? list.map(function (b) {
+            return '<tr>' +
+              '<td><div style="font-weight:600;color:var(--gray-900);font-size:13.5px;">' + b.name + '</div></td>' +
+              '<td><span class="batch-source-tag ' + (b.source === 'auto' ? 'auto' : 'manual') + '" style="white-space:nowrap;">' + (b.source === 'auto' ? '系统生成' : '手工导入') + '</span></td>' +
+              '<td><strong>' + b.count + '</strong></td>' +
+              '<td style="color:var(--gray-500);font-size:13px;white-space:nowrap;">' + b.time + '</td>' +
+              '<td><span class="tag ' + (b.status === '已分配' ? 'tag-green' : b.status === '分配中' ? 'tag-blue' : b.status === '待分配' ? 'tag-orange' : 'tag-gray') + '">' + b.status + '</span></td>' +
+              '<td style="text-align:center;"><div style="display:flex;justify-content:center;gap:6px;">' +
+              '<button class="btn btn-ghost btn-sm" onclick="window.open(\'allocation.html\', \'_blank\')">查看</button>' +
+              '<button class="btn btn-ghost btn-sm" onclick="openExportModal()" style="display:inline-flex;align-items:center;gap:4px;white-space:nowrap;">' +
+              '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;flex-shrink:0;display:block;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>导出' +
+              '</button>' +
+              '</div></td>' +
+              '</tr>';
+          }).join('') : '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--gray-400)">暂无批次数据</td></tr>') +
+          '</tbody></table></div>';
+      }
+
+      function renderDrawerWhitelist() {
+        const list = WHITELIST_DATA.filter(function (w) { return w.agentId === currentDrawerAgentId; });
+        // 计算去重总数(模拟数据，根据已有批次数叠加)
+        const totalCount = list.reduce(function (sum, w) { return sum + w.count; }, 0) * 0.85;
+        const totalCountFormatted = Math.floor(totalCount || 24805).toLocaleString();
+
+        document.getElementById('dtab-whitelist').innerHTML =
+          // 新增：全量汇总白名单模块（相对独立）
+          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;flex-shrink:0;display:block;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>' +
+          '全量汇总白名单' +
+          '</div>' +
+          '<div style="font-size:12px; color:var(--gray-500);">包含所有批次去重后的总数据，直接用于线下下发</div>' +
+          '</div>' +
+          '<div style="display:flex; align-items:center; gap:24px;">' +
+          '<div style="display:flex; flex-direction:column; align-items:flex-end;">' +
+          '<div style="font-size:24px; font-weight:800; color:var(--gray-900); line-height:1;">' + totalCountFormatted + ' <span style="font-size:12px; font-weight:400; color:var(--gray-500);">户</span></div>' +
+          '<div style="font-size:12px; color:var(--gray-500); margin-top:4px;">去重后总企业数</div>' +
+          '</div>' +
+          '<button class="btn btn-primary" onclick="openExportModal()" style="white-space:nowrap; display:inline-flex; align-items:center; gap:6px;">' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0;display:block;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' +
+          '下载总清单' +
+          '</button>' +
+          '</div>' +
+          '</div>' +
+          '</div>' +
+          '<div class="card" style="margin-bottom: 24px; padding:16px; display:flex; align-items:center; justify-content:space-between;">' +
+          '<div>' +
+          '<div style="font-size:14px;font-weight:600;color:var(--gray-900);margin-bottom:4px;">自动生成快照</div>' +
+          '<div style="font-size:12.5px;color:var(--gray-500);">勾选后，每次定时任务生成名单批次时，将直接根据该名单企业生成一份白名单快照</div>' +
+          '</div>' +
+          '<label style="display:flex; align-items:center; cursor:pointer;">' +
+          '<input type="checkbox" checked style="width:18px;height:18px;accent-color:var(--brand);" onchange="showToast(\'自动生成快照设置已更新\', \'success\')">' +
+          '</label>' +
+          '</div>' +
+
+          // 原历史明细
+          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">' +
+          '<div><div style="font-size:13.5px;font-weight:700;color:var(--gray-900);">历史快照</div>' +
+          '<div style="font-size:12px;color:var(--gray-400);margin-top:2px;">按时间节点保存的快照备份</div></div>' +
+          '<div style="display:flex; gap:8px;">' +
+          '<button class="btn btn-default btn-sm" onclick="openBatchSelectModal()">从历史名单批次生成</button>' +
+          '<button class="btn btn-default btn-sm" onclick="openUploadListModal()">导入线下白名单</button>' +
+          '<button class="btn btn-default btn-sm" onclick="generateNewSnapshot(this, \'手动生成\')">跑批智能体规则生成</button>' +
+          '</div>' +
+          '</div>' +
+          (list.length ? list.map(function (w) {
+            return '<div class="snapshot-item">' +
+              '<div class="snap-icon"><svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></div>' +
+              '<div style="flex:1;min-width:0;">' +
+              '<div style="font-size:15px;font-weight:700;color:var(--gray-900);">' + w.version + '</div>' +
+              '<div style="font-size:12.5px;color:var(--gray-500);margin-top:2px;">生成时间：' + w.genTime + ' &nbsp;&middot;&nbsp; 批次内企业：<strong style="color:var(--gray-900);">' + w.count.toLocaleString() + '</strong> 户 &nbsp;&middot;&nbsp; 来源：<span style="color:var(--gray-700);">' + (w.source || '系统自动生成') + '</span></div>' +
+              '</div>' +
+              '<div style="display:flex;align-items:center;">' +
+              '<button class="btn btn-ghost btn-sm" onclick="openExportModal()" style="display:inline-flex;align-items:center;gap:4px;white-space:nowrap;color:var(--gray-500);">' +
+              '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;flex-shrink:0;display:block;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>下载' +
+              '</button>' +
+              '<button class="btn btn-ghost btn-sm" onclick="confirmDeleteSnapshot(this)" style="display:inline-flex;align-items:center;gap:4px;white-space:nowrap;color:#ef4444;margin-left:4px;">' +
+              '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;flex-shrink:0;display:block;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>删除' +
+              '</button>' +
+              '</div>' +
+              '</div>';
+          }).join('') : '<div style="text-align:center;padding:40px;color:var(--gray-400)">暂无白名单快照</div>');
+      }
+
+      function renderDrawerLogs() {
+        const list = LOGS_DATA.filter(function (l) { return l.agentId === currentDrawerAgentId; });
+        document.getElementById('dtab-logs').innerHTML =
+          '<div class="card" style="padding:0;overflow:hidden;">' +
+          '<div style="padding:14px 18px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between;">' +
+          '<h3 style="font-size:14px;font-weight:700;color:var(--gray-900);">执行日志（' + list.length + ' 条）</h3>' +
+          '</div>' +
+          (list.length ? list.map(function (l) {
+            return '<div class="log-row">' +
+              '<div class="log-time">' + l.time + '</div>' +
+              '<div class="log-dot ' + l.status + '"></div>' +
+              '<div class="log-detail"><strong>' + l.action + '</strong>：' + l.detail + '</div>' +
+              '<div class="log-count" style="color:' + (l.count.startsWith('+') ? '#2563eb' : 'var(--gray-400)') + '">' + l.count + '</div>' +
+              '</div>';
+          }).join('') : '<div style="text-align:center;padding:30px;color:var(--gray-400)">暂无日志</div>') +
+          '</div>';
+      }
+
+
+      /* ---- 向导 ---- */
+      let currentStep = 0;
+      const TOTAL_STEPS = 5;
+
+      function openWizard(agentId) {
+        currentStep = 0;
+        updateWizardStep();
+        document.getElementById('wizardTitle').textContent = agentId ? '编辑获客智能体' : '新建获客智能体';
+        document.getElementById('ruleContainer').innerHTML = '';
+        if (agentId) {
+          const a = AGENTS_DATA.find(x => x.id === agentId);
+          if (a) { document.getElementById('f-org').value = a.org; document.getElementById('f-orgshort').value = a.orgShort; document.getElementById('f-name').value = a.name; }
+        }
+        // 默认加2条示例规则
+        addRule(); addRule();
+        openModal('wizardModal');
+      }
+
+      function wizardNext() {
+        if (currentStep < TOTAL_STEPS - 1) { currentStep++; updateWizardStep(); }
+      function updateRulePreview() {
+        const bases = [5200, 3800, 2400, 1850, 1200, 900, 650];
+        const n = document.querySelectorAll('#ruleContainer .rule-row').length;
+        const base = bases[Math.min(n - 1, bases.length - 1)] || 1000;
+        const noise = Math.floor(Math.random() * 300 - 150);
+        const el = document.getElementById('rulePreviewCount');
+        if (el) el.textContent = '约 ' + Math.max(100, base + noise).toLocaleString();
+      }
+
+      /* ---- 名单策略 ---- */
+      function selectFreq(freq, el) {
+        const cb = document.getElementById('f-noLimit');
+        const input = document.getElementById('f-outputLimit');
+        input.disabled = cb.checked; input.style.opacity = cb.checked ? '0.4' : '1';
+      }
+
+      function addBlacklistFile() {
+        const c = document.getElementById('blacklistFiles');
+        const n = c.children.length + 1;
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px 12px;background:var(--gray-50);border-radius:7px;border:1px solid var(--border);';
+        row.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    <span style="font-size:13px;font-weight:600;flex:1;">名单文件 ${n}.xlsx</span>
+    <button onclick="this.parentNode.remove()" style="background:transparent;border:none;cursor:pointer;color:var(--gray-400);padding:0;font-size:16px;">×</button>`;
+        c.appendChild(row);
+      }
+
+      function toggleWhitelistConfig() {
+        document.getElementById('whitelistConfig').style.display = document.getElementById('f-enableWhitelist').checked ? 'block' : 'none';
+      }
+<!-- MISSING LINE 1951 -->
+<!-- MISSING LINE 1952 -->
+<!-- MISSING LINE 1953 -->
+<!-- MISSING LINE 1954 -->
+<!-- MISSING LINE 1955 -->
+<!-- MISSING LINE 1956 -->
+<!-- MISSING LINE 1957 -->
+<!-- MISSING LINE 1958 -->
+<!-- MISSING LINE 1959 -->
+<!-- MISSING LINE 1960 -->
+<!-- MISSING LINE 1961 -->
+<!-- MISSING LINE 1962 -->
+<!-- MISSING LINE 1963 -->
+<!-- MISSING LINE 1964 -->
+<!-- MISSING LINE 1965 -->
+<!-- MISSING LINE 1966 -->
+<!-- MISSING LINE 1967 -->
+<!-- MISSING LINE 1968 -->
+<!-- MISSING LINE 1969 -->
+<!-- MISSING LINE 1970 -->
+<!-- MISSING LINE 1971 -->
+<!-- MISSING LINE 1972 -->
+<!-- MISSING LINE 1973 -->
+<!-- MISSING LINE 1974 -->
+<!-- MISSING LINE 1975 -->
+<!-- MISSING LINE 1976 -->
+<!-- MISSING LINE 1977 -->
+<!-- MISSING LINE 1978 -->
+<!-- MISSING LINE 1979 -->
+<!-- MISSING LINE 1980 -->
+<!-- MISSING LINE 1981 -->
+<!-- MISSING LINE 1982 -->
+<!-- MISSING LINE 1983 -->
+<!-- MISSING LINE 1984 -->
+<!-- MISSING LINE 1985 -->
+<!-- MISSING LINE 1986 -->
+<!-- MISSING LINE 1987 -->
+<!-- MISSING LINE 1988 -->
+<!-- MISSING LINE 1989 -->
+<!-- MISSING LINE 1990 -->
+<!-- MISSING LINE 1991 -->
+<!-- MISSING LINE 1992 -->
+<!-- MISSING LINE 1993 -->
+<!-- MISSING LINE 1994 -->
+<!-- MISSING LINE 1995 -->
+<!-- MISSING LINE 1996 -->
+<!-- MISSING LINE 1997 -->
+<!-- MISSING LINE 1998 -->
+<!-- MISSING LINE 1999 -->
+      function updateRulePreview() {
+        const bases = [5200, 3800, 2400, 1850, 1200, 900, 650];
+        const n = document.querySelectorAll('#ruleContainer .rule-row').length;
+        const base = bases[Math.min(n - 1, bases.length - 1)] || 1000;
+        const noise = Math.floor(Math.random() * 300 - 150);
+        const el = document.getElementById('rulePreviewCount');
+        if (el) el.textContent = '约 ' + Math.max(100, base + noise).toLocaleString();
+      }
+
+      /* ---- 名单策略 ---- */
+      function selectFreq(freq, el) {
+        document.querySelectorAll('.freq-option').forEach(o => o.classList.remove('active'));
+        el.classList.add('active');
+        const d = document.getElementById('freqDetail');
+        if (freq === 'manual') {
+          d.innerHTML = '<p style="font-size:13px;color:var(--gray-500);">手动触发：在智能体详情弹窗名单批次tab中，手动拉取名单，不自动跑批生成。</p>';
+        } else if (freq === 'weekly') {
+          d.innerHTML = `<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <span style="font-size:13px;font-weight:500;color:var(--gray-600);">执行日：</span>
+      ${['周一', '周二', '周三', '周四', '周五', '周六', '周日'].map((wd, i) => `<label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox" ${i === 1 ? 'checked' : ''}> ${wd}</label>`).join('')}
+      <span style="font-size:13px;font-weight:500;color:var(--gray-600);margin-left:8px;">执行时间：</span>
+      <input type="time" class="form-control" value="06:00" style="width:130px;">
+    </div>`;
+        } else if (freq === 'monthly') {
+          d.innerHTML = `
+    <div style="margin-bottom:12px;">
+      <span style="font-size:13px;font-weight:500;color:var(--gray-600);margin-bottom:8px;display:block;">每月执行日期（多选）：</span>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">${Array.from({ length: 31 }, (_, i) => i + 1).map(day => `<div class="day-tag ${day === 1 ? 'selected' : ''}" onclick="this.classList.toggle('selected')">${day}</div>`).join('')}</div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <span style="font-size:13px;font-weight:500;color:var(--gray-600);">执行时间：</span>
+      <input type="time" class="form-control" value="06:00" style="width:130px;">
+    </div>`;
+        } else if (freq === 'quarterly') {
+          d.innerHTML = `
+    <div style="margin-bottom:12px;">
+      <span style="font-size:13px;font-weight:500;color:var(--gray-600);margin-bottom:8px;display:block;">执行月份（季度的第几个月，多选）：</span>
+      <div style="display:flex; gap: 14px; margin-bottom:12px;">
+        <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox" checked> 第一个月</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox"> 第二个月</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox"> 第三个月</label>
+      </div>
+      <span style="font-size:13px;font-weight:500;color:var(--gray-600);margin-bottom:8px;display:block;">执行日期（多选）：</span>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">${Array.from({ length: 31 }, (_, i) => i + 1).map(day => `<div class="day-tag ${day === 1 ? 'selected' : ''}" onclick="this.classList.toggle('selected')">${day}</div>`).join('')}</div>
+    </div>
+          d.innerHTML = `<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <span style="font-size:13px;font-weight:500;color:var(--gray-600);">执行日：</span>
+      ${['周一', '周二', '周三', '周四', '周五', '周六', '周日'].map((wd, i) => `<label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox" ${i === 0 ? 'checked' : ''}> ${wd}</label>`).join('')}
+      <span style="font-size:13px;font-weight:500;color:var(--gray-600);margin-left:8px;">执行时间：</span>
+      <input type="time" class="form-control" value="02:00" style="width:130px;">
+    </div>`;
+        } else if (freq === 'monthly') {
+          d.innerHTML = `
+    <div style="margin-bottom:12px;">
+      <span style="font-size:13px;font-weight:500;color:var(--gray-600);margin-bottom:8px;display:block;">每月执行日期（多选）：</span>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">${Array.from({ length: 31 }, (_, i) => i + 1).map(day => `<div class="day-tag ${day === 1 ? 'selected' : ''}" onclick="this.classList.toggle('selected')">${day}</div>`).join('')}</div>
+        document.getElementById('wlGenTimer').style.display = val === 'timer' ? 'block' : 'none';
+        document.getElementById('wlGenManual').style.display = val === 'manual' ? 'block' : 'none';
+      }
+
+    </div>`;
+        } else if (freq === 'quarterly') {
+          d.innerHTML = `
+    <div style="margin-bottom:12px;">
+      <span style="font-size:13px;font-weight:500;color:var(--gray-600);margin-bottom:8px;display:block;">执行月份（季度的第几个月，多选）：</span>
+      <div style="display:flex; gap: 14px; margin-bottom:12px;">
+        <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox" checked> 第一个月</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox"> 第二个月</label>
+        <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox"> 第三个月</label>
+      </div>
+      <span style="font-size:13px;font-weight:500;color:var(--gray-600);margin-bottom:8px;display:block;">执行日期（多选）：</span>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">${Array.from({ length: 31 }, (_, i) => i + 1).map(day => `<div class="day-tag ${day === 1 ? 'selected' : ''}" onclick="this.classList.toggle('selected')">${day}</div>`).join('')}</div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <span style="font-size:13px;font-weight:500;color:var(--gray-600);">执行时间：</span>
+      <input type="time" class="form-control" value="02:00" style="width:130px;">
+    </div>`;
+        } else {
+          d.innerHTML = `<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:13px;font-weight:500;color:var(--gray-600);">每日执行时间：</span><input type="time" class="form-control" value="02:00" style="width:130px;"></div>`;
+        }
+      }
+        const type = document.querySelector('input[name="list_process_type"]:checked').value;
+        document.getElementById('listProcessConfig').style.display = type === 'direct' ? 'none' : 'block';
+      }
+
+      function toggleNoLimit() {
+        const cb = document.getElementById('f-noLimit');
+        const input = document.getElementById('f-outputLimit');
+        input.disabled = cb.checked; input.style.opacity = cb.checked ? '0.4' : '1';
+      }
+
+      function openUploadListModal() {
+        document.getElementById('uploadListModal').classList.add('show');
+      }
+
+      function handleListFileSelect(input) {
+        if (input.files && input.files[0]) {
+          const filename = input.files[0].name;
+          closeModal('uploadListModal');
+          addBlacklistFileToUI(filename);
+          input.value = ''; // Reset
+        }
+      }
+
+      function addBlacklistFileToUI(filename) {
+        const c = document.getElementById('blacklistFiles');
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px 12px;background:var(--gray-50);border-radius:7px;border:1px solid var(--border);';
+        row.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    <span style="font-size:13px;font-weight:600;flex:1;">${filename}</span>
+    <button onclick="this.parentNode.remove()" style="background:transparent;border:none;cursor:pointer;color:var(--gray-400);padding:0;font-size:16px;">×</button>`;
+<!-- MISSING LINE 2111 -->
+<!-- MISSING LINE 2112 -->
+<!-- MISSING LINE 2113 -->
+<!-- MISSING LINE 2114 -->
+      function toggleNoLimit() {
+        const cb = document.getElementById('f-noLimit');
+        const input = document.getElementById('f-outputLimit');
+        input.disabled = cb.checked; input.style.opacity = cb.checked ? '0.4' : '1';
+      }
+
+      function openUploadListModal() {
+        document.getElementById('uploadListModal').classList.add('show');
+      }
+
+      function handleListFileSelect(input) {
+        if (input.files && input.files[0]) {
+          const filename = input.files[0].name;
+          closeModal('uploadListModal');
+          addBlacklistFileToUI(filename);
+          input.value = ''; // Reset
+<!-- MISSING LINE 2131 -->
+<!-- MISSING LINE 2132 -->
+<!-- MISSING LINE 2133 -->
+<!-- MISSING LINE 2134 -->
+<!-- MISSING LINE 2135 -->
+<!-- MISSING LINE 2136 -->
+<!-- MISSING LINE 2137 -->
+<!-- MISSING LINE 2138 -->
+<!-- MISSING LINE 2139 -->
+<!-- MISSING LINE 2140 -->
+<!-- MISSING LINE 2141 -->
+<!-- MISSING LINE 2142 -->
+<!-- MISSING LINE 2143 -->
+<!-- MISSING LINE 2144 -->
+<!-- MISSING LINE 2145 -->
+<!-- MISSING LINE 2146 -->
+<!-- MISSING LINE 2147 -->
+<!-- MISSING LINE 2148 -->
+<!-- MISSING LINE 2149 -->
+<!-- MISSING LINE 2150 -->
+<!-- MISSING LINE 2151 -->
+<!-- MISSING LINE 2152 -->
+<!-- MISSING LINE 2153 -->
+<!-- MISSING LINE 2154 -->
+<!-- MISSING LINE 2155 -->
+<!-- MISSING LINE 2156 -->
+<!-- MISSING LINE 2157 -->
+<!-- MISSING LINE 2158 -->
+<!-- MISSING LINE 2159 -->
+        document.getElementById('whitelistConfig').style.display = document.getElementById('f-enableWhitelist').checked ? 'block' : 'none';
+      }
+
+      /* ---- Step5 字段配置 ---- */
+      const FIELD_CONFIG = [
+        { key: 'addr', label: '企业地址', checked: true },
+        { key: 'nature', label: '企业性质', checked: true },
+        { key: 'honor', label: '荣誉标签', checked: true },
+        { key: 'intent', label: '意向等级', checked: false },
+        { key: 'risk', label: '风险等级', checked: false },
+        { key: 'revenue', label: '年营业收入', checked: false },
+        { key: 'regCapi', label: '注册资本', checked: false },
+        { key: 'establish', label: '成立日期', checked: false },
+        { key: 'employees', label: '从业人数', checked: false },
+        { key: 'taxLevel', label: '纳税信用', checked: false },
+        { key: 'ds', label: '得分', checked: false },
+        { key: 'lastContact', label: '最后联系时间', checked: false },
+      ];
+
+      function initFieldToggles() {
+        const container = document.getElementById('fieldToggles');
+        if (!container || container.children.length > 0) return;
+        container.innerHTML = FIELD_CONFIG.map(f => `
+    <label class="field-toggle-btn" id="ft-${f.key}" onclick="toggleField('${f.key}',this)"
+      style="display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:7px;cursor:pointer;
+             border:1.5px solid ${f.checked ? 'var(--brand)' : 'var(--border)'};
+             background:${f.checked ? 'var(--brand-light)' : '#fff'};
+             font-size:13px;color:${f.checked ? 'var(--brand)' : 'var(--gray-700)'};
+             font-weight:${f.checked ? '600' : '400'};transition:all 0.15s;">
+      <span class="ft-check" style="width:12px;height:12px;display:flex;align-items:center;justify-content:center;">
+        ${f.checked ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+      </span>
+      ${f.label}
+    </label>`).join('');
+        updateFieldCount();
+      }
+
+      function toggleField(key, el) {
+        const cfg = FIELD_CONFIG.find(f => f.key === key);
+        if (!cfg) return;
+        cfg.checked = !cfg.checked;
+        el.style.borderColor = cfg.checked ? 'var(--brand)' : 'var(--border)';
+        el.style.background = cfg.checked ? 'var(--brand-light)' : '#fff';
+        el.style.color = cfg.checked ? 'var(--brand)' : 'var(--gray-700)';
+        el.style.fontWeight = cfg.checked ? '600' : '400';
+        el.querySelector('.ft-check').innerHTML = cfg.checked
+          '<div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">' +
+          '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>' +
+          '<h3 style="margin:0; font-size:16px; color:#262626;">确认删除</h3>' +
+          '</div>' +
+          '<div style="margin-bottom:24px; color:#595959; font-size:14px; padding-left:36px;">' +
+          '确定删除该智能体吗？' +
+          '</div>' +
+          '<div style="display:flex; justify-content:flex-end; gap:12px;">' +
+          '<button class="btn btn-default" onclick="this.closest(\'#deleteConfirmModal\').remove()">取消</button>' +
+          '<button class="btn btn-primary" style="background:#1677ff; border-color:#1677ff;" onclick="confirmDeleteAgentAction()">确定</button>' +
+          '</div>' +
+          '</div>';
+        document.body.appendChild(m);
+      }
+      function openImportModal() {
+        const sel = document.getElementById('import-agent');
+        sel.innerHTML = '<option value="">请选择对应的获客智能体</option>' +
+          AGENTS_DATA.filter(a => a.status !== 'draft').map(a => `<option value="${a.id}">${a.orgShort} · ${a.name}（${a.type}）</option>`).join('');
+        document.getElementById('importModal').classList.add('show');
+      }
+
+      function handleFileSelect(input) {
+        const f = input.files[0]; if (!f) return;
+        const info = document.getElementById('importFileInfo');
+        info.style.display = 'block';
+        info.innerHTML = `✅ &nbsp;<strong>${f.name}</strong>&nbsp;&nbsp;${(f.size / 1024).toFixed(1)} KB &nbsp; <span style="color:#10b981;font-weight:600;">文件已选中</span>`;
+      }
+
+      function doImport() {
+        if (!document.getElementById('import-agent').value) { alert('请先选择归属智能体'); return; }
+<!-- MISSING LINE 2236 -->
+<!-- MISSING LINE 2237 -->
+<!-- MISSING LINE 2238 -->
+<!-- MISSING LINE 2239 -->
+<!-- MISSING LINE 2240 -->
+<!-- MISSING LINE 2241 -->
+<!-- MISSING LINE 2242 -->
+<!-- MISSING LINE 2243 -->
+<!-- MISSING LINE 2244 -->
+<!-- MISSING LINE 2245 -->
+<!-- MISSING LINE 2246 -->
+<!-- MISSING LINE 2247 -->
+<!-- MISSING LINE 2248 -->
+<!-- MISSING LINE 2249 -->
+<!-- MISSING LINE 2250 -->
+<!-- MISSING LINE 2251 -->
+<!-- MISSING LINE 2252 -->
+<!-- MISSING LINE 2253 -->
+<!-- MISSING LINE 2254 -->
+<!-- MISSING LINE 2255 -->
+<!-- MISSING LINE 2256 -->
+<!-- MISSING LINE 2257 -->
+<!-- MISSING LINE 2258 -->
+<!-- MISSING LINE 2259 -->
+<!-- MISSING LINE 2260 -->
+<!-- MISSING LINE 2261 -->
+<!-- MISSING LINE 2262 -->
+<!-- MISSING LINE 2263 -->
+<!-- MISSING LINE 2264 -->
+<!-- MISSING LINE 2265 -->
+<!-- MISSING LINE 2266 -->
+<!-- MISSING LINE 2267 -->
+<!-- MISSING LINE 2268 -->
+<!-- MISSING LINE 2269 -->
+<!-- MISSING LINE 2270 -->
+<!-- MISSING LINE 2271 -->
+<!-- MISSING LINE 2272 -->
+<!-- MISSING LINE 2273 -->
+<!-- MISSING LINE 2274 -->
+<!-- MISSING LINE 2275 -->
+<!-- MISSING LINE 2276 -->
+<!-- MISSING LINE 2277 -->
+<!-- MISSING LINE 2278 -->
+<!-- MISSING LINE 2279 -->
+<!-- MISSING LINE 2280 -->
+<!-- MISSING LINE 2281 -->
+<!-- MISSING LINE 2282 -->
+<!-- MISSING LINE 2283 -->
+<!-- MISSING LINE 2284 -->
+<!-- MISSING LINE 2285 -->
+<!-- MISSING LINE 2286 -->
+<!-- MISSING LINE 2287 -->
+<!-- MISSING LINE 2288 -->
+<!-- MISSING LINE 2289 -->
+<!-- MISSING LINE 2290 -->
+<!-- MISSING LINE 2291 -->
+<!-- MISSING LINE 2292 -->
+<!-- MISSING LINE 2293 -->
+<!-- MISSING LINE 2294 -->
+
+      /* ---- 删除确认弹窗 ---- */
+      function openDeleteConfirmModal() {
+        var old = document.getElementById('deleteConfirmModal');
+        if (old) old.remove();
+        var m = document.createElement('div');
+        m.id = 'deleteConfirmModal';
+        m.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:999999; display:flex; align-items:center; justify-content:center;';
+        m.innerHTML =
+          '<div class="modal-content" style="background:#fff; width:400px; border-radius:8px; padding:24px; box-shadow:0 4px 12px rgba(0,0,0,0.15); position:relative;">' +
+          '<div style="position:absolute; top:16px; right:16px; cursor:pointer; color:#999; transition:color 0.2s;" onclick="this.closest(\'#deleteConfirmModal\').remove()" onmouseover="this.style.color=\'#333\'" onmouseout="this.style.color=\'#999\'">' +
+          '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>' +
+          '</div>' +
+          '<div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">' +
+          '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>' +
+          '<h3 style="margin:0; font-size:16px; color:#262626;">确认删除</h3>' +
+          '</div>' +
+          '<div style="margin-bottom:24px; color:#595959; font-size:14px; padding-left:36px;">' +
+          '确定删除该智能体吗？' +
+          '</div>' +
+          '<div style="display:flex; justify-content:flex-end; gap:12px;">' +
+          '<button class="btn btn-default" onclick="this.closest(\'#deleteConfirmModal\').remove()">取消</button>' +
+          '<button class="btn btn-primary" style="background:#1677ff; border-color:#1677ff;" onclick="confirmDeleteAgentAction()">确定</button>' +
+          '</div>' +
+          '</div>';
+        document.body.appendChild(m);
+      }
+      function confirmDeleteAgentAction() {
+        var old = document.getElementById('deleteConfirmModal');
+        if (old) old.remove();
+        closeModal('detailDrawer');
+<!-- MISSING LINE 2326 -->
+<!-- MISSING LINE 2327 -->
+<!-- MISSING LINE 2328 -->
+<!-- MISSING LINE 2329 -->
+<!-- MISSING LINE 2330 -->
+<!-- MISSING LINE 2331 -->
+<!-- MISSING LINE 2332 -->
+<!-- MISSING LINE 2333 -->
+<!-- MISSING LINE 2334 -->
+<!-- MISSING LINE 2335 -->
+<!-- MISSING LINE 2336 -->
+<!-- MISSING LINE 2337 -->
+<!-- MISSING LINE 2338 -->
+<!-- MISSING LINE 2339 -->
+<!-- MISSING LINE 2340 -->
+<!-- MISSING LINE 2341 -->
+<!-- MISSING LINE 2342 -->
+<!-- MISSING LINE 2343 -->
+<!-- MISSING LINE 2344 -->
+<!-- MISSING LINE 2345 -->
+<!-- MISSING LINE 2346 -->
+<!-- MISSING LINE 2347 -->
+<!-- MISSING LINE 2348 -->
+<!-- MISSING LINE 2349 -->
+<!-- MISSING LINE 2350 -->
+<!-- MISSING LINE 2351 -->
+<!-- MISSING LINE 2352 -->
+<!-- MISSING LINE 2353 -->
+<!-- MISSING LINE 2354 -->
+<!-- MISSING LINE 2355 -->
+<!-- MISSING LINE 2356 -->
+<!-- MISSING LINE 2357 -->
+<!-- MISSING LINE 2358 -->
+<!-- MISSING LINE 2359 -->
+<!-- MISSING LINE 2360 -->
+<!-- MISSING LINE 2361 -->
+<!-- MISSING LINE 2362 -->
+<!-- MISSING LINE 2363 -->
+<!-- MISSING LINE 2364 -->
+<!-- MISSING LINE 2365 -->
+<!-- MISSING LINE 2366 -->
+<!-- MISSING LINE 2367 -->
+<!-- MISSING LINE 2368 -->
+<!-- MISSING LINE 2369 -->
+<!-- MISSING LINE 2370 -->
+<!-- MISSING LINE 2371 -->
+<!-- MISSING LINE 2372 -->
+<!-- MISSING LINE 2373 -->
+<!-- MISSING LINE 2374 -->
+<!-- MISSING LINE 2375 -->
+<!-- MISSING LINE 2376 -->
+<!-- MISSING LINE 2377 -->
+<!-- MISSING LINE 2378 -->
+<!-- MISSING LINE 2379 -->
+<!-- MISSING LINE 2380 -->
+<!-- MISSING LINE 2381 -->
+<!-- MISSING LINE 2382 -->
+<!-- MISSING LINE 2383 -->
+<!-- MISSING LINE 2384 -->
+<!-- MISSING LINE 2385 -->
+<!-- MISSING LINE 2386 -->
+<!-- MISSING LINE 2387 -->
+<!-- MISSING LINE 2388 -->
+<!-- MISSING LINE 2389 -->
+<!-- MISSING LINE 2390 -->
+<!-- MISSING LINE 2391 -->
+<!-- MISSING LINE 2392 -->
+<!-- MISSING LINE 2393 -->
+<!-- MISSING LINE 2394 -->
+<!-- MISSING LINE 2395 -->
+<!-- MISSING LINE 2396 -->
+<!-- MISSING LINE 2397 -->
+<!-- MISSING LINE 2398 -->
+<!-- MISSING LINE 2399 -->
+<!-- MISSING LINE 2400 -->
+<!-- MISSING LINE 2401 -->
+<!-- MISSING LINE 2402 -->
+<!-- MISSING LINE 2403 -->
+<!-- MISSING LINE 2404 -->
+<!-- MISSING LINE 2405 -->
+<!-- MISSING LINE 2406 -->
+<!-- MISSING LINE 2407 -->
+<!-- MISSING LINE 2408 -->
+<!-- MISSING LINE 2409 -->
+<!-- MISSING LINE 2410 -->
+<!-- MISSING LINE 2411 -->
+<!-- MISSING LINE 2412 -->
+<!-- MISSING LINE 2413 -->
+<!-- MISSING LINE 2414 -->
+<!-- MISSING LINE 2415 -->
+<!-- MISSING LINE 2416 -->
+<!-- MISSING LINE 2417 -->
+<!-- MISSING LINE 2418 -->
+<!-- MISSING LINE 2419 -->
+<!-- MISSING LINE 2420 -->
+<!-- MISSING LINE 2421 -->
+<!-- MISSING LINE 2422 -->
+<!-- MISSING LINE 2423 -->
+<!-- MISSING LINE 2424 -->
+<!-- MISSING LINE 2425 -->
+<!-- MISSING LINE 2426 -->
+<!-- MISSING LINE 2427 -->
+<!-- MISSING LINE 2428 -->
+<!-- MISSING LINE 2429 -->
+<!-- MISSING LINE 2430 -->
+<!-- MISSING LINE 2431 -->
+<!-- MISSING LINE 2432 -->
+<!-- MISSING LINE 2433 -->
+<!-- MISSING LINE 2434 -->
+<!-- MISSING LINE 2435 -->
+<!-- MISSING LINE 2436 -->
+<!-- MISSING LINE 2437 -->
+<!-- MISSING LINE 2438 -->
+<!-- MISSING LINE 2439 -->
+<!-- MISSING LINE 2440 -->
+<!-- MISSING LINE 2441 -->
+<!-- MISSING LINE 2442 -->
+<!-- MISSING LINE 2443 -->
+<!-- MISSING LINE 2444 -->
+<!-- MISSING LINE 2445 -->
+<!-- MISSING LINE 2446 -->
+<!-- MISSING LINE 2447 -->
+<!-- MISSING LINE 2448 -->
+<!-- MISSING LINE 2449 -->
+<!-- MISSING LINE 2450 -->
+<!-- MISSING LINE 2451 -->
+<!-- MISSING LINE 2452 -->
+<!-- MISSING LINE 2453 -->
+<!-- MISSING LINE 2454 -->
+<!-- MISSING LINE 2455 -->
+<!-- MISSING LINE 2456 -->
+<!-- MISSING LINE 2457 -->
+<!-- MISSING LINE 2458 -->
+<!-- MISSING LINE 2459 -->
+<!-- MISSING LINE 2460 -->
+<!-- MISSING LINE 2461 -->
+<!-- MISSING LINE 2462 -->
+<!-- MISSING LINE 2463 -->
+<!-- MISSING LINE 2464 -->
+<!-- MISSING LINE 2465 -->
+<!-- MISSING LINE 2466 -->
+<!-- MISSING LINE 2467 -->
+<!-- MISSING LINE 2468 -->
+<!-- MISSING LINE 2469 -->
+<!-- MISSING LINE 2470 -->
+<!-- MISSING LINE 2471 -->
+<!-- MISSING LINE 2472 -->
+<!-- MISSING LINE 2473 -->
+<!-- MISSING LINE 2474 -->
+<!-- MISSING LINE 2475 -->
+<!-- MISSING LINE 2476 -->
+<!-- MISSING LINE 2477 -->
+<!-- MISSING LINE 2478 -->
+<!-- MISSING LINE 2479 -->
+<!-- MISSING LINE 2480 -->
+<!-- MISSING LINE 2481 -->
+<!-- MISSING LINE 2482 -->
+<!-- MISSING LINE 2483 -->
+<!-- MISSING LINE 2484 -->
+<!-- MISSING LINE 2485 -->
+<!-- MISSING LINE 2486 -->
+<!-- MISSING LINE 2487 -->
+<!-- MISSING LINE 2488 -->
+<!-- MISSING LINE 2489 -->
+<!-- MISSING LINE 2490 -->
+<!-- MISSING LINE 2491 -->
+<!-- MISSING LINE 2492 -->
+<!-- MISSING LINE 2493 -->
+<!-- MISSING LINE 2494 -->
+<!-- MISSING LINE 2495 -->
+<!-- MISSING LINE 2496 -->
+<!-- MISSING LINE 2497 -->
+<!-- MISSING LINE 2498 -->
+<!-- MISSING LINE 2499 -->
+<!-- MISSING LINE 2500 -->
+<!-- MISSING LINE 2501 -->
+<!-- MISSING LINE 2502 -->
+<!-- MISSING LINE 2503 -->
+<!-- MISSING LINE 2504 -->
+<!-- MISSING LINE 2505 -->
+<!-- MISSING LINE 2506 -->
+<!-- MISSING LINE 2507 -->
+<!-- MISSING LINE 2508 -->
+<!-- MISSING LINE 2509 -->
+<!-- MISSING LINE 2510 -->
+<!-- MISSING LINE 2511 -->
+<!-- MISSING LINE 2512 -->
+<!-- MISSING LINE 2513 -->
+<!-- MISSING LINE 2514 -->
+<!-- MISSING LINE 2515 -->
+<!-- MISSING LINE 2516 -->
+<!-- MISSING LINE 2517 -->
+<!-- MISSING LINE 2518 -->
+<!-- MISSING LINE 2519 -->
+<!-- MISSING LINE 2520 -->
+<!-- MISSING LINE 2521 -->
+<!-- MISSING LINE 2522 -->
+<!-- MISSING LINE 2523 -->
+<!-- MISSING LINE 2524 -->
+<!-- MISSING LINE 2525 -->
+<!-- MISSING LINE 2526 -->
+<!-- MISSING LINE 2527 -->
+<!-- MISSING LINE 2528 -->
+<!-- MISSING LINE 2529 -->
+<!-- MISSING LINE 2530 -->
+<!-- MISSING LINE 2531 -->
+<!-- MISSING LINE 2532 -->
+<!-- MISSING LINE 2533 -->
+<!-- MISSING LINE 2534 -->
+<!-- MISSING LINE 2535 -->
+<!-- MISSING LINE 2536 -->
+<!-- MISSING LINE 2537 -->
+<!-- MISSING LINE 2538 -->
+<!-- MISSING LINE 2539 -->
+<!-- MISSING LINE 2540 -->
+<!-- MISSING LINE 2541 -->
