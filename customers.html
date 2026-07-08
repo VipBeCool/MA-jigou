@@ -785,6 +785,24 @@
       color: var(--gray-700);
     }
 
+  
+    /* ===== Fixed Action Column ===== */
+    .col-fixed-action {
+      position: sticky;
+      right: 0;
+      background: white;
+      z-index: 10;
+      box-shadow: -3px 0 6px rgba(0,0,0,0.02);
+    }
+    .cust-table thead th.col-fixed-action {
+      background: var(--gray-50);
+      z-index: 11;
+    }
+    .cust-table tbody tr:hover .col-fixed-action {
+      background: var(--gray-50);
+    }
+    /* ================================= */
+
   </style>
 </head>
 <body>
@@ -812,7 +830,7 @@
       <div class="filter-panel">
         <div class="filter-panel-header">
           <div class="filter-panel-title">
-            <svg style="width:15px;height:15px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            <svg style="width:15px;height:15px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="4" rx="1"/><rect x="1" y="18" width="6" height="4" rx="1"/><rect x="17" y="18" width="6" height="4" rx="1"/><path d="M12 6v4m0 0-4 8m4-8 4 8M4 18l4-8m8 8 4-8"/></svg>
             客户状态
           </div>
           <div class="filter-reset-btn" onclick="resetAllFilters()">重置</div>
@@ -1071,6 +1089,14 @@
 
         
 
+        <!-- 空状态 -->
+        <div class="empty-state" id="emptyState" style="display:none; width:100%; text-align:center; padding: 60px 0; flex-direction:column; align-items:center;">
+          <div class="empty-state-icon" style="width:120px;height:120px;margin:0 auto 24px;border-radius:50%;background:#f3f4f6;display:flex;align-items:center;justify-content:center;">
+            <svg width="84" height="84" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"></path><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
+          </div>
+          <div class="empty-title" style="font-size:16px;color:#4b5563;font-weight:500;">当前列表暂无内容</div>
+        </div>
+
         <!-- 分页控件 -->
         <div class="pagination" id="pagination">
           <div class="pagination-info" style="display:flex;align-items:center;gap:12px;">
@@ -1086,14 +1112,6 @@
             <button class="btn btn-ghost btn-sm page-num">2</button>
             <button class="btn btn-ghost btn-sm">下一页</button>
           </div>
-        </div>
-
-                <!-- 空状态 -->
-        <div class="empty-state" id="emptyState" style="display:none; width:100%; text-align:center; padding: 60px 0; flex-direction:column; align-items:center;">
-          <div class="empty-state-icon" style="width:120px;height:120px;margin:0 auto 24px;border-radius:50%;background:#f3f4f6;display:flex;align-items:center;justify-content:center;">
-            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"></path><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
-          </div>
-          <div class="empty-title" style="font-size:16px;color:#4b5563;font-weight:500;">当前列表暂无内容</div>
         </div>
       </div>
       </div>
@@ -1409,14 +1427,13 @@ function toggleAdvFilters() {
 const allColumns = [
   { key: 'name', label: '企业名称', fixed: true, default: true },
   { key: 'uscc', label: '统一社会信用代码', fixed: true, default: true },
-  { key: 'rs', label: '营销状态', fixed: true, default: true },
-  { key: 'bs', label: '业务状态', fixed: true, default: true },
-  { key: 'lastContact', label: '最近跟进', fixed: true, default: true },
-  { key: 'action', label: '操作', fixed: true, default: true },
   { key: 'region', label: '区域', fixed: false, default: true },
   { key: 'product', label: '适配产品', fixed: false, default: true },
-  { key: 'owner', label: '对接客户经理', fixed: false, default: true },
+  { key: 'rs', label: '营销状态', fixed: true, default: true },
+  { key: 'bs', label: '业务状态', fixed: true, default: true },
   { key: 'org', label: '对接机构', fixed: false, default: true },
+  { key: 'owner', label: '对接客户经理', fixed: false, default: true },
+  { key: 'lastContact', label: '最近跟进', fixed: true, default: true },
   { key: 'legalPerson', label: '法定代表人', fixed: false, default: false },
   { key: 'status', label: '企业状态', fixed: false, default: false },
   { key: 'entityType', label: '实体类型', fixed: false, default: false },
@@ -1424,10 +1441,11 @@ const allColumns = [
   { key: 'indType', label: '行业大类', fixed: false, default: false },
   { key: 'regCap', label: '注册资本', fixed: false, default: false },
   { key: 'regDate', label: '成立日期', fixed: false, default: false },
-  { key: 'addr', label: '企业住所', fixed: false, default: false }
+  { key: 'addr', label: '企业住所', fixed: false, default: false },
+  { key: 'action', label: '操作', fixed: true, default: true }
 ];
 
-let visibleCols = JSON.parse(localStorage.getItem('wb_list_cols_v2'));
+let visibleCols = JSON.parse(localStorage.getItem('wb_list_cols_v4'));
 if (!visibleCols) {
   visibleCols = allColumns.filter(c => c.fixed || c.default).map(c => c.key);
 } else {
@@ -1454,7 +1472,13 @@ function initColPopover() {
   const body = document.getElementById('colPopBody');
   if(!body) return;
   let html = '';
-  allColumns.forEach(c => {
+  const popoverCols = [...allColumns].sort((a, b) => {
+    if (a.key === 'action') return 1; // action at the very end
+    if (b.key === 'action') return -1;
+    if (a.fixed === b.fixed) return 0;
+    return a.fixed ? -1 : 1;
+  });
+  popoverCols.forEach(c => {
     const isChecked = visibleCols.includes(c.key) ? 'checked' : '';
     const isFixed = c.fixed ? 'disabled' : '';
     const fixedStyle = c.fixed ? 'opacity: 0.5; cursor: not-allowed;' : '';
@@ -1471,12 +1495,12 @@ function onColChange(cb) {
   } else {
     visibleCols = visibleCols.filter(v => v !== cb.value);
   }
-  localStorage.setItem('wb_list_cols_v2', JSON.stringify(visibleCols));
+  localStorage.setItem('wb_list_cols_v4', JSON.stringify(visibleCols));
   renderTable(window.filtered || ALL_DATA);
 }
 function resetColumns() {
   visibleCols = allColumns.filter(c => c.fixed || c.default).map(c => c.key);
-  localStorage.setItem('wb_list_cols_v2', JSON.stringify(visibleCols));
+  localStorage.setItem('wb_list_cols_v4', JSON.stringify(visibleCols));
   initColPopover();
   renderTable(window.filtered || ALL_DATA);
 }
@@ -1493,7 +1517,8 @@ function renderTable(list) {
   thHtml += `<th style="width:50px;text-align:center;">序号</th>`;
   allColumns.forEach(c => {
     if (visibleCols.includes(c.key)) {
-      if (c.key === 'action' || c.key === 'rs' || c.key === 'bs') thHtml += `<th style="text-align:center;">${c.label}</th>`;
+      if (c.key === 'action') thHtml += `<th class="col-fixed-action" style="text-align:center;">${c.label}</th>`;
+      else if (c.key === 'rs' || c.key === 'bs') thHtml += `<th style="text-align:center;">${c.label}</th>`;
       else thHtml += `<th>${c.label}</th>`;
     }
   });
@@ -1540,7 +1565,7 @@ function renderTable(list) {
           else tbHtml += `<td style="text-align:center;"><span style="color:var(--gray-300);">-</span></td>`;
         }
         else if (c.key === 'lastContact') tbHtml += `<td style="color:var(--gray-500);">${item.lastContact}</td>`;
-        else if (c.key === 'action') tbHtml += `<td style="text-align:center;">
+        else if (c.key === 'action') tbHtml += `<td class="col-fixed-action" style="text-align:center;">
             <div class="action-btns">
               <button class="action-btn primary" onclick="goDetail(${item.id})">详情</button>
               <button class="action-btn" onclick="openMarkDrawer(${item.id})">状态</button>
