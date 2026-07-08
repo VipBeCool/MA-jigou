@@ -811,14 +811,7 @@
           <div class="filter-reset-btn" onclick="resetAllFilters()">重置</div>
         </div>
 
-        <!-- Tab 切换按钮 -->
-        <div class="filter-tabs">
-          <button class="filter-tab-btn active" id="tabStatusBtn" onclick="switchFilterTab('status')">按状态</button>
-          <button class="filter-tab-btn" id="tabBatchBtn" onclick="switchFilterTab('batch')">按名单批次</button>
-        </div>
 
-        <!-- Tab 1: 按状态 -->
-        <div id="filterTabContentStatus" style="display:block;">
           <!-- 营销状态 -->
           <div class="filter-section">
             <div class="filter-section-label">营销状态</div>
@@ -882,48 +875,7 @@
               <span>已结清</span>
             </div>
           </div>
-        </div>
 
-        <!-- Tab 2: 按产品批次（客户来源平铺单独展示） -->
-        <div id="filterTabContentBatch" style="display:none;">
-          <div class="filter-section">
-            <div class="filter-section-label">名单批次</div>
-            <div class="filter-option active" data-filter="batch" data-val="ALL" onclick="setFilter('batch','ALL',this)">
-              <span>全部批次</span>
-            </div>
-            
-            <div style="font-size:11px;font-weight:700;color:var(--gray-400);margin:14px 0 6px 12px;text-transform:uppercase;letter-spacing:0.5px;">橙业贷</div>
-            <div class="filter-option" data-filter="batch" data-val="橙业贷20160508" onclick="setFilter('batch','橙业贷20160508',this)">
-              <span style="padding-left:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px; display:inline-block; vertical-align:middle;" title="橙业贷20160508">橙业贷20160508</span>
-            </div>
-            <div class="filter-option" data-filter="batch" data-val="橙业贷20160509" onclick="setFilter('batch','橙业贷20160509',this)">
-              <span style="padding-left:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px; display:inline-block; vertical-align:middle;" title="橙业贷20160509">橙业贷20160509</span>
-            </div>
-            <div class="filter-option" data-filter="batch" data-val="橙业贷20160510" onclick="setFilter('batch','橙业贷20160510',this)">
-              <span style="padding-left:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px; display:inline-block; vertical-align:middle;" title="橙业贷20160510">橙业贷20160510</span>
-            </div>
-            <div class="filter-option" data-filter="batch" data-val="橙业贷20260615" onclick="setFilter('batch','橙业贷20260615',this)" style="display:flex; justify-content:space-between; align-items:center; padding-right:8px;">
-              <span style="padding-left:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:110px;" title="橙业贷20260615">橙业贷20260615</span>
-              <span style="font-size:10px; color:#c2410c; background:#ffedd5; padding:2px 4px; border-radius:4px; font-weight:600; flex-shrink:0;">导入</span>
-            </div>
-
-            <div style="font-size:11px;font-weight:700;color:var(--gray-400);margin:14px 0 6px 12px;text-transform:uppercase;letter-spacing:0.5px;">厂房贷</div>
-            <div class="filter-option" data-filter="batch" data-val="厂房贷20160501" onclick="setFilter('batch','厂房贷20160501',this)">
-              <span style="padding-left:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px; display:inline-block; vertical-align:middle;" title="厂房贷20160501">厂房贷20160501</span>
-            </div>
-            <div class="filter-option" data-filter="batch" data-val="厂房贷20160502" onclick="setFilter('batch','厂房贷20160502',this)">
-              <span style="padding-left:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px; display:inline-block; vertical-align:middle;" title="厂房贷20160502">厂房贷20160502</span>
-            </div>
-
-            <div style="font-size:11px;font-weight:700;color:var(--gray-400);margin:14px 0 6px 12px;text-transform:uppercase;letter-spacing:0.5px;">税务贷</div>
-            <div class="filter-option" data-filter="batch" data-val="税务贷20160501" onclick="setFilter('batch','税务贷20160501',this)">
-              <span style="padding-left:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px; display:inline-block; vertical-align:middle;" title="税务贷20160501">税务贷20160501</span>
-            </div>
-            <div class="filter-option" data-filter="batch" data-val="税务贷20160502" onclick="setFilter('batch','税务贷20160502',this)">
-              <span style="padding-left:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px; display:inline-block; vertical-align:middle;" title="税务贷20160502">税务贷20160502</span>
-            </div>
-          </div>
-        </div>
 
 
 
@@ -981,6 +933,23 @@
           
           <div class="toolbar-advanced" id="advancedFilters" style="display:none; padding:16px; background:var(--gray-50); border-radius:12px; border:1px solid var(--border); width:100%; box-sizing:border-box;">
             <div class="toolbar-filters">
+            <select class="form-control sort-select" id="filterBatch" onchange="doFilter()">
+              <option value="ALL">名单批次</option>
+              <optgroup label="橙业贷">
+                <option value="橙业贷20160508">橙业贷20160508</option>
+                <option value="橙业贷20160509">橙业贷20160509</option>
+                <option value="橙业贷20160510">橙业贷20160510</option>
+                <option value="橙业贷20260615">橙业贷20260615</option>
+              </optgroup>
+              <optgroup label="厂房贷">
+                <option value="厂房贷20160501">厂房贷20160501</option>
+                <option value="厂房贷20160502">厂房贷20160502</option>
+              </optgroup>
+              <optgroup label="税务贷">
+                <option value="税务贷20160501">税务贷20160501</option>
+                <option value="税务贷20160502">税务贷20160502</option>
+              </optgroup>
+            </select>
             <!-- 级联多选区域组件 -->
             <div class="custom-cascader" id="regionCascader">
               <div class="custom-singleselect-display" id="regionCascaderDisplay" onclick="toggleRegionCascader(event)">
@@ -1337,7 +1306,8 @@ function doFilter() {
       }
     }
     if (filterState.bs !== 'ALL' && c.bs !== filterState.bs) return false;
-    if (filterState.batch !== 'ALL' && c.batch !== filterState.batch) return false;
+    const fBatch = document.getElementById('filterBatch') ? document.getElementById('filterBatch').value : 'ALL';
+    if (fBatch !== 'ALL' && c.batch !== fBatch) return false;
     if (fRegion.length > 0) {
       if (!c.addr || !fRegion.some(dist => c.addr.includes(dist))) return false;
     }
@@ -1389,7 +1359,8 @@ function resetFilters() {
   document.getElementById('filterRisk').value = 'ALL';
   document.querySelectorAll('.filter-option').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.filter-option[data-val="ALL"]').forEach(el => el.classList.add('active'));
-  filterState = { rs: 'ALL', bs: 'ALL', product: 'ALL', batch: 'ALL', quick: '' };
+  filterState = { rs: 'ALL', bs: 'ALL', product: 'ALL', batch: 'ALL', quick: '', owner: 'ALL', org: 'ALL' };
+  const batchSel = document.getElementById('filterBatch'); if (batchSel) batchSel.value = 'ALL';
   doFilter();
 }
 
@@ -1583,8 +1554,6 @@ function resetAllFilters() {
     if(sel.dispatchEvent) sel.dispatchEvent(new Event('change', { bubbles: true }));
   });
   if(window.resetRegionCascader) window.resetRegionCascader(null, false);
-  // 还要恢复 Tab 状态为“全部”
-  switchFilterTab('status');
   doFilter();
 }
 
@@ -1637,26 +1606,6 @@ document.addEventListener('keydown', e => {
 document.getElementById('contactModal').addEventListener('click', e => {
   if (e.target === document.getElementById('contactModal')) closeContactModal();
 });
-
-// ===== Tab 切换逻辑 =====
-function switchFilterTab(tab) {
-  const statusBtn = document.getElementById('tabStatusBtn');
-  const batchBtn = document.getElementById('tabBatchBtn');
-  const statusContent = document.getElementById('filterTabContentStatus');
-  const batchContent = document.getElementById('filterTabContentBatch');
-  
-  if (tab === 'status') {
-    statusBtn.classList.add('active');
-    batchBtn.classList.remove('active');
-    statusContent.style.display = 'block';
-    batchContent.style.display = 'none';
-  } else {
-    batchBtn.classList.add('active');
-    statusBtn.classList.remove('active');
-    statusContent.style.display = 'none';
-    batchContent.style.display = 'block';
-  }
-}
 
 // ===== 区域级联多选组件逻辑 =====
 const REGION_DATA = [

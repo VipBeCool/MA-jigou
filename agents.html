@@ -1838,8 +1838,8 @@
       <!-- Step 4: 名单字段 -->
       <div class="wizard-page" id="wp-4">
         <div class="section-heading">名单展示字段配置</div>
-        <p style="font-size:12.5px;color:var(--gray-400);margin-bottom:14px;">选择在名单列表中展示的数据字段，<span
-            style="color:var(--gray-600);font-weight:600;">灰色字段为系统必显，不可取消</span>；其余扩展字段默认全选，可按需取消。</p>
+        <p style="font-size:12.5px;color:var(--gray-400);margin-bottom:14px;">
+          选择在名单列表中展示的数据字段，灰色字段为系统必显，不可取消；其余扩展字段默认全选，可按需取消。</p>
 
         <div style="font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:8px;">系统必显字段</div>
         <div class="field-grid" id="requiredFieldGrid"></div>
@@ -1850,7 +1850,7 @@
             <a href="javascript:void(0)" onclick="selectAllFields(true)"
               style="color:var(--brand);text-decoration:none;">全部选中</a>
             <a href="javascript:void(0)" onclick="selectAllFields(false)"
-              style="color:var(--gray-500);text-decoration:none;">取消全选</a>
+              style="color:var(--brand);text-decoration:none;">取消全选</a>
           </div>
         </div>
         <div class="field-grid" id="fieldGrid"></div>
@@ -1858,10 +1858,20 @@
 
     </div>
     <div class="wizard-footer">
-      <button class="btn btn-default" onclick="closeWizard()">取消</button>
-      <div style="display:flex;gap:10px;">
-        <button class="btn btn-default" id="wizPrevBtn" onclick="wizardPrev()" style="visibility:hidden;">上一步</button>
-        <button class="btn btn-primary" id="wizNextBtn" onclick="wizardNext()">下一步</button>
+      <button class="btn btn-default" id="wizPrevBtn" onclick="wizardPrev()" style="visibility:hidden;">上一步</button>
+      <div style="display:flex;gap:16px;align-items:center;">
+        <label id="autoStartContainer"
+          style="display:none; align-items:center; gap:6px; cursor:pointer; font-size:13px; color:var(--gray-700); font-weight:500; margin:0;">
+          <input type="checkbox" id="autoStartAgent" checked
+            style="accent-color:var(--brand); width:16px; height:16px; cursor:pointer;" onchange="updateNextBtnText()">
+          完成后设为启动
+        </label>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-default" onclick="closeWizard()">取消</button>
+          <button class="btn btn-default" id="wizDraftBtn" onclick="wizardSaveDraft()"
+            style="color:var(--brand); border-color:var(--brand);">保存草稿</button>
+          <button class="btn btn-primary" id="wizNextBtn" onclick="wizardNext()">下一步</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1928,6 +1938,29 @@
         <button class="btn btn-default" onclick="closeConfirm()">取消</button>
         <button class="btn" id="confirmOkBtn" onclick="execConfirm()"
           style="background:#dc2626;color:#fff;">确认删除</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 向导退出二次确认弹窗 ── -->
+  <div class="modal-backdrop" id="wizardCloseModal">
+    <div class="modal-box">
+      <div class="modal-icon danger" style="background:#fff7ed;color:#ea580c;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+      </div>
+      <div class="modal-title">确认退出配置？</div>
+      <div class="modal-desc">退出后未保存的内容将丢失，是否将当前配置暂存为草稿？</div>
+      <div class="modal-btns">
+        <button class="btn btn-default"
+          onclick="document.getElementById('wizardCloseModal').classList.remove('show')">继续编辑</button>
+        <button class="btn btn-default" onclick="forceCloseWizard()"
+          style="color:#ef4444;border-color:#ef4444;">直接退出</button>
+        <button class="btn btn-primary" onclick="wizardSaveDraftFromModal()">保存草稿</button>
       </div>
     </div>
   </div>
@@ -2111,7 +2144,7 @@
         const stats = [
           { k: '累计输出客户', v: a.output > 0 ? a.output.toLocaleString() : '—', vCls: '' },
           { k: '最新批次', v: a.thisMonth > 0 ? a.thisMonth : '—', vCls: '' },
-          { k: '已输出批次', v: a.batches, vCls: 'blue' },
+          { k: '已输出批次', v: a.batches > 0 ? a.batches : '—', vCls: a.batches > 0 ? 'blue' : '' },
           { k: '上次执行', v: a.lastRun || '—', vCls: 'muted' }
         ];
 
@@ -2359,7 +2392,17 @@
       const prevBtn = document.getElementById('wizPrevBtn');
       const nextBtn = document.getElementById('wizNextBtn');
       prevBtn.style.visibility = wizStep > 0 ? 'visible' : 'hidden';
-      nextBtn.textContent = wizStep === WIZ_STEPS.length - 1 ? '完成并启动' : '下一步';
+      const isLastStep = wizStep === WIZ_STEPS.length - 1;
+      const autoStartContainer = document.getElementById('autoStartContainer');
+      if (autoStartContainer) autoStartContainer.style.display = isLastStep ? 'flex' : 'none';
+      const isAutoStart = document.getElementById('autoStartAgent') ? document.getElementById('autoStartAgent').checked : true;
+      nextBtn.textContent = isLastStep ? (isAutoStart ? '完成并启动' : '完成') : '下一步';
+    }
+
+    function updateNextBtnText() {
+      if (wizStep === WIZ_STEPS.length - 1) {
+        document.getElementById('wizNextBtn').textContent = document.getElementById('autoStartAgent').checked ? '完成并启动' : '完成';
+      }
     }
 
     function openWizard(id) {
@@ -2381,6 +2424,7 @@
       }
 
       // 字段网格
+      selectAllFields(true);
       initFieldGrid();
       updateWizardUI();
 
@@ -2394,14 +2438,35 @@
     }
 
     function closeWizard() {
+      document.getElementById('wizardCloseModal').classList.add('show');
+    }
+
+    function forceCloseWizard() {
+      document.getElementById('wizardCloseModal').classList.remove('show');
       document.getElementById('wizardOverlay').classList.remove('show');
       document.getElementById('wizardDrawer').classList.remove('show');
       document.body.style.overflow = '';
     }
 
+    function wizardSaveDraftFromModal() {
+      document.getElementById('wizardCloseModal').classList.remove('show');
+      wizardSaveDraft();
+    }
+
     function wizardNext() {
       if (wizStep < WIZ_STEPS.length - 1) { wizStep++; updateWizardUI(); }
-      else { closeWizard(); showToast('智能体已成功启动 🚀', 'success'); renderGrid(); }
+      else {
+        const isAutoStart = document.getElementById('autoStartAgent') ? document.getElementById('autoStartAgent').checked : true;
+        forceCloseWizard();
+        showToast(isAutoStart ? '智能体已成功启动 🚀' : '智能体已成功保存（未启动）', 'success');
+        renderGrid();
+      }
+    }
+
+    function wizardSaveDraft() {
+      forceCloseWizard();
+      showToast('已成功保存为草稿', 'success');
+      renderGrid();
     }
 
     function wizardPrev() {
@@ -2580,8 +2645,8 @@
       { k: 'honor', label: '荣誉标签', on: true },
       { k: 'loan', label: '无贷户标记', on: true },
       { k: 'contact', label: '联系电话', on: true },
-      { k: 'revenue', label: '年营业收入', on: false },
-      { k: 'intent', label: '意向等级', on: false }
+      { k: 'revenue', label: '年营业收入', on: true },
+      { k: 'intent', label: '意向等级', on: true }
     ];
 
     function initFieldGrid() {
