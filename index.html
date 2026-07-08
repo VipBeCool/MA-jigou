@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,118 +10,129 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
-<div class="app-container">
-  <aside class="sidebar" id="sidebar"></aside>
-  <main class="main-content anim-fade-in" id="main"></main>
-</div>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content anim-fade-in" id="main"></main>
+  </div>
 
-<script src="js/sidebar.js"></script>
-<script>
-// ── 初始化 ──
-const role = sessionStorage.getItem('wb_role') || 'manager';
-const page = 'home';
+  <script src="js/sidebar.js"></script>
+  <script>
+    // ── 初始化 ──
+    const role = sessionStorage.getItem('wb_role') || 'manager';
+    const page = 'home';
 
-renderSidebar({ currentPage: page, role });
+    renderSidebar({ currentPage: page, role });
 
-// ── 数据 Mock ──
-const DATA = {
-  manager: {
-    stats: [
-      { label: '客户总数', value: '3,856', suffix: '', featured: true, subLeft: '待触达', subLeftValue: '468', subLeftSuffix: '家', subRight: '待分配', subRightValue: '126' },
-      { icon: 'clipboard',    label: '本周触达',     value: '72', suffix: '家' },
-      { icon: 'target',       label: '本周意向',     value: '89',   suffix: '' },
-      { icon: 'bank',         label: '本月授信金额', value: '5,280', suffix: '万' },
-      { icon: 'trending_up',  label: '本月放款金额', value: '2,760', suffix: '万' },
-    ],
-    alertBanner: {
-      text: '3 个批次等待分配：橙业贷·5月8日（126家）、厂房贷·5月5日（89家）等待下发',
-      link: 'allocation.html',
-    },
-    shortcuts: [
-      { icon: 'shuffle', label: '名单分配', sub: '下发批次名单', href: 'allocation.html' },
-      { icon: 'network', label: '组织架构', sub: '管理机构层级', href: 'org-config.html' },
-      { icon: 'bot',     label: '智能体',   sub: '配置获客规则', href: 'agents.html' },
-      { icon: 'users',   label: '团队管理', sub: '查看团队绩效', href: 'team.html' },
-      { icon: 'chart',   label: '数据看板', sub: '整体转化分析', href: 'dashboard.html' },
-    ],
-    pendingBatches: [
-      { name: '橙业贷·2026年5月8日批次', status: '未分配', count: 126, age: 3, color: '#f59e0b' },
-      { name: '厂房贷·2026年5月5日批次', status: '未分配', count: 89,  age: 6, color: '#f59e0b' },
-      { name: '科技贷·2026年5月1日批次', status: '部分分配', count: 42, age: 11, color: '#2563eb' },
-    ],
-    teamProgress: [
-      { name: '朱某人', initials: '朱', color: '#8b5cf6', done: 17, target: 20 },
-      { name: '王芳',   initials: '王', color: '#10b981', done: 14, target: 20 },
-      { name: '张伟',   initials: '张', color: '#f59e0b', done: 11, target: 20 },
-      { name: '陈静',   initials: '陈', color: '#ef4444', done: 8,  target: 20 },
-    ],
-    activities: [
-      { enterprise: '苏州科技有限公司', uscc: '91320500MA1TXXXXX1', rm: '王芳', team: '苏州分行', action: '完成首次触达', type: 'touched', time: '刚刚' },
-      { enterprise: '南京制造集团',     uscc: '91320100MA2PXXXXX2', rm: '李明', team: '南京分行', action: '确认意向',     type: 'intent',  time: '1小时前' },
-      { enterprise: '无锡纶织股份公司', uscc: '91320200MA3QXXXXX3', rm: '张伟', team: '苏州分行', action: '完成首次触达', type: 'touched', time: '今天 10:30' },
-      { enterprise: '常州建材有限公司', uscc: '91320400MA4RXXXXX4', rm: '赵静', team: '常州分行', action: '确认意向',     type: 'intent',  time: '昨天' },
-      { enterprise: '镇江食品加工厂',   uscc: '91321100MA5SXXXXX5', rm: '陈浩', team: '镇江分行', action: '再次跟进',     type: 'follow',  time: '昨天' },
-    ],
-  },
-  rm: {
-    stats: [
-      { icon: 'users',        label: '待触达客户', value: '23',   suffix: '家', featured: true, trend: '↓5较上周' },
-      { icon: 'clipboard',    label: '本周触达', value: '45',   suffix: '家' },
-      { icon: 'target',       label: '本周意向', value: '12',   suffix: '家' },
-      { icon: 'bank',         label: '本月授信', value: '1,850', suffix: '万' },
-      { icon: 'trending_up',  label: '本月放款', value: '380',  suffix: '万' },
-    ],
-    shortcuts: [
-      { icon: 'users',    label: '我的客户', sub: '全量名单查看', href: 'customers.html' },
-      { icon: 'activity', label: '营销跟进', sub: '今日待跟进',   href: 'tasks.html' },
-      { icon: 'target',   label: '智能探客', sub: '发现新商机',   href: 'select.html' },
-      { icon: 'alert',    label: '风险预警', sub: '客户风险动态', href: 'risk-alert.html' },
-    ],
-    todos: [
-      { company: '苏州华远科技',   industry: '科技', contact: '张总',   priority: 'high', status: 'pending',   age: 3 },
-      { company: '南京隆兴贸易',   industry: '贸易', contact: '王经理', priority: 'mid',  status: 'contacted', age: 1 },
-      { company: '无锡精密机械',   industry: '制造', contact: '李总',   priority: 'mid',  status: 'pending',   age: 5 },
-      { company: '常州绿能建材',   industry: '建材', contact: '赵老板', priority: 'low',  status: 'pending',   age: 7 },
-      { company: '南通海泰物流',   industry: '物流', contact: '陈总',   priority: 'low',  status: 'pending',   age: 2 },
-    ],
-    followGroups: [
-      { id: 'confirm', label: '确认意向', color: '#ef4444', items: [
-        { name: '南京创新智造集团有限公司', sub: '意向沟通中', time: '2天前', href: 'customer-detail.html' },
-      ]},
-      { id: 'retry',   label: '再次联系', color: '#f59e0b', items: [
-        { name: '苏州生物医药研究院有限公司', sub: '触达失败·无人接听', time: '2天前', href: 'customer-detail.html' },
-        { name: '无锡集成电路设计有限公司',  sub: '触达失败·拒绝沟通', time: '1天前', href: 'customer-detail.html' },
-      ]},
-      { id: 'push',    label: '推进转化', color: '#10b981', items: [
-        { name: '南京艾科微电子有限公司', sub: '明确有意向·待引导申请', time: '3天前', href: 'customer-detail.html' },
-      ]},
-      { id: 'credit',  label: '跟进授信', color: '#2563eb', items: [
-        { name: '无锡光电半导体有限公司',   sub: '已提交申请·等待审批', time: '2天前', href: 'customer-detail.html' },
-        { name: '常州智能制造系统有限公司', sub: '业务审批中',           time: '12天前', href: 'customer-detail.html' },
-      ]},
-      { id: 'drawdown',label: '引导提款', color: '#8b5cf6', items: [
-        { name: '苏州华远科技有限公司', sub: '已授信·未放款', time: '5天前', href: 'customer-detail.html' },
-      ]},
-    ],
-  },
-};
+    // ── 数据 Mock ──
+    const DATA = {
+      manager: {
+        stats: [
+          { label: '客户总数', value: '3,856', suffix: '', featured: true, subLeft: '待触达', subLeftValue: '468', subLeftSuffix: '家', subRight: '待分配', subRightValue: '126' },
+          { icon: 'clipboard', label: '本周触达', value: '72', suffix: '家' },
+          { icon: 'target', label: '本周意向', value: '89', suffix: '' },
+          { icon: 'bank', label: '本月授信金额', value: '5,280', suffix: '万' },
+          { icon: 'trending_up', label: '本月放款金额', value: '2,760', suffix: '万' },
+        ],
+        alertBanner: {
+          text: '3 个批次等待分配：橙业贷·5月8日（126家）、厂房贷·5月5日（89家）等待下发',
+          link: 'allocation.html',
+        },
+        shortcuts: [
+          { icon: 'shuffle', label: '名单分配', sub: '统筹分配营销线索', href: 'allocation.html' },
+          { icon: 'network', label: '组织架构', sub: '灵活配置机构层级', href: 'org-config.html' },
+          { icon: 'bot', label: '智能体', sub: '构建智能获客引擎', href: 'agents.html' },
+          { icon: 'users', label: '团队管理', sub: '掌控团队作业效能', href: 'team.html' },
+          { icon: 'chart', label: '数据看板', sub: '洞察全局营销数据', href: 'dashboard.html' },
+        ],
+        pendingBatches: [
+          { name: '橙业贷·2026年5月8日批次', status: '未分配', count: 126, age: 3, color: '#f59e0b' },
+          { name: '厂房贷·2026年5月5日批次', status: '未分配', count: 89, age: 6, color: '#f59e0b' },
+          { name: '科技贷·2026年5月1日批次', status: '部分分配', count: 42, age: 11, color: '#2563eb' },
+        ],
+        teamProgress: [
+          { name: '朱某人', initials: '朱', color: '#8b5cf6', done: 17, target: 20 },
+          { name: '王芳', initials: '王', color: '#10b981', done: 14, target: 20 },
+          { name: '张伟', initials: '张', color: '#f59e0b', done: 11, target: 20 },
+          { name: '陈静', initials: '陈', color: '#ef4444', done: 8, target: 20 },
+        ],
+        activities: [
+          { enterprise: '苏州科技有限公司', uscc: '91320500MA1TXXXXX1', rm: '王芳', team: '苏州分行', action: '完成首次触达', type: 'touched', time: '刚刚' },
+          { enterprise: '南京制造集团', uscc: '91320100MA2PXXXXX2', rm: '李明', team: '南京分行', action: '确认意向', type: 'intent', time: '1小时前' },
+          { enterprise: '无锡纶织股份公司', uscc: '91320200MA3QXXXXX3', rm: '张伟', team: '苏州分行', action: '完成首次触达', type: 'touched', time: '今天 10:30' },
+          { enterprise: '常州建材有限公司', uscc: '91320400MA4RXXXXX4', rm: '赵静', team: '常州分行', action: '确认意向', type: 'intent', time: '昨天' },
+          { enterprise: '镇江食品加工厂', uscc: '91321100MA5SXXXXX5', rm: '陈浩', team: '镇江分行', action: '再次跟进', type: 'follow', time: '昨天' },
+        ],
+      },
+      rm: {
+        stats: [
+          { icon: 'users', label: '待触达客户', value: '23', suffix: '家', featured: true, trend: '↓5较上周' },
+          { icon: 'clipboard', label: '本周触达', value: '45', suffix: '家' },
+          { icon: 'target', label: '本周意向', value: '12', suffix: '家' },
+          { icon: 'bank', label: '本月授信', value: '1,850', suffix: '万' },
+          { icon: 'trending_up', label: '本月放款', value: '380', suffix: '万' },
+        ],
+        shortcuts: [
+          { icon: 'users', label: '我的客户', sub: '管理全量客户商机', href: 'customers.html' },
+          { icon: 'activity', label: '营销跟进', sub: '推进核心商机转化', href: 'tasks.html' },
+          { icon: 'download', label: '下载中心', sub: '集中提取生成名单', href: 'downloads.html' },
+          { icon: 'target', label: 'AI尽调', sub: '敬请期待', href: 'javascript:void(0)', upcoming: true },
+        ],
+        todos: [
+          { company: '苏州华远科技', industry: '科技', contact: '张总', priority: 'high', status: 'pending', age: 3 },
+          { company: '南京隆兴贸易', industry: '贸易', contact: '王经理', priority: 'mid', status: 'contacted', age: 1 },
+          { company: '无锡精密机械', industry: '制造', contact: '李总', priority: 'mid', status: 'pending', age: 5 },
+          { company: '常州绿能建材', industry: '建材', contact: '赵老板', priority: 'low', status: 'pending', age: 7 },
+          { company: '南通海泰物流', industry: '物流', contact: '陈总', priority: 'low', status: 'pending', age: 2 },
+        ],
+        followGroups: [
+          {
+            id: 'confirm', label: '确认意向', color: '#ef4444', items: [
+              { name: '南京创新智造集团有限公司', sub: '意向沟通中', time: '2天前', href: 'customer-detail.html' },
+            ]
+          },
+          {
+            id: 'retry', label: '再次联系', color: '#f59e0b', items: [
+              { name: '苏州生物医药研究院有限公司', sub: '触达失败·无人接听', time: '2天前', href: 'customer-detail.html' },
+              { name: '无锡集成电路设计有限公司', sub: '触达失败·拒绝沟通', time: '1天前', href: 'customer-detail.html' },
+            ]
+          },
+          {
+            id: 'push', label: '推进转化', color: '#10b981', items: [
+              { name: '南京艾科微电子有限公司', sub: '明确有意向·待引导申请', time: '3天前', href: 'customer-detail.html' },
+            ]
+          },
+          {
+            id: 'credit', label: '跟进授信', color: '#2563eb', items: [
+              { name: '无锡光电半导体有限公司', sub: '已提交申请·等待审批', time: '2天前', href: 'customer-detail.html' },
+              { name: '常州智能制造系统有限公司', sub: '业务审批中', time: '12天前', href: 'customer-detail.html' },
+            ]
+          },
+          {
+            id: 'drawdown', label: '引导提款', color: '#8b5cf6', items: [
+              { name: '苏州华远科技有限公司', sub: '已授信·未放款', time: '5天前', href: 'customer-detail.html' },
+            ]
+          },
+        ],
+      },
+    };
 
-// ── 渲染主内容 ──
-function renderMain() {
-  const d = DATA[role];
-  if (!d) return;
+    // ── 渲染主内容 ──
+    function renderMain() {
+      const d = DATA[role];
+      if (!d) return;
 
-  if (role === 'rm') renderRmView(d);
-  else renderAdminView(d);
-}
+      if (role === 'rm') renderRmView(d);
+      else renderAdminView(d);
+    }
 
-/* ── 统计卡片（参照移动端：1个大主卡 + 4个小卡横排） ── */
-function renderStats(stats) {
-  if (!stats || !stats.length) return '';
-  const featured = stats[0];
-  const rest = stats.slice(1);
-  return `
+    /* ── 统计卡片（参照移动端：1个大主卡 + 4个小卡横排） ── */
+    function renderStats(stats) {
+      if (!stats || !stats.length) return '';
+      const featured = stats[0];
+      const rest = stats.slice(1);
+      return `
     <style>
       .wb-metrics { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
       .wb-metric-hero {
@@ -153,7 +165,7 @@ function renderStats(stats) {
     </style>
     <div class="wb-metrics">
       <!-- 大主卡 -->
-      <div class="wb-metric-hero">
+      <div class="wb-metric-hero" onclick="location.href='customers.html'">
         <div class="wb-metric-hero-arrow">›</div>
         <div class="wb-metric-hero-label">${featured.label}</div>
         <div class="wb-metric-hero-val">${featured.value}<span class="wb-metric-hero-suffix">${featured.suffix}</span></div>
@@ -181,19 +193,19 @@ function renderStats(stats) {
       </div>
     </div>
   `;
-}
+    }
 
 
-/* 管理员视图 */
-function renderAdminView(d) {
-  const r = d;
-  document.getElementById('main').innerHTML = `
+    /* 管理员视图 */
+    function renderAdminView(d) {
+      const r = d;
+      document.getElementById('main').innerHTML = `
     <!-- 页面头部 -->
     <div class="page-header">
       <div class="page-header-left">
         <h1 class="page-title">工作台</h1>
         <p class="page-breadcrumb">
-          ${new Date().toLocaleDateString('zh-CN', { year:'numeric', month:'long', day:'numeric', weekday:'long' })}
+          ${new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })}
         </p>
       </div>
       ${role === 'manager' ? `
@@ -226,10 +238,14 @@ function renderAdminView(d) {
     </div>
     ` : ''}
 
+    <!-- 快捷入口 (全宽) -->
+    <div style="margin-bottom: 24px;">
+      ${r.shortcuts ? renderShortcuts(r.shortcuts) : ''}
+    </div>
+
     <!-- 中间区块 -->
     <div style="display:grid;grid-template-columns:1fr 350px;gap:24px;align-items:start;">
       <div style="display:flex;flex-direction:column;gap:24px;">
-        ${r.shortcuts ? renderShortcuts(r.shortcuts) : ''}
         ${renderRightPanel(r)}
       </div>
       <div style="display:flex;flex-direction:column;gap:24px;">
@@ -237,10 +253,10 @@ function renderAdminView(d) {
       </div>
     </div>
   `;
-}
+    }
 
-function renderShortcuts(shortcuts) {
-  return `
+    function renderShortcuts(shortcuts) {
+      return `
     <div class="card" style="box-shadow:0 4px 20px rgba(0,0,0,0.03);border:none;">
       <div class="card-header"><h3 class="card-title">
         <span class="card-title-icon icon-svg">${ICONS.layers}</span>
@@ -250,9 +266,11 @@ function renderShortcuts(shortcuts) {
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;">
           ${shortcuts.map(s => `
             <a href="${s.href}" class="shortcut-card" style="
-              display:flex;flex-direction:column;align-items:center;gap:10px;
+              display:flex;flex-direction:column;align-items:center;gap:10px;position:relative;
               padding:18px 12px;border-radius:14px;border:1px solid var(--gray-100);
-              text-decoration:none;background:linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);color:var(--gray-800);">
+              text-decoration:none;background:linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);color:var(--gray-800);
+              ${s.upcoming ? 'opacity:0.6;cursor:not-allowed;filter:grayscale(100%);' : ''}">
+              ${s.upcoming ? '<span style="position:absolute;top:6px;right:6px;font-size:10px;background:var(--gray-200);color:var(--gray-600);padding:2px 6px;border-radius:4px;">建设中</span>' : ''}
               <span class="shortcut-icon-box" style="width:42px;height:42px;background:var(--brand-light);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--brand);">
                 <span class="icon-svg" style="width:22px;height:22px;">${ICONS[s.icon] || ''}</span>
               </span>
@@ -264,11 +282,11 @@ function renderShortcuts(shortcuts) {
       </div>
     </div>
   `;
-}
+    }
 
-function renderPendingBatches(r) {
-  if (!r.pendingBatches) return '';
-  return `
+    function renderPendingBatches(r) {
+      if (!r.pendingBatches) return '';
+      return `
     <div class="card" style="box-shadow:0 4px 20px rgba(0,0,0,0.03);border:none;">
       <div class="card-header">
         <h3 class="card-title">
@@ -280,40 +298,39 @@ function renderPendingBatches(r) {
       <div class="card-body" style="padding-top:16px;">
         ${r.pendingBatches.map(b => `
           <div class="batch-item" onclick="location.href='allocation.html'" style="
-            display:flex;align-items:center;gap:16px;padding:16px 20px;
+            display:flex;align-items:center;gap:12px;padding:14px 16px;
             border-radius:12px;border:1px solid var(--gray-100);margin-bottom:12px;
             cursor:pointer;background:#fff;">
-            <div style="width:44px;height:44px;border-radius:12px;background:var(--gray-50);display:flex;align-items:center;justify-content:center;color:var(--gray-500);flex-shrink:0;">
-              <span class="icon-svg" style="width:22px;height:22px;">${ICONS.layers}</span>
+            <div style="width:36px;height:36px;border-radius:10px;background:var(--brand-light);display:flex;align-items:center;justify-content:center;color:var(--brand);flex-shrink:0;">
+              <span class="icon-svg" style="width:18px;height:18px;">${ICONS.layers}</span>
             </div>
-            <div style="flex:1;">
-              <div style="font-size:14.5px;font-weight:600;color:var(--gray-900);">${b.name}</div>
-              <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--gray-400);margin-top:6px;">
-                <span style="background:var(--gray-100);padding:2px 6px;border-radius:4px;">已生成 ${b.age} 天</span>
-                <span>未分配</span>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:14px;font-weight:600;color:var(--gray-900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${b.name}</div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--gray-500);margin-top:6px;">
+                <span style="display:inline-flex;align-items:center;background:#fffbeb;color:#d97706;padding:2px 6px;border-radius:4px;font-weight:500;">未分配</span>
+                <span style="color:var(--gray-400);">已生成 ${b.age} 天</span>
               </div>
             </div>
-            <div style="text-align:right;flex-shrink:0;">
-              <div style="font-size:22px;font-weight:800;color:${b.color}; line-height:1;">${b.count}</div>
-              <div style="font-size:12px;color:var(--gray-400);margin-top:4px;">家企业</div>
+            <div style="text-align:right;flex-shrink:0;padding-left:8px;">
+              <div style="font-size:20px;font-weight:800;color:var(--gray-900); font-family:'SF Mono',monospace;">${b.count}</div>
             </div>
           </div>
         `).join('')}
       </div>
     </div>
   `;
-}
+    }
 
-function renderRightPanel(r) {
-  const activitiesHtml = (r.activities || []).map(a => {
-    const badgeClass = 'activity-badge--' + a.type;
-    const itemClass  = 'activity-item--'  + a.type;
-    const badgeText  = a.type === 'intent' ? '确认意向' : (a.type === 'follow' ? '再次跟进' : '已触达');
-    
-    const iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18"></path><path d="M6 12H4a2 2 0 0 0-2 2v8"></path><path d="M18 16h2a2 2 0 0 1 2 2v4"></path><path d="M10 6h4"></path><path d="M10 10h4"></path><path d="M10 14h4"></path><path d="M10 18h4"></path></svg>`;
-    const timeIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
-    
-    return `
+    function renderRightPanel(r) {
+      const activitiesHtml = (r.activities || []).map(a => {
+        const badgeClass = 'activity-badge--' + a.type;
+        const itemClass = 'activity-item--' + a.type;
+        const badgeText = a.type === 'intent' ? '确认意向' : (a.type === 'follow' ? '再次跟进' : '已触达');
+
+        const iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18"></path><path d="M6 12H4a2 2 0 0 0-2 2v8"></path><path d="M18 16h2a2 2 0 0 1 2 2v4"></path><path d="M10 6h4"></path><path d="M10 10h4"></path><path d="M10 14h4"></path><path d="M10 18h4"></path></svg>`;
+        const timeIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`;
+
+        return `
       <div class="activity-item ${itemClass}">
         <div style="display:flex;align-items:flex-start;gap:12px;">
           <div style="width:38px;height:38px;background:#eff6ff;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--brand);flex-shrink:0;">
@@ -339,9 +356,9 @@ function renderRightPanel(r) {
         </div>
       </div>
     `;
-  }).join('');
+      }).join('');
 
-  return `
+      return `
     <div style="display:flex;flex-direction:column;gap:24px;">
       <div class="card" style="box-shadow:0 4px 20px rgba(0,0,0,0.03);border:none;">
         <div class="card-header">
@@ -355,13 +372,22 @@ function renderRightPanel(r) {
           <style>
             .activity-item {
               background: #fff; border-radius: 10px; padding: 14px;
-              border: 1px solid var(--gray-200); box-shadow: 0 1px 4px rgba(0,0,0,0.03); border-left: 4px solid transparent;
+              border: 1px solid var(--gray-200); box-shadow: 0 1px 4px rgba(0,0,0,0.03);
               margin-bottom: 12px; transition: all 0.2s; cursor: pointer;
+              position: relative; z-index: 1; overflow: hidden;
             }
-            .activity-item:hover { border-color: var(--brand); box-shadow: 0 4px 12px rgba(37,99,235,0.08); }
-            .activity-item--intent  { border-left-color: #10b981 !important; }
-            .activity-item--touched { border-left-color: #3b82f6 !important; }
-            .activity-item--follow  { border-left-color: #f59e0b !important; }
+            .activity-item::before {
+              content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: transparent; transition: background 0.2s;
+            }
+            .activity-item:hover { 
+              border-color: var(--brand);
+              box-shadow: 0 6px 16px rgba(37,99,235,0.08); 
+              transform: translateY(-2px);
+              z-index: 2;
+            }
+            .activity-item--intent::before  { background: #10b981; }
+            .activity-item--touched::before { background: #3b82f6; }
+            .activity-item--follow::before  { background: #f59e0b; }
             .activity-badge--intent { color: #10b981; }
             .activity-badge--touched { color: #3b82f6; }
             .activity-badge--follow { color: #f59e0b; }
@@ -371,14 +397,14 @@ function renderRightPanel(r) {
       </div>
     </div>
   `;
-}
+    }
 
-/* 客户经理视图 */
-function renderRmView(d) {
-  // 把所有分组按 PC 多列方式渲染，每组一列
-  const followCols = (d.followGroups || []).map(g => {
-    const total = g.items.length;
-    const rows = g.items.map(item => `
+    /* 客户经理视图 */
+    function renderRmView(d) {
+      // 把所有分组按 PC 多列方式渲染，每组一列
+      const followCols = (d.followGroups || []).map(g => {
+        const total = g.items.length;
+        const rows = g.items.map(item => `
       <a href="${item.href}" class="follow-pc-row">
         <div class="follow-pc-dot" style="background:${g.color};"></div>
         <div class="follow-pc-info">
@@ -388,7 +414,7 @@ function renderRmView(d) {
         <span class="icon-svg follow-pc-chev">${ICONS.chevron_right}</span>
       </a>
     `).join('');
-    return `
+        return `
       <div class="follow-pc-col">
         <div class="follow-pc-col-hd" style="border-left:3px solid ${g.color};">
           <span class="follow-pc-col-label">${g.label}</span>
@@ -397,9 +423,9 @@ function renderRmView(d) {
         <div class="follow-pc-rows">${rows}</div>
       </div>
     `;
-  }).join('');
+      }).join('');
 
-  document.getElementById('main').innerHTML = `
+      document.getElementById('main').innerHTML = `
     <style>
       .premium-card { background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%); color: white; position: relative; overflow: hidden; box-shadow: 0 12px 24px -8px rgba(37,99,235,0.5); border: none; }
       .premium-card::before { content: ''; position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%); border-radius: 50%; }
@@ -429,7 +455,7 @@ function renderRmView(d) {
       <div class="page-header-left">
         <h1 class="page-title">工作台</h1>
         <p class="page-breadcrumb">
-          ${new Date().toLocaleDateString('zh-CN', { year:'numeric', month:'long', day:'numeric', weekday:'long' })}
+          ${new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })}
         </p>
       </div>
       <a href="customers.html" class="btn btn-primary" style="box-shadow: 0 4px 12px rgba(37,99,235,0.3);">
@@ -461,9 +487,10 @@ function renderRmView(d) {
       </div>
     </div>
   `;
-}
+    }
 
-renderMain();
-</script>
+    renderMain();
+  </script>
 </body>
+
 </html>

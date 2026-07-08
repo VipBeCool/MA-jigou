@@ -786,24 +786,19 @@
   </div>
 
   <!-- 导出任务已提交弹窗 -->
-  <div id="downloadModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:999999; align-items:center; justify-content:center;">
-    <div class="modal-content" style="background:#fff; width:400px; border-radius:8px; padding:24px; box-shadow:0 4px 12px rgba(0,0,0,0.15); position:relative;">
-      <div style="position:absolute; top:16px; right:16px; cursor:pointer; color:#999; transition:color 0.2s;" onclick="closeDownloadModal()" onmouseover="this.style.color='#333'" onmouseout="this.style.color='#999'">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-      </div>
-      <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#52c41a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-        <h3 style="margin:0; font-size:16px; color:#262626;">导出任务已提交</h3>
-      </div>
-      <div style="margin-bottom:24px; color:#595959; font-size:14px; padding-left:36px;">
-        后台正在为您生成导出文件，请稍后前往「下载中心」查看和下载。
-      </div>
-      <div style="display:flex; justify-content:flex-end; gap:12px;">
-        <button class="btn btn-default" onclick="closeDownloadModal()">我知道了</button>
-        <button class="btn btn-primary" onclick="gotoDownloadCenter()">前往下载中心</button>
-      </div>
+<div class="notify-backdrop" id="downloadModal">
+  <div class="notify-box">
+    <div class="notify-icon success">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="notify-title">导出任务已提交</div>
+    <div class="notify-desc">后台正在为您生成导出文件，请稍后前往「下载中心」查看和下载。</div>
+    <div class="notify-btns">
+      <button class="btn btn-default" onclick="location.href='downloads.html'">前往下载中心</button>
+      <button class="btn btn-primary" onclick="closeDownloadModal()">知道了</button>
     </div>
   </div>
+</div>
 
   <script src="js/sidebar.js"></script>
   <script>

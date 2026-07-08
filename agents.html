@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,6 +19,7 @@
       gap: 10px;
       margin-bottom: 20px;
     }
+
     .agents-search-box {
       display: flex;
       align-items: center;
@@ -29,17 +31,32 @@
       transition: border-color 0.2s;
       min-width: 200px;
     }
-    .agents-search-box:focus-within { border-color: var(--brand); }
-    .agents-search-box input {
-      border: none; background: transparent; outline: none;
-      font-size: 13px; color: var(--gray-900); flex: 1; min-width: 100px;
+
+    .agents-search-box:focus-within {
+      border-color: var(--brand);
     }
+
+    .agents-search-box input {
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 13px;
+      color: var(--gray-900);
+      flex: 1;
+      min-width: 100px;
+    }
+
     .agents-search-box svg {
-      width: 14px; height: 14px;
-      stroke: var(--gray-400); fill: none;
-      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+      width: 14px;
+      height: 14px;
+      stroke: var(--gray-400);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
       flex-shrink: 0;
     }
+
     .filter-select {
       padding: 8px 28px 8px 12px;
       border: 1.5px solid var(--border);
@@ -54,7 +71,12 @@
       background-repeat: no-repeat;
       background-position: right 10px center;
     }
-    .filter-select:focus { border-color: var(--brand); outline: none; }
+
+    .filter-select:focus {
+      border-color: var(--brand);
+      outline: none;
+    }
+
     .agents-count {
       margin-left: auto;
       font-size: 13px;
@@ -68,8 +90,11 @@
       grid-template-columns: repeat(3, 1fr);
       gap: 18px;
     }
+
     @media (max-width: 1200px) {
-      .agent-grid { grid-template-columns: repeat(2, 1fr); }
+      .agent-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     /* ── 智能体卡片 ── */
@@ -78,7 +103,7 @@
       border-radius: 12px;
       border: 1px solid var(--border);
       border-left: 4px solid var(--gray-300);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
       display: flex;
       flex-direction: column;
       cursor: pointer;
@@ -87,19 +112,38 @@
       overflow: hidden;
       min-height: 290px;
     }
-    .agent-card.status-running { border-color: #bfdbfe; border-left: 4px solid var(--brand); }
-    .agent-card.status-paused  { border-color: #fde68a; border-left: 4px solid #f59e0b; }
-    .agent-card.status-draft   { border-color: var(--gray-200); border-left: 4px solid var(--gray-400); }
+
+    .agent-card.status-running {
+      border-color: #bfdbfe;
+      border-left: 4px solid var(--brand);
+    }
+
+    .agent-card.status-paused {
+      border-color: #fde68a;
+      border-left: 4px solid #f59e0b;
+    }
+
+    .agent-card.status-draft {
+      border-color: var(--gray-200);
+      border-left: 4px solid var(--gray-400);
+    }
+
     .agent-card:hover {
-      box-shadow: 0 4px 18px rgba(37,99,235,0.12);
+      box-shadow: 0 4px 18px rgba(37, 99, 235, 0.12);
       transform: translateY(-2px);
     }
+
     .agent-card.highlighted {
       outline: 2px solid var(--brand);
       outline-offset: 2px;
     }
 
-    .agent-card-inner { padding: 20px 20px 20px 18px; flex: 1; display: flex; flex-direction: column; }
+    .agent-card-inner {
+      padding: 20px 20px 20px 18px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
 
     /* ── 卡片顶部 ── */
     .amc-top {
@@ -108,21 +152,53 @@
       justify-content: space-between;
       margin-bottom: 12px;
     }
+
     .amc-icon {
-      width: 36px; height: 36px;
+      width: 36px;
+      height: 36px;
       border-radius: 9px;
-      display: flex; align-items: center; justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       flex-shrink: 0;
     }
-    .amc-icon svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-    .amc-icon.running { background: #eff6ff; color: var(--brand); }
-    .amc-icon.paused  { background: #fffbeb; color: #d97706; }
-    .amc-icon.draft   { background: var(--gray-100); color: var(--gray-400); }
 
-    .amc-actions { display: flex; align-items: center; gap: 4px; }
+    .amc-icon svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .amc-icon.running {
+      background: #eff6ff;
+      color: var(--brand);
+    }
+
+    .amc-icon.paused {
+      background: #fffbeb;
+      color: #d97706;
+    }
+
+    .amc-icon.draft {
+      background: var(--gray-100);
+      color: var(--gray-400);
+    }
+
+    .amc-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
 
     /* ── 卡片内容 ── */
-    .amc-body { flex: 1; }
+    .amc-body {
+      flex: 1;
+    }
+
     .amc-title {
       font-size: 14px;
       font-weight: 700;
@@ -133,6 +209,7 @@
       margin-bottom: 4px;
       line-height: 1.3;
     }
+
     .amc-sub {
       font-size: 12px;
       color: var(--gray-400);
@@ -148,7 +225,11 @@
       margin-top: auto;
       padding-top: 16px;
     }
-    .amc-stat { padding: 0; }
+
+    .amc-stat {
+      padding: 0;
+    }
+
     .stat-k {
       font-size: 11px;
       color: var(--gray-400);
@@ -158,17 +239,22 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+
     .stat-v {
       font-size: 22px;
       font-weight: 700;
       color: var(--gray-900);
       line-height: 1.2;
     }
-    .stat-v.blue { color: var(--brand); }
+
+    .stat-v.blue {
+      color: var(--brand);
+    }
+
     .stat-v.muted {
-      font-size: 13px;
+      font-size: 15px;
       font-weight: 600;
-      color: var(--gray-600);
+      color: var(--gray-700);
       line-height: 1.5;
     }
 
@@ -187,61 +273,134 @@
       min-height: 290px;
       transition: border-color 0.2s, background 0.2s;
     }
-    .create-card:hover { border-color: var(--brand); background: var(--brand-light); }
+
+    .create-card:hover {
+      border-color: var(--brand);
+      background: var(--brand-light);
+    }
+
     .create-card-icon {
-      width: 44px; height: 44px;
+      width: 44px;
+      height: 44px;
       border-radius: 12px;
       background: var(--gray-100);
-      display: flex; align-items: center; justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       color: var(--gray-400);
       transition: background 0.2s, color 0.2s;
     }
-    .create-card:hover .create-card-icon { background: #dbeafe; color: var(--brand); }
-    .create-card-icon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-    .create-card-title { font-size: 14px; font-weight: 600; color: var(--gray-700); }
-    .create-card-sub { font-size: 12px; color: var(--gray-400); text-align: center; line-height: 1.6; }
+
+    .create-card:hover .create-card-icon {
+      background: #dbeafe;
+      color: var(--brand);
+    }
+
+    .create-card-icon svg {
+      width: 22px;
+      height: 22px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .create-card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gray-700);
+    }
+
+    .create-card-sub {
+      font-size: 12px;
+      color: var(--gray-400);
+      text-align: center;
+      line-height: 1.6;
+    }
 
     /* ══════════════════════════════════════
        通用右侧抽屉（详情 & 向导共用）
        ══════════════════════════════════════ */
     .side-overlay {
       display: none;
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.28);
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.28);
       z-index: 900;
     }
-    .side-overlay.show { display: block; }
+
+    .side-overlay.show {
+      display: block;
+    }
 
     .side-drawer {
       position: fixed;
-      top: 0; right: -880px;
+      top: 0;
+      right: -880px;
       width: 860px;
       height: 100vh;
       background: var(--bg-card);
       z-index: 901;
-      box-shadow: -4px 0 32px rgba(0,0,0,0.14);
+      box-shadow: -4px 0 32px rgba(0, 0, 0, 0.14);
       display: flex;
       flex-direction: column;
       transition: right 0.32s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .side-drawer.show { right: 0; }
+
+    .side-drawer.show {
+      right: 0;
+    }
 
     .drawer-header {
-      display: flex; align-items: center; justify-content: space-between;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       padding: 18px 24px;
       border-bottom: 1px solid var(--border);
       flex-shrink: 0;
     }
-    .drawer-title { font-size: 17px; font-weight: 700; color: var(--gray-900); }
-    .drawer-subtitle { font-size: 12.5px; color: var(--gray-400); margin-top: 2px; }
-    .drawer-close-btn {
-      width: 32px; height: 32px;
-      border-radius: 8px; border: none; background: transparent; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--gray-400); transition: background 0.15s, color 0.15s;
+
+    .drawer-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--gray-900);
     }
-    .drawer-close-btn:hover { background: var(--gray-100); color: var(--gray-700); }
-    .drawer-close-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    .drawer-subtitle {
+      font-size: 12.5px;
+      color: var(--gray-400);
+      margin-top: 2px;
+    }
+
+    .drawer-close-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray-400);
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .drawer-close-btn:hover {
+      background: var(--gray-100);
+      color: var(--gray-700);
+    }
+
+    .drawer-close-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
 
     .drawer-tabs {
       display: flex;
@@ -249,72 +408,166 @@
       padding: 0 24px;
       flex-shrink: 0;
     }
+
     .drawer-tab {
       padding: 12px 16px;
-      font-size: 13.5px; font-weight: 500; color: var(--gray-500);
-      cursor: pointer; border-bottom: 2px solid transparent;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--gray-500);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
       transition: color 0.15s, border-color 0.15s;
       margin-bottom: -1px;
     }
-    .drawer-tab.active { color: var(--brand); border-bottom-color: var(--brand); font-weight: 600; }
-    .drawer-tab:hover:not(.active) { color: var(--gray-700); }
 
-    .drawer-body { flex: 1; overflow-y: auto; }
-    .drawer-pane { display: none; padding: 22px 24px; }
-    .drawer-pane.active { display: block; }
+    .drawer-tab.active {
+      color: var(--brand);
+      border-bottom-color: var(--brand);
+      font-weight: 600;
+    }
+
+    .drawer-tab:hover:not(.active) {
+      color: var(--gray-700);
+    }
+
+    .drawer-body {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .drawer-pane {
+      display: none;
+      padding: 22px 24px;
+    }
+
+    .drawer-pane.active {
+      display: block;
+    }
 
     /* 详情行 */
     .info-row {
-      display: flex; padding: 10px 0;
+      display: flex;
+      padding: 10px 0;
       border-bottom: 1px solid var(--gray-100);
       font-size: 13.5px;
     }
-    .info-row:last-child { border-bottom: none; }
-    .info-label { width: 110px; color: var(--gray-400); flex-shrink: 0; }
-    .info-value { color: var(--gray-800); flex: 1; line-height: 1.6; }
+
+    .info-row:last-child {
+      border-bottom: none;
+    }
+
+    .info-label {
+      width: 110px;
+      color: var(--gray-400);
+      flex-shrink: 0;
+    }
+
+    .info-value {
+      color: var(--gray-800);
+      flex: 1;
+      line-height: 1.6;
+    }
 
     /* ── 批次 Tab ── */
     .summary-cards {
-      display: grid; grid-template-columns: repeat(3,1fr); gap: 14px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
       margin-bottom: 18px;
     }
+
     .summary-card {
-      background: var(--gray-50); border-radius: 10px;
-      padding: 14px 16px; text-align: center;
+      background: var(--gray-50);
+      border-radius: 10px;
+      padding: 14px 16px;
+      text-align: center;
     }
-    .summary-card-label { font-size: 12px; color: var(--gray-400); margin-bottom: 5px; }
-    .summary-card-value { font-size: 22px; font-weight: 700; color: var(--gray-900); }
-    .summary-card-value.blue { color: var(--brand); }
+
+    .summary-card-label {
+      font-size: 12px;
+      color: var(--gray-400);
+      margin-bottom: 5px;
+    }
+
+    .summary-card-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--gray-900);
+    }
+
+    .summary-card-value.blue {
+      color: var(--brand);
+    }
 
     .batch-toolbar {
-      display: flex; gap: 8px; margin-bottom: 14px; align-items: center;
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      align-items: center;
     }
-    .batch-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .batch-table thead tr { background: var(--gray-50); }
+
+    .batch-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .batch-table thead tr {
+      background: var(--gray-50);
+    }
+
     .batch-table th {
-      padding: 10px 12px; text-align: left;
-      font-size: 12px; font-weight: 600; color: var(--gray-500);
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gray-500);
       border-bottom: 1px solid var(--border);
     }
+
     .batch-table td {
       padding: 10px 12px;
       border-bottom: 1px solid var(--gray-100);
       color: var(--gray-700);
       vertical-align: middle;
     }
-    .batch-table tr:last-child td { border-bottom: none; }
-    .batch-table tr:hover td { background: var(--gray-50); }
+
+    .batch-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .batch-table tr:hover td {
+      background: var(--gray-50);
+    }
 
     /* ── 白名单快照 Tab ── */
     .snapshot-header {
-      display: flex; align-items: center; justify-content: space-between;
-      background: var(--gray-50); border-radius: 10px;
-      padding: 14px 18px; margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--gray-50);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 16px;
     }
-    .snapshot-header-info .label { font-size: 12px; color: var(--gray-400); margin-bottom: 3px; }
-    .snapshot-header-info .value { font-size: 24px; font-weight: 700; color: var(--brand); }
 
-    .wl-toolbar { display: flex; gap: 8px; margin-bottom: 14px; }
+    .snapshot-header-info .label {
+      font-size: 12px;
+      color: var(--gray-400);
+      margin-bottom: 3px;
+    }
+
+    .snapshot-header-info .value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--brand);
+    }
+
+    .wl-toolbar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
 
 
 
@@ -322,18 +575,51 @@
     .log-item {
       display: grid;
       grid-template-columns: 140px 16px 1fr auto;
-      align-items: center; gap: 12px;
+      align-items: center;
+      gap: 12px;
       padding: 11px 0;
       border-bottom: 1px solid var(--gray-100);
     }
-    .log-item:last-child { border-bottom: none; }
-    .log-time { color: var(--gray-400); font-size: 12px; }
-    .log-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .log-dot.success { background: #10b981; }
-    .log-dot.info    { background: #3b82f6; }
-    .log-dot.warning { background: #f59e0b; }
-    .log-detail { color: var(--gray-700); font-size: 13px; }
-    .log-count { font-size: 12px; color: var(--brand); text-align: right; white-space: nowrap; }
+
+    .log-item:last-child {
+      border-bottom: none;
+    }
+
+    .log-time {
+      color: var(--gray-400);
+      font-size: 12px;
+    }
+
+    .log-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .log-dot.success {
+      background: #10b981;
+    }
+
+    .log-dot.info {
+      background: #3b82f6;
+    }
+
+    .log-dot.warning {
+      background: #f59e0b;
+    }
+
+    .log-detail {
+      color: var(--gray-700);
+      font-size: 13px;
+    }
+
+    .log-count {
+      font-size: 12px;
+      color: var(--brand);
+      text-align: right;
+      white-space: nowrap;
+    }
 
     /* ── 危险区 ── */
     .danger-zone {
@@ -343,1763 +629,2307 @@
       border-radius: 10px;
       background: #fff5f5;
     }
-    .danger-zone-title { font-size: 13px; font-weight: 700; color: #dc2626; margin-bottom: 4px; }
-    .danger-zone-desc { font-size: 12.5px; color: #ef4444; margin-bottom: 12px; }
+
+    .danger-zone-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #dc2626;
+      margin-bottom: 4px;
+    }
+
+    .danger-zone-desc {
+      font-size: 12.5px;
+      color: #ef4444;
+      margin-bottom: 12px;
+    }
 
     /* ══════════════════════════════════════
        向导 Drawer（右侧抽屉）
        ══════════════════════════════════════ */
     .wizard-drawer {
       position: fixed;
-      top: 0; right: -880px;
+      top: 0;
+      right: -880px;
       width: 860px;
       height: 100vh;
       background: var(--bg-card);
       z-index: 1000;
-      box-shadow: -4px 0 32px rgba(0,0,0,0.18);
+      box-shadow: -4px 0 32px rgba(0, 0, 0, 0.18);
       display: flex;
       flex-direction: column;
       transition: right 0.32s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .wizard-drawer.show { right: 0; }
+
+    .wizard-drawer.show {
+      right: 0;
+    }
 
     .wizard-head {
       padding: 20px 24px 0;
       border-bottom: 1px solid var(--border);
       flex-shrink: 0;
     }
+
     .wizard-head-row {
-      display: flex; align-items: center; justify-content: space-between;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       margin-bottom: 18px;
     }
-    .wizard-title-text { font-size: 17px; font-weight: 700; color: var(--gray-900); }
+
+    .wizard-title-text {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--gray-900);
+    }
 
     /* 步骤条 */
     .wiz-steps {
-      display: flex; align-items: center;
-      padding-bottom: 18px; overflow-x: auto;
+      display: flex;
+      align-items: center;
+      padding-bottom: 18px;
+      overflow-x: auto;
     }
-    .wiz-step { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+
+    .wiz-step {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
     .wiz-step-num {
-      width: 22px; height: 22px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: 700; flex-shrink: 0;
-      background: var(--gray-200); color: var(--gray-500);
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+      background: var(--gray-200);
+      color: var(--gray-500);
       transition: all 0.2s;
     }
-    .wiz-step.active .wiz-step-num { background: var(--brand); color: #fff; }
-    .wiz-step.done .wiz-step-num   { background: #10b981; color: #fff; }
-    .wiz-step-label {
-      font-size: 12px; color: var(--gray-400); font-weight: 500;
+
+    .wiz-step.active .wiz-step-num {
+      background: var(--brand);
+      color: #fff;
     }
-    .wiz-step.active .wiz-step-label { color: var(--brand); font-weight: 600; }
-    .wiz-step.done .wiz-step-label   { color: #10b981; }
+
+    .wiz-step.done .wiz-step-num {
+      background: #10b981;
+      color: #fff;
+    }
+
+    .wiz-step-label {
+      font-size: 12px;
+      color: var(--gray-400);
+      font-weight: 500;
+    }
+
+    .wiz-step.active .wiz-step-label {
+      color: var(--brand);
+      font-weight: 600;
+    }
+
+    .wiz-step.done .wiz-step-label {
+      color: #10b981;
+    }
+
     .wiz-line {
-      flex: 1; height: 2px; background: var(--gray-200);
-      margin: 0 6px; min-width: 16px;
+      flex: 1;
+      height: 2px;
+      background: var(--gray-200);
+      margin: 0 6px;
+      min-width: 16px;
       transition: background 0.2s;
     }
-    .wiz-line.done { background: #10b981; }
 
-    .wizard-body { flex: 1; overflow-y: auto; padding: 22px 24px; }
-    .wizard-page { display: none; }
-    .wizard-page.active { display: block; }
+    .wiz-line.done {
+      background: #10b981;
+    }
+
+    .wizard-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 22px 24px;
+    }
+
+    .wizard-page {
+      display: none;
+    }
+
+    .wizard-page.active {
+      display: block;
+    }
 
     .wizard-footer {
       padding: 14px 24px;
       border-top: 1px solid var(--border);
-      display: flex; justify-content: space-between; align-items: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       flex-shrink: 0;
       background: var(--bg-card);
     }
 
     /* 向导表单 */
-    .form-group { margin-bottom: 16px; }
+    .form-group {
+      margin-bottom: 16px;
+    }
+
     .form-label {
       display: block;
-      font-size: 13px; font-weight: 600; color: var(--gray-700);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-700);
       margin-bottom: 6px;
     }
+
     .form-input {
-      width: 100%; padding: 9px 12px;
-      border: 1.5px solid var(--border); border-radius: 8px;
-      font-size: 13.5px; color: var(--gray-800); background: #fff;
-      transition: border-color 0.15s; box-sizing: border-box;
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 13.5px;
+      color: var(--gray-800);
+      background: #fff;
+      transition: border-color 0.15s;
+      box-sizing: border-box;
       outline: none;
     }
-    .form-input:focus { border-color: var(--brand); }
+
+    .form-input:focus {
+      border-color: var(--brand);
+    }
+
     .form-select {
-      width: 100%; padding: 9px 32px 9px 12px;
-      border: 1.5px solid var(--border); border-radius: 8px;
-      font-size: 13.5px; color: var(--gray-800); background: #fff;
-      outline: none; cursor: pointer;
-      -webkit-appearance: none; appearance: none;
+      width: 100%;
+      padding: 9px 32px 9px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 13.5px;
+      color: var(--gray-800);
+      background: #fff;
+      outline: none;
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 10px center;
       box-sizing: border-box;
     }
-    .form-select:focus { border-color: var(--brand); }
-    .form-hint { font-size: 12px; color: var(--gray-400); margin-top: 4px; }
+
+    .form-select:focus {
+      border-color: var(--brand);
+    }
+
+    .form-hint {
+      font-size: 12px;
+      color: var(--gray-400);
+      margin-top: 4px;
+    }
 
     .section-heading {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 13.5px; font-weight: 700; color: var(--gray-800);
-      margin: 22px 0 12px; padding-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin: 22px 0 12px;
+      padding-bottom: 8px;
       border-bottom: 1px solid var(--gray-100);
     }
-    .section-heading:first-child { margin-top: 0; }
+
+    .section-heading::before {
+      content: '';
+      display: block;
+      width: 4px;
+      height: 14px;
+      background: var(--brand);
+      border-radius: 2px;
+    }
+
+    .section-heading:first-child {
+      margin-top: 0;
+    }
+
     .section-heading svg {
-      width: 15px; height: 15px;
-      stroke: var(--brand); fill: none;
-      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+      width: 15px;
+      height: 15px;
+      stroke: var(--brand);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     /* AND/OR 切换 */
     .logic-toggle {
       display: inline-flex;
       border: 1.5px solid var(--border);
-      border-radius: 8px; overflow: hidden; margin-bottom: 14px;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 14px;
     }
+
     .logic-btn {
-      padding: 5px 18px; font-size: 13px; font-weight: 600;
-      cursor: pointer; border: none; background: #fff; color: var(--gray-500);
+      padding: 5px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      background: #fff;
+      color: var(--gray-500);
       transition: all 0.15s;
     }
-    .logic-btn.active { background: var(--brand); color: #fff; }
+
+    .logic-btn.active {
+      background: var(--brand);
+      color: #fff;
+    }
 
     /* 规则行 */
     .rule-row {
-      display: flex; gap: 8px; align-items: center;
-      margin-bottom: 8px; padding: 10px 12px;
-      background: var(--gray-50); border-radius: 8px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+      padding: 10px 12px;
+      background: var(--gray-50);
+      border-radius: 8px;
       border: 1px solid var(--border);
     }
-    .rule-row select, .rule-row input {
-      flex: 1; padding: 6px 10px;
-      border: 1px solid var(--border); border-radius: 7px;
-      font-size: 13px; background: #fff; color: var(--gray-800); outline: none;
+
+    .rule-row select,
+    .rule-row input {
+      flex: 1;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      font-size: 13px;
+      background: #fff;
+      color: var(--gray-800);
+      outline: none;
     }
-    .rule-row select:focus, .rule-row input:focus { border-color: var(--brand); }
+
+    .rule-row select:focus,
+    .rule-row input:focus {
+      border-color: var(--brand);
+    }
+
     .rule-del-btn {
-      width: 26px; height: 26px; border-radius: 6px;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; border: none; background: transparent;
-      color: var(--gray-300); transition: color 0.15s, background 0.15s;
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--gray-300);
+      transition: color 0.15s, background 0.15s;
       flex-shrink: 0;
     }
-    .rule-del-btn:hover { color: #ef4444; background: #fef2f2; }
+
+    .rule-del-btn:hover {
+      color: #ef4444;
+      background: #fef2f2;
+    }
 
     /* 数据源选项（tag样式多选） */
-    .source-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+    .source-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
     .source-tag {
-      display: flex; align-items: center; gap: 6px;
-      padding: 7px 16px; border-radius: 8px;
-      font-size: 13px; font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
       border: 1.5px solid var(--border);
-      cursor: pointer; color: var(--gray-600); background: #fff;
-      transition: all 0.15s; user-select: none;
+      cursor: pointer;
+      color: var(--gray-600);
+      background: #fff;
+      transition: all 0.15s;
+      user-select: none;
     }
+
     .source-tag.active {
-      border-color: var(--brand); background: var(--brand-light); color: var(--brand);
+      border-color: var(--brand);
+      background: var(--brand-light);
+      color: var(--brand);
     }
-    .source-tag:hover:not(.active) { border-color: var(--gray-300); }
+
+    .source-tag:hover:not(.active) {
+      border-color: var(--gray-300);
+    }
 
     /* 名单处理选项（单选） */
-    .process-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 2px; }
+    .process-opts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
     .process-opt {
-      display: flex; align-items: flex-start; gap: 10px;
-      padding: 12px 14px; border: 1.5px solid var(--border);
-      border-radius: 9px; cursor: pointer; background: #fff;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      cursor: pointer;
+      background: #fff;
       transition: all 0.15s;
     }
-    .process-opt.active { border-color: var(--brand); background: var(--brand-light); }
-    .process-opt-label { font-size: 13.5px; font-weight: 600; color: var(--gray-800); }
-    .process-opt-desc { font-size: 12px; color: var(--gray-400); margin-top: 1px; }
+
+    .process-opt.active {
+      border-color: var(--brand);
+      background: var(--brand-light);
+    }
+
+    .process-opt-label {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--gray-800);
+    }
+
+    .process-opt-desc {
+      font-size: 12px;
+      color: var(--gray-400);
+      margin-top: 1px;
+    }
 
     /* 频率选项 */
-    .freq-options { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .freq-options {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
     .freq-opt {
-      padding: 6px 14px; border-radius: 8px;
-      font-size: 13px; font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
       border: 1.5px solid var(--border);
-      cursor: pointer; color: var(--gray-600); background: #fff;
+      cursor: pointer;
+      color: var(--gray-600);
+      background: #fff;
       transition: all 0.15s;
     }
-    .freq-opt:hover { border-color: var(--brand-border); color: var(--brand); }
-    .freq-opt.active { border-color: var(--brand); background: var(--brand-light); color: var(--brand); }
+
+    .freq-opt:hover {
+      border-color: var(--brand-border);
+      color: var(--brand);
+    }
+
+    .freq-opt.active {
+      border-color: var(--brand);
+      background: var(--brand-light);
+      color: var(--brand);
+    }
+
     .freq-detail {
-      background: var(--gray-50); border-radius: 8px;
-      padding: 12px 14px; margin-top: 4px;
+      background: var(--gray-50);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-top: 4px;
     }
+
     .day-tag {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 30px; height: 30px; border-radius: 6px;
-      font-size: 12px; font-weight: 500; cursor: pointer;
-      border: 1.5px solid var(--border); color: var(--gray-600);
-      background: #fff; transition: all 0.15s; user-select: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1.5px solid var(--border);
+      color: var(--gray-600);
+      background: #fff;
+      transition: all 0.15s;
+      user-select: none;
     }
-    .day-tag.selected { border-color: var(--brand); background: var(--brand-light); color: var(--brand); }
+
+    .day-tag.selected {
+      border-color: var(--brand);
+      background: var(--brand-light);
+      color: var(--brand);
+    }
 
     /* 字段选择网格 */
-    .field-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-top: 10px; }
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+
     .field-btn {
-      display: flex; align-items: center; gap: 6px;
-      padding: 8px 10px; border-radius: 7px; cursor: pointer;
-      border: 1.5px solid var(--border); background: #fff;
-      font-size: 12.5px; color: var(--gray-700); transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 10px;
+      border-radius: 7px;
+      cursor: pointer;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      font-size: 12.5px;
+      color: var(--gray-700);
+      transition: all 0.15s;
     }
+
     .field-btn.required {
-      background: var(--gray-100); border-color: var(--gray-200);
-      color: var(--gray-500); cursor: default;
+      background: var(--gray-100);
+      border-color: var(--gray-200);
+      color: var(--gray-500);
+      cursor: default;
     }
+
     .field-btn.on {
-      border-color: var(--brand); background: var(--brand-light);
-      color: var(--brand); font-weight: 600;
+      border-color: var(--brand);
+      background: var(--brand-light);
+      color: var(--brand);
+      font-weight: 600;
     }
 
     /* 上传区 */
     .upload-zone {
-      border: 2px dashed var(--gray-300); border-radius: 10px;
-      padding: 28px; text-align: center; cursor: pointer;
+      border: 2px dashed var(--gray-300);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
       transition: border-color 0.2s, background 0.2s;
     }
-    .upload-zone:hover { border-color: var(--brand); background: var(--brand-light); }
-    .upload-zone svg { margin: 0 auto 10px; display: block; }
+
+    .upload-zone:hover {
+      border-color: var(--brand);
+      background: var(--brand-light);
+    }
+
+    .upload-zone svg {
+      margin: 0 auto 6px;
+      display: block;
+    }
 
     /* Toggle 开关 */
-    .toggle-wrap { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-    .toggle-switch {
-      position: relative; width: 40px; height: 22px;
-      background: var(--gray-300); border-radius: 11px;
-      transition: background 0.2s; flex-shrink: 0; cursor: pointer;
+    .toggle-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
     }
+
+    .toggle-switch {
+      position: relative;
+      width: 40px;
+      height: 22px;
+      background: var(--gray-300);
+      border-radius: 11px;
+      transition: background 0.2s;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
     .toggle-switch::after {
       content: '';
-      position: absolute; top: 3px; left: 3px;
-      width: 16px; height: 16px; border-radius: 50%;
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
       background: #fff;
       transition: transform 0.2s;
     }
-    .toggle-switch.on { background: var(--brand); }
-    .toggle-switch.on::after { transform: translateX(18px); }
-    .toggle-label { font-size: 13.5px; font-weight: 600; color: var(--gray-800); }
+
+    .toggle-switch.on {
+      background: var(--brand);
+    }
+
+    .toggle-switch.on::after {
+      transform: translateX(18px);
+    }
+
+    .toggle-label {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--gray-800);
+    }
 
     /* ══════════════════════════════════════
        通用 Modal（确认 & 通知）
        ══════════════════════════════════════ */
     .modal-backdrop {
       display: none;
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.4);
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
       z-index: 2000;
-      align-items: center; justify-content: center;
+      align-items: center;
+      justify-content: center;
     }
-    .modal-backdrop.show { display: flex; }
+
+    .modal-backdrop.show {
+      display: flex;
+    }
+
     .modal-box {
-      background: #fff; border-radius: 16px;
-      width: 420px; max-width: 95vw;
+      background: #fff;
+      border-radius: 16px;
+      width: 420px;
+      max-width: 95vw;
       padding: 32px 28px;
-      box-shadow: 0 12px 48px rgba(0,0,0,0.18);
+      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.18);
       animation: fadeInUp 0.22s ease;
       text-align: center;
     }
+
     @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
+
     .modal-icon {
-      width: 52px; height: 52px; border-radius: 50%;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
       margin: 0 auto 16px;
-      display: flex; align-items: center; justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .modal-icon.danger { background: #fee2e2; }
-    .modal-icon.success { background: #dcfce7; }
-    .modal-icon svg { width: 26px; height: 26px; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-    .modal-icon.danger svg { stroke: #dc2626; }
-    .modal-icon.success svg { stroke: #16a34a; }
-    .modal-title { font-size: 17px; font-weight: 700; color: var(--gray-900); margin-bottom: 8px; }
-    .modal-desc { font-size: 13.5px; color: var(--gray-500); line-height: 1.7; margin-bottom: 22px; }
-    .modal-btns { display: flex; gap: 10px; justify-content: center; }
+
+    .modal-icon.danger {
+      background: #fee2e2;
+    }
+
+    .modal-icon.success {
+      background: #dcfce7;
+    }
+
+    .modal-icon svg {
+      width: 26px;
+      height: 26px;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .modal-icon.danger svg {
+      stroke: #dc2626;
+    }
+
+    .modal-icon.success svg {
+      stroke: #16a34a;
+    }
+
+    .modal-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 8px;
+    }
+
+    .modal-desc {
+      font-size: 13.5px;
+      color: var(--gray-500);
+      line-height: 1.7;
+      margin-bottom: 22px;
+    }
+
+    .modal-btns {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
 
     /* 手工导入 Modal */
     .import-modal-box {
-      background: #fff; border-radius: 14px;
-      width: 500px; max-width: 95vw;
+      background: #fff;
+      border-radius: 14px;
+      width: 500px;
+      max-width: 95vw;
       padding: 28px;
-      box-shadow: 0 12px 48px rgba(0,0,0,0.18);
+      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.18);
       animation: fadeInUp 0.25s ease;
     }
+
     .import-modal-head {
-      display: flex; align-items: center; justify-content: space-between;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       margin-bottom: 22px;
     }
 
     /* ── Toast ── */
     .toast-wrap {
-      position: fixed; bottom: 28px; left: 50%;
-      transform: translateX(-50%); z-index: 9999; pointer-events: none;
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      pointer-events: none;
     }
+
     .toast {
-      padding: 12px 22px; border-radius: 10px;
-      font-size: 14px; font-weight: 500;
-      background: var(--gray-900); color: #fff;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+      padding: 12px 22px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      background: var(--gray-900);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
       animation: toastIn 0.3s ease;
     }
-    .toast.success { background: #059669; }
-    @keyframes toastIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to   { opacity: 1; transform: translateY(0); }
+
+    .toast.success {
+      background: #059669;
     }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
     /* 自定义搜索下拉组件 */
-    .search-select { position: relative; }
-    .search-select-input-wrap { display: flex; align-items: center; border: 1px solid var(--border); border-radius: 7px; background: #fff; cursor: pointer; transition: border-color 0.2s; }
-    .search-select-input-wrap:focus-within { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08); }
-    .search-select-input { flex: 1; border: none; outline: none; padding: 9px 10px; font-size: 13.5px; color: var(--gray-800); background: transparent; cursor: pointer; }
-    .search-select-arrow { width: 16px; height: 16px; margin-right: 10px; flex-shrink: 0; color: var(--gray-400); transition: transform 0.2s; }
-    .search-select.open .search-select-arrow { transform: rotate(180deg); }
-    .search-select-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #fff; border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); max-height: 220px; overflow-y: auto; display: none; z-index: 999; }
-    .search-select.open .search-select-dropdown { display: block; }
-    .search-select-option { padding: 9px 12px; font-size: 13.5px; color: var(--gray-700); cursor: pointer; transition: background 0.15s; }
-    .search-select-option:hover { background: var(--brand-light); color: var(--brand); }
-    .search-select-option.selected { background: var(--brand-light); color: var(--brand); font-weight: 600; }
-    .search-select-empty { padding: 12px; text-align: center; color: var(--gray-400); font-size: 13px; }
+    .search-select {
+      position: relative;
+    }
+
+    .search-select-input-wrap {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: #fff;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .search-select-input-wrap:focus-within {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+    }
+
+    .search-select-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      padding: 9px 10px;
+      font-size: 13.5px;
+      color: var(--gray-800);
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .search-select-arrow {
+      width: 16px;
+      height: 16px;
+      margin-right: 10px;
+      flex-shrink: 0;
+      color: var(--gray-400);
+      transition: transform 0.2s;
+    }
+
+    .search-select.open .search-select-arrow {
+      transform: rotate(180deg);
+    }
+
+    .search-select-dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      max-height: 220px;
+      overflow-y: auto;
+      display: none;
+      z-index: 999;
+    }
+
+    .search-select.open .search-select-dropdown {
+      display: block;
+    }
+
+    .search-select-option {
+      padding: 9px 12px;
+      font-size: 13.5px;
+      color: var(--gray-700);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .search-select-option:hover {
+      background: var(--brand-light);
+      color: var(--brand);
+    }
+
+    .search-select-option.selected {
+      background: var(--brand-light);
+      color: var(--brand);
+      font-weight: 600;
+    }
+
+    .search-select-empty {
+      padding: 12px;
+      text-align: center;
+      color: var(--gray-400);
+      font-size: 13px;
+    }
   </style>
 </head>
-<body>
-<div class="app-container">
-  <aside class="sidebar" id="sidebar"></aside>
-  <main class="main-content anim-fade-in" id="main">
 
-    <!-- ── 页面标题 ── -->
-    <div class="page-header">
-      <div class="page-header-left">
-        <h1 class="page-title">获客智能体管理</h1>
-        <p class="page-breadcrumb">
-          <a href="index.html">工作台</a><span class="sep">/</span>系统配置<span class="sep">/</span>获客智能体管理
-        </p>
+<body>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main-content anim-fade-in" id="main">
+
+      <!-- ── 页面标题 ── -->
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1 class="page-title">获客智能体管理</h1>
+          <p class="page-breadcrumb">
+            <a href="index.html">工作台</a><span class="sep">/</span>系统配置<span class="sep">/</span>获客智能体管理
+          </p>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <button class="btn btn-primary" onclick="openWizard()">
+            <svg style="width:16px;height:16px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            新建智能体
+          </button>
+        </div>
       </div>
-      <div style="display:flex;gap:10px;align-items:center;">
-        <button class="btn btn-primary" onclick="openWizard()">
-          <svg style="width:16px;height:16px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          新建智能体
+
+      <!-- ── 顶部统计卡片 ── -->
+      <div class="stat-cards" style="margin-bottom:20px;">
+        <div class="stat-card">
+          <div class="stat-label">运行中智能体</div>
+          <div class="stat-value" id="statAgents">4</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">生成批次名单</div>
+          <div class="stat-value" id="statBatches">12</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">累计输出客户</div>
+          <div class="stat-value" id="statOutput">3,842</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">白名单的客户数</div>
+          <div class="stat-value" style="font-size:26px;" id="statSync">1,250</div>
+        </div>
+      </div>
+
+      <!-- ── 工具栏 ── -->
+      <div class="agents-toolbar">
+        <div class="agents-search-box">
+          <svg viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input id="agentSearch" type="text" placeholder="搜索智能体名称..." oninput="doFilter()">
+        </div>
+        <select class="filter-select" id="orgFilter" onchange="doFilter()">
+          <option value="">全部机构</option>
+          <option value="平安银行">平安银行</option>
+          <option value="招商银行">招商银行</option>
+          <option value="农业银行">农业银行</option>
+          <option value="江苏银行">江苏银行</option>
+        </select>
+        <select class="filter-select" id="statusFilter" onchange="doFilter()">
+          <option value="">全部状态</option>
+          <option value="running">运行中</option>
+          <option value="paused">已暂停</option>
+          <option value="draft">草稿</option>
+        </select>
+        <span class="agents-count" id="agentCount"></span>
+      </div>
+
+      <!-- ── 智能体卡片网格 ── -->
+      <div class="agent-grid" id="agentGrid"></div>
+
+    </main>
+  </div>
+
+  <!-- ══════════════════════════════════════
+     详情抽屉
+     ══════════════════════════════════════ -->
+  <div class="side-overlay" id="detailOverlay" onclick="closeDrawer()"></div>
+  <div class="side-drawer" id="detailDrawer">
+    <div class="drawer-header">
+      <div>
+        <div class="drawer-title" id="drawerTitle">—</div>
+        <div class="drawer-subtitle" id="drawerSubtitle"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="btn btn-sm" onclick="confirmDelete(currentAgentId)"
+          style="font-size:12px;color:#dc2626;border:1px solid #fecaca;background:#fff;padding:0 12px;height:30px;">
+          <svg style="width:13px;height:13px;flex-shrink:0;margin-right:4px;vertical-align:-2px;" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+          </svg>
+          删除智能体
+        </button>
+        <button class="drawer-close-btn" onclick="closeDrawer()">
+          <svg viewBox="0 0 24 24">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
         </button>
       </div>
     </div>
-
-    <!-- ── 顶部统计卡片 ── -->
-    <div class="stat-cards" style="margin-bottom:20px;">
-      <div class="stat-card">
-        <div class="stat-label">已配置智能体</div>
-        <div class="stat-value" id="statAgents">4<span class="stat-suffix">个</span></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">本月生成批次名单</div>
-        <div class="stat-value" id="statBatches">12<span class="stat-suffix">批次</span></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">本月累计输出客户</div>
-        <div class="stat-value" id="statOutput">3,842<span class="stat-suffix">户</span></div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">白名单最近同步</div>
-        <div class="stat-value" style="font-size:20px;" id="statSync">2026-06-<span class="stat-suffix">月</span></div>
-      </div>
+    <div class="drawer-tabs" id="drawerTabBar">
+      <div class="drawer-tab active" onclick="switchDrawerTab('config',this)">基础配置</div>
+      <div class="drawer-tab" onclick="switchDrawerTab('rules',this)">获客规则</div>
+      <div class="drawer-tab" onclick="switchDrawerTab('batches',this)">名单批次</div>
+      <div class="drawer-tab" onclick="switchDrawerTab('whitelist',this)">白名单快照</div>
+      <div class="drawer-tab" onclick="switchDrawerTab('logs',this)">执行日志</div>
     </div>
-
-    <!-- ── 工具栏 ── -->
-    <div class="agents-toolbar">
-      <div class="agents-search-box">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input id="agentSearch" type="text" placeholder="搜索智能体名称..." oninput="doFilter()">
-      </div>
-      <select class="filter-select" id="orgFilter" onchange="doFilter()">
-        <option value="">全部机构</option>
-        <option value="平安银行">平安银行</option>
-        <option value="招商银行">招商银行</option>
-        <option value="农业银行">农业银行</option>
-        <option value="江苏银行">江苏银行</option>
-      </select>
-      <select class="filter-select" id="statusFilter" onchange="doFilter()">
-        <option value="">全部状态</option>
-        <option value="running">运行中</option>
-        <option value="paused">已暂停</option>
-        <option value="draft">草稿</option>
-      </select>
-      <span class="agents-count" id="agentCount"></span>
-    </div>
-
-    <!-- ── 智能体卡片网格 ── -->
-    <div class="agent-grid" id="agentGrid"></div>
-
-  </main>
-</div>
-
-<!-- ══════════════════════════════════════
-     详情抽屉
-     ══════════════════════════════════════ -->
-<div class="side-overlay" id="detailOverlay" onclick="closeDrawer()"></div>
-<div class="side-drawer" id="detailDrawer">
-  <div class="drawer-header">
-    <div>
-      <div class="drawer-title" id="drawerTitle">—</div>
-      <div class="drawer-subtitle" id="drawerSubtitle"></div>
-    </div>
-    <div style="display:flex;align-items:center;gap:12px;">
-      <button class="btn btn-sm" onclick="confirmDelete(currentAgentId)" style="font-size:12px;color:#dc2626;border:1px solid #fecaca;background:#fff;padding:0 12px;height:30px;">
-        <svg style="width:13px;height:13px;flex-shrink:0;margin-right:4px;vertical-align:-2px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
-        删除智能体
-      </button>
-      <button class="drawer-close-btn" onclick="closeDrawer()">
-        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
+    <div class="drawer-body">
+      <div class="drawer-pane active" id="dpane-config"></div>
+      <div class="drawer-pane" id="dpane-rules"></div>
+      <div class="drawer-pane" id="dpane-batches"></div>
+      <div class="drawer-pane" id="dpane-whitelist"></div>
+      <div class="drawer-pane" id="dpane-logs"></div>
     </div>
   </div>
-  <div class="drawer-tabs" id="drawerTabBar">
-    <div class="drawer-tab active" onclick="switchDrawerTab('config',this)">基础配置</div>
-    <div class="drawer-tab" onclick="switchDrawerTab('rules',this)">获客规则</div>
-    <div class="drawer-tab" onclick="switchDrawerTab('batches',this)">名单批次</div>
-    <div class="drawer-tab" onclick="switchDrawerTab('whitelist',this)">白名单快照</div>
-    <div class="drawer-tab" onclick="switchDrawerTab('logs',this)">执行日志</div>
-  </div>
-  <div class="drawer-body">
-    <div class="drawer-pane active" id="dpane-config"></div>
-    <div class="drawer-pane" id="dpane-rules"></div>
-    <div class="drawer-pane" id="dpane-batches"></div>
-    <div class="drawer-pane" id="dpane-whitelist"></div>
-    <div class="drawer-pane" id="dpane-logs"></div>
-  </div>
-</div>
 
-<!-- ══════════════════════════════════════
+  <!-- ══════════════════════════════════════
      新建/编辑 向导（右侧抽屉）
      ══════════════════════════════════════ -->
-<div class="side-overlay" id="wizardOverlay" onclick="closeWizard()"></div>
-<div class="wizard-drawer" id="wizardDrawer">
-  <div class="wizard-head">
-    <div class="wizard-head-row">
-      <div class="wizard-title-text" id="wizardTitleText">新建获客智能体</div>
-      <button class="drawer-close-btn" onclick="closeWizard()">
-        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="wiz-steps" id="wizardStepsEl"></div>
-  </div>
-  <div class="wizard-body" id="wizardBody">
-
-    <!-- Step 0: 基础配置 -->
-    <div class="wizard-page" id="wp-0">
-      <div class="section-heading">基础配置</div>
-      <div class="form-group">
-        <label class="form-label">归属机构（全称）<span style="color:#ef4444">*</span></label>
-        <div class="search-select" id="orgSearchSelect">
-          <div class="search-select-input-wrap" onclick="toggleSearchSelect('orgSearchSelect')">
-            <input type="text" class="search-select-input" id="orgSearchInput" placeholder="请搜索或选择机构（全称）"
-              oninput="filterSearchSelect('orgSearchSelect', this.value)"
-              onclick="event.stopPropagation(); openSearchSelect('orgSearchSelect')" autocomplete="off">
-            <svg class="search-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </div>
-          <div class="search-select-dropdown" id="orgSearchSelectDropdown">
-            <div class="search-select-option" data-value="平安银行股份有限公司">平安银行股份有限公司</div>
-            <div class="search-select-option" data-value="招商银行股份有限公司">招商银行股份有限公司</div>
-            <div class="search-select-option" data-value="中国农业银行股份有限公司">中国农业银行股份有限公司</div>
-            <div class="search-select-option" data-value="江苏银行股份有限公司">江苏银行股份有限公司</div>
-            <div class="search-select-option" data-value="中国工商银行股份有限公司">中国工商银行股份有限公司</div>
-            <div class="search-select-option" data-value="中国建设银行股份有限公司">中国建设银行股份有限公司</div>
-            <div class="search-select-option" data-value="南京银行股份有限公司">南京银行股份有限公司</div>
-            <div class="search-select-empty" style="display:none;"><span>未找到匹配的机构</span></div>
-          </div>
-        </div>
-        <input type="hidden" id="f-org" value="">
-        <div class="form-hint">从组织机构管理中选择</div>
+  <div class="side-overlay" id="wizardOverlay" onclick="closeWizard()"></div>
+  <div class="wizard-drawer" id="wizardDrawer">
+    <div class="wizard-head">
+      <div class="wizard-head-row">
+        <div class="wizard-title-text" id="wizardTitleText">新建获客智能体</div>
+        <button class="drawer-close-btn" onclick="closeWizard()">
+          <svg viewBox="0 0 24 24">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div class="wiz-steps" id="wizardStepsEl"></div>
+    </div>
+    <div class="wizard-body" id="wizardBody">
+
+      <!-- Step 0: 基础配置 -->
+      <div class="wizard-page" id="wp-0">
+        <div class="section-heading">基础配置</div>
         <div class="form-group">
-          <label class="form-label">机构简称</label>
-          <input class="form-input" id="f-orgshort" type="text" placeholder="如：平安银行">
+          <label class="form-label">归属机构（全称）<span style="color:#ef4444">*</span></label>
+          <div class="search-select" id="orgSearchSelect">
+            <div class="search-select-input-wrap" onclick="toggleSearchSelect('orgSearchSelect')">
+              <input type="text" class="search-select-input" id="orgSearchInput" placeholder="请搜索或选择机构（全称）"
+                oninput="filterSearchSelect('orgSearchSelect', this.value)"
+                onclick="event.stopPropagation(); openSearchSelect('orgSearchSelect')" autocomplete="off">
+              <svg class="search-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </div>
+            <div class="search-select-dropdown" id="orgSearchSelectDropdown">
+              <div class="search-select-option" data-value="平安银行股份有限公司">平安银行股份有限公司</div>
+              <div class="search-select-option" data-value="招商银行股份有限公司">招商银行股份有限公司</div>
+              <div class="search-select-option" data-value="中国农业银行股份有限公司">中国农业银行股份有限公司</div>
+              <div class="search-select-option" data-value="江苏银行股份有限公司">江苏银行股份有限公司</div>
+              <div class="search-select-option" data-value="中国工商银行股份有限公司">中国工商银行股份有限公司</div>
+              <div class="search-select-option" data-value="中国建设银行股份有限公司">中国建设银行股份有限公司</div>
+              <div class="search-select-option" data-value="南京银行股份有限公司">南京银行股份有限公司</div>
+              <div class="search-select-empty" style="display:none;"><span>未找到匹配的机构</span></div>
+            </div>
+          </div>
+          <input type="hidden" id="f-org" value="">
+          <div class="form-hint">从组织机构管理中选择</div>
         </div>
-        <div class="form-group">
-          <label class="form-label">智能体名称<span style="color:#ef4444">*</span></label>
-          <input class="form-input" id="f-name" type="text" placeholder="如：橙业贷、厂房贷">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div class="form-group">
+            <label class="form-label">机构简称</label>
+            <input class="form-input" id="f-orgshort" type="text" placeholder="如：平安银行">
+          </div>
+          <div class="form-group">
+            <label class="form-label">智能体名称<span style="color:#ef4444">*</span></label>
+            <input class="form-input" id="f-name" type="text" placeholder="如：橙业贷、厂房贷">
+          </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Step 1: 获客规则 -->
-    <div class="wizard-page" id="wp-1">
-      <div class="section-heading">获客规则配置</div>
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
-        <span style="font-size:13px;color:var(--gray-500);">规则关系：</span>
-        <div class="logic-toggle">
-          <button class="logic-btn active" id="logicAnd" onclick="setLogic('AND')">AND（全部满足）</button>
-          <button class="logic-btn" id="logicOr" onclick="setLogic('OR')">OR（满足其一）</button>
-        </div>
-      </div>
-      <div id="ruleContainer"></div>
-      <button onclick="addRule()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border:1.5px dashed var(--brand);border-radius:8px;color:var(--brand);font-size:13px;font-weight:600;background:transparent;cursor:pointer;margin-top:6px;">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        添加规则
-      </button>
-      <div style="margin-top:16px;padding:12px 14px;background:var(--gray-50);border-radius:8px;font-size:13px;">
-        预估覆盖企业：<strong id="rulePreview" style="color:var(--brand);font-size:15px;">约 1,200 家</strong>
-      </div>
-    </div>
-
-    <!-- Step 2: 名单策略 -->
-    <div class="wizard-page" id="wp-2">
-      <div class="section-heading">名单数据源</div>
-      <div class="source-tags" id="sourceTags">
-        <label class="source-tag active" onclick="toggleSource(this)">
-          <input type="radio" name="dsSource" checked style="margin:0;cursor:pointer;"> 全省企业
-        </label>
-        <label class="source-tag" onclick="toggleSource(this)">
-          <input type="radio" name="dsSource" style="margin:0;cursor:pointer;"> 全省授权企业
-        </label>
-        <label class="source-tag" onclick="toggleSource(this)">
-          <input type="radio" name="dsSource" style="margin:0;cursor:pointer;"> 营销白名单
-        </label>
       </div>
 
-      <div class="section-heading">数量及排序</div>
-      <div style="display:flex; gap:64px; align-items:flex-start; margin-bottom: 24px;">
-        <div class="form-group" style="margin-bottom:0;">
-          <label class="form-label">输出数量上限</label>
-          <div style="display:flex;align-items:center;gap:12px;">
-            <input type="number" class="form-input" id="f-outputLimit" value="300" style="width:130px;" min="1">
-            <span style="font-size:13px;color:var(--gray-500);">户</span>
-            <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--gray-600);cursor:pointer;">
-              <input type="checkbox" id="f-noLimit" onchange="toggleNoLimit()"> 不限制
+      <!-- Step 1: 获客规则 -->
+      <div class="wizard-page" id="wp-1">
+        <div class="section-heading">获客规则配置</div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+          <span style="font-size:13px;color:var(--gray-500);">规则关系：</span>
+          <div class="logic-toggle">
+            <button class="logic-btn active" id="logicAnd" onclick="setLogic('AND')">AND（全部满足）</button>
+            <button class="logic-btn" id="logicOr" onclick="setLogic('OR')">OR（满足其一）</button>
+          </div>
+        </div>
+        <div id="ruleContainer"></div>
+        <button onclick="addRule()"
+          style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border:1.5px dashed var(--brand);border-radius:8px;color:var(--brand);font-size:13px;font-weight:600;background:transparent;cursor:pointer;margin-top:6px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          添加规则
+        </button>
+        <div style="margin-top:16px;padding:12px 14px;background:var(--gray-50);border-radius:8px;font-size:13px;">
+          预估覆盖企业：<strong id="rulePreview" style="color:var(--brand);font-size:15px;">约 1,200 家</strong>
+        </div>
+      </div>
+
+      <!-- Step 2: 名单策略 -->
+      <div class="wizard-page" id="wp-2">
+        <div class="section-heading">名单数据源</div>
+        <div class="source-tags" id="sourceTags">
+          <label class="source-tag active" onclick="toggleSource(this)">
+            <input type="radio" name="dsSource" checked style="margin:0;cursor:pointer;"> 全省企业
+          </label>
+          <label class="source-tag" onclick="toggleSource(this)">
+            <input type="radio" name="dsSource" style="margin:0;cursor:pointer;"> 全省授权企业
+          </label>
+          <label class="source-tag" onclick="toggleSource(this)">
+            <input type="radio" name="dsSource" style="margin:0;cursor:pointer;"> 营销白名单
+          </label>
+        </div>
+
+        <div class="section-heading">数量及排序</div>
+        <div style="display:flex; gap:64px; align-items:flex-start; margin-bottom: 24px;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">输出数量上限</label>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <input type="number" class="form-input" id="f-outputLimit" value="300" style="width:130px;" min="1">
+              <label
+                style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--gray-600);cursor:pointer;">
+                <input type="checkbox" id="f-noLimit" onchange="toggleNoLimit()"> 不限制
+              </label>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:0; flex:1;">
+            <label class="form-label">名单排序方式</label>
+            <select class="form-select" id="f-sort" style="max-width:280px;">
+              <option value="default" selected>默认排序</option>
+              <option value="fund">资金需求分（高→低）</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="section-heading">名单处理</div>
+        <div class="process-opts" id="processOpts">
+          <div class="process-opt active" onclick="selectProcess(this,'original')">
+            <input type="radio" name="procMode" checked style="margin-top:2px;">
+            <div>
+              <div class="process-opt-label">原名单输出</div>
+              <div class="process-opt-desc">直接输出规则筛选结果，不做额外处理</div>
+            </div>
+          </div>
+          <div class="process-opt" onclick="selectProcess(this,'intersect')">
+            <input type="radio" name="procMode" style="margin-top:2px;">
+            <div>
+              <div class="process-opt-label">取交</div>
+              <div class="process-opt-desc">仅保留与上传名单均有的企业</div>
+            </div>
+          </div>
+          <div class="process-opt" onclick="selectProcess(this,'exclude')">
+            <input type="radio" name="procMode" style="margin-top:2px;">
+            <div>
+              <div class="process-opt-label">排除</div>
+              <div class="process-opt-desc">从输出名单中排除上传名单中的企业</div>
+            </div>
+          </div>
+          <div class="process-opt" onclick="selectProcess(this,'union')">
+            <input type="radio" name="procMode" style="margin-top:2px;">
+            <div>
+              <div class="process-opt-label">求并</div>
+              <div class="process-opt-desc">合并输出名单与上传名单（自动去重）</div>
+            </div>
+          </div>
+        </div>
+        <div id="processUploadArea" style="display:none;margin-top:12px;">
+          <div style="display:flex; align-items:center; gap:12px; margin-top:8px;">
+            <button class="btn btn-default" onclick="document.getElementById('processFile').click()">
+              <svg style="width:14px;height:14px;margin-right:6px;vertical-align:-2px;" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+              点击上传名单
+            </button>
+            <span style="font-size:12px;color:var(--gray-400);">支持 .xlsx / .xls / .csv（可多选）</span>
+            <button class="btn btn-ghost btn-sm" style="color:var(--brand);margin-left:auto;padding:2px 8px;"
+              onclick="window.open('#')">下载模版</button>
+          </div>
+          <input type="file" id="processFile" accept=".xlsx,.xls,.csv" style="display:none;" multiple
+            onchange="handleProcessUpload(this)">
+          <div id="processFileList" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+
+        <div class="section-heading">更新时间</div>
+        <div class="freq-options" id="freqOpts2">
+          <div class="freq-opt" onclick="selectFreq2('daily',this)">每天</div>
+          <div class="freq-opt active" onclick="selectFreq2('weekly',this)">每周</div>
+          <div class="freq-opt" onclick="selectFreq2('monthly',this)">每月</div>
+          <div class="freq-opt" onclick="selectFreq2('quarterly',this)">每季度</div>
+          <div class="freq-opt" onclick="selectFreq2('once',this)">仅一次</div>
+          <div class="freq-opt" onclick="selectFreq2('manual',this)">手动执行</div>
+        </div>
+        <div class="freq-detail" id="freqDetail2">
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <span style="font-size:13px;font-weight:600;color:var(--gray-600);">执行日：</span>
+            <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input
+                type="checkbox"> 周一</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox"
+                checked> 周二</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input
+                type="checkbox"> 周三</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input
+                type="checkbox"> 周四</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input
+                type="checkbox"> 周五</label>
+            <span style="font-size:13px;font-weight:600;color:var(--gray-600);margin-left:6px;">时间：</span>
+            <input type="time" class="form-input" value="06:00" style="width:110px;">
+          </div>
+        </div>
+
+        <div class="section-heading" style="margin-top:20px;">导出控制</div>
+        <div
+          style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--gray-50);border-radius:9px;">
+          <div>
+            <div style="font-size:13.5px;font-weight:600;color:var(--gray-800);">允许导出名单</div>
+            <div style="font-size:12px;color:var(--gray-400);margin-top:2px;">开启后客户经理可在名单页下载该智能体的名单</div>
+          </div>
+          <div class="toggle-switch on" id="exportToggle" onclick="this.classList.toggle('on')"></div>
+        </div>
+      </div>
+
+      <!-- Step 3: 营销白名单 -->
+      <div class="wizard-page" id="wp-3">
+        <div class="section-heading">营销白名单配置</div>
+        <div
+          style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--gray-50);border-radius:9px;margin-bottom:18px;">
+          <div>
+            <div style="font-size:13.5px;font-weight:600;color:var(--gray-800);">启用营销白名单</div>
+            <div style="font-size:12px;color:var(--gray-400);margin-top:2px;">开启后将维护一份白名单快照，作为名单输出的授权依据</div>
+          </div>
+          <div class="toggle-switch on" id="wlToggle" onclick="toggleWlDrawer()"></div>
+        </div>
+        <div id="wlConfigArea">
+          <label
+            style="font-size:13px;font-weight:600;color:var(--gray-700);display:block;margin-bottom:10px;">白名单生成方式</label>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <label
+              style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1.5px solid var(--border);border-radius:9px;cursor:pointer;background:#fff;"
+              id="wlOpt1" onclick="selectWlMode(0)">
+              <input type="radio" name="wlMode" checked style="margin-top:3px;">
+              <div>
+                <div style="font-size:13.5px;font-weight:600;color:var(--gray-800);">根据营销智能体跑批生成</div>
+                <div style="font-size:12px;color:var(--gray-400);margin-top:2px;">每次跑批时，系统自动将输出名单同步至白名单快照</div>
+              </div>
             </label>
-          </div>
-        </div>
-        <div class="form-group" style="margin-bottom:0; flex:1;">
-          <label class="form-label">名单排序方式</label>
-          <select class="form-select" id="f-sort" style="max-width:280px;">
-            <option value="fund">按授信额度（高→低）</option>
-            <option value="score">按得分（高→低）</option>
-            <option value="time">按录入时间（新→旧）</option>
-            <option value="alpha">按企业名称（A→Z）</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="section-heading">名单处理</div>
-      <div class="process-opts" id="processOpts">
-        <div class="process-opt active" onclick="selectProcess(this,'original')">
-          <input type="radio" name="procMode" checked style="margin-top:2px;">
-          <div>
-            <div class="process-opt-label">原名单输出</div>
-            <div class="process-opt-desc">直接输出规则筛选结果，不做额外处理</div>
-          </div>
-        </div>
-        <div class="process-opt" onclick="selectProcess(this,'intersect')">
-          <input type="radio" name="procMode" style="margin-top:2px;">
-          <div>
-            <div class="process-opt-label">取交</div>
-            <div class="process-opt-desc">仅保留与上传名单均有的企业</div>
-          </div>
-        </div>
-        <div class="process-opt" onclick="selectProcess(this,'exclude')">
-          <input type="radio" name="procMode" style="margin-top:2px;">
-          <div>
-            <div class="process-opt-label">排除</div>
-            <div class="process-opt-desc">从输出名单中排除上传名单中的企业</div>
-          </div>
-        </div>
-        <div class="process-opt" onclick="selectProcess(this,'union')">
-          <input type="radio" name="procMode" style="margin-top:2px;">
-          <div>
-            <div class="process-opt-label">求并</div>
-            <div class="process-opt-desc">合并输出名单与上传名单（自动去重）</div>
-          </div>
-        </div>
-      </div>
-      <div id="processUploadArea" style="display:none;margin-top:12px;">
-        <div class="upload-zone" onclick="document.getElementById('processFile').click()">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          <div style="font-size:13px;font-weight:500;color:var(--gray-600);">点击上传企业名单</div>
-          <div style="font-size:12px;color:var(--gray-400);margin-top:3px;">支持 .xlsx / .xls / .csv（可多选）</div>
-        </div>
-        <input type="file" id="processFile" accept=".xlsx,.xls,.csv" style="display:none;" multiple onchange="handleProcessUpload(this)">
-        <div id="processFileList" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
-      </div>
-
-      <div class="section-heading">更新时间</div>
-      <div class="freq-options" id="freqOpts2">
-        <div class="freq-opt" onclick="selectFreq2('daily',this)">每天</div>
-        <div class="freq-opt active" onclick="selectFreq2('weekly',this)">每周</div>
-        <div class="freq-opt" onclick="selectFreq2('monthly',this)">每月</div>
-        <div class="freq-opt" onclick="selectFreq2('quarterly',this)">每季度</div>
-        <div class="freq-opt" onclick="selectFreq2('once',this)">仅一次</div>
-        <div class="freq-opt" onclick="selectFreq2('manual',this)">手动执行</div>
-      </div>
-      <div class="freq-detail" id="freqDetail2">
-        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-          <span style="font-size:13px;font-weight:600;color:var(--gray-600);">执行日：</span>
-          <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox"> 周一</label>
-          <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox" checked> 周二</label>
-          <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox"> 周三</label>
-          <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox"> 周四</label>
-          <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox"> 周五</label>
-          <span style="font-size:13px;font-weight:600;color:var(--gray-600);margin-left:6px;">时间：</span>
-          <input type="time" class="form-input" value="06:00" style="width:110px;">
-        </div>
-      </div>
-
-      <div class="section-heading" style="margin-top:20px;">导出控制</div>
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--gray-50);border-radius:9px;">
-        <div>
-          <div style="font-size:13.5px;font-weight:600;color:var(--gray-800);">允许导出名单</div>
-          <div style="font-size:12px;color:var(--gray-400);margin-top:2px;">开启后客户经理可在名单页下载该智能体的名单</div>
-        </div>
-        <div class="toggle-switch on" id="exportToggle" onclick="this.classList.toggle('on')"></div>
-      </div>
-    </div>
-
-    <!-- Step 3: 营销白名单 -->
-    <div class="wizard-page" id="wp-3">
-      <div class="section-heading">营销白名单配置</div>
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--gray-50);border-radius:9px;margin-bottom:18px;">
-        <div>
-          <div style="font-size:13.5px;font-weight:600;color:var(--gray-800);">启用营销白名单</div>
-          <div style="font-size:12px;color:var(--gray-400);margin-top:2px;">开启后将维护一份白名单快照，作为名单输出的授权依据</div>
-        </div>
-        <div class="toggle-switch on" id="wlToggle" onclick="toggleWlDrawer()"></div>
-      </div>
-      <div id="wlConfigArea">
-        <label style="font-size:13px;font-weight:600;color:var(--gray-700);display:block;margin-bottom:10px;">白名单生成方式</label>
-        <div style="display:flex;flex-direction:column;gap:8px;">
-          <label style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1.5px solid var(--border);border-radius:9px;cursor:pointer;background:#fff;" id="wlOpt1" onclick="selectWlMode(0)">
-            <input type="radio" name="wlMode" checked style="margin-top:3px;">
-            <div>
-              <div style="font-size:13.5px;font-weight:600;color:var(--gray-800);">根据营销智能体跑批生成</div>
-              <div style="font-size:12px;color:var(--gray-400);margin-top:2px;">每次跑批时，系统自动将输出名单同步至白名单快照</div>
-            </div>
-          </label>
-          <label style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1.5px solid var(--border);border-radius:9px;cursor:pointer;background:#fff;" id="wlOpt2" onclick="selectWlMode(1)">
-            <input type="radio" name="wlMode" style="margin-top:3px;">
-            <div>
-              <div style="font-size:13.5px;font-weight:600;color:var(--gray-800);">独立定时任务跑批生成</div>
-              <div style="font-size:12px;color:var(--gray-400);margin-top:2px;">单独配置白名单跑批任务，不依赖营销名单跑批</div>
-            </div>
-          </label>
-          <div id="wlIndepSchedule" style="display:none;padding:12px 14px;background:var(--gray-50);border-radius:8px;margin-top:-4px;">
-            <div class="freq-options" id="wlFreqOpts">
-              <div class="freq-opt" onclick="selectWlFreq('daily',this)">每天</div>
-              <div class="freq-opt active" onclick="selectWlFreq('weekly',this)">每周</div>
-              <div class="freq-opt" onclick="selectWlFreq('monthly',this)">每月</div>
-              <div class="freq-opt" onclick="selectWlFreq('quarterly',this)">每季度</div>
-              <div class="freq-opt" onclick="selectWlFreq('once',this)">仅一次</div>
-            </div>
-            <div class="freq-detail" id="wlFreqDetail">
-              <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-                <span style="font-size:13px;font-weight:600;color:var(--gray-600);">执行日：</span>
-                <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox"> 周一</label>
-                <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox" checked> 周二</label>
-                <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox"> 周三</label>
-                <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox"> 周四</label>
-                <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox"> 周五</label>
-                <span style="font-size:13px;font-weight:600;color:var(--gray-600);margin-left:6px;">时间：</span>
-                <input type="time" class="form-input" value="03:00" style="width:110px;">
+            <label
+              style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1.5px solid var(--border);border-radius:9px;cursor:pointer;background:#fff;"
+              id="wlOpt2" onclick="selectWlMode(1)">
+              <input type="radio" name="wlMode" style="margin-top:3px;">
+              <div>
+                <div style="font-size:13.5px;font-weight:600;color:var(--gray-800);">独立定时任务跑批生成</div>
+                <div style="font-size:12px;color:var(--gray-400);margin-top:2px;">单独配置白名单跑批任务，不依赖营销名单跑批</div>
+              </div>
+            </label>
+            <div id="wlIndepSchedule"
+              style="display:none;padding:12px 14px;background:var(--gray-50);border-radius:8px;margin-top:-4px;">
+              <div class="freq-options" id="wlFreqOpts">
+                <div class="freq-opt" onclick="selectWlFreq('daily',this)">每天</div>
+                <div class="freq-opt active" onclick="selectWlFreq('weekly',this)">每周</div>
+                <div class="freq-opt" onclick="selectWlFreq('monthly',this)">每月</div>
+                <div class="freq-opt" onclick="selectWlFreq('quarterly',this)">每季度</div>
+                <div class="freq-opt" onclick="selectWlFreq('once',this)">仅一次</div>
+              </div>
+              <div class="freq-detail" id="wlFreqDetail">
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                  <span style="font-size:13px;font-weight:600;color:var(--gray-600);">执行日：</span>
+                  <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input
+                      type="checkbox"> 周一</label>
+                  <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input
+                      type="checkbox" checked> 周二</label>
+                  <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input
+                      type="checkbox"> 周三</label>
+                  <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input
+                      type="checkbox"> 周四</label>
+                  <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input
+                      type="checkbox"> 周五</label>
+                  <span style="font-size:13px;font-weight:600;color:var(--gray-600);margin-left:6px;">时间：</span>
+                  <input type="time" class="form-input" value="03:00" style="width:110px;">
+                </div>
               </div>
             </div>
-          </div>
-          <label style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1.5px solid var(--border);border-radius:9px;cursor:pointer;background:#fff;" id="wlOpt3" onclick="selectWlMode(2)">
-            <input type="radio" name="wlMode" style="margin-top:3px;">
-            <div>
-              <div style="font-size:13.5px;font-weight:600;color:var(--gray-800);">上传营销白名单</div>
-              <div style="font-size:12px;color:var(--gray-400);margin-top:2px;">手动上传已整理好的白名单文件</div>
+            <label
+              style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1.5px solid var(--border);border-radius:9px;cursor:pointer;background:#fff;"
+              id="wlOpt3" onclick="selectWlMode(2)">
+              <input type="radio" name="wlMode" style="margin-top:3px;">
+              <div>
+                <div style="font-size:13.5px;font-weight:600;color:var(--gray-800);">上传营销白名单</div>
+                <div style="font-size:12px;color:var(--gray-400);margin-top:2px;">手动上传已整理好的白名单文件</div>
+              </div>
+            </label>
+            <div id="wlUploadArea" style="display:none;margin-top:12px;">
+              <div style="display:flex; align-items:center; gap:12px; margin-top:8px;">
+                <button class="btn btn-default" onclick="document.getElementById('wlFile').click()">
+                  <svg style="width:14px;height:14px;margin-right:6px;vertical-align:-2px;" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                  </svg>
+                  点击上传名单
+                </button>
+                <span style="font-size:12px;color:var(--gray-400);">支持 .xlsx / .xls / .csv（可多选）</span>
+                <button class="btn btn-ghost btn-sm" style="color:var(--brand);margin-left:auto;padding:2px 8px;"
+                  onclick="window.open('#')">下载模版</button>
+              </div>
+              <input type="file" id="wlFile" accept=".xlsx,.xls,.csv" style="display:none;" multiple
+                onchange="handleWlWizardUpload(this)">
+              <div id="wlFileList" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
             </div>
-          </label>
-          <div id="wlUploadArea" style="display:none;margin-top:12px;">
-            <div class="upload-zone" onclick="document.getElementById('wlFile').click()">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              <div style="font-size:13px;font-weight:500;color:var(--gray-600);">点击上传白名单文件</div>
-              <div style="font-size:12px;color:var(--gray-400);margin-top:3px;">支持 .xlsx / .xls / .csv（可多选）</div>
-            </div>
-            <input type="file" id="wlFile" accept=".xlsx,.xls,.csv" style="display:none;" multiple onchange="handleWlWizardUpload(this)">
-            <div id="wlFileList" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Step 4: 名单字段 -->
-    <div class="wizard-page" id="wp-4">
-      <div class="section-heading">名单展示字段配置</div>
-      <p style="font-size:12.5px;color:var(--gray-400);margin-bottom:14px;">选择在名单列表中展示的数据字段，<span style="color:var(--gray-600);font-weight:600;">灰色字段为系统必显，不可取消</span>；其余扩展字段默认全选，可按需取消。</p>
+      <!-- Step 4: 名单字段 -->
+      <div class="wizard-page" id="wp-4">
+        <div class="section-heading">名单展示字段配置</div>
+        <p style="font-size:12.5px;color:var(--gray-400);margin-bottom:14px;">选择在名单列表中展示的数据字段，<span
+            style="color:var(--gray-600);font-weight:600;">灰色字段为系统必显，不可取消</span>；其余扩展字段默认全选，可按需取消。</p>
 
-      <div style="font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:8px;">系统必显字段</div>
-      <div class="field-grid" id="requiredFieldGrid"></div>
+        <div style="font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:8px;">系统必显字段</div>
+        <div class="field-grid" id="requiredFieldGrid"></div>
 
-      <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0 8px;">
-        <div style="font-size:13px;font-weight:600;color:var(--gray-600);">扩展字段（默认全选）</div>
-        <div style="display:flex;gap:16px;font-size:13px;">
-          <a href="javascript:void(0)" onclick="selectAllFields(true)" style="color:var(--brand);text-decoration:none;">全部选中</a>
-          <a href="javascript:void(0)" onclick="selectAllFields(false)" style="color:var(--gray-500);text-decoration:none;">取消全选</a>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0 8px;">
+          <div style="font-size:13px;font-weight:600;color:var(--gray-600);">扩展字段（默认全选）</div>
+          <div style="display:flex;gap:16px;font-size:13px;">
+            <a href="javascript:void(0)" onclick="selectAllFields(true)"
+              style="color:var(--brand);text-decoration:none;">全部选中</a>
+            <a href="javascript:void(0)" onclick="selectAllFields(false)"
+              style="color:var(--gray-500);text-decoration:none;">取消全选</a>
+          </div>
         </div>
+        <div class="field-grid" id="fieldGrid"></div>
       </div>
-      <div class="field-grid" id="fieldGrid"></div>
-    </div>
 
-  </div>
-  <div class="wizard-footer">
-    <button class="btn btn-default" onclick="closeWizard()">取消</button>
-    <div style="display:flex;gap:10px;">
-      <button class="btn btn-default" id="wizPrevBtn" onclick="wizardPrev()" style="visibility:hidden;">上一步</button>
-      <button class="btn btn-primary" id="wizNextBtn" onclick="wizardNext()">下一步</button>
+    </div>
+    <div class="wizard-footer">
+      <button class="btn btn-default" onclick="closeWizard()">取消</button>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-default" id="wizPrevBtn" onclick="wizardPrev()" style="visibility:hidden;">上一步</button>
+        <button class="btn btn-primary" id="wizNextBtn" onclick="wizardNext()">下一步</button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- ══════════════════════════════════════
+  <!-- ══════════════════════════════════════
      手工导入 Modal
      ══════════════════════════════════════ -->
-<div class="modal-backdrop" id="importOverlay">
-  <div class="import-modal-box">
-    <div class="import-modal-head">
-      <div style="font-size:17px;font-weight:700;color:var(--gray-900);">手工导入名单</div>
-      <button onclick="closeImportModal()" style="border:none;background:none;cursor:pointer;color:var(--gray-400);font-size:22px;line-height:1;">×</button>
-    </div>
-    <div class="form-group">
-      <label class="form-label">归属智能体</label>
-      <select class="form-select" id="import-agent">
-        <option value="">请选择对应的获客智能体</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label class="form-label">上传文件（.xlsx / .xls / .csv）</label>
-      <div class="upload-zone" onclick="document.getElementById('importFile').click()">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" style="display:block;margin:0 auto 10px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        <div style="font-size:13px;font-weight:500;color:var(--gray-600);">点击或拖拽上传文件</div>
-        <div style="font-size:12px;color:var(--gray-400);margin-top:4px;">支持 .xlsx / .xls / .csv</div>
+  <div class="modal-backdrop" id="importOverlay">
+    <div class="import-modal-box">
+      <div class="import-modal-head">
+        <div style="font-size:17px;font-weight:700;color:var(--gray-900);">手工导入名单</div>
+        <button onclick="closeImportModal()"
+          style="border:none;background:none;cursor:pointer;color:var(--gray-400);font-size:22px;line-height:1;">×</button>
       </div>
-      <input type="file" id="importFile" accept=".xlsx,.xls,.csv" style="display:none;" onchange="handleImportFile(this)">
-      <div id="importFileInfo" style="display:none;margin-top:10px;padding:10px 12px;background:var(--gray-50);border-radius:8px;font-size:13px;"></div>
-    </div>
-    <div style="display:flex;justify-content:flex-end;gap:10px;">
-      <button class="btn btn-default" onclick="closeImportModal()">取消</button>
-      <button class="btn btn-primary" onclick="doImport()">确认导入</button>
-    </div>
-  </div>
-</div>
-
-<!-- ── 通用确认弹窗 ── -->
-<div class="modal-backdrop" id="confirmModal">
-  <div class="modal-box">
-    <div class="modal-icon danger" id="confirmModalIcon">
-      <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
-    </div>
-    <div class="modal-title" id="confirmTitle">确认删除？</div>
-    <div class="modal-desc" id="confirmDesc">此操作不可恢复，请谨慎操作。</div>
-    <div class="modal-btns">
-      <button class="btn btn-default" onclick="closeConfirm()">取消</button>
-      <button class="btn" id="confirmOkBtn" onclick="execConfirm()" style="background:#dc2626;color:#fff;">确认删除</button>
-    </div>
-  </div>
-</div>
-
-<!-- ── 通知弹窗 ── -->
-<div class="modal-backdrop" id="notifyModal">
-  <div class="modal-box">
-    <div class="modal-icon success">
-      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-    </div>
-    <div class="modal-title" id="notifyTitle">任务已提交</div>
-    <div class="modal-desc" id="notifyDesc">名单生成任务已提交，稍后在下载中心查看。</div>
-    <div class="modal-btns">
-      <button class="btn btn-primary" onclick="closeNotify()">知道了</button>
+      <div class="form-group">
+        <label class="form-label">归属智能体</label>
+        <select class="form-select" id="import-agent">
+          <option value="">请选择对应的获客智能体</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">上传文件（.xlsx / .xls / .csv）</label>
+        <div style="display:flex; align-items:center; gap:12px; margin-top:8px;">
+          <button class="btn btn-default" onclick="document.getElementById('importFile').click()">
+            <svg style="width:14px;height:14px;margin-right:6px;vertical-align:-2px;" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            点击上传文件
+          </button>
+          <span style="font-size:12px;color:var(--gray-400);">支持 .xlsx / .xls / .csv</span>
+          <button class="btn btn-ghost btn-sm" style="color:var(--brand);margin-left:auto;padding:2px 8px;"
+            onclick="window.open('#')">下载模版</button>
+        </div>
+        <input type="file" id="importFile" accept=".xlsx,.xls,.csv" style="display:none;"
+          onchange="handleImportFile(this)">
+        <div id="importFileInfo"
+          style="display:none;margin-top:10px;padding:10px 12px;background:var(--gray-50);border-radius:8px;font-size:13px;">
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;">
+        <button class="btn btn-default" onclick="closeImportModal()">取消</button>
+        <button class="btn btn-primary" onclick="doImport()">确认导入</button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- ── 从历史批次添加白名单快照 Modal ── -->
-<div class="modal-backdrop" id="addSnapshotModal">
-  <div class="import-modal-box" style="width:560px;">
-    <div class="import-modal-head">
-      <div style="font-size:17px;font-weight:700;color:var(--gray-900);">从历史批次中添加</div>
-      <button onclick="closeAddSnapshot()" style="border:none;background:none;cursor:pointer;color:var(--gray-400);font-size:22px;line-height:1;">×</button>
-    </div>
-    <p style="font-size:12.5px;color:var(--gray-400);margin-bottom:14px;">勾选一个或多个历史批次，合并生成白名单快照（自动去重）</p>
-    <div id="addSnapshotList" style="max-height:300px;overflow-y:auto;"></div>
-    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px;">
-      <button class="btn btn-default" onclick="closeAddSnapshot()">取消</button>
-      <button class="btn btn-primary" onclick="confirmAddSnapshot()">生成快照</button>
+  <!-- ── 通用确认弹窗 ── -->
+  <div class="modal-backdrop" id="confirmModal">
+    <div class="modal-box">
+      <div class="modal-icon danger" id="confirmModalIcon">
+        <svg viewBox="0 0 24 24">
+          <polyline points="3 6 5 6 21 6" />
+          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+          <path d="M10 11v6" />
+          <path d="M14 11v6" />
+        </svg>
+      </div>
+      <div class="modal-title" id="confirmTitle">确认删除？</div>
+      <div class="modal-desc" id="confirmDesc">此操作不可恢复，请谨慎操作。</div>
+      <div class="modal-btns">
+        <button class="btn btn-default" onclick="closeConfirm()">取消</button>
+        <button class="btn" id="confirmOkBtn" onclick="execConfirm()"
+          style="background:#dc2626;color:#fff;">确认删除</button>
+      </div>
     </div>
   </div>
-</div>
 
-<script src="js/sidebar.js"></script>
-<script>
-  /* ── 侧边栏 ── */
-  const role = sessionStorage.getItem('wb_role') || 'manager';
-  renderSidebar({ currentPage: 'agents', role });
+  <!-- ── 通知弹窗 ── -->
+  <div class="notify-backdrop" id="notifyModal">
+    <div class="notify-box">
+      <div class="notify-icon success">
+        <svg viewBox="0 0 24 24">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      </div>
+      <div class="notify-title" id="notifyTitle">任务已提交</div>
+      <div class="notify-desc" id="notifyDesc">名单生成任务已提交，稍后在下载中心查看。</div>
+      <div class="notify-btns">
+        <button class="btn btn-default" onclick="location.href='downloads.html'">前往下载中心</button>
+        <button class="btn btn-primary" onclick="closeNotify()">知道了</button>
+      </div>
+    </div>
+  </div>
 
-  /* ═══════════════════════════════════════
-     Mock 数据
-  ═══════════════════════════════════════ */
-  const ORG_SHORT_MAP = {
-    '平安银行股份有限公司': '平安银行',
-    '招商银行股份有限公司': '招商银行',
-    '中国农业银行股份有限公司': '农业银行',
-    '江苏银行股份有限公司': '江苏银行',
-    '中国工商银行股份有限公司': '工商银行',
-    '中国建设银行股份有限公司': '建设银行',
-    '南京银行股份有限公司': '南京银行'
-  };
+  <!-- ── 从历史批次添加白名单快照 Modal ── -->
+  <div class="modal-backdrop" id="addSnapshotModal">
+    <div class="import-modal-box" style="width:560px;">
+      <div class="import-modal-head">
+        <div style="font-size:17px;font-weight:700;color:var(--gray-900);">从历史批次中添加</div>
+        <button onclick="closeAddSnapshot()"
+          style="border:none;background:none;cursor:pointer;color:var(--gray-400);font-size:22px;line-height:1;">×</button>
+      </div>
+      <p style="font-size:12.5px;color:var(--gray-400);margin-bottom:14px;">勾选一个或多个历史批次，合并生成白名单快照（自动去重）</p>
+      <div id="addSnapshotList" style="max-height:300px;overflow-y:auto;"></div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px;">
+        <button class="btn btn-default" onclick="closeAddSnapshot()">取消</button>
+        <button class="btn btn-primary" onclick="confirmAddSnapshot()">生成快照</button>
+      </div>
+    </div>
+  </div>
 
-  const AGENTS = [
-    {
-      id: 'a1', name: '橙业贷', org: '平安银行股份有限公司', orgShort: '平安银行',
-      status: 'running', batches: 5, output: 1248, thisMonth: 280,
-      lastRun: '2026-06-25 06:00', freq: 'weekly', limit: 300,
-      datasource: ['全省企业'], processMode: 'original', allowExport: true,
-      whitelist: true, wlMode: 0,
-      rules: [
-        { field: '主体划型', op: '=', val: '小微企业' },
-        { field: '企业状态', op: '=', val: '在业' },
-        { field: '成立年限', op: '>', val: '2' },
-        { field: '无贷户', op: '=', val: '非无贷户' }
-      ],
-      batchList: [
-        { name: '名单_20260625_001', src: 'auto', count: 280, time: '2026-06-25 06:12', status: '已分配' },
-        { name: '名单_20260618_001', src: 'auto', count: 295, time: '2026-06-18 06:08', status: '已分配' },
-        { name: '名单_20260611_001', src: 'auto', count: 310, time: '2026-06-11 06:15', status: '待分配' },
-        { name: '手工导入_20260610', src: 'manual', count: 50, time: '2026-06-10 14:30', status: '已分配' }
-      ],
-      snapshots: [
-        { name: '名单_20260625_001', count: 1180, time: '2026-06-25 06:15' },
-        { name: '名单_20260601_001', count: 980, time: '2026-06-01 06:10' }
-      ],
-      logs: [
-        { time: '2026-06-25 06:12', type: 'success', action: '跑批完成', detail: '共筛选 280 户企业', count: '+280' },
-        { time: '2026-06-25 06:00', type: 'info',    action: '跑批启动', detail: '规则引擎开始执行', count: '' },
-        { time: '2026-06-18 06:08', type: 'success', action: '跑批完成', detail: '共筛选 295 户企业', count: '+295' },
-        { time: '2026-06-11 06:15', type: 'success', action: '跑批完成', detail: '共筛选 310 户企业', count: '+310' }
-      ]
-    },
-    {
-      id: 'a2', name: '厂房贷', org: '招商银行股份有限公司', orgShort: '招商银行',
-      status: 'running', batches: 4, output: 980, thisMonth: 220,
-      lastRun: '2026-06-01 06:00', freq: 'monthly', limit: 200,
-      datasource: ['全省授权企业'], processMode: 'original', allowExport: false,
-      whitelist: false, wlMode: 0,
-      rules: [
-        { field: '厂房类型', op: '包含', val: '自有厂房' },
-        { field: '企业规模', op: '>=', val: '中型' }
-      ],
-      batchList: [
-        { name: '名单_20260601_001', src: 'auto', count: 220, time: '2026-06-01 06:18', status: '分配中' },
-        { name: '名单_20260501_001', src: 'auto', count: 198, time: '2026-05-01 06:10', status: '已分配' }
-      ],
-      snapshots: [],
-      logs: [
-        { time: '2026-06-01 06:18', type: 'success', action: '跑批完成', detail: '共筛选 220 户企业', count: '+220' },
-        { time: '2026-06-01 06:00', type: 'info',    action: '跑批启动', detail: '规则引擎开始执行', count: '' }
-      ]
-    },
-    {
-      id: 'a3', name: '惠农贷', org: '中国农业银行股份有限公司', orgShort: '农业银行',
-      status: 'paused', batches: 2, output: 456, thisMonth: 0,
-      lastRun: '2026-05-20 06:00', freq: 'manual', limit: 500,
-      datasource: ['全省企业', '营销白名单'], processMode: 'intersect', allowExport: true,
-      whitelist: true, wlMode: 1,
-      rules: [
-        { field: '行业类型', op: '包含', val: '农林牧渔' }
-      ],
-      batchList: [
-        { name: '名单_20260520_001', src: 'auto', count: 182, time: '2026-05-20 06:05', status: '已分配' },
-        { name: '手工导入_20260420', src: 'manual', count: 95, time: '2026-04-20 14:30', status: '已分配' }
-      ],
-      snapshots: [
-        { name: '名单_20260520_001', count: 260, time: '2026-05-20 06:08' }
-      ],
-      logs: [
-        { time: '2026-06-01 09:00', type: 'warning', action: '已暂停', detail: '手动暂停运行', count: '' },
-        { time: '2026-05-20 06:05', type: 'success', action: '跑批完成', detail: '共筛选 182 户企业', count: '+182' }
-      ]
-    },
-    {
-      id: 'a4', name: '科创贷', org: '江苏银行股份有限公司', orgShort: '江苏银行',
-      status: 'draft', batches: 0, output: 0, thisMonth: 0,
-      lastRun: null, freq: 'weekly', limit: 1000,
-      datasource: ['全省企业'], processMode: 'original', allowExport: true,
-      whitelist: false, wlMode: 0,
-      rules: [{ field: '特色认证', op: '包含', val: '高新技术企业' }],
-      batchList: [], snapshots: [], logs: []
+  <script src="js/sidebar.js"></script>
+  <script>
+    /* ── 侧边栏 ── */
+    const role = sessionStorage.getItem('wb_role') || 'manager';
+    renderSidebar({ currentPage: 'agents', role });
+
+    /* ═══════════════════════════════════════
+       Mock 数据
+    ═══════════════════════════════════════ */
+    const ORG_SHORT_MAP = {
+      '平安银行股份有限公司': '平安银行',
+      '招商银行股份有限公司': '招商银行',
+      '中国农业银行股份有限公司': '农业银行',
+      '江苏银行股份有限公司': '江苏银行',
+      '中国工商银行股份有限公司': '工商银行',
+      '中国建设银行股份有限公司': '建设银行',
+      '南京银行股份有限公司': '南京银行'
+    };
+
+    const AGENTS = [
+      {
+        id: 'a1', name: '橙业贷', org: '平安银行股份有限公司', orgShort: '平安银行',
+        status: 'running', batches: 5, output: 1248, thisMonth: 280,
+        lastRun: '2026-06-25 06:00', freq: 'weekly', limit: 300,
+        datasource: ['全省企业'], processMode: 'original', allowExport: true,
+        whitelist: true, wlMode: 0,
+        rules: [
+          { field: '主体划型', op: '=', val: '小微企业' },
+          { field: '企业状态', op: '=', val: '在业' },
+          { field: '成立年限', op: '>', val: '2' },
+          { field: '无贷户', op: '=', val: '非无贷户' }
+        ],
+        batchList: [
+          { name: '名单_20260625_001', src: 'auto', count: 280, time: '2026-06-25 06:12', status: '已分配' },
+          { name: '名单_20260618_001', src: 'auto', count: 295, time: '2026-06-18 06:08', status: '已分配' },
+          { name: '名单_20260611_001', src: 'auto', count: 310, time: '2026-06-11 06:15', status: '待分配' },
+          { name: '手工导入_20260610', src: 'manual', count: 50, time: '2026-06-10 14:30', status: '已分配' }
+        ],
+        snapshots: [
+          { name: '名单_20260625_001', count: 1180, time: '2026-06-25 06:15' },
+          { name: '名单_20260601_001', count: 980, time: '2026-06-01 06:10' }
+        ],
+        logs: [
+          { time: '2026-06-25 06:12', type: 'success', action: '跑批完成', detail: '共筛选 280 户企业', count: '+280' },
+          { time: '2026-06-25 06:00', type: 'info', action: '跑批启动', detail: '规则引擎开始执行', count: '' },
+          { time: '2026-06-18 06:08', type: 'success', action: '跑批完成', detail: '共筛选 295 户企业', count: '+295' },
+          { time: '2026-06-11 06:15', type: 'success', action: '跑批完成', detail: '共筛选 310 户企业', count: '+310' }
+        ]
+      },
+      {
+        id: 'a2', name: '厂房贷', org: '招商银行股份有限公司', orgShort: '招商银行',
+        status: 'running', batches: 4, output: 980, thisMonth: 220,
+        lastRun: '2026-06-01 06:00', freq: 'monthly', limit: 200,
+        datasource: ['全省授权企业'], processMode: 'original', allowExport: false,
+        whitelist: false, wlMode: 0,
+        rules: [
+          { field: '厂房类型', op: '包含', val: '自有厂房' },
+          { field: '企业规模', op: '>=', val: '中型' }
+        ],
+        batchList: [
+          { name: '名单_20260601_001', src: 'auto', count: 220, time: '2026-06-01 06:18', status: '分配中' },
+          { name: '名单_20260501_001', src: 'auto', count: 198, time: '2026-05-01 06:10', status: '已分配' }
+        ],
+        snapshots: [],
+        logs: [
+          { time: '2026-06-01 06:18', type: 'success', action: '跑批完成', detail: '共筛选 220 户企业', count: '+220' },
+          { time: '2026-06-01 06:00', type: 'info', action: '跑批启动', detail: '规则引擎开始执行', count: '' }
+        ]
+      },
+      {
+        id: 'a3', name: '惠农贷', org: '中国农业银行股份有限公司', orgShort: '农业银行',
+        status: 'paused', batches: 2, output: 456, thisMonth: 0,
+        lastRun: '2026-05-20 06:00', freq: 'manual', limit: 500,
+        datasource: ['全省企业', '营销白名单'], processMode: 'intersect', allowExport: true,
+        whitelist: true, wlMode: 1,
+        rules: [
+          { field: '行业类型', op: '包含', val: '农林牧渔' }
+        ],
+        batchList: [
+          { name: '名单_20260520_001', src: 'auto', count: 182, time: '2026-05-20 06:05', status: '已分配' },
+          { name: '手工导入_20260420', src: 'manual', count: 95, time: '2026-04-20 14:30', status: '已分配' }
+        ],
+        snapshots: [
+          { name: '名单_20260520_001', count: 260, time: '2026-05-20 06:08' }
+        ],
+        logs: [
+          { time: '2026-06-01 09:00', type: 'warning', action: '已暂停', detail: '手动暂停运行', count: '', operator: '张明 (人工)' },
+          { time: '2026-05-20 06:05', type: 'success', action: '跑批完成', detail: '共筛选 182 户企业', count: '+182' }
+        ]
+      },
+      {
+        id: 'a4', name: '科创贷', org: '江苏银行股份有限公司', orgShort: '江苏银行',
+        status: 'draft', batches: 0, output: 0, thisMonth: 0,
+        lastRun: null, freq: 'weekly', limit: 1000,
+        datasource: ['全省企业'], processMode: 'original', allowExport: true,
+        whitelist: false, wlMode: 0,
+        rules: [{ field: '特色认证', op: '包含', val: '高新技术企业' }],
+        batchList: [], snapshots: [], logs: []
+      }
+    ];
+
+    const STATUS_CFG = {
+      running: { label: '运行中', tagCls: 'tag-blue', iconCls: 'running', primaryBtn: '暂停', primaryAction: 'pause' },
+      paused: { label: '已暂停', tagCls: 'tag-amber', iconCls: 'paused', primaryBtn: '启动', primaryAction: 'resume' },
+      draft: { label: '草稿', tagCls: 'tag-gray', iconCls: 'draft', primaryBtn: '启动', primaryAction: 'deploy' }
+    };
+
+    const FREQ_LABEL = { daily: '每天更新', weekly: '每周更新', monthly: '每月更新', quarterly: '每季度更新', manual: '手动触发', once: '仅一次' };
+
+    /* ═══════════════════════════════════════
+       渲染卡片网格
+    ═══════════════════════════════════════ */
+    function doFilter() {
+      const q = document.getElementById('agentSearch').value.trim().toLowerCase();
+      const org = document.getElementById('orgFilter').value;
+      const st = document.getElementById('statusFilter').value;
+      const list = AGENTS.filter(a =>
+        (!q || (a.name + a.orgShort).toLowerCase().includes(q)) &&
+        (!org || a.orgShort === org) &&
+        (!st || a.status === st)
+      );
+      renderGrid(list);
     }
-  ];
 
-  const STATUS_CFG = {
-    running: { label: '运行中', tagCls: 'tag-blue',  iconCls: 'running', primaryBtn: '暂停',  primaryAction: 'pause'  },
-    paused:  { label: '已暂停', tagCls: 'tag-amber', iconCls: 'paused',  primaryBtn: '启动',  primaryAction: 'resume' },
-    draft:   { label: '草稿',   tagCls: 'tag-gray',  iconCls: 'draft',   primaryBtn: '部署',  primaryAction: 'deploy' }
-  };
+    function renderGrid(list) {
+      if (!list) list = AGENTS;
+      const el = document.getElementById('agentCount');
+      if (el) el.textContent = '共 ' + AGENTS.length + ' 个智能体';
 
-  const FREQ_LABEL = { daily: '每天更新', weekly: '每周更新', monthly: '每月更新', quarterly: '每季度更新', manual: '手动触发', once: '仅一次' };
+      const grid = document.getElementById('agentGrid');
+      if (!grid) return;
 
-  /* ═══════════════════════════════════════
-     渲染卡片网格
-  ═══════════════════════════════════════ */
-  function doFilter() {
-    const q   = document.getElementById('agentSearch').value.trim().toLowerCase();
-    const org = document.getElementById('orgFilter').value;
-    const st  = document.getElementById('statusFilter').value;
-    const list = AGENTS.filter(a =>
-      (!q  || (a.name + a.orgShort).toLowerCase().includes(q)) &&
-      (!org || a.orgShort === org) &&
-      (!st  || a.status === st)
-    );
-    renderGrid(list);
-  }
+      if (!list.length) {
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--gray-400);font-size:14px;">未找到匹配的智能体</div>';
+        return;
+      }
 
-  function renderGrid(list) {
-    if (!list) list = AGENTS;
-    const el = document.getElementById('agentCount');
-    if (el) el.textContent = '共 ' + AGENTS.length + ' 个智能体';
+      const cardsHTML = list.map(function (a) {
+        const cfg = STATUS_CFG[a.status] || STATUS_CFG.draft;
+        const primaryBtnCls = (a.status === 'paused') ? 'btn-primary' : 'btn-default';
+        const primaryBtn = '<button class="btn ' + primaryBtnCls + ' btn-sm" onclick="event.stopPropagation();agentAction(\'' + a.id + '\',\'' + cfg.primaryAction + '\')">' + cfg.primaryBtn + '</button>';
 
-    const grid = document.getElementById('agentGrid');
-    if (!grid) return;
+        const stats = [
+          { k: '累计输出客户', v: a.output > 0 ? a.output.toLocaleString() : '—', vCls: '' },
+          { k: '最新批次', v: a.thisMonth > 0 ? a.thisMonth : '—', vCls: '' },
+          { k: '已输出批次', v: a.batches, vCls: 'blue' },
+          { k: '上次执行', v: a.lastRun || '—', vCls: 'muted' }
+        ];
 
-    if (!list.length) {
-      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--gray-400);font-size:14px;">未找到匹配的智能体</div>';
-      return;
-    }
-
-    const cardsHTML = list.map(function(a) {
-      const cfg = STATUS_CFG[a.status] || STATUS_CFG.draft;
-      const primaryBtnCls = (a.status === 'paused') ? 'btn-primary' : 'btn-default';
-      const primaryBtn = '<button class="btn ' + primaryBtnCls + ' btn-sm" onclick="event.stopPropagation();agentAction(\'' + a.id + '\',\'' + cfg.primaryAction + '\')">' + cfg.primaryBtn + '</button>';
-
-      const stats = [
-        { k: '已输出批次（上限 ' + a.limit + '/批）', v: a.batches, vCls: 'blue' },
-        { k: '累计输出客户', v: a.output > 0 ? a.output.toLocaleString() : '—', vCls: '' },
-        { k: '本月新增', v: a.thisMonth > 0 ? a.thisMonth : '—', vCls: '' },
-        { k: '上次执行', v: a.lastRun || '—', vCls: 'muted' }
-      ];
-
-      return '<div class="agent-card status-' + a.status + '" onclick="openDrawer(\'' + a.id + '\')">' +
-        '<div class="agent-card-inner">' +
+        return '<div class="agent-card status-' + a.status + '" onclick="openDrawer(\'' + a.id + '\')">' +
+          '<div class="agent-card-inner">' +
           '<div class="amc-top">' +
-            '<div class="amc-icon ' + cfg.iconCls + '">' +
-              '<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/></svg>' +
-            '</div>' +
-            '<div class="amc-actions">' +
-              primaryBtn +
-              '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openWizard(\'' + a.id + '\')" style="display:inline-flex;align-items:center;gap:4px;color:var(--brand);">' +
-                '<svg style="width:13px;height:13px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
-                '编辑' +
-              '</button>' +
-              '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openDrawer(\'' + a.id + '\')" style="display:inline-flex;align-items:center;gap:4px;color:var(--gray-600);">' +
-                '<svg style="width:13px;height:13px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
-                '详情' +
-              '</button>' +
-            '</div>' +
+          '<div class="amc-icon ' + cfg.iconCls + '">' +
+          '<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/></svg>' +
+          '</div>' +
+          '<div class="amc-actions">' +
+          primaryBtn +
+          '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openWizard(\'' + a.id + '\')" style="display:inline-flex;align-items:center;gap:4px;color:var(--brand);">' +
+          '<svg style="width:13px;height:13px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+          '编辑' +
+          '</button>' +
+          '</div>' +
           '</div>' +
           '<div class="amc-body">' +
-            '<div class="amc-title">' +
-              a.orgShort + ' · ' + a.name +
-              '<span class="tag ' + cfg.tagCls + '">' + cfg.label + '</span>' +
-            '</div>' +
-            '<div class="amc-sub">' +
-              a.org + '<br>' +
-              (FREQ_LABEL[a.freq] || '按周更新') + ' · ' + (a.whitelist ? '白名单已启用' : '不启用白名单') +
-            '</div>' +
+          '<div class="amc-title">' +
+          a.orgShort + ' · ' + a.name +
+          '<span class="tag ' + cfg.tagCls + '">' + cfg.label + '</span>' +
+          '</div>' +
+          '<div class="amc-sub">' +
+          (FREQ_LABEL[a.freq] || '按周更新') + ' · ' + (a.whitelist ? '白名单已启用' : '未启用白名单') +
+          '</div>' +
           '</div>' +
           '<div class="amc-stats">' +
-            stats.map(function(s) {
-              return '<div class="amc-stat"><div class="stat-k">' + s.k + '</div><div class="stat-v ' + s.vCls + '">' + s.v + '</div></div>';
-            }).join('') +
+          stats.map(function (s) {
+            return '<div class="amc-stat"><div class="stat-k">' + s.k + '</div><div class="stat-v ' + s.vCls + '">' + s.v + '</div></div>';
+          }).join('') +
           '</div>' +
-        '</div>' +
-      '</div>';
-    }).join('');
+          '</div>' +
+          '</div>';
+      }).join('');
 
-    const createHTML =
-      '<div class="create-card" onclick="openWizard()">' +
+      const createHTML =
+        '<div class="create-card" onclick="openWizard()">' +
         '<div class="create-card-icon">' +
-          '<svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
+        '<svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
         '</div>' +
         '<div class="create-card-title">新建智能体</div>' +
-        '<div class="create-card-sub">基于行内指标库<br>配置全新的客群筛选策略</div>' +
-      '</div>';
+        '<div class="create-card-sub">从零开始灵活配置<br>定制机构专属获客策略</div>' +
+        '</div>';
 
-    grid.innerHTML = cardsHTML + createHTML;
-  }
-
-  /* ── 智能体操作 ── */
-  function agentAction(id, action) {
-    const a = AGENTS.find(x => x.id === id);
-    if (!a) return;
-    if (action === 'pause')  { a.status = 'paused';  showToast(a.orgShort + '·' + a.name + ' 已暂停'); }
-    if (action === 'resume') { a.status = 'running'; showToast(a.orgShort + '·' + a.name + ' 已启动', 'success'); }
-    if (action === 'deploy') { a.status = 'running'; showToast('智能体已部署并激活 🚀', 'success'); }
-    renderGrid();
-  }
-
-  /* ═══════════════════════════════════════
-     详情抽屉
-  ═══════════════════════════════════════ */
-  let currentAgentId = null;
-
-  function openDrawer(id) {
-    currentAgentId = id;
-    const a = AGENTS.find(x => x.id === id);
-    if (!a) return;
-    const cfg = STATUS_CFG[a.status] || STATUS_CFG.draft;
-    document.getElementById('drawerTitle').textContent = a.orgShort + ' · ' + a.name;
-    document.getElementById('drawerSubtitle').innerHTML = '<span class="tag ' + cfg.tagCls + '">' + cfg.label + '</span> &nbsp;' + a.org;
-    // 重置 tabs
-    document.querySelectorAll('#detailDrawer .drawer-tab').forEach((t,i) => t.classList.toggle('active', i===0));
-    document.querySelectorAll('#detailDrawer .drawer-pane').forEach((p,i) => p.classList.toggle('active', i===0));
-    renderDrawerPane('config', a);
-    document.getElementById('detailDrawer').classList.add('show');
-    document.getElementById('detailOverlay').classList.add('show');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeDrawer() {
-    document.getElementById('detailDrawer').classList.remove('show');
-    document.getElementById('detailOverlay').classList.remove('show');
-    document.body.style.overflow = '';
-  }
-
-  function switchDrawerTab(tab, el) {
-    document.querySelectorAll('#detailDrawer .drawer-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('#detailDrawer .drawer-pane').forEach(p => p.classList.remove('active'));
-    el.classList.add('active');
-    document.getElementById('dpane-' + tab).classList.add('active');
-    const a = AGENTS.find(x => x.id === currentAgentId);
-    if (a) renderDrawerPane(tab, a);
-  }
-
-  function renderDrawerPane(tab, a) {
-    const cfg = STATUS_CFG[a.status] || STATUS_CFG.draft;
-
-    /* ── Tab 1: 基础配置 ── */
-    if (tab === 'config') {
-      document.getElementById('dpane-config').innerHTML =
-        '<div style="font-size:13px;font-weight:700;color:var(--gray-700);margin-bottom:10px;">基础信息</div>' +
-        row('归属机构', a.org) +
-        row('机构简称', a.orgShort) +
-        row('智能体名称', '<strong>' + a.name + '</strong>') +
-        row('更新频率', FREQ_LABEL[a.freq] || '按周更新') +
-        row('每批次上限', a.limit + ' 户') +
-        row('名单数据源', (a.datasource || []).join('、') || '—') +
-        row('名单处理', {original:'原名单输出',intersect:'取交',exclude:'排除',union:'求并'}[a.processMode] || '—') +
-        row('允许导出', a.allowExport ? '是' : '否') +
-        row('白名单', a.whitelist ? '已启用' : '未启用') +
-        row('上次执行', a.lastRun || '—');
+      grid.innerHTML = cardsHTML + createHTML;
     }
 
-    if (tab === 'rules') {
-      const rulesHtml = a.rules.map(r =>
-        '<span style="display:inline-flex;align-items:center;gap:4px;margin:2px 4px 2px 0;background:var(--gray-100);padding:4px 10px;border-radius:6px;font-size:12.5px;color:var(--gray-700);">' +
+    /* ── 智能体操作 ── */
+    function agentAction(id, action) {
+      const a = AGENTS.find(x => x.id === id);
+      if (!a) return;
+      if (action === 'pause') { a.status = 'paused'; showToast(a.orgShort + '·' + a.name + ' 已暂停'); }
+      if (action === 'resume') { a.status = 'running'; showToast(a.orgShort + '·' + a.name + ' 已启动', 'success'); }
+      if (action === 'deploy') { a.status = 'running'; showToast('智能体已启动并进入运行状态 🚀', 'success'); }
+      renderGrid();
+    }
+
+    /* ═══════════════════════════════════════
+       详情抽屉
+    ═══════════════════════════════════════ */
+    let currentAgentId = null;
+
+    function openDrawer(id) {
+      currentAgentId = id;
+      const a = AGENTS.find(x => x.id === id);
+      if (!a) return;
+      const cfg = STATUS_CFG[a.status] || STATUS_CFG.draft;
+      document.getElementById('drawerTitle').textContent = a.orgShort + ' · ' + a.name;
+      document.getElementById('drawerSubtitle').innerHTML = '<span class="tag ' + cfg.tagCls + '">' + cfg.label + '</span>';
+      // 重置 tabs
+      document.querySelectorAll('#detailDrawer .drawer-tab').forEach((t, i) => t.classList.toggle('active', i === 0));
+      document.querySelectorAll('#detailDrawer .drawer-pane').forEach((p, i) => p.classList.toggle('active', i === 0));
+      renderDrawerPane('config', a);
+      document.getElementById('detailDrawer').classList.add('show');
+      document.getElementById('detailOverlay').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDrawer() {
+      document.getElementById('detailDrawer').classList.remove('show');
+      document.getElementById('detailOverlay').classList.remove('show');
+      document.body.style.overflow = '';
+    }
+
+    function switchDrawerTab(tab, el) {
+      document.querySelectorAll('#detailDrawer .drawer-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('#detailDrawer .drawer-pane').forEach(p => p.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('dpane-' + tab).classList.add('active');
+      const a = AGENTS.find(x => x.id === currentAgentId);
+      if (a) renderDrawerPane(tab, a);
+    }
+
+    function renderDrawerPane(tab, a) {
+      const cfg = STATUS_CFG[a.status] || STATUS_CFG.draft;
+
+      /* ── Tab 1: 基础配置 ── */
+      if (tab === 'config') {
+        document.getElementById('dpane-config').innerHTML =
+          '<div style="font-size:13px;font-weight:700;color:var(--gray-700);margin-bottom:10px;">基础信息</div>' +
+          row('归属机构', a.org) +
+          row('机构简称', a.orgShort) +
+          row('智能体名称', '<strong>' + a.name + '</strong>') +
+          row('更新频率', FREQ_LABEL[a.freq] || '按周更新') +
+          row('每批次上限', a.limit + ' 户') +
+          row('名单数据源', (a.datasource || []).join('、') || '—') +
+          row('名单处理', { original: '原名单输出', intersect: '取交', exclude: '排除', union: '求并' }[a.processMode] || '—') +
+          row('允许导出', a.allowExport ? '是' : '否') +
+          row('白名单', a.whitelist ? '已启用' : '未启用') +
+          row('上次执行', a.lastRun || '—');
+      }
+
+      if (tab === 'rules') {
+        const rulesHtml = a.rules.map(r =>
+          '<span style="display:inline-flex;align-items:center;gap:4px;margin:2px 4px 2px 0;background:var(--gray-100);padding:4px 10px;border-radius:6px;font-size:12.5px;color:var(--gray-700);">' +
           r.field + ' <span style="color:var(--gray-400);">' + r.op + '</span> ' + r.val +
-        '</span>'
-      ).join('');
+          '</span>'
+        ).join('');
 
-      document.getElementById('dpane-rules').innerHTML =
-        '<div style="font-size:13px;font-weight:700;color:var(--gray-700);margin-bottom:10px;">获客规则（AND 关系）</div>' +
-        row('筛选条件', rulesHtml);
-    }
+        document.getElementById('dpane-rules').innerHTML =
+          '<div style="font-size:13px;font-weight:700;color:var(--gray-700);margin-bottom:10px;">获客规则（AND 关系）</div>' +
+          row('筛选条件', rulesHtml);
+      }
 
-    /* ── Tab 2: 名单批次 ── */
-    if (tab === 'batches') {
-      const totalCount = a.batchList.reduce((s,b) => s + b.count, 0);
-      const uniqueEst  = Math.round(totalCount * 0.85);
-      document.getElementById('dpane-batches').innerHTML =
-        '<div class="summary-cards">' +
+      /* ── Tab 2: 名单批次 ── */
+      if (tab === 'batches') {
+        const totalCount = a.batchList.reduce((s, b) => s + b.count, 0);
+        const uniqueEst = Math.round(totalCount * 0.85);
+        document.getElementById('dpane-batches').innerHTML =
+          '<div class="summary-cards">' +
           '<div class="summary-card"><div class="summary-card-label">总批次数</div><div class="summary-card-value">' + a.batchList.length + '</div></div>' +
           '<div class="summary-card"><div class="summary-card-label">累计企业总数</div><div class="summary-card-value blue">' + totalCount.toLocaleString() + '</div></div>' +
-          '<div class="summary-card"><div class="summary-card-label">去重企业数（估）</div><div class="summary-card-value">' + uniqueEst.toLocaleString() + '</div></div>' +
-        '</div>' +
-        '<div class="batch-toolbar">' +
+          '<div class="summary-card"><div class="summary-card-label">去重企业数</div><div class="summary-card-value">' + uniqueEst.toLocaleString() + '</div></div>' +
+          '</div>' +
+          '<div class="batch-toolbar">' +
           '<button class="btn btn-primary btn-sm" onclick="showToast(\'正在触发跑批，请稍候...\')">手动执行跑批</button>' +
           '<button class="btn btn-default btn-sm" onclick="openImportBatch(\'' + a.id + '\')">导入名单</button>' +
-        '</div>' +
-        '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;">' +
-        '<table class="batch-table"><thead><tr>' +
+          '</div>' +
+          '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;">' +
+          '<table class="batch-table"><thead><tr>' +
           '<th>批次名称</th><th>来源</th><th>企业数</th><th>执行时间</th><th>状态</th><th>操作</th>' +
-        '</tr></thead><tbody>' +
-        (a.batchList.length ? a.batchList.map(b =>
-          '<tr>' +
+          '</tr></thead><tbody>' +
+          (a.batchList.length ? a.batchList.map(b =>
+            '<tr>' +
             '<td style="font-weight:600;font-size:13px;">' + b.name + '</td>' +
-            '<td><span class="tag ' + (b.src==='auto' ? 'tag-blue' : 'tag-gray') + '">' + (b.src==='auto' ? '系统生成' : '手工导入') + '</span></td>' +
+            '<td><span class="tag ' + (b.src === 'auto' ? 'tag-blue' : 'tag-gray') + '">' + (b.src === 'auto' ? '系统生成' : '手工导入') + '</span></td>' +
             '<td><strong>' + b.count.toLocaleString() + '</strong><span style="font-size:12px;color:var(--gray-400);margin-left:2px;">户</span></td>' +
             '<td style="color:var(--gray-500);font-size:12px;">' + b.time + '</td>' +
-            '<td><span class="tag ' + (b.status==='已分配'?'tag-green':b.status==='分配中'?'tag-blue':'tag-amber') + '">' + b.status + '</span></td>' +
+            '<td><span class="tag ' + (b.status === '已分配' ? 'tag-green' : b.status === '分配中' ? 'tag-blue' : 'tag-amber') + '">' + b.status + '</span></td>' +
             '<td><button class="btn btn-default btn-sm" onclick="openNotify(\'名单生成任务已提交，稍后在下载中心查看。\')" style="font-size:12px;">下载</button></td>' +
-          '</tr>'
-        ).join('') : '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--gray-400);">暂无批次记录</td></tr>') +
-        '</tbody></table></div>';
-    }
+            '</tr>'
+          ).join('') : '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--gray-400);">暂无批次记录</td></tr>') +
+          '</tbody></table></div>';
+      }
 
-    /* ── Tab 3: 白名单快照 ── */
-    if (tab === 'whitelist') {
-      const totalSnap = a.snapshots.reduce((s,x) => s + x.count, 0);
-      const snapListHtml = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;">' +
-        '<table class="batch-table"><thead><tr>' +
+      /* ── Tab 3: 白名单快照 ── */
+      if (tab === 'whitelist') {
+        const totalSnap = a.snapshots.reduce((s, x) => s + x.count, 0);
+        const snapListHtml = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;">' +
+          '<table class="batch-table"><thead><tr>' +
           '<th>快照名称</th><th>企业数</th><th>生成时间</th><th style="text-align:right;padding-right:24px;">操作</th>' +
-        '</tr></thead><tbody>' +
-        (a.snapshots.length ? a.snapshots.map(s =>
-          '<tr>' +
+          '</tr></thead><tbody>' +
+          (a.snapshots.length ? a.snapshots.map(s =>
+            '<tr>' +
             '<td style="font-weight:600;font-size:13px;">' + s.name + '</td>' +
             '<td><strong>' + s.count.toLocaleString() + '</strong><span style="font-size:12px;color:var(--gray-400);margin-left:2px;">户</span></td>' +
             '<td style="color:var(--gray-500);font-size:12px;">' + s.time + '</td>' +
             '<td style="text-align:right;padding-right:24px;">' +
-              '<button class="btn btn-default btn-sm" onclick="openNotify(\'名单生成任务已提交，稍后在下载中心查看。\')" style="font-size:12px;margin-right:8px;">下载</button>' +
-              '<button class="btn btn-sm" onclick="confirmDeleteSnapshot(\'' + s.name + '\')" style="font-size:12px;color:#dc2626;border:1px solid #fecaca;background:#fff;">删除</button>' +
+            '<button class="btn btn-default btn-sm" onclick="openNotify(\'名单生成任务已提交，稍后在下载中心查看。\')" style="font-size:12px;margin-right:8px;">下载</button>' +
+            '<button class="btn btn-sm" onclick="confirmDeleteSnapshot(\'' + s.name + '\')" style="font-size:12px;color:#dc2626;border:1px solid #fecaca;background:#fff;">删除</button>' +
             '</td>' +
-          '</tr>'
-        ).join('') : '<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--gray-400);">暂无白名单快照</td></tr>') +
-        '</tbody></table></div>';
+            '</tr>'
+          ).join('') : '<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--gray-400);">暂无白名单快照</td></tr>') +
+          '</tbody></table></div>';
 
-      document.getElementById('dpane-whitelist').innerHTML =
-        '<div class="snapshot-header">' +
+        document.getElementById('dpane-whitelist').innerHTML =
+          '<div class="snapshot-header">' +
           '<div class="snapshot-header-info">' +
-            '<div class="label">白名单去重企业总数</div>' +
-            '<div class="value">' + totalSnap.toLocaleString() + '<span style="font-size:15px;font-weight:500;color:var(--gray-400);margin-left:4px;">户</span></div>' +
+          '<div class="label">白名单去重企业总数</div>' +
+          '<div class="value">' + totalSnap.toLocaleString() + '<span style="font-size:15px;font-weight:500;color:var(--gray-400);margin-left:4px;">户</span></div>' +
           '</div>' +
           '<button class="btn btn-default btn-sm" onclick="openNotify(\'名单生成任务已提交，稍后在下载中心查看。\')">' +
-            '<svg style="width:14px;height:14px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' +
-            ' 下载全量白名单' +
+          '<svg style="width:14px;height:14px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' +
+          ' 下载全量白名单' +
           '</button>' +
-        '</div>' +
-        '<div class="wl-toolbar">' +
+          '</div>' +
+          '<div class="wl-toolbar">' +
           '<button class="btn btn-default btn-sm" onclick="document.getElementById(\'wlSnapshotFile\').click()">上传白名单文件</button>' +
           '<input type="file" id="wlSnapshotFile" accept=".xlsx,.xls,.csv" style="display:none;" onchange="handleWlUpload(this)">' +
           '<button class="btn btn-default btn-sm" onclick="openAddSnapshot(\'' + a.id + '\')">从历史批次中添加</button>' +
           '<button class="btn btn-default btn-sm" onclick="showToast(\'正在触发白名单跑批，请稍候...\',\'success\')">立即跑批生成</button>' +
-        '</div>' +
-        '<div class="snapshot-list">' + snapListHtml + '</div>';
-    }
+          '</div>' +
+          '<div class="snapshot-list">' + snapListHtml + '</div>';
+      }
 
-    /* ── Tab 4: 执行日志 ── */
-    if (tab === 'logs') {
-      document.getElementById('dpane-logs').innerHTML =
-        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">' +
+      /* ── Tab 4: 执行日志 ── */
+      if (tab === 'logs') {
+        document.getElementById('dpane-logs').innerHTML =
+          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">' +
           '<div style="font-size:14px;font-weight:700;color:var(--gray-900);">执行日志（' + a.logs.length + ' 条）</div>' +
           '<span style="font-size:12px;color:var(--gray-400);">最近 3 个月</span>' +
-        '</div>' +
-        '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;">' +
-        '<table class="batch-table"><thead><tr>' +
-          '<th style="width:160px;">执行时间</th><th>动作</th><th>详情</th><th style="text-align:right;padding-right:24px;">数量/结果</th>' +
-        '</tr></thead><tbody>' +
-        (a.logs.length ? a.logs.map(l =>
-          '<tr>' +
+          '</div>' +
+          '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;">' +
+          '<table class="batch-table"><thead><tr>' +
+          '<th style="width:160px;">执行时间</th><th>动作</th><th>详情</th><th style="width:140px;text-align:right;padding-right:24px;">操作者</th>' +
+          '</tr></thead><tbody>' +
+          (a.logs.length ? a.logs.map(l =>
+            '<tr>' +
             '<td style="color:var(--gray-500);font-size:12px;">' + l.time + '</td>' +
             '<td><span style="display:inline-flex;align-items:center;gap:6px;"><div class="log-dot ' + l.type + '" style="position:static;transform:none;"></div><strong>' + l.action + '</strong></span></td>' +
             '<td style="font-size:13px;color:var(--gray-700);">' + l.detail + '</td>' +
-            '<td style="text-align:right;padding-right:24px;color:' + (l.count&&l.count.startsWith('+') ? 'var(--brand)' : 'var(--gray-500)') + ';">' + (l.count||'—') + '</td>' +
-          '</tr>'
-        ).join('') : '<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--gray-400);">暂无日志记录</td></tr>') +
-        '</tbody></table></div>';
+            '<td style="text-align:right;padding-right:24px;font-size:13px;color:var(--gray-700);">' + (l.operator ? l.operator : '<span style="color:var(--gray-400);">系统自动</span>') + '</td>' +
+            '</tr>'
+          ).join('') : '<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--gray-400);">暂无日志记录</td></tr>') +
+          '</tbody></table></div>';
+      }
     }
-  }
 
-  function row(label, val) {
-    return '<div class="info-row"><div class="info-label">' + label + '</div><div class="info-value">' + val + '</div></div>';
-  }
+    function row(label, val) {
+      return '<div class="info-row"><div class="info-label">' + label + '</div><div class="info-value">' + val + '</div></div>';
+    }
 
-  /* ═══════════════════════════════════════
-     新建/编辑向导（右侧抽屉）
-  ═══════════════════════════════════════ */
-  let wizStep = 0;
-  const WIZ_STEPS = ['基础配置', '获客规则', '名单策略', '营销白名单', '名单字段'];
+    /* ═══════════════════════════════════════
+       新建/编辑向导（右侧抽屉）
+    ═══════════════════════════════════════ */
+    let wizStep = 0;
+    const WIZ_STEPS = ['基础配置', '获客规则', '名单策略', '营销白名单', '名单字段'];
 
-  function updateWizardUI() {
-    const steps = document.getElementById('wizardStepsEl');
-    steps.innerHTML = WIZ_STEPS.map(function(label, i) {
-      const cls = i < wizStep ? 'done' : i === wizStep ? 'active' : '';
-      const numHtml = i < wizStep ? '✓' : (i + 1);
-      return (i > 0 ? '<div class="wiz-line ' + (i <= wizStep ? 'done' : '') + '"></div>' : '') +
-        '<div class="wiz-step ' + cls + '">' +
+    function updateWizardUI() {
+      const steps = document.getElementById('wizardStepsEl');
+      steps.innerHTML = WIZ_STEPS.map(function (label, i) {
+        const cls = i < wizStep ? 'done' : i === wizStep ? 'active' : '';
+        const numHtml = i < wizStep ? '✓' : (i + 1);
+        return (i > 0 ? '<div class="wiz-line ' + (i <= wizStep ? 'done' : '') + '"></div>' : '') +
+          '<div class="wiz-step ' + cls + '">' +
           '<div class="wiz-step-num">' + numHtml + '</div>' +
           '<div class="wiz-step-label">' + label + '</div>' +
-        '</div>';
-    }).join('');
-    for (let i = 0; i < WIZ_STEPS.length; i++) {
-      const p = document.getElementById('wp-' + i);
-      if (p) p.classList.toggle('active', i === wizStep);
+          '</div>';
+      }).join('');
+      for (let i = 0; i < WIZ_STEPS.length; i++) {
+        const p = document.getElementById('wp-' + i);
+        if (p) p.classList.toggle('active', i === wizStep);
+      }
+
+      const prevBtn = document.getElementById('wizPrevBtn');
+      const nextBtn = document.getElementById('wizNextBtn');
+      prevBtn.style.visibility = wizStep > 0 ? 'visible' : 'hidden';
+      nextBtn.textContent = wizStep === WIZ_STEPS.length - 1 ? '完成并启动' : '下一步';
     }
 
-    const prevBtn = document.getElementById('wizPrevBtn');
-    const nextBtn = document.getElementById('wizNextBtn');
-    prevBtn.style.visibility = wizStep > 0 ? 'visible' : 'hidden';
-    nextBtn.textContent = wizStep === WIZ_STEPS.length - 1 ? '完成部署' : '下一步';
-  }
+    function openWizard(id) {
+      wizStep = 0;
+      const a = id ? AGENTS.find(x => x.id === id) : null;
+      document.getElementById('wizardTitleText').textContent = a ? '编辑智能体：' + a.orgShort + ' · ' + a.name : '新建获客智能体';
 
-  function openWizard(id) {
-    wizStep = 0;
-    const a = id ? AGENTS.find(x => x.id === id) : null;
-    document.getElementById('wizardTitleText').textContent = a ? '编辑智能体：' + a.orgShort + ' · ' + a.name : '新建获客智能体';
+      // 预填 Step 0
+      document.getElementById('f-org').value = a ? a.org : '';
+      document.getElementById('f-orgshort').value = a ? a.orgShort : '';
+      document.getElementById('f-name').value = a ? a.name : '';
 
-    // 预填 Step 0
-    document.getElementById('f-org').value      = a ? a.org : '';
-    document.getElementById('f-orgshort').value = a ? a.orgShort : '';
-    document.getElementById('f-name').value     = a ? a.name : '';
+      // 规则
+      document.getElementById('ruleContainer').innerHTML = '';
+      if (a) {
+        a.rules.forEach(r => addRule(r.field, r.op, r.val));
+      } else {
+        addRule(); addRule();
+      }
 
-    // 规则
-    document.getElementById('ruleContainer').innerHTML = '';
-    if (a) {
-      a.rules.forEach(r => addRule(r.field, r.op, r.val));
-    } else {
-      addRule(); addRule();
+      // 字段网格
+      initFieldGrid();
+      updateWizardUI();
+
+      // 阻止覆盖层关闭时影响向导
+      document.getElementById('wizardOverlay').onclick = function (e) {
+        if (e.target === this) closeWizard();
+      };
+      document.getElementById('wizardOverlay').classList.add('show');
+      document.getElementById('wizardDrawer').classList.add('show');
+      document.body.style.overflow = 'hidden';
     }
 
-    // 字段网格
-    initFieldGrid();
-    updateWizardUI();
-
-    // 阻止覆盖层关闭时影响向导
-    document.getElementById('wizardOverlay').onclick = function(e) {
-      if (e.target === this) closeWizard();
-    };
-    document.getElementById('wizardOverlay').classList.add('show');
-    document.getElementById('wizardDrawer').classList.add('show');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeWizard() {
-    document.getElementById('wizardOverlay').classList.remove('show');
-    document.getElementById('wizardDrawer').classList.remove('show');
-    document.body.style.overflow = '';
-  }
-
-  function wizardNext() {
-    if (wizStep < WIZ_STEPS.length - 1) { wizStep++; updateWizardUI(); }
-    else { closeWizard(); showToast('智能体已部署并激活 🚀', 'success'); renderGrid(); }
-  }
-
-  function wizardPrev() {
-    if (wizStep > 0) { wizStep--; updateWizardUI(); }
-  }
-
-  /* ── 机构简称自动填入 ── */
-  function autoFillOrgShort() {
-    const org = document.getElementById('f-org').value;
-    const short = ORG_SHORT_MAP[org] || '';
-    document.getElementById('f-orgshort').value = short;
-  }
-
-  /* ── AND/OR 逻辑切换 ── */
-  function setLogic(mode) {
-    document.getElementById('logicAnd').classList.toggle('active', mode === 'AND');
-    document.getElementById('logicOr').classList.toggle('active', mode === 'OR');
-  }
-
-  /* ── 规则 ── */
-  const RULE_FIELDS = ['主体划型','企业状态','成立年限','行业类型','纳税信用','特色认证','无贷户','企业规模','厂房类型','年营业收入','注册资本','所属地区'];
-  const RULE_OPS    = ['=','≠','>','<','≥','≤','包含','不包含'];
-
-  function addRule(field, op, val) {
-    const c = document.getElementById('ruleContainer');
-    const d = document.createElement('div');
-    d.className = 'rule-row';
-    d.innerHTML =
-      '<select style="flex:1.5;">' + RULE_FIELDS.map(f => '<option' + (f===field?' selected':'') + '>' + f + '</option>').join('') + '</select>' +
-      '<select style="width:85px;">' + RULE_OPS.map(o => '<option' + (o===op?' selected':'') + '>' + o + '</option>').join('') + '</select>' +
-      '<input type="text" placeholder="值" style="flex:1;" value="' + (val||'') + '">' +
-      '<button class="rule-del-btn" onclick="this.closest(\'.rule-row\').remove();updateRulePreview();" title="删除"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
-    d.querySelectorAll('select,input').forEach(el => el.addEventListener('change', updateRulePreview));
-    c.appendChild(d);
-    updateRulePreview();
-  }
-
-  function updateRulePreview() {
-    const n = document.getElementById('ruleContainer').children.length;
-    const base = Math.max(50, 2000 - n * 250 + Math.floor(Math.random()*80));
-    const el = document.getElementById('rulePreview');
-    if (el) el.textContent = '约 ' + base.toLocaleString() + ' 家';
-  }
-
-  /* ── 数据源 Tag 单选 ── */
-  function toggleSource(el) {
-    document.querySelectorAll('#sourceTags .source-tag').forEach(tag => {
-      tag.classList.remove('active');
-      const rb = tag.querySelector('input[type="radio"]');
-      if (rb) rb.checked = false;
-    });
-    el.classList.add('active');
-    const rb = el.querySelector('input[type="radio"]');
-    if (rb) rb.checked = true;
-  }
-
-  /* ── 名单处理 单选 ── */
-  function selectProcess(el, mode) {
-    document.querySelectorAll('.process-opt').forEach(o => o.classList.remove('active'));
-    el.classList.add('active');
-    el.querySelector('input[type=radio]').checked = true;
-    const needUpload = ['intersect','exclude','union'].includes(mode);
-    document.getElementById('processUploadArea').style.display = needUpload ? 'block' : 'none';
-  }
-
-  /* ── 频率（Step 3）── */
-  function selectFreq2(freq, el) {
-    document.querySelectorAll('#freqOpts2 .freq-opt').forEach(o => o.classList.remove('active'));
-    el.classList.add('active');
-    const d = document.getElementById('freqDetail2');
-    if (freq === 'once') {
-      d.innerHTML = '<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:13px;font-weight:600;color:var(--gray-600);">执行时间：</span><input type="date" class="form-input" style="width:170px;"><input type="time" class="form-input" value="06:00" style="width:110px;"></div>';
-    } else if (freq === 'daily') {
-      d.innerHTML = '<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:13px;font-weight:600;color:var(--gray-600);">每日执行时间：</span><input type="time" class="form-input" value="02:00" style="width:110px;"></div>';
-    } else if (freq === 'weekly') {
-      d.innerHTML = '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">' +
-        '<span style="font-size:13px;font-weight:600;color:var(--gray-600);">执行日：</span>' +
-        ['周一','周二','周三','周四','周五','周六','周日'].map((wd,i) =>
-          '<label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox" ' + (i===1?'checked':'') + '> ' + wd + '</label>'
-        ).join('') +
-        '<span style="font-size:13px;font-weight:600;color:var(--gray-600);margin-left:8px;">时间：</span>' +
-        '<input type="time" class="form-input" value="06:00" style="width:110px;">' +
-        '</div>';
-    } else if (freq === 'monthly') {
-      d.innerHTML = '<div style="margin-bottom:10px;"><div style="font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:8px;">每月执行日（可多选）：</div>' +
-        '<div style="display:flex;flex-wrap:wrap;gap:5px;">' +
-        Array.from({length:31},(_,i)=>i+1).map(n =>
-          '<div class="day-tag ' + (n===1?'selected':'') + '" onclick="this.classList.toggle(\'selected\')">' + n + '</div>'
-        ).join('') + '</div></div>' +
-        '<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:13px;font-weight:600;color:var(--gray-600);">时间：</span><input type="time" class="form-input" value="06:00" style="width:110px;"></div>';
-    } else if (freq === 'quarterly') {
-      d.innerHTML = '<div style="margin-bottom:10px;"><div style="font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:8px;">每季度执行月份（可多选）：</div>' +
-        '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;">' +
-        ['第一个月','第二个月','第三个月'].map((m,i) =>
-          '<div class="day-tag ' + (i===0?'selected':'') + '" onclick="this.classList.toggle(\'selected\')" style="width:auto;padding:0 12px;">' + m + '</div>'
-        ).join('') + '</div>' +
-        '<div style="font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:8px;">执行日（可多选）：</div>' +
-        '<div style="display:flex;flex-wrap:wrap;gap:5px;">' +
-        Array.from({length:31},(_,i)=>i+1).map(n =>
-          '<div class="day-tag ' + (n===1?'selected':'') + '" onclick="this.classList.toggle(\'selected\')">' + n + '</div>'
-        ).join('') + '</div></div>' +
-        '<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:13px;font-weight:600;color:var(--gray-600);">时间：</span><input type="time" class="form-input" value="02:00" style="width:110px;"></div>';
-    } else if (freq === 'manual') {
-      d.innerHTML = '<div style="font-size:13px;color:var(--gray-500);padding:8px 0;">仅通过详情页的“手动执行跑批”按钮触发执行，不自动运行。</div>';
+    function closeWizard() {
+      document.getElementById('wizardOverlay').classList.remove('show');
+      document.getElementById('wizardDrawer').classList.remove('show');
+      document.body.style.overflow = '';
     }
-  }
 
-  /* ── 白名单（Step 4）── */
-  function toggleWlDrawer() {
-    const toggle = document.getElementById('wlToggle');
-    toggle.classList.toggle('on');
-    document.getElementById('wlConfigArea').style.display = toggle.classList.contains('on') ? 'block' : 'none';
-  }
-
-  function selectWlMode(idx) {
-    ['wlOpt1','wlOpt2','wlOpt3'].forEach((id,i) => {
-      const el = document.getElementById(id);
-      if (el) el.style.borderColor = i === idx ? 'var(--brand)' : 'var(--border)';
-      if (el) el.style.background = i === idx ? 'var(--brand-light)' : '#fff';
-    });
-    document.getElementById('wlIndepSchedule').style.display = idx === 1 ? 'block' : 'none';
-    document.getElementById('wlUploadArea').style.display    = idx === 2 ? 'block' : 'none';
-  }
-
-  function selectWlFreq(freq, el) {
-    document.querySelectorAll('#wlFreqOpts .freq-opt').forEach(o => o.classList.remove('active'));
-    el.classList.add('active');
-    const d = document.getElementById('wlFreqDetail');
-    if (freq === 'once') {
-      d.innerHTML = '<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:13px;font-weight:600;color:var(--gray-600);">执行时间：</span><input type="date" class="form-input" style="width:170px;"><input type="time" class="form-input" value="03:00" style="width:110px;"></div>';
-    } else if (freq === 'daily') {
-      d.innerHTML = '<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:13px;font-weight:600;color:var(--gray-600);">每日执行时间：</span><input type="time" class="form-input" value="03:00" style="width:110px;"></div>';
-    } else if (freq === 'weekly') {
-      d.innerHTML = '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">' +
-        '<span style="font-size:13px;font-weight:600;color:var(--gray-600);">执行日：</span>' +
-        ['周一','周二','周三','周四','周五','周六','周日'].map((wd,i) =>
-          '<label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox" ' + (i===1?'checked':'') + '> ' + wd + '</label>'
-        ).join('') +
-        '<span style="font-size:13px;font-weight:600;color:var(--gray-600);margin-left:8px;">时间：</span>' +
-        '<input type="time" class="form-input" value="03:00" style="width:110px;">' +
-        '</div>';
-    } else if (freq === 'monthly') {
-      d.innerHTML = '<div style="margin-bottom:10px;"><div style="font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:8px;">每月执行日（可多选）：</div>' +
-        '<div style="display:flex;flex-wrap:wrap;gap:5px;">' +
-        Array.from({length:31},(_,i)=>i+1).map(n =>
-          '<div class="day-tag ' + (n===1?'selected':'') + '" onclick="this.classList.toggle(\'selected\')">' + n + '</div>'
-        ).join('') + '</div></div>' +
-        '<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:13px;font-weight:600;color:var(--gray-600);">时间：</span><input type="time" class="form-input" value="03:00" style="width:110px;"></div>';
-    } else if (freq === 'quarterly') {
-      d.innerHTML = '<div style="margin-bottom:10px;"><div style="font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:8px;">每季度执行月份（可多选）：</div>' +
-        '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;">' +
-        ['第一个月','第二个月','第三个月'].map((m,i) =>
-          '<div class="day-tag ' + (i===0?'selected':'') + '" onclick="this.classList.toggle(\'selected\')" style="width:auto;padding:0 12px;">' + m + '</div>'
-        ).join('') + '</div>' +
-        '<div style="font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:8px;">执行日（可多选）：</div>' +
-        '<div style="display:flex;flex-wrap:wrap;gap:5px;">' +
-        Array.from({length:31},(_,i)=>i+1).map(n =>
-          '<div class="day-tag ' + (n===1?'selected':'') + '" onclick="this.classList.toggle(\'selected\')">' + n + '</div>'
-        ).join('') + '</div></div>' +
-        '<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:13px;font-weight:600;color:var(--gray-600);">时间：</span><input type="time" class="form-input" value="03:00" style="width:110px;"></div>';
+    function wizardNext() {
+      if (wizStep < WIZ_STEPS.length - 1) { wizStep++; updateWizardUI(); }
+      else { closeWizard(); showToast('智能体已成功启动 🚀', 'success'); renderGrid(); }
     }
-  }
 
-  /* ── 字段网格（Step 5）── */
-  const REQUIRED_FIELDS = [
-    { label: '企业名称' }, { label: '统一社会信用代码' }, { label: '企业状态' }
-  ];
-  const EXTEND_FIELDS = [
-    { k:'industry', label:'行业类型', on:true },
-    { k:'scale',    label:'企业规模', on:true },
-    { k:'nature',   label:'主体划型', on:true },
-    { k:'regCap',   label:'注册资本', on:true },
-    { k:'founded',  label:'成立日期', on:true },
-    { k:'region',   label:'所在区域', on:true },
-    { k:'tax',      label:'纳税信用', on:true },
-    { k:'honor',    label:'荣誉标签', on:true },
-    { k:'loan',     label:'无贷户标记', on:true },
-    { k:'contact',  label:'联系电话', on:true },
-    { k:'revenue',  label:'年营业收入', on:false },
-    { k:'intent',   label:'意向等级', on:false }
-  ];
+    function wizardPrev() {
+      if (wizStep > 0) { wizStep--; updateWizardUI(); }
+    }
 
-  function initFieldGrid() {
-    const r = document.getElementById('requiredFieldGrid');
-    if (r) {
-      r.innerHTML = REQUIRED_FIELDS.map(f =>
-        '<div class="field-btn required">' +
+    /* ── 机构简称自动填入 ── */
+    function autoFillOrgShort() {
+      const org = document.getElementById('f-org').value;
+      const short = ORG_SHORT_MAP[org] || '';
+      document.getElementById('f-orgshort').value = short;
+    }
+
+    /* ── AND/OR 逻辑切换 ── */
+    function setLogic(mode) {
+      document.getElementById('logicAnd').classList.toggle('active', mode === 'AND');
+      document.getElementById('logicOr').classList.toggle('active', mode === 'OR');
+    }
+
+    /* ── 规则 ── */
+    const RULE_FIELDS = ['主体划型', '企业状态', '成立年限', '行业类型', '纳税信用', '特色认证', '无贷户', '企业规模', '厂房类型', '年营业收入', '注册资本', '所属地区'];
+    const RULE_OPS = ['=', '≠', '>', '<', '≥', '≤', '包含', '不包含'];
+
+    function addRule(field, op, val) {
+      const c = document.getElementById('ruleContainer');
+      const d = document.createElement('div');
+      d.className = 'rule-row';
+      d.innerHTML =
+        '<select style="flex:1.5;">' + RULE_FIELDS.map(f => '<option' + (f === field ? ' selected' : '') + '>' + f + '</option>').join('') + '</select>' +
+        '<select style="width:85px;">' + RULE_OPS.map(o => '<option' + (o === op ? ' selected' : '') + '>' + o + '</option>').join('') + '</select>' +
+        '<input type="text" placeholder="值" style="flex:1;" value="' + (val || '') + '">' +
+        '<button class="rule-del-btn" onclick="this.closest(\'.rule-row\').remove();updateRulePreview();" title="删除"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
+      d.querySelectorAll('select,input').forEach(el => el.addEventListener('change', updateRulePreview));
+      c.appendChild(d);
+      updateRulePreview();
+    }
+
+    function updateRulePreview() {
+      const n = document.getElementById('ruleContainer').children.length;
+      const base = Math.max(50, 2000 - n * 250 + Math.floor(Math.random() * 80));
+      const el = document.getElementById('rulePreview');
+      if (el) el.textContent = '约 ' + base.toLocaleString() + ' 家';
+    }
+
+    /* ── 数据源 Tag 单选 ── */
+    function toggleSource(el) {
+      document.querySelectorAll('#sourceTags .source-tag').forEach(tag => {
+        tag.classList.remove('active');
+        const rb = tag.querySelector('input[type="radio"]');
+        if (rb) rb.checked = false;
+      });
+      el.classList.add('active');
+      const rb = el.querySelector('input[type="radio"]');
+      if (rb) rb.checked = true;
+    }
+
+    /* ── 名单处理 单选 ── */
+    function selectProcess(el, mode) {
+      document.querySelectorAll('.process-opt').forEach(o => o.classList.remove('active'));
+      el.classList.add('active');
+      el.querySelector('input[type=radio]').checked = true;
+      const needUpload = ['intersect', 'exclude', 'union'].includes(mode);
+      document.getElementById('processUploadArea').style.display = needUpload ? 'block' : 'none';
+    }
+
+    /* ── 频率（Step 3）── */
+    function selectFreq2(freq, el) {
+      document.querySelectorAll('#freqOpts2 .freq-opt').forEach(o => o.classList.remove('active'));
+      el.classList.add('active');
+      const d = document.getElementById('freqDetail2');
+      if (freq === 'once') {
+        d.innerHTML = '<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:13px;font-weight:600;color:var(--gray-600);">执行时间：</span><input type="date" class="form-input" style="width:170px;"><input type="time" class="form-input" value="06:00" style="width:110px;"></div>';
+      } else if (freq === 'daily') {
+        d.innerHTML = '<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:13px;font-weight:600;color:var(--gray-600);">每日执行时间：</span><input type="time" class="form-input" value="02:00" style="width:110px;"></div>';
+      } else if (freq === 'weekly') {
+        d.innerHTML = '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">' +
+          '<span style="font-size:13px;font-weight:600;color:var(--gray-600);">执行日：</span>' +
+          ['周一', '周二', '周三', '周四', '周五', '周六', '周日'].map((wd, i) =>
+            '<label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox" ' + (i === 1 ? 'checked' : '') + '> ' + wd + '</label>'
+          ).join('') +
+          '<span style="font-size:13px;font-weight:600;color:var(--gray-600);margin-left:8px;">时间：</span>' +
+          '<input type="time" class="form-input" value="06:00" style="width:110px;">' +
+          '</div>';
+      } else if (freq === 'monthly') {
+        d.innerHTML = '<div style="margin-bottom:10px;"><div style="font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:8px;">每月执行日（可多选）：</div>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:5px;">' +
+          Array.from({ length: 31 }, (_, i) => i + 1).map(n =>
+            '<div class="day-tag ' + (n === 1 ? 'selected' : '') + '" onclick="this.classList.toggle(\'selected\')">' + n + '</div>'
+          ).join('') + '</div></div>' +
+          '<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:13px;font-weight:600;color:var(--gray-600);">时间：</span><input type="time" class="form-input" value="06:00" style="width:110px;"></div>';
+      } else if (freq === 'quarterly') {
+        d.innerHTML = '<div style="margin-bottom:10px;"><div style="font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:8px;">每季度执行月份（可多选）：</div>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;">' +
+          ['第一个月', '第二个月', '第三个月'].map((m, i) =>
+            '<div class="day-tag ' + (i === 0 ? 'selected' : '') + '" onclick="this.classList.toggle(\'selected\')" style="width:auto;padding:0 12px;">' + m + '</div>'
+          ).join('') + '</div>' +
+          '<div style="font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:8px;">执行日（可多选）：</div>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:5px;">' +
+          Array.from({ length: 31 }, (_, i) => i + 1).map(n =>
+            '<div class="day-tag ' + (n === 1 ? 'selected' : '') + '" onclick="this.classList.toggle(\'selected\')">' + n + '</div>'
+          ).join('') + '</div></div>' +
+          '<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:13px;font-weight:600;color:var(--gray-600);">时间：</span><input type="time" class="form-input" value="02:00" style="width:110px;"></div>';
+      } else if (freq === 'manual') {
+        d.innerHTML = '<div style="font-size:13px;color:var(--gray-500);padding:8px 0;">仅通过详情页的“手动执行跑批”按钮触发执行，不自动运行。</div>';
+      }
+    }
+
+    /* ── 白名单（Step 4）── */
+    function toggleWlDrawer() {
+      const toggle = document.getElementById('wlToggle');
+      toggle.classList.toggle('on');
+      document.getElementById('wlConfigArea').style.display = toggle.classList.contains('on') ? 'block' : 'none';
+    }
+
+    function selectWlMode(idx) {
+      ['wlOpt1', 'wlOpt2', 'wlOpt3'].forEach((id, i) => {
+        const el = document.getElementById(id);
+        if (el) el.style.borderColor = i === idx ? 'var(--brand)' : 'var(--border)';
+        if (el) el.style.background = i === idx ? 'var(--brand-light)' : '#fff';
+      });
+      document.getElementById('wlIndepSchedule').style.display = idx === 1 ? 'block' : 'none';
+      document.getElementById('wlUploadArea').style.display = idx === 2 ? 'block' : 'none';
+    }
+
+    function selectWlFreq(freq, el) {
+      document.querySelectorAll('#wlFreqOpts .freq-opt').forEach(o => o.classList.remove('active'));
+      el.classList.add('active');
+      const d = document.getElementById('wlFreqDetail');
+      if (freq === 'once') {
+        d.innerHTML = '<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:13px;font-weight:600;color:var(--gray-600);">执行时间：</span><input type="date" class="form-input" style="width:170px;"><input type="time" class="form-input" value="03:00" style="width:110px;"></div>';
+      } else if (freq === 'daily') {
+        d.innerHTML = '<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:13px;font-weight:600;color:var(--gray-600);">每日执行时间：</span><input type="time" class="form-input" value="03:00" style="width:110px;"></div>';
+      } else if (freq === 'weekly') {
+        d.innerHTML = '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">' +
+          '<span style="font-size:13px;font-weight:600;color:var(--gray-600);">执行日：</span>' +
+          ['周一', '周二', '周三', '周四', '周五', '周六', '周日'].map((wd, i) =>
+            '<label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox" ' + (i === 1 ? 'checked' : '') + '> ' + wd + '</label>'
+          ).join('') +
+          '<span style="font-size:13px;font-weight:600;color:var(--gray-600);margin-left:8px;">时间：</span>' +
+          '<input type="time" class="form-input" value="03:00" style="width:110px;">' +
+          '</div>';
+      } else if (freq === 'monthly') {
+        d.innerHTML = '<div style="margin-bottom:10px;"><div style="font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:8px;">每月执行日（可多选）：</div>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:5px;">' +
+          Array.from({ length: 31 }, (_, i) => i + 1).map(n =>
+            '<div class="day-tag ' + (n === 1 ? 'selected' : '') + '" onclick="this.classList.toggle(\'selected\')">' + n + '</div>'
+          ).join('') + '</div></div>' +
+          '<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:13px;font-weight:600;color:var(--gray-600);">时间：</span><input type="time" class="form-input" value="03:00" style="width:110px;"></div>';
+      } else if (freq === 'quarterly') {
+        d.innerHTML = '<div style="margin-bottom:10px;"><div style="font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:8px;">每季度执行月份（可多选）：</div>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;">' +
+          ['第一个月', '第二个月', '第三个月'].map((m, i) =>
+            '<div class="day-tag ' + (i === 0 ? 'selected' : '') + '" onclick="this.classList.toggle(\'selected\')" style="width:auto;padding:0 12px;">' + m + '</div>'
+          ).join('') + '</div>' +
+          '<div style="font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:8px;">执行日（可多选）：</div>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:5px;">' +
+          Array.from({ length: 31 }, (_, i) => i + 1).map(n =>
+            '<div class="day-tag ' + (n === 1 ? 'selected' : '') + '" onclick="this.classList.toggle(\'selected\')">' + n + '</div>'
+          ).join('') + '</div></div>' +
+          '<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:13px;font-weight:600;color:var(--gray-600);">时间：</span><input type="time" class="form-input" value="03:00" style="width:110px;"></div>';
+      }
+    }
+
+    /* ── 字段网格（Step 5）── */
+    const REQUIRED_FIELDS = [
+      { label: '企业名称' }, { label: '统一社会信用代码' }, { label: '企业状态' }
+    ];
+    const EXTEND_FIELDS = [
+      { k: 'industry', label: '行业类型', on: true },
+      { k: 'scale', label: '企业规模', on: true },
+      { k: 'nature', label: '主体划型', on: true },
+      { k: 'regCap', label: '注册资本', on: true },
+      { k: 'founded', label: '成立日期', on: true },
+      { k: 'region', label: '所在区域', on: true },
+      { k: 'tax', label: '纳税信用', on: true },
+      { k: 'honor', label: '荣誉标签', on: true },
+      { k: 'loan', label: '无贷户标记', on: true },
+      { k: 'contact', label: '联系电话', on: true },
+      { k: 'revenue', label: '年营业收入', on: false },
+      { k: 'intent', label: '意向等级', on: false }
+    ];
+
+    function initFieldGrid() {
+      const r = document.getElementById('requiredFieldGrid');
+      if (r) {
+        r.innerHTML = REQUIRED_FIELDS.map(f =>
+          '<div class="field-btn required">' +
           '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' +
           f.label +
-        '</div>'
-      ).join('');
-    }
-    const c = document.getElementById('fieldGrid');
-    if (c) {
-      c.innerHTML = EXTEND_FIELDS.map(f =>
-        '<div class="field-btn ' + (f.on ? 'on' : '') + '" onclick="toggleField(this)">' +
+          '</div>'
+        ).join('');
+      }
+      const c = document.getElementById('fieldGrid');
+      if (c) {
+        c.innerHTML = EXTEND_FIELDS.map(f =>
+          '<div class="field-btn ' + (f.on ? 'on' : '') + '" onclick="toggleField(this)">' +
           (f.on ? '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : '') +
           f.label +
+          '</div>'
+        ).join('');
+      }
+    }
+
+    function toggleField(el) {
+      if (el.classList.contains('required')) return;
+      el.classList.toggle('on');
+      const label = el.textContent.trim();
+      const field = EXTEND_FIELDS.find(f => f.label === label);
+      if (field) field.on = el.classList.contains('on');
+
+      if (el.classList.contains('on')) {
+        el.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' + label;
+      } else {
+        el.textContent = label;
+      }
+    }
+
+    function selectAllFields(isAll) {
+      EXTEND_FIELDS.forEach(f => f.on = isAll);
+      initFieldGrid();
+    }
+
+    /* ── 导出控制 ── */
+    function toggleNoLimit() {
+      const cb = document.getElementById('f-noLimit');
+      const inp = document.getElementById('f-outputLimit');
+      inp.disabled = cb.checked;
+      inp.style.opacity = cb.checked ? '0.4' : '1';
+    }
+
+    /* ═══════════════════════════════════════
+       手工导入
+    ═══════════════════════════════════════ */
+    function openImportModal() {
+      const sel = document.getElementById('import-agent');
+      sel.innerHTML = '<option value="">请选择对应的获客智能体</option>' +
+        AGENTS.filter(a => a.status !== 'draft').map(a =>
+          '<option value="' + a.id + '">' + a.orgShort + ' · ' + a.name + '</option>'
+        ).join('');
+      document.getElementById('importOverlay').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function openImportBatch(agentId) {
+      openImportModal();
+      setTimeout(() => {
+        const sel = document.getElementById('import-agent');
+        sel.value = agentId;
+      }, 50);
+    }
+
+    function closeImportModal() {
+      document.getElementById('importOverlay').classList.remove('show');
+      document.body.style.overflow = '';
+    }
+
+    function handleImportFile(input) {
+      const f = input.files[0]; if (!f) return;
+      const info = document.getElementById('importFileInfo');
+      info.style.display = 'block';
+      info.innerHTML = '✅ &nbsp;<strong>' + f.name + '</strong>&nbsp;&nbsp;' +
+        (f.size / 1024).toFixed(1) + ' KB &nbsp;<span style="color:#10b981;font-weight:600;">文件已选中</span>';
+    }
+
+    function doImport() {
+      if (!document.getElementById('import-agent').value) { showToast('请先选择归属智能体'); return; }
+      closeImportModal();
+      showToast('名单导入成功！已生成新批次', 'success');
+    }
+
+    /* ═══════════════════════════════════════
+       通用 Modal：确认 & 通知
+    ═══════════════════════════════════════ */
+    let _confirmCallback = null;
+
+    function openConfirm(title, desc, okLabel, okColor, callback) {
+      document.getElementById('confirmTitle').textContent = title;
+      document.getElementById('confirmDesc').textContent = desc;
+      const btn = document.getElementById('confirmOkBtn');
+      btn.textContent = okLabel || '确认删除';
+      btn.style.background = okColor || '#dc2626';
+      _confirmCallback = callback;
+      document.getElementById('confirmModal').classList.add('show');
+    }
+
+    function closeConfirm() {
+      document.getElementById('confirmModal').classList.remove('show');
+      _confirmCallback = null;
+    }
+
+    function execConfirm() {
+      if (_confirmCallback) _confirmCallback();
+      closeConfirm();
+    }
+
+    function confirmDelete(agentId) {
+      const a = AGENTS.find(x => x.id === agentId);
+      if (!a) return;
+      openConfirm(
+        '确认删除智能体？',
+        '将删除「' + a.orgShort + ' · ' + a.name + '」，所有配置将永久清除，已生成批次不受影响，此操作不可恢复。',
+        '确认删除', '#dc2626',
+        function () {
+          const idx = AGENTS.indexOf(a);
+          if (idx > -1) AGENTS.splice(idx, 1);
+          closeDrawer();
+          renderGrid();
+          showToast('已删除智能体：' + a.name);
+        }
+      );
+    }
+
+    function confirmDeleteSnapshot(name) {
+      openConfirm(
+        '确认删除快照？',
+        '将删除白名单快照「' + name + '」，此操作不可恢复。',
+        '确认删除', '#dc2626',
+        function () {
+          const a = AGENTS.find(x => x.id === currentAgentId);
+          if (a) {
+            a.snapshots = a.snapshots.filter(s => s.name !== name);
+            renderDrawerPane('whitelist', a);
+          }
+          showToast('快照已删除');
+        }
+      );
+    }
+
+    function openNotify(msg) {
+      document.getElementById('notifyTitle').textContent = '任务已提交';
+      document.getElementById('notifyDesc').textContent = msg || '操作成功';
+      document.getElementById('notifyModal').classList.add('show');
+    }
+
+    function closeNotify() {
+      document.getElementById('notifyModal').classList.remove('show');
+    }
+
+    /* ── 白名单快照：从历史批次中添加 ── */
+    function openAddSnapshot(agentId) {
+      const a = AGENTS.find(x => x.id === agentId);
+      if (!a) return;
+      const list = document.getElementById('addSnapshotList');
+      if (!a.batchList.length) {
+        list.innerHTML = '<div style="text-align:center;padding:24px;color:var(--gray-400);">该智能体暂无历史批次</div>';
+      } else {
+        list.innerHTML = a.batchList.map((b, i) =>
+          '<label style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--border);border-radius:9px;margin-bottom:8px;cursor:pointer;background:#fff;">' +
+          '<input type="checkbox" id="snapCb' + i + '">' +
+          '<div style="flex:1;">' +
+          '<div style="font-size:13.5px;font-weight:600;color:var(--gray-900);">' + b.name + '</div>' +
+          '<div style="font-size:12px;color:var(--gray-400);margin-top:2px;">' + b.count.toLocaleString() + ' 户企业 · ' + b.time + '</div>' +
+          '</div>' +
+          '</label>'
+        ).join('');
+      }
+      document.getElementById('addSnapshotModal').classList.add('show');
+    }
+
+    function closeAddSnapshot() {
+      document.getElementById('addSnapshotModal').classList.remove('show');
+    }
+
+    function confirmAddSnapshot() {
+      closeAddSnapshot();
+      const a = AGENTS.find(x => x.id === currentAgentId);
+      if (a) {
+        const now = new Date();
+        const dateStr = now.getFullYear().toString() +
+          String(now.getMonth() + 1).padStart(2, '0') +
+          String(now.getDate()).padStart(2, '0');
+        const seq = String(a.snapshots.length + 1).padStart(3, '0');
+        a.snapshots.unshift({
+          name: '名单_' + dateStr + '_' + seq,
+          count: Math.floor(Math.random() * 500 + 200),
+          time: now.toLocaleString('zh-CN').replace(/\//g, '-')
+        });
+        renderDrawerPane('whitelist', a);
+      }
+      showToast('白名单快照已生成', 'success');
+    }
+
+    let uploadedProcessFiles = [];
+
+    function handleProcessUpload(input) {
+      if (!input.files || input.files.length === 0) return;
+      for (let i = 0; i < input.files.length; i++) {
+        uploadedProcessFiles.push(input.files[i]);
+      }
+      input.value = '';
+      renderProcessFiles();
+    }
+
+    function removeProcessFile(index) {
+      uploadedProcessFiles.splice(index, 1);
+      renderProcessFiles();
+    }
+
+    function renderProcessFiles() {
+      const container = document.getElementById('processFileList');
+      if (!container) return;
+      if (uploadedProcessFiles.length === 0) {
+        container.innerHTML = '';
+        return;
+      }
+      container.innerHTML = uploadedProcessFiles.map((f, i) =>
+        '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--gray-50);padding:8px 12px;border-radius:6px;border:1px solid var(--border);">' +
+        '<div style="display:flex;align-items:center;gap:8px;">' +
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
+        '<span style="font-size:13px;color:var(--gray-800);">' + f.name + '</span>' +
+        '<span style="font-size:12px;color:var(--gray-400);">(' + (f.size / 1024).toFixed(1) + ' KB)</span>' +
+        '</div>' +
+        '<button class="btn btn-sm" onclick="removeProcessFile(' + i + ')" style="padding:4px;color:var(--gray-400);border:none;background:transparent;height:auto;" title="移除文件">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+        '</button>' +
         '</div>'
       ).join('');
     }
-  }
 
-  function toggleField(el) {
-    if (el.classList.contains('required')) return;
-    el.classList.toggle('on');
-    const label = el.textContent.trim();
-    const field = EXTEND_FIELDS.find(f => f.label === label);
-    if (field) field.on = el.classList.contains('on');
-    
-    if (el.classList.contains('on')) {
-      el.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' + label;
-    } else {
-      el.textContent = label;
-    }
-  }
+    let uploadedWlFiles = [];
 
-  function selectAllFields(isAll) {
-    EXTEND_FIELDS.forEach(f => f.on = isAll);
-    initFieldGrid();
-  }
-
-  /* ── 导出控制 ── */
-  function toggleNoLimit() {
-    const cb  = document.getElementById('f-noLimit');
-    const inp = document.getElementById('f-outputLimit');
-    inp.disabled = cb.checked;
-    inp.style.opacity = cb.checked ? '0.4' : '1';
-  }
-
-  /* ═══════════════════════════════════════
-     手工导入
-  ═══════════════════════════════════════ */
-  function openImportModal() {
-    const sel = document.getElementById('import-agent');
-    sel.innerHTML = '<option value="">请选择对应的获客智能体</option>' +
-      AGENTS.filter(a => a.status !== 'draft').map(a =>
-        '<option value="' + a.id + '">' + a.orgShort + ' · ' + a.name + '</option>'
-      ).join('');
-    document.getElementById('importOverlay').classList.add('show');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function openImportBatch(agentId) {
-    openImportModal();
-    setTimeout(() => {
-      const sel = document.getElementById('import-agent');
-      sel.value = agentId;
-    }, 50);
-  }
-
-  function closeImportModal() {
-    document.getElementById('importOverlay').classList.remove('show');
-    document.body.style.overflow = '';
-  }
-
-  function handleImportFile(input) {
-    const f = input.files[0]; if (!f) return;
-    const info = document.getElementById('importFileInfo');
-    info.style.display = 'block';
-    info.innerHTML = '✅ &nbsp;<strong>' + f.name + '</strong>&nbsp;&nbsp;' +
-      (f.size/1024).toFixed(1) + ' KB &nbsp;<span style="color:#10b981;font-weight:600;">文件已选中</span>';
-  }
-
-  function doImport() {
-    if (!document.getElementById('import-agent').value) { showToast('请先选择归属智能体'); return; }
-    closeImportModal();
-    showToast('名单导入成功！已生成新批次', 'success');
-  }
-
-  /* ═══════════════════════════════════════
-     通用 Modal：确认 & 通知
-  ═══════════════════════════════════════ */
-  let _confirmCallback = null;
-
-  function openConfirm(title, desc, okLabel, okColor, callback) {
-    document.getElementById('confirmTitle').textContent = title;
-    document.getElementById('confirmDesc').textContent = desc;
-    const btn = document.getElementById('confirmOkBtn');
-    btn.textContent = okLabel || '确认删除';
-    btn.style.background = okColor || '#dc2626';
-    _confirmCallback = callback;
-    document.getElementById('confirmModal').classList.add('show');
-  }
-
-  function closeConfirm() {
-    document.getElementById('confirmModal').classList.remove('show');
-    _confirmCallback = null;
-  }
-
-  function execConfirm() {
-    if (_confirmCallback) _confirmCallback();
-    closeConfirm();
-  }
-
-  function confirmDelete(agentId) {
-    const a = AGENTS.find(x => x.id === agentId);
-    if (!a) return;
-    openConfirm(
-      '确认删除智能体？',
-      '将删除「' + a.orgShort + ' · ' + a.name + '」，所有配置将永久清除，已生成批次不受影响，此操作不可恢复。',
-      '确认删除', '#dc2626',
-      function() {
-        const idx = AGENTS.indexOf(a);
-        if (idx > -1) AGENTS.splice(idx, 1);
-        closeDrawer();
-        renderGrid();
-        showToast('已删除智能体：' + a.name);
+    function handleWlWizardUpload(input) {
+      if (!input.files || input.files.length === 0) return;
+      for (let i = 0; i < input.files.length; i++) {
+        uploadedWlFiles.push(input.files[i]);
       }
-    );
-  }
+      input.value = '';
+      renderWlFiles();
+    }
 
-  function confirmDeleteSnapshot(name) {
-    openConfirm(
-      '确认删除快照？',
-      '将删除白名单快照「' + name + '」，此操作不可恢复。',
-      '确认删除', '#dc2626',
-      function() {
-        const a = AGENTS.find(x => x.id === currentAgentId);
-        if (a) {
-          a.snapshots = a.snapshots.filter(s => s.name !== name);
-          renderDrawerPane('whitelist', a);
-        }
-        showToast('快照已删除');
+    function removeWlFile(index) {
+      uploadedWlFiles.splice(index, 1);
+      renderWlFiles();
+    }
+
+    function renderWlFiles() {
+      const container = document.getElementById('wlFileList');
+      if (!container) return;
+      if (uploadedWlFiles.length === 0) {
+        container.innerHTML = '';
+        return;
       }
-    );
-  }
-
-  function openNotify(msg) {
-    document.getElementById('notifyTitle').textContent = '任务已提交';
-    document.getElementById('notifyDesc').textContent = msg || '操作成功';
-    document.getElementById('notifyModal').classList.add('show');
-  }
-
-  function closeNotify() {
-    document.getElementById('notifyModal').classList.remove('show');
-  }
-
-  /* ── 白名单快照：从历史批次中添加 ── */
-  function openAddSnapshot(agentId) {
-    const a = AGENTS.find(x => x.id === agentId);
-    if (!a) return;
-    const list = document.getElementById('addSnapshotList');
-    if (!a.batchList.length) {
-      list.innerHTML = '<div style="text-align:center;padding:24px;color:var(--gray-400);">该智能体暂无历史批次</div>';
-    } else {
-      list.innerHTML = a.batchList.map((b,i) =>
-        '<label style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--border);border-radius:9px;margin-bottom:8px;cursor:pointer;background:#fff;">' +
-          '<input type="checkbox" id="snapCb' + i + '">' +
-          '<div style="flex:1;">' +
-            '<div style="font-size:13.5px;font-weight:600;color:var(--gray-900);">' + b.name + '</div>' +
-            '<div style="font-size:12px;color:var(--gray-400);margin-top:2px;">' + b.count.toLocaleString() + ' 户企业 · ' + b.time + '</div>' +
-          '</div>' +
-        '</label>'
-      ).join('');
-    }
-    document.getElementById('addSnapshotModal').classList.add('show');
-  }
-
-  function closeAddSnapshot() {
-    document.getElementById('addSnapshotModal').classList.remove('show');
-  }
-
-  function confirmAddSnapshot() {
-    closeAddSnapshot();
-    const a = AGENTS.find(x => x.id === currentAgentId);
-    if (a) {
-      const now = new Date();
-      const dateStr = now.getFullYear().toString() +
-        String(now.getMonth()+1).padStart(2,'0') +
-        String(now.getDate()).padStart(2,'0');
-      const seq = String(a.snapshots.length + 1).padStart(3,'0');
-      a.snapshots.unshift({
-        name: '名单_' + dateStr + '_' + seq,
-        count: Math.floor(Math.random() * 500 + 200),
-        time: now.toLocaleString('zh-CN').replace(/\//g,'-')
-      });
-      renderDrawerPane('whitelist', a);
-    }
-    showToast('白名单快照已生成', 'success');
-  }
-
-  let uploadedProcessFiles = [];
-
-  function handleProcessUpload(input) {
-    if (!input.files || input.files.length === 0) return;
-    for (let i = 0; i < input.files.length; i++) {
-      uploadedProcessFiles.push(input.files[i]);
-    }
-    input.value = '';
-    renderProcessFiles();
-  }
-
-  function removeProcessFile(index) {
-    uploadedProcessFiles.splice(index, 1);
-    renderProcessFiles();
-  }
-
-  function renderProcessFiles() {
-    const container = document.getElementById('processFileList');
-    if (!container) return;
-    if (uploadedProcessFiles.length === 0) {
-      container.innerHTML = '';
-      return;
-    }
-    container.innerHTML = uploadedProcessFiles.map((f, i) =>
-      '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--gray-50);padding:8px 12px;border-radius:6px;border:1px solid var(--border);">' +
+      container.innerHTML = uploadedWlFiles.map((f, i) =>
+        '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--gray-50);padding:8px 12px;border-radius:6px;border:1px solid var(--border);">' +
         '<div style="display:flex;align-items:center;gap:8px;">' +
-          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
-          '<span style="font-size:13px;color:var(--gray-800);">' + f.name + '</span>' +
-          '<span style="font-size:12px;color:var(--gray-400);">(' + (f.size / 1024).toFixed(1) + ' KB)</span>' +
-        '</div>' +
-        '<button class="btn btn-sm" onclick="removeProcessFile(' + i + ')" style="padding:4px;color:var(--gray-400);border:none;background:transparent;height:auto;" title="移除文件">' +
-          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
-        '</button>' +
-      '</div>'
-    ).join('');
-  }
-
-  let uploadedWlFiles = [];
-
-  function handleWlWizardUpload(input) {
-    if (!input.files || input.files.length === 0) return;
-    for (let i = 0; i < input.files.length; i++) {
-      uploadedWlFiles.push(input.files[i]);
-    }
-    input.value = '';
-    renderWlFiles();
-  }
-
-  function removeWlFile(index) {
-    uploadedWlFiles.splice(index, 1);
-    renderWlFiles();
-  }
-
-  function renderWlFiles() {
-    const container = document.getElementById('wlFileList');
-    if (!container) return;
-    if (uploadedWlFiles.length === 0) {
-      container.innerHTML = '';
-      return;
-    }
-    container.innerHTML = uploadedWlFiles.map((f, i) =>
-      '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--gray-50);padding:8px 12px;border-radius:6px;border:1px solid var(--border);">' +
-        '<div style="display:flex;align-items:center;gap:8px;">' +
-          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
-          '<span style="font-size:13px;color:var(--gray-800);">' + f.name + '</span>' +
-          '<span style="font-size:12px;color:var(--gray-400);">(' + (f.size / 1024).toFixed(1) + ' KB)</span>' +
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
+        '<span style="font-size:13px;color:var(--gray-800);">' + f.name + '</span>' +
+        '<span style="font-size:12px;color:var(--gray-400);">(' + (f.size / 1024).toFixed(1) + ' KB)</span>' +
         '</div>' +
         '<button class="btn btn-sm" onclick="removeWlFile(' + i + ')" style="padding:4px;color:var(--gray-400);border:none;background:transparent;height:auto;" title="移除文件">' +
-          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
         '</button>' +
-      '</div>'
-    ).join('');
-  }
+        '</div>'
+      ).join('');
+    }
 
-  function handleWlUpload(input) {
-    const f = input.files[0]; if (!f) return;
-    showToast('白名单文件已上传：' + f.name, 'success');
-  }
+    function handleWlUpload(input) {
+      const f = input.files[0]; if (!f) return;
+      showToast('白名单文件已上传：' + f.name, 'success');
+    }
 
-  /* ── Toast ── */
-  function showToast(msg, type) {
-    const w = document.createElement('div');
-    w.className = 'toast-wrap';
-    w.innerHTML = '<div class="toast ' + (type || '') + '">' + msg + '</div>';
-    document.body.appendChild(w);
-    setTimeout(() => w.remove(), 3000);
-  }
+    /* ── Toast ── */
+    function showToast(msg, type) {
+      const w = document.createElement('div');
+      w.className = 'toast-wrap';
+      w.innerHTML = '<div class="toast ' + (type || '') + '">' + msg + '</div>';
+      document.body.appendChild(w);
+      setTimeout(() => w.remove(), 3000);
+    }
 
-  /* ── 可复用搜索下拉组件 JS ── */
-  function openSearchSelect(id) {
-    var wrap = document.getElementById(id);
-    if (wrap) wrap.classList.add('open');
-  }
-  function toggleSearchSelect(id) {
-    var wrap = document.getElementById(id);
-    if (!wrap) return;
-    wrap.classList.contains('open') ? wrap.classList.remove('open') : wrap.classList.add('open');
-    if (wrap.classList.contains('open')) { var inp = wrap.querySelector('.search-select-input'); if (inp) inp.focus(); }
-  }
-  function filterSearchSelect(id, keyword) {
-    var wrap = document.getElementById(id);
-    if (!wrap) return;
-    wrap.classList.add('open');
-    var kw = keyword.trim().toLowerCase();
-    var hasVisible = false;
-    wrap.querySelectorAll('.search-select-option').forEach(function (opt) {
-      var match = !kw || opt.textContent.toLowerCase().indexOf(kw) !== -1;
-      opt.style.display = match ? '' : 'none';
-      if (match) hasVisible = true;
-    });
-    var empty = wrap.querySelector('.search-select-empty');
-    if (empty) empty.style.display = hasVisible ? 'none' : '';
-  }
-  document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.search-select').forEach(function (wrap) {
+    /* ── 可复用搜索下拉组件 JS ── */
+    function openSearchSelect(id) {
+      var wrap = document.getElementById(id);
+      if (wrap) wrap.classList.add('open');
+    }
+    function toggleSearchSelect(id) {
+      var wrap = document.getElementById(id);
+      if (!wrap) return;
+      wrap.classList.contains('open') ? wrap.classList.remove('open') : wrap.classList.add('open');
+      if (wrap.classList.contains('open')) { var inp = wrap.querySelector('.search-select-input'); if (inp) inp.focus(); }
+    }
+    function filterSearchSelect(id, keyword) {
+      var wrap = document.getElementById(id);
+      if (!wrap) return;
+      wrap.classList.add('open');
+      var kw = keyword.trim().toLowerCase();
+      var hasVisible = false;
       wrap.querySelectorAll('.search-select-option').forEach(function (opt) {
-        opt.addEventListener('click', function (e) {
-          e.stopPropagation();
-          var val = opt.getAttribute('data-value') || opt.textContent;
-          var inp = wrap.querySelector('.search-select-input');
-          if (inp) inp.value = opt.textContent;
-          var hidden = wrap.nextElementSibling;
-          if (hidden && hidden.tagName === 'INPUT' && hidden.type === 'hidden') {
-            hidden.value = val;
-            if (window.autoFillOrgShort) autoFillOrgShort();
-          }
-          wrap.querySelectorAll('.search-select-option').forEach(function (o) { o.classList.remove('selected'); });
-          opt.classList.add('selected');
-          wrap.classList.remove('open');
+        var match = !kw || opt.textContent.toLowerCase().indexOf(kw) !== -1;
+        opt.style.display = match ? '' : 'none';
+        if (match) hasVisible = true;
+      });
+      var empty = wrap.querySelector('.search-select-empty');
+      if (empty) empty.style.display = hasVisible ? 'none' : '';
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('.search-select').forEach(function (wrap) {
+        wrap.querySelectorAll('.search-select-option').forEach(function (opt) {
+          opt.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var val = opt.getAttribute('data-value') || opt.textContent;
+            var inp = wrap.querySelector('.search-select-input');
+            if (inp) inp.value = opt.textContent;
+            var hidden = wrap.nextElementSibling;
+            if (hidden && hidden.tagName === 'INPUT' && hidden.type === 'hidden') {
+              hidden.value = val;
+              if (window.autoFillOrgShort) autoFillOrgShort();
+            }
+            wrap.querySelectorAll('.search-select-option').forEach(function (o) { o.classList.remove('selected'); });
+            opt.classList.add('selected');
+            wrap.classList.remove('open');
+          });
+        });
+      });
+      document.addEventListener('click', function (e) {
+        document.querySelectorAll('.search-select.open').forEach(function (wrap) {
+          if (!wrap.contains(e.target)) wrap.classList.remove('open');
         });
       });
     });
-    document.addEventListener('click', function (e) {
-      document.querySelectorAll('.search-select.open').forEach(function (wrap) {
-        if (!wrap.contains(e.target)) wrap.classList.remove('open');
-      });
-    });
-  });
 
-  /* ── 初始化 ── */
-  document.addEventListener('DOMContentLoaded', function() {
-    renderGrid();
-    // 默认选中 Step3 白名单的第一个选项样式
-    selectWlMode(0);
-  });
-</script>
+    /* ── 初始化 ── */
+    document.addEventListener('DOMContentLoaded', function () {
+      renderGrid();
+      // 默认选中 Step3 白名单的第一个选项样式
+      selectWlMode(0);
+    });
+  </script>
 </body>
+
 </html>

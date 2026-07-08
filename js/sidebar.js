@@ -94,16 +94,16 @@ function getNavConfig(role) {
   }
   sections.push({ label: '客户营销', items: custItems });
 
-  // ── 运营管理 ──
-  const opsItems = [
-    { id: 'select', label: '智能探客', icon: 'target', href: 'select.html' },
-  ];
+  // ── 运营管理（仅管理员） ──
   if (admin) {
-    opsItems.push({ id: 'agents', label: '智能体管理', icon: 'bot', href: 'agents.html' });
-    opsItems.push({ id: 'org-structure', label: '组织与成员管理', icon: 'network', href: 'org-config.html' });
+    const opsItems = [
+      { id: 'select', label: '智能探客', icon: 'target', href: 'select.html' },
+      { id: 'agents', label: '智能体管理', icon: 'bot', href: 'agents.html' },
+      { id: 'org-structure', label: '组织与成员管理', icon: 'network', href: 'org-config.html' },
+      { id: 'risk-alert', label: '风险预警', icon: 'alert', href: 'risk-alert.html' }
+    ];
+    sections.push({ label: '运营管理', items: opsItems });
   }
-  opsItems.push({ id: 'risk-alert', label: '风险预警', icon: 'alert', href: 'risk-alert.html' });
-  sections.push({ label: '运营管理', items: opsItems });
 
   // ── 数据分析（仅管理员） ──
   if (admin) {

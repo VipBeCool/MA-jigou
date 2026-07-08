@@ -230,7 +230,11 @@
                         <input type="date" class="filter-input" style="width: 140px;">
                     </div>
                 </div>
-                <div class="filter-group">
+                <div class="filter-group" style="flex-direction: row; align-items: center; gap: 16px; margin-left: auto;">
+                    <label style="display:flex; align-items:center; gap: 6px; cursor: pointer; font-size: 14px; color: var(--gray-700); margin-bottom: 0; padding-right: 8px;">
+                        <input type="checkbox" id="filterMine" style="width:16px; height:16px; accent-color: var(--brand); cursor: pointer;">
+                        仅看我下载的
+                    </label>
                     <button class="btn btn-default" onclick="handleReset()">重置</button>
                     <button class="btn btn-primary" onclick="handleSearch()">查询</button>
                 </div>

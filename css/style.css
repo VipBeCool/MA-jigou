@@ -1839,3 +1839,36 @@ select.form-control {
   justify-content: center;
   font-size: 13px;
 }
+
+/* =====================================================
+   通用 Notify Modal (异步下载等提示)
+   ===================================================== */
+.notify-backdrop {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 999999;
+  align-items: center; justify-content: center;
+}
+.notify-backdrop.show { display: flex; }
+.notify-box {
+  background: #fff; border-radius: 16px;
+  width: 420px; max-width: 95vw;
+  padding: 32px 28px;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.18);
+  animation: fadeInUp 0.22s ease;
+  text-align: center;
+}
+.notify-icon {
+  width: 52px; height: 52px; border-radius: 50%;
+  margin: 0 auto 16px;
+  display: flex; align-items: center; justify-content: center;
+}
+.notify-icon.danger { background: #fee2e2; }
+.notify-icon.success { background: #dcfce7; }
+.notify-icon svg { width: 26px; height: 26px; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.notify-icon.danger svg { stroke: #dc2626; }
+.notify-icon.success svg { stroke: #16a34a; }
+.notify-title { font-size: 17px; font-weight: 700; color: var(--gray-900); margin-bottom: 8px; }
+.notify-desc { font-size: 13.5px; color: var(--gray-500); line-height: 1.7; margin-bottom: 22px; }
+.notify-btns { display: flex; gap: 10px; justify-content: center; }
