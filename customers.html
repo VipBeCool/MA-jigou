@@ -150,7 +150,8 @@
       gap: 8px;
     }
     .toolbar-filters .custom-singleselect,
-    .toolbar-filters .custom-cascader {
+    .toolbar-filters .custom-cascader,
+    .toolbar-filters select.sort-select {
       width: 135px;
     }
     .toolbar-right {
@@ -163,15 +164,21 @@
       width: 140px;
     }
     .sort-select {
-      padding: 8px 12px;
+      padding: 8px 30px 8px 12px; /* Add right padding for the arrow */
       border: 1px solid var(--border);
       border-radius: 10px;
       font-size: 13px;
       color: var(--gray-700);
-      background: var(--bg-card);
+      background: var(--bg-card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 10px center;
       cursor: pointer;
       outline: none;
       transition: border-color 0.2s;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
     }
     .sort-select:focus { border-color: var(--brand); }
     .view-toggle {
@@ -926,70 +933,81 @@
               <button class="btn btn-default" id="toggleAdvFilterBtn" onclick="toggleAdvFilters()" style="padding:7px 12px; border-radius:8px; font-size:13.5px; border:1px solid var(--border); background:white; color:var(--gray-700); cursor:pointer; display:flex; align-items:center; gap:6px; transition:all 0.2s;">
                 <svg style="width:15px;height:15px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
                 筛选
-                <svg id="advFilterArrow" style="width:14px;height:14px;flex-shrink:0;transition:transform 0.2s;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition:transform 0.2s;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                <svg id="advFilterArrow" style="width:14px;height:14px;flex-shrink:0;transition:transform 0.2s; transform:rotate(180deg);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
               </button>
             </div>
           </div>
           
-          <div class="toolbar-advanced" id="advancedFilters" style="display:none; padding:16px; background:var(--gray-50); border-radius:12px; border:1px solid var(--border); width:100%; box-sizing:border-box;">
-            <div class="toolbar-filters">
-            <select class="form-control sort-select" id="filterBatch" onchange="doFilter()">
-              <option value="ALL">名单批次</option>
-              <optgroup label="橙业贷">
-                <option value="橙业贷20160508">橙业贷20160508</option>
-                <option value="橙业贷20160509">橙业贷20160509</option>
-                <option value="橙业贷20160510">橙业贷20160510</option>
-                <option value="橙业贷20260615">橙业贷20260615</option>
-              </optgroup>
-              <optgroup label="厂房贷">
-                <option value="厂房贷20160501">厂房贷20160501</option>
-                <option value="厂房贷20160502">厂房贷20160502</option>
-              </optgroup>
-              <optgroup label="税务贷">
-                <option value="税务贷20160501">税务贷20160501</option>
-                <option value="税务贷20160502">税务贷20160502</option>
-              </optgroup>
-            </select>
-            <!-- 级联多选区域组件 -->
-            <div class="custom-cascader" id="regionCascader">
-              <div class="custom-singleselect-display" id="regionCascaderDisplay" onclick="toggleRegionCascader(event)">
-                <span class="custom-singleselect-text" id="regionCascaderText">区域</span>
+          <div class="toolbar-advanced" id="advancedFilters" style="display:block; padding:16px; background:var(--gray-50); border-radius:12px; border:1px solid var(--border); width:100%; box-sizing:border-box;">
+          <div class="toolbar-filters" id="toolbarFiltersContainer">
+            <!-- 1. 名单批次 -->
+            <div class="custom-cascader" id="cascaderBatch">
+              <div class="custom-singleselect-display" onclick="window.cascaderBatch.toggle(event)">
+                <span class="custom-singleselect-text" id="cascaderBatchText">名单批次</span>
                 <span style="display:flex;">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                 </span>
               </div>
-              <div class="cascader-dropdown" id="regionCascaderDropdown" style="display:none;">
-                <div class="cascader-columns">
-                  <!-- 省份列 -->
-                  <div class="cascader-col" id="colProv"></div>
-                  <div class="cascader-divider"></div>
-                  <!-- 城市列 -->
-                  <div class="cascader-col" id="colCity"></div>
-                  <div class="cascader-divider"></div>
-                  <!-- 区县列 -->
-                  <div class="cascader-col" id="colDist"></div>
-                </div>
+              <div class="cascader-dropdown" id="cascaderBatchDropdown" style="display:none;">
+                <div class="cascader-columns" id="cascaderBatchCols"></div>
+              </div>
+            </div>
+
+            <!-- 2. 区域 -->
+            <div class="custom-cascader" id="cascaderRegion">
+              <div class="custom-singleselect-display" onclick="window.cascaderRegion.toggle(event)">
+                <span class="custom-singleselect-text" id="cascaderRegionText">区域</span>
+                <span style="display:flex;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </span>
+              </div>
+              <div class="cascader-dropdown" id="cascaderRegionDropdown" style="display:none;">
+                <div class="cascader-columns" id="cascaderRegionCols"></div>
                 <div class="cascader-footer">
-                  <div class="cascader-selected-count">已选: <span id="regionSelCount">0</span> 项</div>
+                  <div class="cascader-selected-count">已选: <span id="cascaderRegionCount">0</span> 项</div>
                   <div style="display:flex;gap:8px;">
-                    <button class="btn btn-default btn-sm" onclick="resetRegionCascader(event)">重置</button>
-                    <button class="btn btn-primary btn-sm" onclick="confirmRegionCascader(event)">确定</button>
+                    <button class="btn btn-default btn-sm" onclick="window.cascaderRegion.reset(event)">重置</button>
+                    <button class="btn btn-primary btn-sm" onclick="window.cascaderRegion.confirm(event)">确定</button>
                   </div>
                 </div>
               </div>
             </div>
 
-            <select class="form-control sort-select" id="filterContact" onchange="doFilter()">
-              <option value="ALL">联系方式</option>
-              <option value="有号码">有号码</option>
-              <option value="无号码">无号码</option>
-            </select>
+            <!-- 3. 适配产品 -->
             <select class="form-control sort-select" id="filterProduct" onchange="doFilter()">
               <option value="ALL">适配产品</option>
               <option value="橙业贷">橙业贷</option>
               <option value="厂房贷">厂房贷</option>
               <option value="税务贷">税务贷</option>
             </select>
+
+            <!-- 4. 对接机构 -->
+            <div class="custom-cascader" id="cascaderOrg">
+              <div class="custom-singleselect-display" onclick="window.cascaderOrg.toggle(event)">
+                <span class="custom-singleselect-text" id="cascaderOrgText">对接机构</span>
+                <span style="display:flex;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </span>
+              </div>
+              <div class="cascader-dropdown" id="cascaderOrgDropdown" style="display:none;">
+                <div class="cascader-columns" id="cascaderOrgCols"></div>
+              </div>
+            </div>
+
+            <!-- 5. 对接客户经理 -->
+            <select class="form-control sort-select" id="filterOwner" onchange="doFilter()">
+              <option value="ALL">对接客户经理</option>
+              <option value="u1">李明</option>
+              <option value="u2">王静</option>
+              <option value="u3">张强</option>
+              <option value="u4">赵云</option>
+              <option value="u5">陈芳</option>
+              <option value="u6">刘伟</option>
+              <option value="u7">孙琴</option>
+              <option value="u8">周杰</option>
+            </select>
+
+            <!-- 6. 企业性质 -->
             <select class="form-control sort-select" id="filterNature" onchange="doFilter()">
               <option value="ALL">企业性质</option>
               <option value="国有企业">国有企业</option>
@@ -997,6 +1015,8 @@
               <option value="外资企业">外资企业</option>
               <option value="合资企业">合资企业</option>
             </select>
+
+            <!-- 7. 荣誉标签 -->
             <select class="form-control sort-select" id="filterHonor" onchange="doFilter()">
               <option value="ALL">荣誉标签</option>
               <option value="专精特新">专精特新</option>
@@ -1004,23 +1024,32 @@
               <option value="瞪羚企业">瞪羚企业</option>
               <option value="独角兽企业">独角兽企业</option>
             </select>
+
+            <!-- 8. 资金意向 -->
             <select class="form-control sort-select" id="filterIntent" onchange="doFilter()">
               <option value="ALL">资金意向</option>
               <option value="高">高意向</option>
               <option value="中">中意向</option>
               <option value="低">低意向</option>
             </select>
+
+            <!-- 9. 违约风险 -->
             <select class="form-control sort-select" id="filterRisk" onchange="doFilter()">
               <option value="ALL">违约风险</option>
               <option value="低">低风险</option>
               <option value="中">中风险</option>
               <option value="高">高风险</option>
             </select>
-            
+
+            <!-- 10. 联系方式 -->
+            <select class="form-control sort-select" id="filterContact" onchange="doFilter()">
+              <option value="ALL">联系方式</option>
+              <option value="有号码">有号码</option>
+              <option value="无号码">无号码</option>
+            </select>
           </div>
           </div>
         </div>
-        
         <!-- 列表信息栏 -->
         <div class="list-meta">
           <span>共 <strong id="listCount">13</strong> 家企业</span>
@@ -1059,14 +1088,14 @@
           </div>
         </div>
 
-        <!-- 空状态 -->
-        <div class="empty-state" id="emptyState" style="display:none;">
-          <div class="empty-state-icon">
-            <svg viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"></path><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
+                <!-- 空状态 -->
+        <div class="empty-state" id="emptyState" style="display:none; width:100%; text-align:center; padding: 60px 0; flex-direction:column; align-items:center;">
+          <div class="empty-state-icon" style="width:120px;height:120px;margin:0 auto 24px;border-radius:50%;background:#f3f4f6;display:flex;align-items:center;justify-content:center;">
+            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"></path><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
           </div>
-          <div class="empty-title">暂无数据</div>
-          
+          <div class="empty-title" style="font-size:16px;color:#4b5563;font-weight:500;">当前列表暂无内容</div>
         </div>
+      </div>
       </div>
     </div>
 
@@ -1285,65 +1314,63 @@ function isUnreached(rs) { return rs && rs.startsWith('UNREACHED'); }
 
 // ===== 渲染 =====
 function doFilter() {
-  const search = document.getElementById('searchInput').value.trim().toLowerCase();
-  const sort = document.getElementById('sortSelect').value;
-  
-  const fRegion = window.cascaderSelectedDists ? Array.from(window.cascaderSelectedDists) : [];
+  const search = document.getElementById('searchInput').value.toLowerCase().trim();
+  const fRegion = window.cascaderRegion ? Array.from(window.cascaderRegion.selectedMulti) : [];
   const fContact = document.getElementById('filterContact').value;
   const fProduct = document.getElementById('filterProduct').value;
   const fNature = document.getElementById('filterNature').value;
   const fHonor = document.getElementById('filterHonor').value;
   const fIntent = document.getElementById('filterIntent').value;
   const fRisk = document.getElementById('filterRisk').value;
+  
+  const fBatch = window.cascaderBatch && window.cascaderBatch.selectedSingle ? window.cascaderBatch.selectedSingle : 'ALL';
+  const fOrg = window.cascaderOrg && window.cascaderOrg.selectedSingle ? window.cascaderOrg.selectedSingle : 'ALL';
+  const fOwner = document.getElementById('filterOwner') ? document.getElementById('filterOwner').value : 'ALL';
 
   let list = ALL_DATA.filter(c => {
     if (search && !c.name.toLowerCase().includes(search) && !c.uscc.toLowerCase().includes(search)) return false;
+    
     if (filterState.rs !== 'ALL') {
-      if (filterState.rs === 'UNREACHED') {
-        if (!isUnreached(c.rs)) return false;
-      } else {
-        if (c.rs !== filterState.rs) return false;
+      if (filterState.rs === 'unreached' && !isUnreached(c.rs)) return false;
+      if (filterState.rs !== 'unreached' && c.rs !== filterState.rs) {
+        if(!(filterState.rs === 'REACHED_INTERESTED' && c.rs === 'REACHED_INTERESTED')) return false;
       }
     }
     if (filterState.bs !== 'ALL' && c.bs !== filterState.bs) return false;
-    const fBatch = document.getElementById('filterBatch') ? document.getElementById('filterBatch').value : 'ALL';
+    
     if (fBatch !== 'ALL' && c.batch !== fBatch) return false;
     if (fRegion.length > 0) {
       if (!c.addr || !fRegion.some(dist => c.addr.includes(dist))) return false;
     }
-    if (fContact === '无号码') return false;
-    if (fProduct !== 'ALL' && !c.product.includes(fProduct)) return false;
+    if (fContact !== 'ALL') {
+      if (fContact === '有号码' && !c.hasPhone) return false;
+      if (fContact === '无号码' && c.hasPhone) return false;
+    }
+    if (fProduct !== 'ALL' && c.product !== fProduct) return false;
     if (fNature !== 'ALL' && c.nature !== fNature) return false;
     if (fHonor !== 'ALL' && c.honor !== fHonor) return false;
     if (fIntent !== 'ALL' && c.intent !== fIntent) return false;
     if (fRisk !== 'ALL' && c.risk !== fRisk) return false;
-    if (filterState.quick === 'high_intent') {
-      if (c.rs !== 'REACHED_INTERESTED' || c.bs !== 'NONE') return false;
-    }
+    
     if (filterState.quick === 'no_contact') {
       if (!isUnreached(c.rs)) return false;
     }
+    
+    if (fOrg !== 'ALL' && c.org !== fOrg) return false;
+    if (fOwner !== 'ALL' && c.owner !== fOwner) return false;
+    
     return true;
   });
 
-  if (sort === 'intent_desc') list.sort((a,b) => b.ds - a.ds);
-  else if (sort === 'alloc_desc') list.sort((a,b) => b.id - a.id);
-  else if (sort === 'alloc_asc') list.sort((a,b) => a.id - b.id);
-  else if (sort === 'risk_asc') {
-    const riskMap = { '低': 1, '中': 2, '高': 3 };
-    list.sort((a,b) => (riskMap[a.risk] || 9) - (riskMap[b.risk] || 9));
-  }
+  list.sort((a,b) => {
+    const s = document.getElementById('sortSelect').value;
+    if(s==='score') return b.ds - a.ds;
+    if(s==='time') return b.id - a.id;
+    if(s==='reg') return b.id - a.id;
+    return 0;
+  });
 
-  document.getElementById('listCount').textContent = list.length;
-  document.getElementById('intentCount').textContent = list.filter(c => c.rs === 'REACHED_INTERESTED').length;
-  document.getElementById('bizCount').textContent = list.filter(c => c.bs && c.bs !== 'NONE' && c.bs !== 'SETTLED' && c.bs !== 'REJECTED_BIZ').length;
-  const badge = document.getElementById('totalBadge');
-  if (badge) badge.textContent = `${list.length} 家企业`;
-
-  window.filtered = list; renderTable(list);
-
-  
-  document.getElementById('pagination').style.display = list.length > 0 ? 'flex' : 'none';
+  renderTable(list);
 }
 
 function resetFilters() {
@@ -1542,18 +1569,21 @@ function setFilter(type, val, el) {
   doFilter();
 }
 function resetAllFilters() {
-  filterState = { rs: 'ALL', bs: 'ALL', product: 'ALL', batch: 'ALL', quick: '' };
+  filterState = { rs: 'ALL', bs: 'ALL', product: 'ALL', batch: 'ALL', quick: '', owner: 'ALL', org: 'ALL' };
+  
+  if (window.cascaderBatch) window.cascaderBatch.reset();
+  if (window.cascaderRegion) window.cascaderRegion.reset();
+  if (window.cascaderOrg) window.cascaderOrg.reset();
+  
   document.querySelectorAll('.filter-option').forEach(e => {
     e.classList.remove('active');
     if (e.dataset.val === 'ALL') e.classList.add('active');
   });
-  document.getElementById('searchInput').value = '';
-  // 恢复所有的 select
-  document.querySelectorAll('.toolbar-filters select').forEach(sel => {
-    sel.selectedIndex = 0;
-    if(sel.dispatchEvent) sel.dispatchEvent(new Event('change', { bubbles: true }));
+  ['filterContact', 'filterProduct', 'filterNature', 'filterHonor', 'filterIntent', 'filterRisk', 'filterOwner'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (sel) sel.value = 'ALL';
   });
-  if(window.resetRegionCascader) window.resetRegionCascader(null, false);
+  
   doFilter();
 }
 
@@ -1626,121 +1656,186 @@ const REGION_DATA = [
   }
 ];
 
-let cascaderState = { provIdx: 0, cityIdx: 0 };
-window.cascaderSelectedDists = new Set();
-
-function renderCascader() {
-  const colProv = document.getElementById('colProv');
-  const colCity = document.getElementById('colCity');
-  const colDist = document.getElementById('colDist');
-  
-  // Render Prov
-  colProv.innerHTML = REGION_DATA.map((prov, i) => `
-    <div class="cascader-item ${i === cascaderState.provIdx ? 'active' : ''}" onclick="cascaderSetProv(${i}, event)">
-      ${prov.name}
-      <div class="cascader-item-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
-    </div>
-  `).join('');
-  
-  // Render City
-  const cities = REGION_DATA[cascaderState.provIdx]?.children || [];
-  colCity.innerHTML = cities.map((city, i) => `
-    <div class="cascader-item ${i === cascaderState.cityIdx ? 'active' : ''}" onclick="cascaderSetCity(${i}, event)">
-      ${city.name}
-      <div class="cascader-item-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
-    </div>
-  `).join('');
-  
-  // Render Dist
-  const dists = cities[cascaderState.cityIdx]?.children || [];
-  colDist.innerHTML = dists.map((dist) => `
-    <label class="cascader-checkbox-item" onclick="event.stopPropagation()">
-      <input type="checkbox" value="${dist}" ${window.cascaderSelectedDists.has(dist) ? 'checked' : ''} onchange="cascaderToggleDist('${dist}', this.checked)">
-      ${dist}
-    </label>
-  `).join('');
-  
-  document.getElementById('regionSelCount').textContent = window.cascaderSelectedDists.size;
-}
-
-function cascaderSetProv(idx, e) {
-  e.stopPropagation();
-  cascaderState.provIdx = idx;
-  cascaderState.cityIdx = 0;
-  renderCascader();
-}
-
-function cascaderSetCity(idx, e) {
-  e.stopPropagation();
-  cascaderState.cityIdx = idx;
-  renderCascader();
-}
-
-function cascaderToggleDist(dist, checked) {
-  if(checked) window.cascaderSelectedDists.add(dist);
-  else window.cascaderSelectedDists.delete(dist);
-  document.getElementById('regionSelCount').textContent = window.cascaderSelectedDists.size;
-}
-
-window.toggleRegionCascader = function(e) {
-  e.stopPropagation();
-  const dropdown = document.getElementById('regionCascaderDropdown');
-  const display = document.getElementById('regionCascaderDisplay');
-  const isShowing = dropdown.style.display === 'flex';
-  
-  // 关闭所有的 sidebar 模拟 select
-  document.querySelectorAll('.custom-singleselect-dropdown.show').forEach(el => el.classList.remove('show'));
-  document.querySelectorAll('.custom-singleselect-display.focus').forEach(el => el.classList.remove('focus'));
-  
-  if (isShowing) {
-    dropdown.style.display = 'none';
-    display.classList.remove('focus');
-  } else {
-    dropdown.style.display = 'flex';
-    display.classList.add('focus');
-    renderCascader();
+// ===== 通用级联组件逻辑 =====
+class GenericCascader {
+  constructor(config) {
+    this.id = config.id;
+    this.data = config.data;
+    this.levels = config.levels;
+    this.isMulti = config.isMulti || false;
+    this.defaultText = config.defaultText;
+    this.onSelect = config.onSelect;
+    
+    this.state = new Array(this.levels - 1).fill(0);
+    this.selectedMulti = new Set();
+    this.selectedSingle = null;
+    
+    this.container = document.getElementById(this.id);
+    this.dropdown = document.getElementById(this.id + 'Dropdown');
+    this.colsContainer = document.getElementById(this.id + 'Cols');
+    this.textEl = document.getElementById(this.id + 'Text');
+    this.displayEl = this.container.querySelector('.custom-singleselect-display');
   }
-};
 
-window.resetRegionCascader = function(e, triggerFilter = true) {
-  if (e) e.stopPropagation();
-  window.cascaderSelectedDists.clear();
-  renderCascader();
-  document.getElementById('regionCascaderText').textContent = '区域';
-  document.getElementById('regionCascaderText').style.color = '';
-  document.getElementById('regionCascaderText').style.fontWeight = '';
-  if (triggerFilter) doFilter();
-};
-
-window.confirmRegionCascader = function(e) {
-  e.stopPropagation();
-  document.getElementById('regionCascaderDropdown').style.display = 'none';
-  document.getElementById('regionCascaderDisplay').classList.remove('focus');
-  const count = window.cascaderSelectedDists.size;
-  const txt = document.getElementById('regionCascaderText');
-  if (count > 0) {
-    txt.textContent = `已选区域 (${count})`;
-    txt.style.color = 'var(--brand)';
-    txt.style.fontWeight = '600';
-  } else {
-    txt.textContent = '区域';
-    txt.style.color = '';
-    txt.style.fontWeight = '';
+  toggle(e) {
+    if(e) e.stopPropagation();
+    const isShowing = this.dropdown.style.display === 'flex';
+    document.querySelectorAll('.cascader-dropdown').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.custom-singleselect-display.focus').forEach(el => el.classList.remove('focus'));
+    
+    if (isShowing) {
+      this.dropdown.style.display = 'none';
+      this.displayEl.classList.remove('focus');
+    } else {
+      this.dropdown.style.display = 'flex';
+      this.displayEl.classList.add('focus');
+      this.render();
+    }
   }
-  doFilter();
+
+  getColData(level) {
+    let current = this.data;
+    for (let i = 0; i < level; i++) {
+      if (!current || !current[this.state[i]] || !current[this.state[i]].children) return [];
+      current = current[this.state[i]].children;
+    }
+    return current || [];
+  }
+
+  render() {
+    let html = '';
+    for (let i = 0; i < this.levels; i++) {
+      if (i > 0) html += '<div class="cascader-divider"></div>';
+      html += `<div class="cascader-col" id="${this.id}-col-${i}"></div>`;
+    }
+    this.colsContainer.innerHTML = html;
+    
+    for (let level = 0; level < this.levels; level++) {
+      const colEl = document.getElementById(`${this.id}-col-${level}`);
+      const list = this.getColData(level);
+      
+      let colHtml = '';
+      if (level === this.levels - 1) { // 最后一级
+        colHtml = list.map(item => {
+          let val = item.name || item;
+          if (this.isMulti) {
+            let isChecked = this.selectedMulti.has(val) ? 'checked' : '';
+            return `
+              <label class="cascader-checkbox-item" onclick="event.stopPropagation()">
+                <input type="checkbox" value="${val}" ${isChecked} onchange="window['${this.id}'].toggleMulti('${val}', this.checked)">
+                ${val}
+              </label>
+            `;
+          } else {
+            let isActive = this.selectedSingle === val ? 'active' : '';
+            return `
+              <div class="cascader-item ${isActive}" onclick="window['${this.id}'].selectSingle('${val}', event)">
+                ${val}
+              </div>
+            `;
+          }
+        }).join('');
+      } else {
+        colHtml = list.map((item, idx) => `
+          <div class="cascader-item ${idx === this.state[level] ? 'active' : ''}" onclick="window['${this.id}'].setIdx(${level}, ${idx}, event)">
+            ${item.name}
+            <div class="cascader-item-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></div>
+          </div>
+        `).join('');
+      }
+      colEl.innerHTML = colHtml;
+    }
+    
+    if (this.isMulti) {
+      let countEl = document.getElementById(this.id.replace('cascader', 'cascaderRegionCount'));
+      if(countEl) countEl.textContent = this.selectedMulti.size;
+    }
+  }
+
+  setIdx(level, idx, e) {
+    if(e) e.stopPropagation();
+    this.state[level] = idx;
+    for (let i = level + 1; i < this.state.length; i++) this.state[i] = 0;
+    this.render();
+  }
+
+  toggleMulti(val, checked) {
+    if(checked) this.selectedMulti.add(val);
+    else this.selectedMulti.delete(val);
+    this.render();
+  }
+
+  selectSingle(val, e) {
+    if(e) e.stopPropagation();
+    this.selectedSingle = val;
+    this.textEl.textContent = val;
+    this.textEl.style.color = 'var(--brand)';
+    this.textEl.style.fontWeight = '600';
+    this.dropdown.style.display = 'none';
+    this.displayEl.classList.remove('focus');
+    if(this.onSelect) this.onSelect();
+  }
+
+  confirm(e) {
+    if(e) e.stopPropagation();
+    this.dropdown.style.display = 'none';
+    this.displayEl.classList.remove('focus');
+    const count = this.selectedMulti.size;
+    if (count > 0) {
+      this.textEl.textContent = `已选${this.defaultText} (${count})`;
+      this.textEl.style.color = 'var(--brand)';
+      this.textEl.style.fontWeight = '600';
+    } else {
+      this.textEl.textContent = this.defaultText;
+      this.textEl.style.color = '';
+      this.textEl.style.fontWeight = '';
+    }
+    if(this.onSelect) this.onSelect();
+  }
+
+  reset(e) {
+    if(e) e.stopPropagation();
+    this.selectedMulti.clear();
+    this.selectedSingle = null;
+    this.state = new Array(this.levels - 1).fill(0);
+    this.textEl.textContent = this.defaultText;
+    this.textEl.style.color = '';
+    this.textEl.style.fontWeight = '';
+    this.render();
+    if(this.onSelect) this.onSelect();
+  }
+}
+
+const BATCH_DATA = [
+  { name: '橙业贷', children: ['橙业贷20160508', '橙业贷20160509', '橙业贷20160510', '橙业贷20260615'] },
+  { name: '厂房贷', children: ['厂房贷20160501', '厂房贷20160502'] },
+  { name: '税务贷', children: ['税务贷20160501', '税务贷20160502'] }
+];
+
+const ORG_DATA = [
+  {
+    name: '江苏省分行', children: [
+      { name: '南京市分行', children: ['鼓楼支行', '玄武支行'] },
+      { name: '苏州市分行', children: ['姑苏支行', '工业园区支行', '新吴支行'] },
+      { name: '无锡市分行', children: ['滨湖支行'] }
+    ]
+  }
+];
+
+window.initCascaders = function() {
+  window.cascaderBatch = new GenericCascader({ id: 'cascaderBatch', data: BATCH_DATA, levels: 2, defaultText: '名单批次', onSelect: doFilter });
+  window.cascaderRegion = new GenericCascader({ id: 'cascaderRegion', data: REGION_DATA, levels: 3, isMulti: true, defaultText: '区域', onSelect: doFilter });
+  window.cascaderOrg = new GenericCascader({ id: 'cascaderOrg', data: ORG_DATA, levels: 3, defaultText: '对接机构', onSelect: doFilter });
 };
 
 document.addEventListener('click', e => {
-  if (!e.target.closest('#regionCascader')) {
-    const dropdown = document.getElementById('regionCascaderDropdown');
-    const display = document.getElementById('regionCascaderDisplay');
-    if (dropdown) dropdown.style.display = 'none';
-    if (display) display.classList.remove('focus');
+  if (!e.target.closest('.custom-cascader')) {
+    document.querySelectorAll('.cascader-dropdown').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('.custom-singleselect-display.focus').forEach(el => el.classList.remove('focus'));
   }
 });
 
-// ===== 初始渲染 =====
-renderCascader();
+window.initCascaders();
 doFilter();
 </script>
 <!-- 导出弹窗 -->
