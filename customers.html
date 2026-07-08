@@ -793,10 +793,9 @@
         </p>
       </div>
       <div style="display:flex;gap:10px;align-items:center;">
-        <span id="totalBadge" style="font-size:14px;color:var(--brand);font-weight:700;background:#eff6ff;padding:6px 14px;border-radius:100px;">13 家企业</span>
         <button class="btn btn-default" onclick="exportData()">
           <span style="width:15px;height:15px;display:flex;"><svg viewBox="0 0 24 24" style="width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
-          导出
+          下载名单
         </button>
       </div>
     </div>
@@ -1021,12 +1020,6 @@
               <option value="橙业贷">橙业贷</option>
               <option value="厂房贷">厂房贷</option>
               <option value="税务贷">税务贷</option>
-            </select>
-            <select class="form-control sort-select" id="filterScenario" onchange="doFilter()">
-              <option value="ALL">客群场景</option>
-              <option value="厂房实体">🏭 厂房实体</option>
-              <option value="外贸客群">🌐 外贸客群</option>
-              <option value="纯民营">🏢 纯民营中小微</option>
             </select>
             <select class="form-control sort-select" id="filterNature" onchange="doFilter()">
               <option value="ALL">企业性质</option>
@@ -1374,7 +1367,8 @@ function doFilter() {
   document.getElementById('listCount').textContent = list.length;
   document.getElementById('intentCount').textContent = list.filter(c => c.rs === 'REACHED_INTERESTED').length;
   document.getElementById('bizCount').textContent = list.filter(c => c.bs && c.bs !== 'NONE' && c.bs !== 'SETTLED' && c.bs !== 'REJECTED_BIZ').length;
-  document.getElementById('totalBadge').textContent = `${list.length} 家企业`;
+  const badge = document.getElementById('totalBadge');
+  if (badge) badge.textContent = `${list.length} 家企业`;
 
   window.filtered = list; renderTable(list);
 

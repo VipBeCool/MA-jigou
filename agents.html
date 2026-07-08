@@ -214,8 +214,8 @@
 
     .side-drawer {
       position: fixed;
-      top: 0; right: -760px;
-      width: 740px;
+      top: 0; right: -880px;
+      width: 860px;
       height: 100vh;
       background: var(--bg-card);
       z-index: 901;
@@ -316,18 +316,7 @@
 
     .wl-toolbar { display: flex; gap: 8px; margin-bottom: 14px; }
 
-    .snapshot-list { display: flex; flex-direction: column; gap: 10px; }
-    .snapshot-item {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 13px 16px;
-      border: 1px solid var(--border); border-radius: 10px;
-      background: var(--bg-card);
-      transition: box-shadow 0.15s;
-    }
-    .snapshot-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
-    .snapshot-name { font-size: 13.5px; font-weight: 600; color: var(--gray-900); }
-    .snapshot-meta { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
-    .snapshot-actions { display: flex; gap: 6px; }
+
 
     /* ── 日志 Tab ── */
     .log-item {
@@ -362,8 +351,8 @@
        ══════════════════════════════════════ */
     .wizard-drawer {
       position: fixed;
-      top: 0; right: -760px;
-      width: 740px;
+      top: 0; right: -880px;
+      width: 860px;
       height: 100vh;
       background: var(--bg-card);
       z-index: 1000;
@@ -388,7 +377,7 @@
     /* 步骤条 */
     .wiz-steps {
       display: flex; align-items: center;
-      padding-bottom: 0; overflow-x: auto;
+      padding-bottom: 18px; overflow-x: auto;
     }
     .wiz-step { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
     .wiz-step-num {
@@ -504,6 +493,7 @@
     /* 数据源选项（tag样式多选） */
     .source-tags { display: flex; gap: 8px; flex-wrap: wrap; }
     .source-tag {
+      display: flex; align-items: center; gap: 6px;
       padding: 7px 16px; border-radius: 8px;
       font-size: 13px; font-weight: 500;
       border: 1.5px solid var(--border);
@@ -516,7 +506,7 @@
     .source-tag:hover:not(.active) { border-color: var(--gray-300); }
 
     /* 名单处理选项（单选） */
-    .process-opts { display: flex; flex-direction: column; gap: 8px; margin-top: 2px; }
+    .process-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 2px; }
     .process-opt {
       display: flex; align-items: flex-start; gap: 10px;
       padding: 12px 14px; border: 1.5px solid var(--border);
@@ -691,10 +681,6 @@
         </p>
       </div>
       <div style="display:flex;gap:10px;align-items:center;">
-        <button class="btn btn-default" onclick="openImportModal()">
-          <svg style="width:16px;height:16px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          手工导入名单
-        </button>
         <button class="btn btn-primary" onclick="openWizard()">
           <svg style="width:16px;height:16px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           新建智能体
@@ -760,18 +746,26 @@
       <div class="drawer-title" id="drawerTitle">—</div>
       <div class="drawer-subtitle" id="drawerSubtitle"></div>
     </div>
-    <button class="drawer-close-btn" onclick="closeDrawer()">
-      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button class="btn btn-sm" onclick="confirmDelete(currentAgentId)" style="font-size:12px;color:#dc2626;border:1px solid #fecaca;background:#fff;padding:0 12px;height:30px;">
+        <svg style="width:13px;height:13px;flex-shrink:0;margin-right:4px;vertical-align:-2px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        删除智能体
+      </button>
+      <button class="drawer-close-btn" onclick="closeDrawer()">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
   </div>
   <div class="drawer-tabs" id="drawerTabBar">
     <div class="drawer-tab active" onclick="switchDrawerTab('config',this)">基础配置</div>
+    <div class="drawer-tab" onclick="switchDrawerTab('rules',this)">获客规则</div>
     <div class="drawer-tab" onclick="switchDrawerTab('batches',this)">名单批次</div>
     <div class="drawer-tab" onclick="switchDrawerTab('whitelist',this)">白名单快照</div>
     <div class="drawer-tab" onclick="switchDrawerTab('logs',this)">执行日志</div>
   </div>
   <div class="drawer-body">
     <div class="drawer-pane active" id="dpane-config"></div>
+    <div class="drawer-pane" id="dpane-rules"></div>
     <div class="drawer-pane" id="dpane-batches"></div>
     <div class="drawer-pane" id="dpane-whitelist"></div>
     <div class="drawer-pane" id="dpane-logs"></div>
@@ -796,10 +790,7 @@
 
     <!-- Step 0: 基础配置 -->
     <div class="wizard-page" id="wp-0">
-      <div class="section-heading">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
-        基础配置
-      </div>
+      <div class="section-heading">基础配置</div>
       <div class="form-group">
         <label class="form-label">归属机构（全称）<span style="color:#ef4444">*</span></label>
         <div class="search-select" id="orgSearchSelect">
@@ -839,10 +830,7 @@
 
     <!-- Step 1: 获客规则 -->
     <div class="wizard-page" id="wp-1">
-      <div class="section-heading">
-        <svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
-        获客规则配置
-      </div>
+      <div class="section-heading">获客规则配置</div>
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
         <span style="font-size:13px;color:var(--gray-500);">规则关系：</span>
         <div class="logic-toggle">
@@ -862,44 +850,43 @@
 
     <!-- Step 2: 名单策略 -->
     <div class="wizard-page" id="wp-2">
-      <div class="section-heading">
-        <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-        分组一：名单数据源
-      </div>
+      <div class="section-heading">名单数据源</div>
       <div class="source-tags" id="sourceTags">
-        <div class="source-tag active" onclick="toggleSource(this)">全省企业</div>
-        <div class="source-tag" onclick="toggleSource(this)">全省授权企业</div>
-        <div class="source-tag" onclick="toggleSource(this)">营销白名单</div>
+        <label class="source-tag active" onclick="toggleSource(this)">
+          <input type="radio" name="dsSource" checked style="margin:0;cursor:pointer;"> 全省企业
+        </label>
+        <label class="source-tag" onclick="toggleSource(this)">
+          <input type="radio" name="dsSource" style="margin:0;cursor:pointer;"> 全省授权企业
+        </label>
+        <label class="source-tag" onclick="toggleSource(this)">
+          <input type="radio" name="dsSource" style="margin:0;cursor:pointer;"> 营销白名单
+        </label>
       </div>
 
-      <div class="section-heading">
-        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-        分组二：数量及排序
-      </div>
-      <div class="form-group">
-        <label class="form-label">输出数量上限</label>
-        <div style="display:flex;align-items:center;gap:12px;">
-          <input type="number" class="form-input" id="f-outputLimit" value="300" style="width:130px;" min="1">
-          <span style="font-size:13px;color:var(--gray-500);">户</span>
-          <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--gray-600);cursor:pointer;">
-            <input type="checkbox" id="f-noLimit" onchange="toggleNoLimit()"> 不限制
-          </label>
+      <div class="section-heading">数量及排序</div>
+      <div style="display:flex; gap:64px; align-items:flex-start; margin-bottom: 24px;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">输出数量上限</label>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <input type="number" class="form-input" id="f-outputLimit" value="300" style="width:130px;" min="1">
+            <span style="font-size:13px;color:var(--gray-500);">户</span>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--gray-600);cursor:pointer;">
+              <input type="checkbox" id="f-noLimit" onchange="toggleNoLimit()"> 不限制
+            </label>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:0; flex:1;">
+          <label class="form-label">名单排序方式</label>
+          <select class="form-select" id="f-sort" style="max-width:280px;">
+            <option value="fund">按授信额度（高→低）</option>
+            <option value="score">按得分（高→低）</option>
+            <option value="time">按录入时间（新→旧）</option>
+            <option value="alpha">按企业名称（A→Z）</option>
+          </select>
         </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">名单排序方式</label>
-        <select class="form-select" id="f-sort" style="max-width:280px;">
-          <option value="fund">按授信额度（高→低）</option>
-          <option value="score">按得分（高→低）</option>
-          <option value="time">按录入时间（新→旧）</option>
-          <option value="alpha">按企业名称（A→Z）</option>
-        </select>
-      </div>
 
-      <div class="section-heading">
-        <svg viewBox="0 0 24 24"><polyline points="8 3 4 7 8 11"/><line x1="4" y1="7" x2="20" y2="7"/><polyline points="16 21 20 17 16 13"/><line x1="20" y1="17" x2="4" y2="17"/></svg>
-        分组三：名单处理
-      </div>
+      <div class="section-heading">名单处理</div>
       <div class="process-opts" id="processOpts">
         <div class="process-opt active" onclick="selectProcess(this,'original')">
           <input type="radio" name="procMode" checked style="margin-top:2px;">
@@ -933,22 +920,21 @@
       <div id="processUploadArea" style="display:none;margin-top:12px;">
         <div class="upload-zone" onclick="document.getElementById('processFile').click()">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          <div style="font-size:13px;font-weight:500;color:var(--gray-600);">上传企业名单</div>
-          <div style="font-size:12px;color:var(--gray-400);margin-top:3px;">支持 .xlsx / .xls / .csv</div>
+          <div style="font-size:13px;font-weight:500;color:var(--gray-600);">点击上传企业名单</div>
+          <div style="font-size:12px;color:var(--gray-400);margin-top:3px;">支持 .xlsx / .xls / .csv（可多选）</div>
         </div>
-        <input type="file" id="processFile" accept=".xlsx,.xls,.csv" style="display:none;">
+        <input type="file" id="processFile" accept=".xlsx,.xls,.csv" style="display:none;" multiple onchange="handleProcessUpload(this)">
+        <div id="processFileList" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
       </div>
 
-      <div class="section-heading">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        分组四：更新时间
-      </div>
+      <div class="section-heading">更新时间</div>
       <div class="freq-options" id="freqOpts2">
         <div class="freq-opt" onclick="selectFreq2('daily',this)">每天</div>
         <div class="freq-opt active" onclick="selectFreq2('weekly',this)">每周</div>
         <div class="freq-opt" onclick="selectFreq2('monthly',this)">每月</div>
         <div class="freq-opt" onclick="selectFreq2('quarterly',this)">每季度</div>
         <div class="freq-opt" onclick="selectFreq2('once',this)">仅一次</div>
+        <div class="freq-opt" onclick="selectFreq2('manual',this)">手动执行</div>
       </div>
       <div class="freq-detail" id="freqDetail2">
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
@@ -963,10 +949,7 @@
         </div>
       </div>
 
-      <div class="section-heading" style="margin-top:20px;">
-        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        分组五：导出控制
-      </div>
+      <div class="section-heading" style="margin-top:20px;">导出控制</div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--gray-50);border-radius:9px;">
         <div>
           <div style="font-size:13.5px;font-weight:600;color:var(--gray-800);">允许导出名单</div>
@@ -978,10 +961,7 @@
 
     <!-- Step 3: 营销白名单 -->
     <div class="wizard-page" id="wp-3">
-      <div class="section-heading">
-        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        营销白名单配置
-      </div>
+      <div class="section-heading">营销白名单配置</div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--gray-50);border-radius:9px;margin-bottom:18px;">
         <div>
           <div style="font-size:13.5px;font-weight:600;color:var(--gray-800);">启用营销白名单</div>
@@ -1008,13 +988,23 @@
           </label>
           <div id="wlIndepSchedule" style="display:none;padding:12px 14px;background:var(--gray-50);border-radius:8px;margin-top:-4px;">
             <div class="freq-options" id="wlFreqOpts">
+              <div class="freq-opt" onclick="selectWlFreq('daily',this)">每天</div>
               <div class="freq-opt active" onclick="selectWlFreq('weekly',this)">每周</div>
               <div class="freq-opt" onclick="selectWlFreq('monthly',this)">每月</div>
               <div class="freq-opt" onclick="selectWlFreq('quarterly',this)">每季度</div>
+              <div class="freq-opt" onclick="selectWlFreq('once',this)">仅一次</div>
             </div>
-            <div style="display:flex;align-items:center;gap:10px;">
-              <span style="font-size:13px;font-weight:600;color:var(--gray-600);">执行时间：</span>
-              <input type="time" class="form-input" value="03:00" style="width:110px;">
+            <div class="freq-detail" id="wlFreqDetail">
+              <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                <span style="font-size:13px;font-weight:600;color:var(--gray-600);">执行日：</span>
+                <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox"> 周一</label>
+                <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox" checked> 周二</label>
+                <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox"> 周三</label>
+                <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox"> 周四</label>
+                <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox"> 周五</label>
+                <span style="font-size:13px;font-weight:600;color:var(--gray-600);margin-left:6px;">时间：</span>
+                <input type="time" class="form-input" value="03:00" style="width:110px;">
+              </div>
             </div>
           </div>
           <label style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1.5px solid var(--border);border-radius:9px;cursor:pointer;background:#fff;" id="wlOpt3" onclick="selectWlMode(2)">
@@ -1024,13 +1014,14 @@
               <div style="font-size:12px;color:var(--gray-400);margin-top:2px;">手动上传已整理好的白名单文件</div>
             </div>
           </label>
-          <div id="wlUploadArea" style="display:none;">
+          <div id="wlUploadArea" style="display:none;margin-top:12px;">
             <div class="upload-zone" onclick="document.getElementById('wlFile').click()">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              <div style="font-size:13px;font-weight:500;color:var(--gray-600);">上传白名单文件</div>
-              <div style="font-size:12px;color:var(--gray-400);margin-top:3px;">支持 .xlsx / .xls / .csv</div>
+              <div style="font-size:13px;font-weight:500;color:var(--gray-600);">点击上传白名单文件</div>
+              <div style="font-size:12px;color:var(--gray-400);margin-top:3px;">支持 .xlsx / .xls / .csv（可多选）</div>
             </div>
-            <input type="file" id="wlFile" accept=".xlsx,.xls,.csv" style="display:none;">
+            <input type="file" id="wlFile" accept=".xlsx,.xls,.csv" style="display:none;" multiple onchange="handleWlWizardUpload(this)">
+            <div id="wlFileList" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
           </div>
         </div>
       </div>
@@ -1038,24 +1029,27 @@
 
     <!-- Step 4: 名单字段 -->
     <div class="wizard-page" id="wp-4">
-      <div class="section-heading">
-        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
-        名单展示字段配置
-      </div>
+      <div class="section-heading">名单展示字段配置</div>
       <p style="font-size:12.5px;color:var(--gray-400);margin-bottom:14px;">选择在名单列表中展示的数据字段，<span style="color:var(--gray-600);font-weight:600;">灰色字段为系统必显，不可取消</span>；其余扩展字段默认全选，可按需取消。</p>
 
       <div style="font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:8px;">系统必显字段</div>
       <div class="field-grid" id="requiredFieldGrid"></div>
 
-      <div style="font-size:13px;font-weight:600;color:var(--gray-600);margin:16px 0 8px;">扩展字段（默认全选）</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0 8px;">
+        <div style="font-size:13px;font-weight:600;color:var(--gray-600);">扩展字段（默认全选）</div>
+        <div style="display:flex;gap:16px;font-size:13px;">
+          <a href="javascript:void(0)" onclick="selectAllFields(true)" style="color:var(--brand);text-decoration:none;">全部选中</a>
+          <a href="javascript:void(0)" onclick="selectAllFields(false)" style="color:var(--gray-500);text-decoration:none;">取消全选</a>
+        </div>
+      </div>
       <div class="field-grid" id="fieldGrid"></div>
     </div>
 
   </div>
   <div class="wizard-footer">
-    <button class="btn btn-default" id="wizPrevBtn" onclick="wizardPrev()" style="visibility:hidden;">上一步</button>
+    <button class="btn btn-default" onclick="closeWizard()">取消</button>
     <div style="display:flex;gap:10px;">
-      <button class="btn btn-default" onclick="closeWizard()">取消</button>
+      <button class="btn btn-default" id="wizPrevBtn" onclick="wizardPrev()" style="visibility:hidden;">上一步</button>
       <button class="btn btn-primary" id="wizNextBtn" onclick="wizardNext()">下一步</button>
     </div>
   </div>
@@ -1387,12 +1381,6 @@
 
     /* ── Tab 1: 基础配置 ── */
     if (tab === 'config') {
-      const rulesHtml = a.rules.map(r =>
-        '<span style="display:inline-flex;align-items:center;gap:4px;margin:2px 4px 2px 0;background:var(--gray-100);padding:4px 10px;border-radius:6px;font-size:12.5px;color:var(--gray-700);">' +
-          r.field + ' <span style="color:var(--gray-400);">' + r.op + '</span> ' + r.val +
-        '</span>'
-      ).join('');
-
       document.getElementById('dpane-config').innerHTML =
         '<div style="font-size:13px;font-weight:700;color:var(--gray-700);margin-bottom:10px;">基础信息</div>' +
         row('归属机构', a.org) +
@@ -1404,17 +1392,19 @@
         row('名单处理', {original:'原名单输出',intersect:'取交',exclude:'排除',union:'求并'}[a.processMode] || '—') +
         row('允许导出', a.allowExport ? '是' : '否') +
         row('白名单', a.whitelist ? '已启用' : '未启用') +
-        row('上次执行', a.lastRun || '—') +
-        '<div style="font-size:13px;font-weight:700;color:var(--gray-700);margin:20px 0 10px;">获客规则（AND 关系）</div>' +
-        row('筛选条件', rulesHtml) +
-        '<div class="danger-zone">' +
-          '<div class="danger-zone-title">⚠ 危险操作</div>' +
-          '<div class="danger-zone-desc">删除后不可恢复，所有已生成批次不受影响</div>' +
-          '<button class="btn" style="border:1.5px solid #dc2626;color:#dc2626;background:#fff;font-size:13px;font-weight:600;" onclick="confirmDelete(\'' + a.id + '\')">' +
-            '<svg style="width:14px;height:14px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>' +
-            ' 删除该智能体' +
-          '</button>' +
-        '</div>';
+        row('上次执行', a.lastRun || '—');
+    }
+
+    if (tab === 'rules') {
+      const rulesHtml = a.rules.map(r =>
+        '<span style="display:inline-flex;align-items:center;gap:4px;margin:2px 4px 2px 0;background:var(--gray-100);padding:4px 10px;border-radius:6px;font-size:12.5px;color:var(--gray-700);">' +
+          r.field + ' <span style="color:var(--gray-400);">' + r.op + '</span> ' + r.val +
+        '</span>'
+      ).join('');
+
+      document.getElementById('dpane-rules').innerHTML =
+        '<div style="font-size:13px;font-weight:700;color:var(--gray-700);margin-bottom:10px;">获客规则（AND 关系）</div>' +
+        row('筛选条件', rulesHtml);
     }
 
     /* ── Tab 2: 名单批次 ── */
@@ -1451,18 +1441,22 @@
     /* ── Tab 3: 白名单快照 ── */
     if (tab === 'whitelist') {
       const totalSnap = a.snapshots.reduce((s,x) => s + x.count, 0);
-      const snapListHtml = a.snapshots.length ? a.snapshots.map(s =>
-        '<div class="snapshot-item">' +
-          '<div>' +
-            '<div class="snapshot-name">' + s.name + '</div>' +
-            '<div class="snapshot-meta">' + s.count.toLocaleString() + ' 户企业 &nbsp;·&nbsp; ' + s.time + '</div>' +
-          '</div>' +
-          '<div class="snapshot-actions">' +
-            '<button class="btn btn-default btn-sm" onclick="openNotify(\'名单生成任务已提交，稍后在下载中心查看。\')" style="font-size:12px;">下载</button>' +
-            '<button class="btn btn-sm" onclick="confirmDeleteSnapshot(\'' + s.name + '\')" style="font-size:12px;color:#dc2626;border:1px solid #fecaca;background:#fff;">删除</button>' +
-          '</div>' +
-        '</div>'
-      ).join('') : '<div style="text-align:center;padding:32px;color:var(--gray-400);font-size:13px;">暂无白名单快照</div>';
+      const snapListHtml = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;">' +
+        '<table class="batch-table"><thead><tr>' +
+          '<th>快照名称</th><th>企业数</th><th>生成时间</th><th style="text-align:right;padding-right:24px;">操作</th>' +
+        '</tr></thead><tbody>' +
+        (a.snapshots.length ? a.snapshots.map(s =>
+          '<tr>' +
+            '<td style="font-weight:600;font-size:13px;">' + s.name + '</td>' +
+            '<td><strong>' + s.count.toLocaleString() + '</strong><span style="font-size:12px;color:var(--gray-400);margin-left:2px;">户</span></td>' +
+            '<td style="color:var(--gray-500);font-size:12px;">' + s.time + '</td>' +
+            '<td style="text-align:right;padding-right:24px;">' +
+              '<button class="btn btn-default btn-sm" onclick="openNotify(\'名单生成任务已提交，稍后在下载中心查看。\')" style="font-size:12px;margin-right:8px;">下载</button>' +
+              '<button class="btn btn-sm" onclick="confirmDeleteSnapshot(\'' + s.name + '\')" style="font-size:12px;color:#dc2626;border:1px solid #fecaca;background:#fff;">删除</button>' +
+            '</td>' +
+          '</tr>'
+        ).join('') : '<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--gray-400);">暂无白名单快照</td></tr>') +
+        '</tbody></table></div>';
 
       document.getElementById('dpane-whitelist').innerHTML =
         '<div class="snapshot-header">' +
@@ -1491,14 +1485,19 @@
           '<div style="font-size:14px;font-weight:700;color:var(--gray-900);">执行日志（' + a.logs.length + ' 条）</div>' +
           '<span style="font-size:12px;color:var(--gray-400);">最近 3 个月</span>' +
         '</div>' +
+        '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;">' +
+        '<table class="batch-table"><thead><tr>' +
+          '<th style="width:160px;">执行时间</th><th>动作</th><th>详情</th><th style="text-align:right;padding-right:24px;">数量/结果</th>' +
+        '</tr></thead><tbody>' +
         (a.logs.length ? a.logs.map(l =>
-          '<div class="log-item">' +
-            '<div class="log-time">' + l.time + '</div>' +
-            '<div class="log-dot ' + l.type + '"></div>' +
-            '<div class="log-detail"><strong>' + l.action + '</strong>：' + l.detail + '</div>' +
-            '<div class="log-count" style="color:' + (l.count&&l.count.startsWith('+') ? 'var(--brand)' : 'var(--gray-400)') + ';">' + (l.count||'') + '</div>' +
-          '</div>'
-        ).join('') : '<div style="text-align:center;padding:30px;color:var(--gray-400);">暂无日志记录</div>');
+          '<tr>' +
+            '<td style="color:var(--gray-500);font-size:12px;">' + l.time + '</td>' +
+            '<td><span style="display:inline-flex;align-items:center;gap:6px;"><div class="log-dot ' + l.type + '" style="position:static;transform:none;"></div><strong>' + l.action + '</strong></span></td>' +
+            '<td style="font-size:13px;color:var(--gray-700);">' + l.detail + '</td>' +
+            '<td style="text-align:right;padding-right:24px;color:' + (l.count&&l.count.startsWith('+') ? 'var(--brand)' : 'var(--gray-500)') + ';">' + (l.count||'—') + '</td>' +
+          '</tr>'
+        ).join('') : '<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--gray-400);">暂无日志记录</td></tr>') +
+        '</tbody></table></div>';
     }
   }
 
@@ -1522,9 +1521,7 @@
           '<div class="wiz-step-num">' + numHtml + '</div>' +
           '<div class="wiz-step-label">' + label + '</div>' +
         '</div>';
-    });
-    html += '</div>';
-    document.getElementById('wizardStepsEl').innerHTML = html; 
+    }).join('');
     for (let i = 0; i < WIZ_STEPS.length; i++) {
       const p = document.getElementById('wp-' + i);
       if (p) p.classList.toggle('active', i === wizStep);
@@ -1620,9 +1617,16 @@
     if (el) el.textContent = '约 ' + base.toLocaleString() + ' 家';
   }
 
-  /* ── 数据源 Tag 多选 ── */
+  /* ── 数据源 Tag 单选 ── */
   function toggleSource(el) {
-    el.classList.toggle('active');
+    document.querySelectorAll('#sourceTags .source-tag').forEach(tag => {
+      tag.classList.remove('active');
+      const rb = tag.querySelector('input[type="radio"]');
+      if (rb) rb.checked = false;
+    });
+    el.classList.add('active');
+    const rb = el.querySelector('input[type="radio"]');
+    if (rb) rb.checked = true;
   }
 
   /* ── 名单处理 单选 ── */
@@ -1655,16 +1659,24 @@
     } else if (freq === 'monthly') {
       d.innerHTML = '<div style="margin-bottom:10px;"><div style="font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:8px;">每月执行日（可多选）：</div>' +
         '<div style="display:flex;flex-wrap:wrap;gap:5px;">' +
-        Array.from({length:28},(_,i)=>i+1).map(n =>
+        Array.from({length:31},(_,i)=>i+1).map(n =>
           '<div class="day-tag ' + (n===1?'selected':'') + '" onclick="this.classList.toggle(\'selected\')">' + n + '</div>'
         ).join('') + '</div></div>' +
         '<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:13px;font-weight:600;color:var(--gray-600);">时间：</span><input type="time" class="form-input" value="06:00" style="width:110px;"></div>';
     } else if (freq === 'quarterly') {
-      d.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;">' +
-        ['1月','4月','7月','10月'].map((m,i) =>
-          '<div class="day-tag ' + (i===0?'selected':'') + '" onclick="this.classList.toggle(\'selected\')" style="width:auto;padding:0 12px;">' + m + '&nbsp;<span style="font-size:11px;color:var(--gray-400);">1日</span></div>'
+      d.innerHTML = '<div style="margin-bottom:10px;"><div style="font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:8px;">每季度执行月份（可多选）：</div>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;">' +
+        ['第一个月','第二个月','第三个月'].map((m,i) =>
+          '<div class="day-tag ' + (i===0?'selected':'') + '" onclick="this.classList.toggle(\'selected\')" style="width:auto;padding:0 12px;">' + m + '</div>'
         ).join('') + '</div>' +
+        '<div style="font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:8px;">执行日（可多选）：</div>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:5px;">' +
+        Array.from({length:31},(_,i)=>i+1).map(n =>
+          '<div class="day-tag ' + (n===1?'selected':'') + '" onclick="this.classList.toggle(\'selected\')">' + n + '</div>'
+        ).join('') + '</div></div>' +
         '<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:13px;font-weight:600;color:var(--gray-600);">时间：</span><input type="time" class="form-input" value="02:00" style="width:110px;"></div>';
+    } else if (freq === 'manual') {
+      d.innerHTML = '<div style="font-size:13px;color:var(--gray-500);padding:8px 0;">仅通过详情页的“手动执行跑批”按钮触发执行，不自动运行。</div>';
     }
   }
 
@@ -1688,6 +1700,40 @@
   function selectWlFreq(freq, el) {
     document.querySelectorAll('#wlFreqOpts .freq-opt').forEach(o => o.classList.remove('active'));
     el.classList.add('active');
+    const d = document.getElementById('wlFreqDetail');
+    if (freq === 'once') {
+      d.innerHTML = '<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:13px;font-weight:600;color:var(--gray-600);">执行时间：</span><input type="date" class="form-input" style="width:170px;"><input type="time" class="form-input" value="03:00" style="width:110px;"></div>';
+    } else if (freq === 'daily') {
+      d.innerHTML = '<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:13px;font-weight:600;color:var(--gray-600);">每日执行时间：</span><input type="time" class="form-input" value="03:00" style="width:110px;"></div>';
+    } else if (freq === 'weekly') {
+      d.innerHTML = '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">' +
+        '<span style="font-size:13px;font-weight:600;color:var(--gray-600);">执行日：</span>' +
+        ['周一','周二','周三','周四','周五','周六','周日'].map((wd,i) =>
+          '<label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox" ' + (i===1?'checked':'') + '> ' + wd + '</label>'
+        ).join('') +
+        '<span style="font-size:13px;font-weight:600;color:var(--gray-600);margin-left:8px;">时间：</span>' +
+        '<input type="time" class="form-input" value="03:00" style="width:110px;">' +
+        '</div>';
+    } else if (freq === 'monthly') {
+      d.innerHTML = '<div style="margin-bottom:10px;"><div style="font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:8px;">每月执行日（可多选）：</div>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:5px;">' +
+        Array.from({length:31},(_,i)=>i+1).map(n =>
+          '<div class="day-tag ' + (n===1?'selected':'') + '" onclick="this.classList.toggle(\'selected\')">' + n + '</div>'
+        ).join('') + '</div></div>' +
+        '<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:13px;font-weight:600;color:var(--gray-600);">时间：</span><input type="time" class="form-input" value="03:00" style="width:110px;"></div>';
+    } else if (freq === 'quarterly') {
+      d.innerHTML = '<div style="margin-bottom:10px;"><div style="font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:8px;">每季度执行月份（可多选）：</div>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;">' +
+        ['第一个月','第二个月','第三个月'].map((m,i) =>
+          '<div class="day-tag ' + (i===0?'selected':'') + '" onclick="this.classList.toggle(\'selected\')" style="width:auto;padding:0 12px;">' + m + '</div>'
+        ).join('') + '</div>' +
+        '<div style="font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:8px;">执行日（可多选）：</div>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:5px;">' +
+        Array.from({length:31},(_,i)=>i+1).map(n =>
+          '<div class="day-tag ' + (n===1?'selected':'') + '" onclick="this.classList.toggle(\'selected\')">' + n + '</div>'
+        ).join('') + '</div></div>' +
+        '<div style="display:flex;align-items:center;gap:10px;"><span style="font-size:13px;font-weight:600;color:var(--gray-600);">时间：</span><input type="time" class="form-input" value="03:00" style="width:110px;"></div>';
+    }
   }
 
   /* ── 字段网格（Step 5）── */
@@ -1734,11 +1780,19 @@
     if (el.classList.contains('required')) return;
     el.classList.toggle('on');
     const label = el.textContent.trim();
+    const field = EXTEND_FIELDS.find(f => f.label === label);
+    if (field) field.on = el.classList.contains('on');
+    
     if (el.classList.contains('on')) {
       el.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' + label;
     } else {
       el.textContent = label;
     }
+  }
+
+  function selectAllFields(isAll) {
+    EXTEND_FIELDS.forEach(f => f.on = isAll);
+    initFieldGrid();
   }
 
   /* ── 导出控制 ── */
@@ -1899,6 +1953,80 @@
       renderDrawerPane('whitelist', a);
     }
     showToast('白名单快照已生成', 'success');
+  }
+
+  let uploadedProcessFiles = [];
+
+  function handleProcessUpload(input) {
+    if (!input.files || input.files.length === 0) return;
+    for (let i = 0; i < input.files.length; i++) {
+      uploadedProcessFiles.push(input.files[i]);
+    }
+    input.value = '';
+    renderProcessFiles();
+  }
+
+  function removeProcessFile(index) {
+    uploadedProcessFiles.splice(index, 1);
+    renderProcessFiles();
+  }
+
+  function renderProcessFiles() {
+    const container = document.getElementById('processFileList');
+    if (!container) return;
+    if (uploadedProcessFiles.length === 0) {
+      container.innerHTML = '';
+      return;
+    }
+    container.innerHTML = uploadedProcessFiles.map((f, i) =>
+      '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--gray-50);padding:8px 12px;border-radius:6px;border:1px solid var(--border);">' +
+        '<div style="display:flex;align-items:center;gap:8px;">' +
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
+          '<span style="font-size:13px;color:var(--gray-800);">' + f.name + '</span>' +
+          '<span style="font-size:12px;color:var(--gray-400);">(' + (f.size / 1024).toFixed(1) + ' KB)</span>' +
+        '</div>' +
+        '<button class="btn btn-sm" onclick="removeProcessFile(' + i + ')" style="padding:4px;color:var(--gray-400);border:none;background:transparent;height:auto;" title="移除文件">' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+        '</button>' +
+      '</div>'
+    ).join('');
+  }
+
+  let uploadedWlFiles = [];
+
+  function handleWlWizardUpload(input) {
+    if (!input.files || input.files.length === 0) return;
+    for (let i = 0; i < input.files.length; i++) {
+      uploadedWlFiles.push(input.files[i]);
+    }
+    input.value = '';
+    renderWlFiles();
+  }
+
+  function removeWlFile(index) {
+    uploadedWlFiles.splice(index, 1);
+    renderWlFiles();
+  }
+
+  function renderWlFiles() {
+    const container = document.getElementById('wlFileList');
+    if (!container) return;
+    if (uploadedWlFiles.length === 0) {
+      container.innerHTML = '';
+      return;
+    }
+    container.innerHTML = uploadedWlFiles.map((f, i) =>
+      '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--gray-50);padding:8px 12px;border-radius:6px;border:1px solid var(--border);">' +
+        '<div style="display:flex;align-items:center;gap:8px;">' +
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
+          '<span style="font-size:13px;color:var(--gray-800);">' + f.name + '</span>' +
+          '<span style="font-size:12px;color:var(--gray-400);">(' + (f.size / 1024).toFixed(1) + ' KB)</span>' +
+        '</div>' +
+        '<button class="btn btn-sm" onclick="removeWlFile(' + i + ')" style="padding:4px;color:var(--gray-400);border:none;background:transparent;height:auto;" title="移除文件">' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+        '</button>' +
+      '</div>'
+    ).join('');
   }
 
   function handleWlUpload(input) {

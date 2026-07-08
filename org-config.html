@@ -286,7 +286,7 @@
     }
 
     .org-tree-panel {
-      height: calc(100vh - 210px);
+      height: calc(100vh - 130px);
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -1988,14 +1988,14 @@
       }
 
       document.getElementById('detailPanel').innerHTML = `
-    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.02);min-height:calc(100vh - 210px);">
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.02);">
       <div class="tabs-header">
         <div class="tab-item ${activeTab === 'overview' ? 'active' : ''}" onclick="switchTab('overview')">机构概况</div>
         <div class="tab-item ${activeTab === 'members' ? 'active' : ''}" onclick="switchTab('members')">机构成员</div>
       </div>
       
       <!-- Tab 1: 机构概况 -->
-      <div id="tab-overview" class="tab-content ${activeTab === 'overview' ? 'active' : ''}" style="padding:20px;background:#fff;min-height:calc(100vh - 270px);">
+      <div id="tab-overview" class="tab-content ${activeTab === 'overview' ? 'active' : ''}" style="padding:20px;background:#fff;">
         <div style="display:flex;flex-direction:column;gap:20px;">
           <!-- 基本信息卡 -->
           <div class="card">
@@ -2065,7 +2065,7 @@
       </div>
       
       <!-- Tab 2: 机构成员 -->
-      <div id="tab-members" class="tab-content ${activeTab === 'members' ? 'active' : ''}" style="padding:20px;background:#fff;min-height:calc(100vh - 270px);">
+      <div id="tab-members" class="tab-content ${activeTab === 'members' ? 'active' : ''}" style="padding:20px;background:#fff;">
         <!-- 会在这里动态渲染成员内容 -->
       </div>
     </div>
