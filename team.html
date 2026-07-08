@@ -127,8 +127,11 @@
     /* 排行榜 */
     .rank-row {
       display: flex; align-items: center; gap: 12px;
-      padding: 11px 0; border-bottom: 1px solid var(--gray-100);
+      padding: 12px 16px; border-radius: 8px;
+      transition: background 0.2s;
     }
+    .rank-row:hover { background: var(--gray-50); }
+    .rank-row:not(:last-child) { border-bottom: 1px dashed var(--gray-100); border-radius: 0; }
     .rank-row:last-child { border-bottom: none; }
     .rank-num {
       width: 22px; height: 22px; border-radius: 7px; font-size: 12px; font-weight: 800;
@@ -181,26 +184,30 @@
     <!-- 汇总统计 -->
     <div class="stat-cards" style="margin-bottom:24px;" id="teamStats"></div>
 
-    <!-- 主体 -->
-    <!-- 节点网格区（支持Tab切换） -->
-    <div id="nodeContent" style="margin-bottom:24px;"></div>
-
-    <!-- 底部：排行榜 -->
-    <div class="card" style="width:100%;">
-      <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
-        <h3 class="card-title">
-          <span class="card-title-icon" id="rankIcon"></span>
-          <span id="rankTitle">团队排行</span>
-        </h3>
-        <div class="rank-tabs">
-          <div class="rank-tab active" onclick="switchRankTab('touch', this)">触达排行</div>
-          <div class="rank-tab" onclick="switchRankTab('intent', this)">意向排行</div>
-          <div class="rank-tab" onclick="switchRankTab('credit', this)">授信排行</div>
-        </div>
+    <!-- 主体：分为左右两列 -->
+    <div style="display: flex; gap: 24px; align-items: flex-start; margin-bottom: 24px;">
+      <!-- 左侧：下级节点网格区 -->
+      <div style="flex: 1; min-width: 0;">
+        <div id="nodeContent"></div>
       </div>
-      <div class="card-body" style="padding-top:10px;">
-        <!-- 改为多列排布 -->
-        <div id="rankList" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px;"></div>
+
+      <!-- 右侧：竖向排行榜 -->
+      <div class="card" style="width: 340px; flex-shrink: 0; min-height: 400px;">
+        <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+          <h3 class="card-title">
+            <span class="card-title-icon" id="rankIcon"></span>
+            <span id="rankTitle">排行榜</span>
+          </h3>
+          <div class="rank-tabs" style="gap:4px; padding:2px; background:var(--gray-100);">
+            <div class="rank-tab active" onclick="switchRankTab('touch', this)" style="padding:4px 8px; font-size:12px;">触达</div>
+            <div class="rank-tab" onclick="switchRankTab('intent', this)" style="padding:4px 8px; font-size:12px;">意向</div>
+            <div class="rank-tab" onclick="switchRankTab('credit', this)" style="padding:4px 8px; font-size:12px;">授信</div>
+          </div>
+        </div>
+        <div class="card-body" style="padding-top:10px; padding-bottom:10px; max-height:600px; overflow-y:auto;">
+          <!-- 竖向单列排布 -->
+          <div id="rankList" style="display:flex; flex-direction:column;"></div>
+        </div>
       </div>
     </div>
 
@@ -599,7 +606,7 @@ function renderMemberRank(members) {
 }
 
 function renderOrgRank(orgList) {
-  document.getElementById('rankTitle').textContent = '机构排行';
+  document.getElementById('rankTitle').textContent = '排行榜';
   const sorted = [...orgList].sort((a, b) => b[currentRankType] - a[currentRankType]).slice(0, 12);
   
   let label = currentRankType === 'touch' ? '触达' : currentRankType === 'intent' ? '意向' : '授信';
