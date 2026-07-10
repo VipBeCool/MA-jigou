@@ -186,7 +186,7 @@ input, select, textarea { font: inherit; }
 .nav-menu {
   flex: 1;
   overflow-y: auto;
-  padding: 8px 0 12px;
+  padding: 20px 0 12px;
   -ms-overflow-style: none;
   scrollbar-width: none;
 }

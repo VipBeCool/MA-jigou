@@ -176,30 +176,19 @@ function renderSidebar({ currentPage = 'home', role = 'rm', containerId = 'sideb
   const sidebarHtml = `
     <div class="sidebar-logo" id="sidebarLogo" title="智能营销平台" style="gap: 12px; padding: 0 16px;">
       <div class="logo-mark" style="background: transparent; box-shadow: none; width: 34px; height: 34px; padding: 0;">
-        <svg width="34" height="34" viewBox="0 0 36 36" fill="none" stroke="#ffffff" stroke-width="1.2" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="logoHex1" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#2563eb"/>
-              <stop offset="100%" stop-color="#1e40af"/>
-            </linearGradient>
-            <linearGradient id="logoHex2" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#3b82f6"/>
-              <stop offset="100%" stop-color="#1d4ed8"/>
-            </linearGradient>
-            <linearGradient id="logoHex3" x1="100%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#60a5fa"/>
-              <stop offset="100%" stop-color="#2563eb"/>
-            </linearGradient>
-          </defs>
-          <path d="M18 3L31 10.5V25.5L18 33L5 25.5V10.5L18 3Z" stroke="url(#logoHex3)" stroke-width="1.5" fill="rgba(59,130,246,0.1)"/>
-          <path d="M18 9L26.66 14L18 19L9.34 14Z" fill="url(#logoHex3)"/>
-          <path d="M18 19L26.66 14V24L18 29Z" fill="url(#logoHex1)"/>
-          <path d="M18 19V29L9.34 24V14Z" fill="url(#logoHex2)"/>
-        </svg>
+        <svg width="34" height="34" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M18 2L31.5 9.79V25.38L18 33.17L4.5 25.38V9.79L18 2Z" stroke="#3b82f6" stroke-width="1.8" fill="none" stroke-linejoin="round"/>
+  <g stroke="#ffffff" stroke-width="1.8" stroke-linejoin="round">
+    <path d="M18 8L27 13.2V23.6L18 28.8L9 23.6V13.2L18 8Z" fill="none" />
+    <path d="M18 8L27 13.2L18 18.4L9 13.2Z" fill="#60a5fa" />
+    <path d="M18 18.4L27 13.2V23.6L18 28.8Z" fill="#2563eb" />
+    <path d="M18 18.4V28.8L9 23.6V13.2Z" fill="#3b82f6" />
+  </g>
+</svg>
       </div>
       <div>
         <div class="logo-title" style="font-size: 16px; font-weight: 800; background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 0.5px;">智能营销平台</div>
-        <div class="logo-subtitle" style="font-size: 11px; color: var(--gray-400); letter-spacing: 0.5px; margin-top: 2px;">金融机构端</div>
+        <div class="logo-subtitle" style="font-size: 11.5px; color: rgba(255,255,255,0.65); letter-spacing: 0.5px; margin-top: 3px; font-weight: 400;">金融机构端</div>
       </div>
     </div>
 

@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
   <title>获客智能体管理 - 智能营销平台</title>
   <meta name="description" content="配置获客智能体规则引擎，管理名单批次与白名单快照">
   <link rel="stylesheet" href="css/style.css">
@@ -1520,7 +1521,7 @@
       </div>
     </div>
     <div class="drawer-tabs" id="drawerTabBar">
-      <div class="drawer-tab active" onclick="switchDrawerTab('config',this)">基础配置</div>
+      <div class="drawer-tab active" onclick="switchDrawerTab('config',this)">概览</div>
       <div class="drawer-tab" onclick="switchDrawerTab('rules',this)">获客规则</div>
       <div class="drawer-tab" onclick="switchDrawerTab('batches',this)">名单批次</div>
       <div class="drawer-tab" onclick="switchDrawerTab('whitelist',this)">白名单快照</div>
@@ -2245,9 +2246,44 @@
     function renderDrawerPane(tab, a) {
       const cfg = STATUS_CFG[a.status] || STATUS_CFG.draft;
 
-      /* ── Tab 1: 基础配置 ── */
+      /* ── Tab 1: 概览 ── */
       if (tab === 'config') {
+        const contactRate = a.output > 0 ? (70 + (a.output % 20)).toFixed(1) : '0.0';
+        const intentRate = a.output > 0 ? (10 + (a.output % 15)).toFixed(1) : '0.0';
+        const applyRate = a.output > 0 ? (2 + (a.output % 5)).toFixed(1) : '0.0';
+        
+        const overviewStats = `
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;">
+            <div style="background:#f8fafc;padding:16px;border-radius:12px;border:1px solid #e2e8f0;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--brand)';this.style.boxShadow='0 4px 12px rgba(37,99,235,0.08)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
+              <div style="font-size:12px;color:var(--gray-500);margin-bottom:4px;">推送总量</div>
+              <div style="font-size:24px;font-weight:800;color:var(--gray-900);line-height:1;">${a.output > 0 ? a.output.toLocaleString() : '—'}<span style="font-size:12px;margin-left:4px;font-weight:500;color:var(--gray-500);">家</span></div>
+            </div>
+            <div style="background:#f8fafc;padding:16px;border-radius:12px;border:1px solid #e2e8f0;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--brand)';this.style.boxShadow='0 4px 12px rgba(37,99,235,0.08)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
+              <div style="font-size:12px;color:var(--gray-500);margin-bottom:4px;">触达率</div>
+              <div style="display:flex;align-items:baseline;">
+                <div style="font-size:24px;font-weight:800;color:var(--gray-900);line-height:1;">${contactRate}<span style="font-size:12px;margin-left:2px;font-weight:500;color:var(--gray-500);">%</span></div>
+                ${a.output > 0 ? `<div style="font-size:13px;color:var(--gray-400);margin-left:8px;font-weight:500;">${Math.round(a.output * contactRate / 100)}家</div>` : ''}
+              </div>
+            </div>
+            <div style="background:#f8fafc;padding:16px;border-radius:12px;border:1px solid #e2e8f0;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--brand)';this.style.boxShadow='0 4px 12px rgba(37,99,235,0.08)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
+              <div style="font-size:12px;color:var(--gray-500);margin-bottom:4px;">意向转化率</div>
+              <div style="display:flex;align-items:baseline;">
+                <div style="font-size:24px;font-weight:800;color:var(--gray-900);line-height:1;">${intentRate}<span style="font-size:12px;margin-left:2px;font-weight:500;color:var(--gray-500);">%</span></div>
+                ${a.output > 0 ? `<div style="font-size:13px;color:var(--gray-400);margin-left:8px;font-weight:500;">${Math.round(a.output * intentRate / 100)}家</div>` : ''}
+              </div>
+            </div>
+            <div style="background:#f8fafc;padding:16px;border-radius:12px;border:1px solid #e2e8f0;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--brand)';this.style.boxShadow='0 4px 12px rgba(37,99,235,0.08)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
+              <div style="font-size:12px;color:var(--gray-500);margin-bottom:4px;">申请转化率</div>
+              <div style="display:flex;align-items:baseline;">
+                <div style="font-size:24px;font-weight:800;color:var(--gray-900);line-height:1;">${applyRate}<span style="font-size:12px;margin-left:2px;font-weight:500;color:var(--gray-500);">%</span></div>
+                ${a.output > 0 ? `<div style="font-size:13px;color:var(--gray-400);margin-left:8px;font-weight:500;">${Math.round(a.output * applyRate / 100)}家</div>` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+
         document.getElementById('dpane-config').innerHTML =
+          overviewStats +
           '<div style="font-size:13px;font-weight:700;color:var(--gray-700);margin-bottom:10px;">基础信息</div>' +
           row('归属机构', a.org) +
           row('机构简称', a.orgShort) +
@@ -2257,8 +2293,7 @@
           row('名单数据源', (a.datasource || []).join('、') || '—') +
           row('名单处理', { original: '原名单输出', intersect: '取交', exclude: '排除', union: '求并' }[a.processMode] || '—') +
           row('允许导出', a.allowExport ? '是' : '否') +
-          row('白名单', a.whitelist ? '已启用' : '未启用') +
-          row('<div style="display:inline-flex;align-items:center;"><span class="rt-label" style="color:inherit;">上次执行</span><div style="display:inline-flex;align-items:center;cursor:pointer;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:4px;padding:2px;margin-left:4px;transition:all 0.2s;" onmouseover="this.style.background=\'#fff\';this.style.borderColor=\'var(--brand)\'" onmouseout="this.style.background=\'var(--gray-50)\';this.style.borderColor=\'var(--gray-200)\'" onclick="window.toggleRunTime(this)" data-last="' + (a.lastRun || '—') + '" data-next="' + (a.nextRun || '—') + '" title="切换执行时间"><svg style="width:12px;height:12px;color:var(--brand);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 20 7 16 11"></polyline><line x1="10" y1="7" x2="20" y2="7"></line><polyline points="8 13 4 17 8 21"></polyline><line x1="4" y1="17" x2="14" y2="17"></line></svg></div></div>', '<span class="rt-val">' + (a.lastRun || '—') + '</span>');
+          row('白名单', a.whitelist ? '已启用' : '未启用') ;
       }
 
       if (tab === 'rules') {
@@ -2284,7 +2319,7 @@
           '<div class="summary-card"><div class="summary-card-label">去重企业数</div><div class="summary-card-value">' + uniqueEst.toLocaleString() + '</div></div>' +
           '</div>' +
           '<div class="batch-toolbar">' +
-          '<button class="btn btn-primary btn-sm" onclick="showToast(\'正在触发跑批，请稍候...\')">手动执行跑批</button>' +
+          '<button class="btn btn-primary btn-sm" onclick="showToast(\'任务已提交，稍后在下载中心查看\'); this.classList.remove(\'btn-primary\'); this.classList.add(\'btn-default\'); this.innerText=\'跑批中\'; this.disabled=true;">手动执行跑批</button>' +
           '<button class="btn btn-default btn-sm" onclick="openImportBatch(\'' + a.id + '\')">导入名单</button>' +
           '</div>' +
           '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;">' +
@@ -2298,7 +2333,10 @@
             '<td><strong>' + b.count.toLocaleString() + '</strong><span style="font-size:12px;color:var(--gray-400);margin-left:2px;">户</span></td>' +
             '<td style="color:var(--gray-500);font-size:12px;">' + b.time + '</td>' +
             '<td><span class="tag ' + (b.status === '已分配' ? 'tag-green' : b.status === '分配中' ? 'tag-blue' : 'tag-amber') + '">' + b.status + '</span></td>' +
-            '<td><button class="btn btn-default btn-sm" onclick="openNotify(\'名单生成任务已提交，稍后在下载中心查看。\')" style="font-size:12px;">下载</button></td>' +
+            '<td style="white-space:nowrap;">' +
+            '<button class="btn btn-default btn-sm" onclick="window.open(\'customers.html?org=\' + encodeURIComponent(a.org) + \'&batch=\' + encodeURIComponent(b.name), \'_blank\')" style="font-size:12px;margin-right:8px;">查看</button>' +
+            '<button class="btn btn-default btn-sm" onclick="openNotify(\'名单生成任务已提交，稍后在下载中心查看。\')" style="font-size:12px;">下载</button>' +
+            '</td>' +
             '</tr>'
           ).join('') : '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--gray-400);">暂无批次记录</td></tr>') +
           '</tbody></table></div>';

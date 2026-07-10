@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
   <title>工作台 - 智能营销平台</title>
   <meta name="description" content="银行端智能营销工作台，支持多角色视图">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -67,7 +68,7 @@
       },
       rm: {
         stats: [
-          { icon: 'users', label: '待触达客户', value: '23', suffix: '家', featured: true, trend: '↓5较上周' },
+          { icon: 'users', label: '待触达客户', value: '23', suffix: '家', featured: true, subLeft: '较上周', subLeftValue: '↓ 5', subRight: '全部客户', subRightValue: '124' },
           { icon: 'clipboard', label: '本周触达', value: '45', suffix: '家' },
           { icon: 'target', label: '本周意向', value: '12', suffix: '家' },
           { icon: 'bank', label: '本月授信', value: '1,850', suffix: '万' },
@@ -208,12 +209,7 @@
           ${new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })}
         </p>
       </div>
-      ${role === 'manager' ? `
-        <a href="allocation.html" class="btn btn-primary">
-          <span class="icon-svg" style="width:16px;height:16px;">${ICONS.shuffle}</span>
-          进入名单分配
-        </a>
-      ` : ''}
+
     </div>
 
     <!-- 统计卡片 -->
@@ -462,10 +458,7 @@
           ${new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' })}
         </p>
       </div>
-      <a href="customers.html" class="btn btn-primary" style="box-shadow: 0 4px 12px rgba(37,99,235,0.3);">
-        <span class="icon-svg" style="width:16px;height:16px;">${ICONS.users}</span>
-        查看全部客户
-      </a>
+
     </div>
 
     <!-- 统计卡片 -->
