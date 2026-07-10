@@ -9,10 +9,7 @@
   <style>
     /* ===== 页面布局 ===== */
     .customers-layout {
-      display: grid;
-      grid-template-columns: 240px 1fr;
-      gap: 24px;
-      align-items: start;
+      display: block;
     }
 
     /* ===== 左侧筛选面板 ===== */
@@ -65,21 +62,24 @@
       text-transform: uppercase;
     }
     .filter-option {
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 7px 10px;
-      border-radius: 8px;
+      justify-content: center;
+      padding: 6px 14px;
+      border-radius: 100px;
       cursor: pointer;
       font-size: 13px;
-      color: var(--gray-700);
-      transition: all 0.15s;
-      margin-bottom: 2px;
+      font-weight: 500;
+      color: var(--gray-600);
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      transition: all 0.2s;
     }
-    .filter-option:hover { background: var(--gray-50); }
+    .filter-option:hover { background: var(--gray-50); border-color: var(--gray-300); }
     .filter-option.active {
       background: var(--brand-light);
       color: var(--brand);
+      border-color: var(--brand-light);
       font-weight: 600;
     }
     .filter-option-count {
@@ -711,12 +711,13 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      padding: 7px 12px;
+      padding: 4px 10px;
       border: 1px solid var(--border);
       border-radius: 8px;
       background: white;
       color: var(--gray-700);
-      font-size: 13.5px;
+      font-size: 13px;
+      height: 28px;
       cursor: pointer;
       transition: all 0.2s;
     }
@@ -818,7 +819,7 @@
         </p>
       </div>
       <div style="display:flex;gap:10px;align-items:center;">
-        <button class="btn btn-default" onclick="exportData()">
+        <button class="btn btn-primary" onclick="exportData()">
           <span style="width:15px;height:15px;display:flex;"><svg viewBox="0 0 24 24" style="width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
           下载名单
         </button>
@@ -826,104 +827,19 @@
     </div>
 
     <div class="customers-layout">
-      <!-- ========== 左侧筛选面板 ========== -->
-      <div class="filter-panel">
-        <div class="filter-panel-header">
-          <div class="filter-panel-title">
-            <svg style="width:15px;height:15px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="4" rx="1"/><rect x="1" y="18" width="6" height="4" rx="1"/><rect x="17" y="18" width="6" height="4" rx="1"/><path d="M12 6v4m0 0-4 8m4-8 4 8M4 18l4-8m8 8 4-8"/></svg>
-            客户状态
-          </div>
-          <div class="filter-reset-btn" onclick="resetAllFilters()">重置</div>
-        </div>
-
-
-          <!-- 营销状态 -->
-          <div class="filter-section">
-            <div class="filter-section-label">营销状态</div>
-            <div class="filter-option active" data-filter="rs" data-val="ALL" onclick="setFilter('rs','ALL',this)">
-              <span>全部</span>
-            </div>
-            <div class="filter-option" data-filter="rs" data-val="PENDING" onclick="setFilter('rs','PENDING',this)">
-              <div style="display:flex;align-items:center;gap:7px;">
-                <div class="filter-dot" style="background:#2563eb;"></div>待触达
-              </div>
-              
-            </div>
-            <div class="filter-option" data-filter="rs" data-val="FOLLOWING" onclick="setFilter('rs','FOLLOWING',this)">
-              <div style="display:flex;align-items:center;gap:7px;">
-                <div class="filter-dot" style="background:#f59e0b;"></div>跟进中
-              </div>
-              
-            </div>
-            <div class="filter-option" data-filter="rs" data-val="REACHED_INTERESTED" onclick="setFilter('rs','REACHED_INTERESTED',this)">
-              <div style="display:flex;align-items:center;gap:7px;">
-                <div class="filter-dot" style="background:#10b981;"></div>有意向
-              </div>
-              
-            </div>
-            <div class="filter-option" data-filter="rs" data-val="REACHED_NO_INTEREST" onclick="setFilter('rs','REACHED_NO_INTEREST',this)">
-              <div style="display:flex;align-items:center;gap:7px;">
-                <div class="filter-dot" style="background:#6b7280;"></div>无意向
-              </div>
-              
-            </div>
-            <div class="filter-option" data-filter="rs" data-val="UNREACHED" onclick="setFilter('rs','UNREACHED',this)">
-              <div style="display:flex;align-items:center;gap:7px;">
-                <div class="filter-dot" style="background:#ef4444;"></div>触达失败
-              </div>
-              
-            </div>
-          </div>
-
-          <!-- 业务状态 -->
-          <div class="filter-section">
-            <div class="filter-section-label">业务状态</div>
-            <div class="filter-option active" data-filter="bs" data-val="ALL" onclick="setFilter('bs','ALL',this)">
-              <span>全部</span>
-            </div>
-            <div class="filter-option" data-filter="bs" data-val="NONE" onclick="setFilter('bs','NONE',this)">
-              <span>未申请</span>
-            </div>
-            <div class="filter-option" data-filter="bs" data-val="APPLIED" onclick="setFilter('bs','APPLIED',this)">
-              <span>已申请</span>
-            </div>
-            <div class="filter-option" data-filter="bs" data-val="REVIEWING" onclick="setFilter('bs','REVIEWING',this)">
-              <span>审批中</span>
-            </div>
-            <div class="filter-option" data-filter="bs" data-val="APPROVED" onclick="setFilter('bs','APPROVED',this)">
-              <span>已授信</span>
-            </div>
-            <div class="filter-option" data-filter="bs" data-val="DISBURSED" onclick="setFilter('bs','DISBURSED',this)">
-              <span>已放款</span>
-            </div>
-            <div class="filter-option" data-filter="bs" data-val="SETTLED" onclick="setFilter('bs','SETTLED',this)">
-              <span>已结清</span>
-            </div>
-          </div>
-
-
-
-
-        <!-- 快速筛选 -->
-        
-      </div>
-
-      <!-- ========== 右侧主内容 ========== -->
+      <!-- ========== 主内容 ========== -->
       <div class="main-panel">
-        <!-- 工具栏 -->
         
-        <!-- 工具栏 -->
-        <div class="toolbar">
-          <div class="toolbar-top" style="display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%;">
-            <div class="toolbar-search">
+        <!-- 1. 顶部搜索和操作 (独立在卡片外部) -->
+        <div class="toolbar-top" style="display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%; margin-bottom:12px;">
+          <div class="toolbar-search">
             <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
             <input type="text" id="searchInput" placeholder="搜索企业名称、统一社会信用代码" oninput="doFilter()">
           </div>
-            
-            <div class="toolbar-right" style="display:flex; align-items:center; gap:8px;">
-              
+          
+          <div class="toolbar-right" style="display:flex; align-items:center; gap:8px;">
             <select class="form-control sort-select" id="sortSelect" onchange="doFilter()">
               <option value="default">综合排序</option>
               <option value="intent_desc">需求意向最高</option>
@@ -931,32 +847,48 @@
               <option value="alloc_desc">分配时间最近</option>
               <option value="alloc_asc">分配时间最早</option>
             </select>
-            
-            <div class="col-settings">
-              <button class="col-settings-btn" id="colSettingsBtn" onclick="toggleColPopover(event)">
-                <svg style="width:15px;height:15px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
-                列展示
-              </button>
-              <div class="col-popover" id="colPopover">
-                <div class="col-pop-header">
-                  <span>列展示</span>
-                  <span class="col-pop-reset" onclick="resetColumns()">重置</span>
-                </div>
-                <div class="col-pop-body" id="colPopBody">
-                  <!-- JS generated -->
-                </div>
+            <button class="btn btn-default" id="toggleAdvFilterBtn" onclick="toggleAdvFilters()" style="padding:0 12px; height: 35px; border-radius:8px; font-size:13.5px; border:1px solid var(--border); background:white; color:var(--brand); cursor:pointer; display:flex; align-items:center; gap:6px; transition:all 0.2s;">
+              <svg style="width:15px;height:15px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+              <span id="advFilterText">收起筛选</span>
+              <svg id="advFilterArrow" style="width:14px;height:14px;flex-shrink:0;transition:transform 0.2s; transform:rotate(180deg);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- 筛选卡片区 -->
+        <div class="toolbar" style="background:#fff; border-radius:12px; border:1px solid var(--border); padding:12px 16px; margin-bottom:16px; box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+          <!-- 2. 常驻高频筛选 (营销状态 & 业务状态) - 单行展示 -->
+          <div style="display:flex; flex-direction:row; align-items:center; flex-wrap:wrap; gap:32px;">
+            <div style="display:flex; align-items:center; gap:16px;">
+              <div style="font-size:13px; font-weight:700; color:var(--gray-500); flex-shrink:0;">营销状态</div>
+              <div style="display:flex; flex-wrap:wrap; gap:10px;">
+                <div class="filter-option active" data-filter="rs" data-val="ALL" onclick="setFilter('rs','ALL',this)">全部</div>
+                <div class="filter-option" data-filter="rs" data-val="PENDING" onclick="setFilter('rs','PENDING',this)">待触达</div>
+                <div class="filter-option" data-filter="rs" data-val="FOLLOWING" onclick="setFilter('rs','FOLLOWING',this)">跟进中</div>
+                <div class="filter-option" data-filter="rs" data-val="REACHED_INTERESTED" onclick="setFilter('rs','REACHED_INTERESTED',this)">有意向</div>
+                <div class="filter-option" data-filter="rs" data-val="REACHED_NO_INTEREST" onclick="setFilter('rs','REACHED_NO_INTEREST',this)">无意向</div>
+                <div class="filter-option" data-filter="rs" data-val="UNREACHED" onclick="setFilter('rs','UNREACHED',this)">触达失败</div>
               </div>
             </div>
-          
-              <button class="btn btn-default" id="toggleAdvFilterBtn" onclick="toggleAdvFilters()" style="padding:7px 12px; border-radius:8px; font-size:13.5px; border:1px solid var(--border); background:white; color:var(--gray-700); cursor:pointer; display:flex; align-items:center; gap:6px; transition:all 0.2s;">
-                <svg style="width:15px;height:15px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
-                筛选
-                <svg id="advFilterArrow" style="width:14px;height:14px;flex-shrink:0;transition:transform 0.2s; transform:rotate(180deg);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-              </button>
+            
+            <div style="width:1px; height:16px; background:var(--gray-200);"></div>
+
+            <div style="display:flex; align-items:center; gap:16px;">
+              <div style="font-size:13px; font-weight:700; color:var(--gray-500); flex-shrink:0;">业务状态</div>
+              <div style="display:flex; flex-wrap:wrap; gap:10px;">
+                <div class="filter-option active" data-filter="bs" data-val="ALL" onclick="setFilter('bs','ALL',this)">全部</div>
+                <div class="filter-option" data-filter="bs" data-val="NONE" onclick="setFilter('bs','NONE',this)">未申请</div>
+                <div class="filter-option" data-filter="bs" data-val="APPLIED" onclick="setFilter('bs','APPLIED',this)">已申请</div>
+                <div class="filter-option" data-filter="bs" data-val="REVIEWING" onclick="setFilter('bs','REVIEWING',this)">审批中</div>
+                <div class="filter-option" data-filter="bs" data-val="APPROVED" onclick="setFilter('bs','APPROVED',this)">已授信</div>
+                <div class="filter-option" data-filter="bs" data-val="DISBURSED" onclick="setFilter('bs','DISBURSED',this)">已放款</div>
+                <div class="filter-option" data-filter="bs" data-val="SETTLED" onclick="setFilter('bs','SETTLED',this)">已结清</div>
+              </div>
             </div>
           </div>
           
-          <div class="toolbar-advanced" id="advancedFilters" style="display:block; padding:16px; background:var(--gray-50); border-radius:12px; border:1px solid var(--border); width:100%; box-sizing:border-box;">
+          <!-- 3. 高级筛选 (原下拉框) - 默认展开 -->
+          <div class="toolbar-advanced" id="advancedFilters" style="display:block; padding-top:16px; border-top:1px dashed var(--gray-200); width:100%; box-sizing:border-box;">
           <div class="toolbar-filters" id="toolbarFiltersContainer">
             <!-- 1. 名单批次 -->
             <div class="custom-cascader" id="cascaderBatch">
@@ -1062,19 +994,39 @@
             <!-- 10. 联系方式 -->
             <select class="form-control sort-select" id="filterContact" onchange="doFilter()">
               <option value="ALL">联系方式</option>
-              <option value="有号码">有号码</option>
-              <option value="无号码">无号码</option>
+              <option value="优化联系方式">优化联系方式</option>
+              <option value="默认联系方式">默认联系方式</option>
+              <option value="无联系方式">无联系方式</option>
             </select>
           </div>
           </div>
         </div>
         <!-- 列表信息栏 -->
-        <div class="list-meta">
-          <span>共 <strong id="listCount">13</strong> 家企业</span>
-          <div class="list-meta-divider"></div>
-          <span>有意向 <strong id="intentCount" style="color:#10b981;">6</strong> 家</span>
-          <div class="list-meta-divider"></div>
-          <span>业务进行中 <strong id="bizCount" style="color:#f59e0b;">5</strong> 家</span>
+        <div class="list-meta" style="justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <span>共 <strong id="listCount">13</strong> 家企业</span>
+            <div class="list-meta-divider"></div>
+            <span>有意向 <strong id="intentCount" style="color:#10b981;">6</strong> 家</span>
+            <div class="list-meta-divider"></div>
+            <span>业务进行中 <strong id="bizCount" style="color:#f59e0b;">5</strong> 家</span>
+          </div>
+          <div style="margin-left: auto;">
+<div class="col-settings">
+              <button class="col-settings-btn" id="colSettingsBtn" onclick="toggleColPopover(event)">
+                <svg style="width:15px;height:15px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+                列展示
+              </button>
+              <div class="col-popover" id="colPopover">
+                <div class="col-pop-header">
+                  <span>列展示</span>
+                  <span class="col-pop-reset" onclick="resetColumns()">重置</span>
+                </div>
+                <div class="col-pop-body" id="colPopBody">
+                  <!-- JS generated -->
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- 表格视图 -->
@@ -1084,10 +1036,24 @@
               <thead id="tableHead"></thead>
               <tbody id="tableBody"></tbody>
             </table>
+            <!-- 分页控件 -->
+            <div class="pagination" id="pagination" style="padding: 16px 24px; border-top: 1px solid var(--gray-100);">
+              <div class="pagination-info" style="display:flex;align-items:center;gap:12px;">
+                <span>显示 1 到 10 条，共 13 条记录</span>
+                <select class="filter-input form-control" style="width: 100px; height: 32px; min-width:unset; padding: 0 10px; font-size: 13px;">
+                    <option>10 条/页</option>
+                    <option>20 条/页</option>
+                </select>
+              </div>
+              <div class="pagination-controls">
+                <button class="btn btn-ghost btn-sm" disabled>上一页</button>
+                <button class="btn btn-primary btn-sm page-num">1</button>
+                <button class="btn btn-ghost btn-sm page-num">2</button>
+                <button class="btn btn-ghost btn-sm">下一页</button>
+              </div>
+            </div>
           </div>
         </div>
-
-        
 
         <!-- 空状态 -->
         <div class="empty-state" id="emptyState" style="display:none; width:100%; text-align:center; padding: 60px 0; flex-direction:column; align-items:center;">
@@ -1095,23 +1061,6 @@
             <svg width="84" height="84" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"></path><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
           </div>
           <div class="empty-title" style="font-size:16px;color:#4b5563;font-weight:500;">当前列表暂无内容</div>
-        </div>
-
-        <!-- 分页控件 -->
-        <div class="pagination" id="pagination">
-          <div class="pagination-info" style="display:flex;align-items:center;gap:12px;">
-            <span>显示 1 到 10 条，共 13 条记录</span>
-            <select class="filter-input form-control" style="width: 100px; height: 32px; min-width:unset; padding: 0 10px; font-size: 13px;">
-                <option>10 条/页</option>
-                <option>20 条/页</option>
-            </select>
-          </div>
-          <div class="pagination-controls">
-            <button class="btn btn-ghost btn-sm" disabled>上一页</button>
-            <button class="btn btn-primary btn-sm page-num">1</button>
-            <button class="btn btn-ghost btn-sm page-num">2</button>
-            <button class="btn btn-ghost btn-sm">下一页</button>
-          </div>
         </div>
       </div>
       </div>
@@ -1414,12 +1363,15 @@ function resetFilters() {
 function toggleAdvFilters() {
   const panel = document.getElementById('advancedFilters');
   const arrow = document.getElementById('advFilterArrow');
+  const text = document.getElementById('advFilterText');
   if (panel.style.display === 'none') {
     panel.style.display = 'block';
     arrow.style.transform = 'rotate(180deg)';
+    if (text) text.innerText = '收起筛选';
   } else {
     panel.style.display = 'none';
     arrow.style.transform = 'rotate(0deg)';
+    if (text) text.innerText = '展开筛选';
   }
 }
 

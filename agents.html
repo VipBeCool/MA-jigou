@@ -114,7 +114,7 @@
     }
 
     .agent-card.status-running {
-      border-color: #bfdbfe;
+      border-color: var(--brand-border);
       border-left: 4px solid var(--brand);
     }
 
@@ -174,7 +174,7 @@
     }
 
     .amc-icon.running {
-      background: #eff6ff;
+      background: var(--brand-light);
       color: var(--brand);
     }
 
@@ -292,7 +292,7 @@
     }
 
     .create-card:hover .create-card-icon {
-      background: #dbeafe;
+      background: #fff;
       color: var(--brand);
     }
 
@@ -2022,7 +2022,7 @@
       {
         id: 'a1', name: '橙业贷', org: '平安银行股份有限公司', orgShort: '平安银行',
         status: 'running', batches: 5, output: 1248, thisMonth: 280,
-        lastRun: '2026-06-25 06:00', freq: 'weekly', limit: 300,
+        lastRun: '2026-06-25 06:00', nextRun: '2026-07-02 06:00', freq: 'weekly', limit: 300,
         datasource: ['全省企业'], processMode: 'original', allowExport: true,
         whitelist: true, wlMode: 0,
         rules: [
@@ -2051,7 +2051,7 @@
       {
         id: 'a2', name: '厂房贷', org: '招商银行股份有限公司', orgShort: '招商银行',
         status: 'running', batches: 4, output: 980, thisMonth: 220,
-        lastRun: '2026-06-01 06:00', freq: 'monthly', limit: 200,
+        lastRun: '2026-06-01 06:00', nextRun: '2026-07-01 06:00', freq: 'monthly', limit: 200,
         datasource: ['全省授权企业'], processMode: 'original', allowExport: false,
         whitelist: false, wlMode: 0,
         rules: [
@@ -2071,7 +2071,7 @@
       {
         id: 'a3', name: '惠农贷', org: '中国农业银行股份有限公司', orgShort: '农业银行',
         status: 'paused', batches: 2, output: 456, thisMonth: 0,
-        lastRun: '2026-05-20 06:00', freq: 'manual', limit: 500,
+        lastRun: '2026-05-20 06:00', nextRun: '—', freq: 'manual', limit: 500,
         datasource: ['全省企业', '营销白名单'], processMode: 'intersect', allowExport: true,
         whitelist: true, wlMode: 1,
         rules: [
@@ -2092,7 +2092,7 @@
       {
         id: 'a4', name: '科创贷', org: '江苏银行股份有限公司', orgShort: '江苏银行',
         status: 'draft', batches: 0, output: 0, thisMonth: 0,
-        lastRun: null, freq: 'weekly', limit: 1000,
+        lastRun: null, nextRun: null, freq: 'weekly', limit: 1000,
         datasource: ['全省企业'], processMode: 'original', allowExport: true,
         whitelist: false, wlMode: 0,
         rules: [{ field: '特色认证', op: '包含', val: '高新技术企业' }],
@@ -2145,7 +2145,11 @@
           { k: '累计输出客户', v: a.output > 0 ? a.output.toLocaleString() : '—', vCls: '' },
           { k: '最新批次', v: a.thisMonth > 0 ? a.thisMonth : '—', vCls: '' },
           { k: '已输出批次', v: a.batches > 0 ? a.batches : '—', vCls: a.batches > 0 ? 'blue' : '' },
-          { k: '上次执行', v: a.lastRun || '—', vCls: 'muted' }
+          { 
+            k: '<div style="display:inline-flex;align-items:center;"><span class="rt-label" style="color:inherit;">上次执行</span><div style="display:inline-flex;align-items:center;cursor:pointer;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:4px;padding:2px;margin-left:4px;transition:all 0.2s;" onmouseover="this.style.background=\'#fff\';this.style.borderColor=\'var(--brand)\'" onmouseout="this.style.background=\'var(--gray-50)\';this.style.borderColor=\'var(--gray-200)\'" onclick="event.stopPropagation();window.toggleRunTime(this)" data-last="' + (a.lastRun || '—') + '" data-next="' + (a.nextRun || '—') + '" title="切换执行时间"><svg style="width:12px;height:12px;color:var(--brand);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 20 7 16 11"></polyline><line x1="10" y1="7" x2="20" y2="7"></line><polyline points="8 13 4 17 8 21"></polyline><line x1="4" y1="17" x2="14" y2="17"></line></svg></div></div>', 
+            v: '<span class="rt-val">' + (a.lastRun || '—') + '</span>', 
+            vCls: 'muted' 
+          }
         ];
 
         return '<div class="agent-card status-' + a.status + '" onclick="openDrawer(\'' + a.id + '\')">' +
@@ -2254,7 +2258,7 @@
           row('名单处理', { original: '原名单输出', intersect: '取交', exclude: '排除', union: '求并' }[a.processMode] || '—') +
           row('允许导出', a.allowExport ? '是' : '否') +
           row('白名单', a.whitelist ? '已启用' : '未启用') +
-          row('上次执行', a.lastRun || '—');
+          row('<div style="display:inline-flex;align-items:center;"><span class="rt-label" style="color:inherit;">上次执行</span><div style="display:inline-flex;align-items:center;cursor:pointer;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:4px;padding:2px;margin-left:4px;transition:all 0.2s;" onmouseover="this.style.background=\'#fff\';this.style.borderColor=\'var(--brand)\'" onmouseout="this.style.background=\'var(--gray-50)\';this.style.borderColor=\'var(--gray-200)\'" onclick="window.toggleRunTime(this)" data-last="' + (a.lastRun || '—') + '" data-next="' + (a.nextRun || '—') + '" title="切换执行时间"><svg style="width:12px;height:12px;color:var(--brand);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 20 7 16 11"></polyline><line x1="10" y1="7" x2="20" y2="7"></line><polyline points="8 13 4 17 8 21"></polyline><line x1="4" y1="17" x2="14" y2="17"></line></svg></div></div>', '<span class="rt-val">' + (a.lastRun || '—') + '</span>');
       }
 
       if (tab === 'rules') {
@@ -2987,6 +2991,20 @@
         });
       });
     });
+
+    window.toggleRunTime = function(el) {
+      const container = el.closest('.amc-stat') || el.closest('.drawer-row');
+      const labelSpan = container.querySelector('.rt-label');
+      const valSpan = container.querySelector('.rt-val');
+      const isLast = labelSpan.innerText.indexOf('上次') !== -1;
+      if (isLast) {
+        labelSpan.innerText = '下次执行';
+        valSpan.innerText = el.getAttribute('data-next');
+      } else {
+        labelSpan.innerText = '上次执行';
+        valSpan.innerText = el.getAttribute('data-last');
+      }
+    };
 
     /* ── 初始化 ── */
     document.addEventListener('DOMContentLoaded', function () {

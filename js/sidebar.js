@@ -97,10 +97,8 @@ function getNavConfig(role) {
   // ── 运营管理（仅管理员） ──
   if (admin) {
     const opsItems = [
-      { id: 'select', label: '智能探客', icon: 'target', href: 'select.html' },
       { id: 'agents', label: '智能体管理', icon: 'bot', href: 'agents.html' },
-      { id: 'org-structure', label: '组织与成员管理', icon: 'network', href: 'org-config.html' },
-      { id: 'risk-alert', label: '风险预警', icon: 'alert', href: 'risk-alert.html' }
+      { id: 'org-structure', label: '组织与成员', icon: 'network', href: 'org-config.html' }
     ];
     sections.push({ label: '运营管理', items: opsItems });
   }
@@ -117,9 +115,6 @@ function getNavConfig(role) {
 
   // ── 其他 ──
   const otherItems = [];
-  if (admin) {
-    otherItems.push({ id: 'reconciliation', label: '对账确认', icon: 'filecheck', href: 'reconciliation.html' });
-  }
   otherItems.push({ id: 'downloads', label: '下载中心', icon: 'download', href: 'downloads.html' });
   sections.push({ label: '其他', items: otherItems });
 
@@ -343,7 +338,7 @@ function handleLogout(e) {
     .icon-svg svg, .nav-item-icon svg, .nav-parent-icon svg,
     .nav-chevron svg, .card-title-icon svg, .sidebar-user-chevron svg,
     .role-option-check svg, .logo-mark svg,
-    .search-icon svg, .modal-close svg, .btn svg, .tree-node-icon svg,
+    .search-icon svg, .modal-close svg, .tree-node-icon svg,
     .tree-node-toggle svg, .wizard-dot svg {
       stroke: currentColor;
       fill: none;

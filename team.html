@@ -30,6 +30,7 @@
     .level-nav-item .nav-icon {
       width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
+    .level-nav-item .nav-icon svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
     .level-nav-sep {
       color: var(--gray-300); font-size: 12px; padding: 0 2px; flex-shrink: 0;
     }
@@ -45,11 +46,6 @@
       border-color: var(--brand); box-shadow: 0 6px 18px rgba(37,99,235,0.1);
       transform: translateY(-2px);
     }
-    .node-card::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-      border-radius: 14px 14px 0 0; opacity: 0; transition: opacity 0.18s;
-    }
-    .node-card.clickable:hover::before { opacity: 1; background: linear-gradient(90deg, var(--brand), #60a5fa); }
     .node-card-header {
       display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px;
     }
@@ -57,8 +53,9 @@
       width: 44px; height: 44px; border-radius: 12px;
       display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-    .node-av.org { background: linear-gradient(135deg, #dbeafe, #eff6ff); color: var(--brand); }
+    .node-av.org { background: linear-gradient(135deg, #d1fae5, #ecfdf5); color: var(--brand); }
     .node-av.person { background: var(--gray-100); color: var(--gray-500); }
+    .node-av.org svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
     .node-card-name { font-size: 15px; font-weight: 700; color: var(--gray-900); }
     .node-card-sub { font-size: 12px; color: var(--gray-400); margin-top: 3px; }
 
@@ -137,9 +134,7 @@
       width: 22px; height: 22px; border-radius: 7px; font-size: 12px; font-weight: 800;
       display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-    .rank-1 { background: #fbbf24; color: #fff; }
-    .rank-2 { background: #94a3b8; color: #fff; }
-    .rank-3 { background: #c2855d; color: #fff; }
+    .rank-1, .rank-2, .rank-3 { background: var(--brand); color: #fff; }
     .rank-n { background: var(--gray-100); color: var(--gray-500); }
 
     /* 混合分区标题 */
@@ -398,10 +393,18 @@ function findNode(id, node) {
 function getNodePath(id, node, path) {
   if (!node) node = ORG_TREE;
   if (!path) path = [];
-  const cur = [...path, { id: node.id, name: node.name }];
+  const cur = [...path, { id: node.id, name: node.name, level: node.level }];
   if (node.id === id) return cur;
   if (node.children) for (const c of node.children) { const r = getNodePath(id, c, cur); if (r) return r; }
   return null;
+}
+
+function getOrgIcon(level) {
+  if (level === 'province') return ICONS.network || SVG_ORG;
+  if (level === 'city') return ICONS.briefcase || SVG_ORG;
+  if (level === 'branch') return ICONS.home || SVG_ORG;
+  if (level === 'team') return ICONS.flag || SVG_ORG;
+  return ICONS.map_pin || SVG_ORG;
 }
 
 // 获取所有客户经理（扁平化，含直属）
@@ -460,14 +463,13 @@ function render() {
   const node = findNode(currentNodeId) || ORG_TREE;
   const agg = aggregateNode(node);
   
-  // 导航和KPI保持不变
-  const path = getNodePath(currentNodeId) || [{ id: 'root', name: ORG_TREE.name }];
+  const path = getNodePath(currentNodeId) || [{ id: 'root', name: ORG_TREE.name, level: ORG_TREE.level }];
   document.getElementById('levelNav').innerHTML = path.map((p, i) => {
     const isLast = i === path.length - 1;
     return `
       ${i > 0 ? '<span class="level-nav-sep">›</span>' : ''}
       <div class="level-nav-item ${isLast ? 'active' : ''}" onclick="drillDown('${p.id}')">
-        <span class="nav-icon">${i === 0 ? ICONS.network || SVG_ORG : SVG_ORG}</span>
+        <span class="nav-icon">${getOrgIcon(p.level)}</span>
         ${p.name}
       </div>
     `;
@@ -479,10 +481,12 @@ function render() {
     { icon: 'trending_up', label: '已触达',        value: agg.touch,       suffix: '家' },
     { icon: 'target',      label: '意向转化',      value: agg.intent,      suffix: '家' },
   ].map(s => `
-    <div class="stat-card ${s.featured ? 'featured' : ''}">
-      <div class="stat-card-icon"><span style="width:20px;height:20px;">${ICONS[s.icon] || ''}</span></div>
-      <div class="stat-label">${s.label}</div>
-      <div class="stat-value">${s.value}<span class="stat-suffix">${s.suffix}</span></div>
+    <div class="stat-card ${s.featured ? 'featured' : ''}" style="display: flex; align-items: center; justify-content: space-between; padding: 18px 22px;">
+      <div>
+        <div class="stat-label" style="margin-bottom: 6px;">${s.label}</div>
+        <div class="stat-value">${s.value}<span class="stat-suffix">${s.suffix}</span></div>
+      </div>
+      <div class="stat-card-icon" style="margin-bottom: 0; width: 44px; height: 44px; border-radius: 12px;"><span style="width:22px;height:22px;">${ICONS[s.icon] || ''}</span></div>
     </div>
   `).join('');
 
@@ -513,7 +517,7 @@ function renderNodeContent() {
     `;
   }
   
-  html += `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;">`;
+  html += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">`;
   
   if (currentNodeTypeTab === 'org' && hasChildren) {
     html += node.children.map(c => renderOrgCard(c)).join('');
@@ -550,7 +554,7 @@ function renderOrgCard(c) {
   return `
     <div class="node-card clickable" onclick="drillDown('${c.id}')">
       <div class="node-card-header">
-        <div class="node-av org">${SVG_ORG}</div>
+        <div class="node-av org">${getOrgIcon(c.level)}</div>
         <div style="flex:1;min-width:0;">
           <div class="node-card-name">${c.name}</div>
           <div class="node-card-sub">${agg.memberCount} 名客户经理</div>
@@ -565,7 +569,7 @@ function renderOrgCard(c) {
       </div>
       
       <div class="progress-bar-wrap"><div class="progress-bar-inner" style="width:${Math.min(reachRate, 100)}%;"></div></div>
-      <div style="font-size:10.5px;color:var(--gray-400);text-align:right;">触达率 ${reachRate}%</div>
+      <div style="font-size:10.5px;color:var(--gray-400);text-align:right;margin-top:6px;">触达/已分配：${reachRate}%</div>
       
       <div class="card-actions">
         <button class="btn btn-default btn-sm" style="flex:1;font-size:12px;" onclick="event.stopPropagation();window.location.href='customers.html?org=${orgUrl}'">
@@ -599,7 +603,7 @@ function renderMemberCard(m) {
       </div>
       
       <div class="progress-bar-wrap"><div class="progress-bar-inner" style="width:${Math.min(reachRate, 100)}%;"></div></div>
-      <div style="font-size:10.5px;color:var(--gray-400);text-align:right;">触达率 ${reachRate}%</div>
+      <div style="font-size:10.5px;color:var(--gray-400);text-align:right;margin-top:6px;">触达/已分配：${reachRate}%</div>
       
       <div class="card-actions">
         <button class="btn btn-default btn-sm" style="flex:1;font-size:12px;" onclick="window.location.href='customers.html?owner=${m.id}'">
@@ -619,7 +623,6 @@ function renderMemberRank(members) {
   document.getElementById('rankList').innerHTML = sorted.map((m, i) => `
     <div class="rank-row">
       <div class="rank-num ${i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n'}">${i + 1}</div>
-      <div class="node-av person" style="width:28px;height:28px;border-radius:50%;">${SVG_PERSON}</div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:13px;font-weight:600;color:var(--gray-800);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.name}</div>
       </div>
@@ -641,9 +644,6 @@ function renderOrgRank(orgList) {
   document.getElementById('rankList').innerHTML = sorted.map((o, i) => `
     <div class="rank-row">
       <div class="rank-num ${i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n'}">${i + 1}</div>
-      <div class="node-av org" style="width:28px;height:28px;border-radius:8px;cursor:pointer;" onclick="drillDown('${o.id}')">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      </div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:13px;font-weight:600;color:var(--gray-800);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${o.name}</div>
       </div>

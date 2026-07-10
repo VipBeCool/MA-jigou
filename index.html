@@ -76,7 +76,7 @@
         shortcuts: [
           { icon: 'users', label: '我的客户', sub: '管理全量客户商机', href: 'customers.html' },
           { icon: 'activity', label: '营销跟进', sub: '推进核心商机转化', href: 'tasks.html' },
-          { icon: 'download', label: '下载中心', sub: '集中提取生成名单', href: 'downloads.html' },
+          { icon: 'download', label: '下载中心', sub: '集中下载生成名单', href: 'downloads.html' },
           { icon: 'target', label: 'AI尽调', sub: '敬请期待', href: 'javascript:void(0)', upcoming: true },
         ],
         todos: [
@@ -263,19 +263,21 @@
         快捷入口
       </h3></div>
       <div class="card-body" style="padding-top:16px;">
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:12px;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
           ${shortcuts.map(s => `
             <a href="${s.href}" class="shortcut-card" style="
-              display:flex;flex-direction:column;align-items:center;gap:10px;position:relative;
-              padding:18px 12px;border-radius:14px;border:1px solid var(--gray-100);
+              display:flex;flex-direction:row;align-items:center;gap:16px;position:relative;
+              padding:18px 20px;border-radius:14px;border:1px solid var(--gray-100);
               text-decoration:none;background:linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);color:var(--gray-800);
               ${s.upcoming ? 'opacity:0.6;cursor:not-allowed;filter:grayscale(100%);' : ''}">
               ${s.upcoming ? '<span style="position:absolute;top:6px;right:6px;font-size:10px;background:var(--gray-200);color:var(--gray-600);padding:2px 6px;border-radius:4px;">建设中</span>' : ''}
-              <span class="shortcut-icon-box" style="width:42px;height:42px;background:var(--brand-light);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--brand);">
-                <span class="icon-svg" style="width:22px;height:22px;">${ICONS[s.icon] || ''}</span>
+              <span class="shortcut-icon-box" style="width:46px;height:46px;flex-shrink:0;background:var(--brand-light);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--brand);">
+                <span class="icon-svg" style="width:24px;height:24px;">${ICONS[s.icon] || ''}</span>
               </span>
-              <span style="font-size:13.5px;font-weight:600;white-space:nowrap;">${s.label}</span>
-              <span style="font-size:11.5px;color:var(--gray-400);white-space:nowrap;margin-top:-4px;">${s.sub}</span>
+              <div style="display:flex;flex-direction:column;align-items:flex-start;gap:2px;">
+                <span style="font-size:14px;font-weight:700;white-space:nowrap;color:var(--gray-900);">${s.label}</span>
+                <span style="font-size:12px;color:var(--gray-400);white-space:nowrap;">${s.sub}</span>
+              </div>
             </a>
           `).join('')}
         </div>
@@ -297,10 +299,10 @@
       </div>
       <div class="card-body" style="padding-top:16px;">
         ${r.pendingBatches.map(b => `
-          <div class="batch-item" onclick="location.href='allocation.html'" style="
+          <a href="allocation.html" class="batch-item" style="
             display:flex;align-items:center;gap:12px;padding:14px 16px;
             border-radius:12px;border:1px solid var(--gray-100);margin-bottom:12px;
-            cursor:pointer;background:#fff;">
+            text-decoration:none;cursor:pointer;background:#fff;">
             <div style="width:36px;height:36px;border-radius:10px;background:var(--brand-light);display:flex;align-items:center;justify-content:center;color:var(--brand);flex-shrink:0;">
               <span class="icon-svg" style="width:18px;height:18px;">${ICONS.layers}</span>
             </div>
@@ -314,7 +316,7 @@
             <div style="text-align:right;flex-shrink:0;padding-left:8px;">
               <div style="font-size:20px;font-weight:800;color:var(--gray-900); font-family:'SF Mono',monospace;">${b.count}</div>
             </div>
-          </div>
+          </a>
         `).join('')}
       </div>
     </div>
@@ -366,14 +368,14 @@
             <span class="card-title-icon icon-svg">${ICONS.activity || ICONS.clock || ''}</span>
             最新跟进
           </h3>
-          <a href="#" class="card-extra" style="color:var(--brand);">查看全部</a>
+          <a href="customers.html" class="card-extra" style="color:var(--brand);font-weight:500;">全部名单 <span class="icon-svg" style="width:14px;height:14px;vertical-align:middle;display:inline-block;">${ICONS.chevron_right}</span></a>
         </div>
         <div class="card-body" style="padding-top:16px;">
           <style>
             .activity-item {
               background: #fff; border-radius: 10px; padding: 14px;
               border: 1px solid var(--gray-200); box-shadow: 0 1px 4px rgba(0,0,0,0.03);
-              margin-bottom: 12px; transition: all 0.2s; cursor: pointer;
+              transition: all 0.2s; cursor: pointer;
               position: relative; z-index: 1; overflow: hidden;
             }
             .activity-item::before {
@@ -392,7 +394,9 @@
             .activity-badge--touched { color: #3b82f6; }
             .activity-badge--follow { color: #f59e0b; }
           </style>
-          ${activitiesHtml}
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+            ${activitiesHtml}
+          </div>
         </div>
       </div>
     </div>
