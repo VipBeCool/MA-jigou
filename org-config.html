@@ -7,7 +7,7 @@
     <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
   <title>组织与成员管理 - 智能营销平台</title>
   <meta name="description" content="统一配置银行组织层级结构及各机构人员归属">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=1783685212">
   <style>
     /* ── Tabs ── */
     .tabs-header {
@@ -3010,13 +3010,7 @@
     /* ============================================================
        工具函数
     ============================================================ */
-    function showToast(msg, type = '') {
-      const wrap = document.createElement('div');
-      wrap.className = 'toast-wrap';
-      wrap.innerHTML = `<div class="toast ${type}">${msg}</div>`;
-      document.body.appendChild(wrap);
-      setTimeout(() => wrap.remove(), 2800);
-    }
+
 
     /* ── 获取节点深度 ── */
     function getNodeDepth(tree, targetId, depth = 0) {
@@ -3032,6 +3026,7 @@
     init();
     updateRoleHint();
   </script>
+  <script src="js/toast.js"></script>
 </body>
 
 </html>

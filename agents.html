@@ -4,13 +4,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
-  <title>获客智能体管理 - 智能营销平台</title>
+  <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+  <title>智能体管理 - 智能营销平台</title>
   <meta name="description" content="配置获客智能体规则引擎，管理名单批次与白名单快照">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=1783685212">
   <style>
     /* ====================================================
-       获客智能体管理 —— 专属样式
+       智能体管理 —— 专属样式
        ==================================================== */
 
     /* ── 工具栏 ── */
@@ -1424,9 +1424,9 @@
       <!-- ── 页面标题 ── -->
       <div class="page-header">
         <div class="page-header-left">
-          <h1 class="page-title">获客智能体管理</h1>
+          <h1 class="page-title">智能体管理</h1>
           <p class="page-breadcrumb">
-            <a href="index.html">工作台</a><span class="sep">/</span>系统配置<span class="sep">/</span>获客智能体管理
+            <a href="index.html">工作台</a><span class="sep">/</span>系统配置<span class="sep">/</span>智能体管理
           </p>
         </div>
         <div style="display:flex;gap:10px;align-items:center;">
@@ -1496,7 +1496,7 @@
      详情抽屉
      ══════════════════════════════════════ -->
   <div class="side-overlay" id="detailOverlay" onclick="closeDrawer()"></div>
-  <div class="side-drawer" id="detailDrawer">
+  <div class="side-drawer" id="detailDrawer" style="overflow: hidden;">
     <div class="drawer-header">
       <div>
         <div class="drawer-title" id="drawerTitle">—</div>
@@ -1533,6 +1533,168 @@
       <div class="drawer-pane" id="dpane-batches"></div>
       <div class="drawer-pane" id="dpane-whitelist"></div>
       <div class="drawer-pane" id="dpane-logs"></div>
+    </div>
+    <!-- ── 内部滑动面板：手工导入 ── -->
+    <div id="importInnerPanel"
+      style="position:absolute; inset:0; background:var(--bg-card); z-index:50; transform:translateX(100%); transition:transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display:flex; flex-direction:column; visibility:hidden;">
+      <div class="drawer-header"
+        style="justify-content:flex-start; gap:12px; padding: 16px 24px; border-bottom: 1px solid var(--border);">
+        <button class="btn btn-ghost btn-sm" onclick="closeImportInner()"
+          style="padding:6px; margin-left:-8px; color:var(--gray-600);">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <div class="drawer-title" style="font-size:16px;">导入营销名单</div>
+      </div>
+      <div class="drawer-body" style="padding:24px;">
+        <div class="form-group">
+          <label class="form-label">导入至</label>
+          <div id="importAgentName"
+            style="padding:10px 14px;background:var(--gray-50);border-radius:8px;color:var(--gray-700);font-weight:600;font-size:13px;border:1px solid #e2e8f0;">
+            —</div>
+        </div>
+        <div class="form-group" style="margin-top:20px;">
+          <label class="form-label">名单名称</label>
+          <input type="text" class="form-control" id="importBatchName" placeholder="不填写则系统默认生成">
+        </div>
+        <div class="form-group" style="margin-top:20px;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:8px;">
+            <label class="form-label" style="margin-bottom:0;">上传文件</label>
+            <a href="javascript:void(0)" onclick="showToast('开始下载模板')"
+              style="font-size:13px;color:var(--brand);text-decoration:none;">下载名单模板</a>
+          </div>
+          <div id="importDropZone" class="dropzone" onclick="document.getElementById('importFile').click()"
+            ondragover="event.preventDefault(); this.style.borderColor='var(--brand)'; this.style.background='#f0fbf6';"
+            ondragleave="this.style.borderColor='var(--gray-300)'; this.style.background='#fafafa';"
+            ondrop="event.preventDefault(); this.style.borderColor='var(--gray-300)'; this.style.background='#fafafa'; handleImportFile({files: event.dataTransfer.files})">
+            <svg style="width:32px;height:32px;color:var(--gray-400);margin-bottom:12px;" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            <div style="font-size:14px;font-weight:600;color:var(--gray-700);margin-bottom:4px;">点击或将文件拖拽到这里上传</div>
+            <div style="font-size:12px;color:var(--gray-500);">支持 .xlsx / .xls / .csv 格式，单个文件不超过 10MB</div>
+          </div>
+          <input type="file" id="importFile" accept=".xlsx,.xls,.csv" style="display:none;"
+            onchange="handleImportFile(this)">
+          <div id="importFileInfo"
+            style="display:none;margin-top:10px;padding:10px 12px;background:var(--gray-50);border-radius:8px;font-size:13px;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;">
+            <span id="importFileName" style="display:flex;align-items:center;"></span>
+            <button class="btn btn-ghost btn-sm" onclick="clearImportFile()"
+              style="padding:4px 8px;color:#dc2626;font-size:13px;white-space:nowrap;">删除</button>
+          </div>
+          <div
+            style="margin-top:12px;font-size:12.5px;color:var(--gray-500);display:flex;align-items:flex-start;gap:6px;background:#fef2f2;padding:10px;border-radius:8px;">
+            <svg style="width:15px;height:15px;color:#dc2626;flex-shrink:0;margin-top:1px;" viewBox="0 0 24 24"
+              fill="currentColor">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+            </svg>
+            <span style="color:#b91c1c;">若启用了营销白名单，白名单之外的企业会被自动过滤。</span>
+          </div>
+        </div>
+      </div>
+      <div
+        style="padding:16px 24px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:12px;">
+        <button class="btn btn-default" onclick="closeImportInner()">取消</button>
+        <button class="btn btn-primary" onclick="doImport()">确认导入</button>
+      </div>
+    </div>
+    <!-- ── 内部滑动面板：白名单导入 ── -->
+    <div id="wlImportInnerPanel"
+      style="position:absolute; inset:0; background:var(--bg-card); z-index:50; transform:translateX(100%); transition:transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display:flex; flex-direction:column; visibility:hidden;">
+      <div class="drawer-header"
+        style="justify-content:flex-start; gap:12px; padding: 16px 24px; border-bottom: 1px solid var(--border);">
+        <button class="btn btn-ghost btn-sm" onclick="closeWlImportInner()"
+          style="padding:6px; margin-left:-8px; color:var(--gray-600);">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <div class="drawer-title" style="font-size:16px;">导入白名单</div>
+      </div>
+      <div class="drawer-body" style="padding:24px;">
+        <div class="form-group">
+          <label class="form-label">导入至</label>
+          <div id="wlImportAgentName"
+            style="padding:10px 14px;background:var(--gray-50);border-radius:8px;color:var(--gray-700);font-weight:600;font-size:13px;border:1px solid #e2e8f0;">
+            —</div>
+        </div>
+        <div class="form-group" style="margin-top:20px;">
+          <label class="form-label">快照名称</label>
+          <input type="text" class="form-control" id="wlImportBatchName" placeholder="不填写则系统默认生成">
+        </div>
+        <div class="form-group" style="margin-top:20px;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:8px;">
+            <label class="form-label" style="margin-bottom:0;">上传文件</label>
+            <a href="javascript:void(0)" onclick="showToast('开始下载模板')"
+              style="font-size:13px;color:var(--brand);text-decoration:none;">下载名单模板</a>
+          </div>
+          <div id="wlImportDropZone" class="dropzone" onclick="document.getElementById('wlImportFile').click()"
+            ondragover="event.preventDefault(); this.style.borderColor='var(--brand)'; this.style.background='#f0fbf6';"
+            ondragleave="this.style.borderColor='var(--gray-300)'; this.style.background='#fafafa';"
+            ondrop="event.preventDefault(); this.style.borderColor='var(--gray-300)'; this.style.background='#fafafa'; handleWlImportFile({files: event.dataTransfer.files})">
+            <svg style="width:32px;height:32px;color:var(--gray-400);margin-bottom:12px;" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            <div style="font-size:14px;font-weight:600;color:var(--gray-700);margin-bottom:4px;">点击或将文件拖拽到这里上传</div>
+            <div style="font-size:12px;color:var(--gray-500);">支持 .xlsx / .xls / .csv 格式，单个文件不超过 10MB</div>
+          </div>
+          <input type="file" id="wlImportFile" accept=".xlsx,.xls,.csv" style="display:none;"
+            onchange="handleWlImportFile(this)">
+          <div id="wlImportFileInfo"
+            style="display:none;margin-top:10px;padding:10px 12px;background:var(--gray-50);border-radius:8px;font-size:13px;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;">
+            <span id="wlImportFileName" style="display:flex;align-items:center;"></span>
+            <button class="btn btn-ghost btn-sm" onclick="clearWlImportFile()"
+              style="padding:4px 8px;color:#dc2626;font-size:13px;white-space:nowrap;">删除</button>
+          </div>
+          <div
+            style="margin-top:12px;font-size:12.5px;color:var(--gray-500);display:flex;align-items:flex-start;gap:6px;background:#fef2f2;padding:10px;border-radius:8px;">
+            <svg style="width:15px;height:15px;color:#dc2626;flex-shrink:0;margin-top:1px;" viewBox="0 0 24 24"
+              fill="currentColor">
+              <path
+                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
+            </svg>
+            <span style="color:#b91c1c;">导入的名单将作为一条新的白名单快照插入。</span>
+          </div>
+        </div>
+      </div>
+      <div
+        style="padding:16px 24px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:12px;">
+        <button class="btn btn-default" onclick="closeWlImportInner()">取消</button>
+        <button class="btn btn-primary" onclick="doWlImport()">确认导入</button>
+      </div>
+    </div>
+    <!-- ── 内部滑动面板：从历史批次中添加 ── -->
+    <div id="addSnapshotInnerPanel"
+      style="position:absolute; inset:0; background:var(--bg-card); z-index:50; transform:translateX(100%); transition:transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); display:flex; flex-direction:column; visibility:hidden;">
+      <div class="drawer-header"
+        style="justify-content:flex-start; gap:12px; padding: 16px 24px; border-bottom: 1px solid var(--border);">
+        <button class="btn btn-ghost btn-sm" onclick="closeAddSnapshot()"
+          style="padding:6px; margin-left:-8px; color:var(--gray-600);">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <div class="drawer-title" style="font-size:16px;">从历史批次中添加</div>
+      </div>
+      <div class="drawer-body" style="padding:24px; display:flex; flex-direction:column; overflow:hidden;">
+        <p style="font-size:13px;color:var(--gray-500);margin-bottom:16px;flex-shrink:0;">勾选一个或多个历史批次，合并生成白名单快照（自动去重）</p>
+        <div id="addSnapshotList" style="flex:1; overflow-y:auto; padding-right:4px;"></div>
+      </div>
+      <div
+        style="padding:16px 24px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:12px;">
+        <button class="btn btn-default" onclick="closeAddSnapshot()">取消</button>
+        <button class="btn btn-primary" onclick="confirmAddSnapshot()">生成快照</button>
+      </div>
     </div>
   </div>
 
@@ -1877,50 +2039,6 @@
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════
-     手工导入 Modal
-     ══════════════════════════════════════ -->
-  <div class="modal-backdrop" id="importOverlay">
-    <div class="import-modal-box">
-      <div class="import-modal-head">
-        <div style="font-size:17px;font-weight:700;color:var(--gray-900);">手工导入名单</div>
-        <button onclick="closeImportModal()"
-          style="border:none;background:none;cursor:pointer;color:var(--gray-400);font-size:22px;line-height:1;">×</button>
-      </div>
-      <div class="form-group">
-        <label class="form-label">归属智能体</label>
-        <select class="form-select" id="import-agent">
-          <option value="">请选择对应的获客智能体</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">上传文件（.xlsx / .xls / .csv）</label>
-        <div style="display:flex; align-items:center; gap:12px; margin-top:8px;">
-          <button class="btn btn-default" onclick="document.getElementById('importFile').click()">
-            <svg style="width:14px;height:14px;margin-right:6px;vertical-align:-2px;" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="17 8 12 3 7 8" />
-              <line x1="12" y1="3" x2="12" y2="15" />
-            </svg>
-            点击上传文件
-          </button>
-          <span style="font-size:12px;color:var(--gray-400);">支持 .xlsx / .xls / .csv</span>
-          <button class="btn btn-ghost btn-sm" style="color:var(--brand);margin-left:auto;padding:2px 8px;"
-            onclick="window.open('#')">下载模版</button>
-        </div>
-        <input type="file" id="importFile" accept=".xlsx,.xls,.csv" style="display:none;"
-          onchange="handleImportFile(this)">
-        <div id="importFileInfo"
-          style="display:none;margin-top:10px;padding:10px 12px;background:var(--gray-50);border-radius:8px;font-size:13px;">
-        </div>
-      </div>
-      <div style="display:flex;justify-content:flex-end;gap:10px;">
-        <button class="btn btn-default" onclick="closeImportModal()">取消</button>
-        <button class="btn btn-primary" onclick="doImport()">确认导入</button>
-      </div>
-    </div>
-  </div>
 
   <!-- ── 通用确认弹窗 ── -->
   <div class="modal-backdrop" id="confirmModal">
@@ -1983,22 +2101,7 @@
     </div>
   </div>
 
-  <!-- ── 从历史批次添加白名单快照 Modal ── -->
-  <div class="modal-backdrop" id="addSnapshotModal">
-    <div class="import-modal-box" style="width:560px;">
-      <div class="import-modal-head">
-        <div style="font-size:17px;font-weight:700;color:var(--gray-900);">从历史批次中添加</div>
-        <button onclick="closeAddSnapshot()"
-          style="border:none;background:none;cursor:pointer;color:var(--gray-400);font-size:22px;line-height:1;">×</button>
-      </div>
-      <p style="font-size:12.5px;color:var(--gray-400);margin-bottom:14px;">勾选一个或多个历史批次，合并生成白名单快照（自动去重）</p>
-      <div id="addSnapshotList" style="max-height:300px;overflow-y:auto;"></div>
-      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px;">
-        <button class="btn btn-default" onclick="closeAddSnapshot()">取消</button>
-        <button class="btn btn-primary" onclick="confirmAddSnapshot()">生成快照</button>
-      </div>
-    </div>
-  </div>
+
 
   <script src="js/sidebar.js"></script>
   <script>
@@ -2146,10 +2249,10 @@
           { k: '累计输出客户', v: a.output > 0 ? a.output.toLocaleString() : '—', vCls: '' },
           { k: '最新批次', v: a.thisMonth > 0 ? a.thisMonth : '—', vCls: '' },
           { k: '已输出批次', v: a.batches > 0 ? a.batches : '—', vCls: a.batches > 0 ? 'blue' : '' },
-          { 
-            k: '<div style="display:inline-flex;align-items:center;"><span class="rt-label" style="color:inherit;">上次执行</span><div style="display:inline-flex;align-items:center;cursor:pointer;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:4px;padding:2px;margin-left:4px;transition:all 0.2s;" onmouseover="this.style.background=\'#fff\';this.style.borderColor=\'var(--brand)\'" onmouseout="this.style.background=\'var(--gray-50)\';this.style.borderColor=\'var(--gray-200)\'" onclick="event.stopPropagation();window.toggleRunTime(this)" data-last="' + (a.lastRun || '—') + '" data-next="' + (a.nextRun || '—') + '" title="切换执行时间"><svg style="width:12px;height:12px;color:var(--brand);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 20 7 16 11"></polyline><line x1="10" y1="7" x2="20" y2="7"></line><polyline points="8 13 4 17 8 21"></polyline><line x1="4" y1="17" x2="14" y2="17"></line></svg></div></div>', 
-            v: '<span class="rt-val">' + (a.lastRun || '—') + '</span>', 
-            vCls: 'muted' 
+          {
+            k: '<div style="display:inline-flex;align-items:center;"><span class="rt-label" style="color:inherit;">上次执行</span><div style="display:inline-flex;align-items:center;cursor:pointer;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:4px;padding:2px;margin-left:4px;transition:all 0.2s;" onmouseover="this.style.background=\'#fff\';this.style.borderColor=\'var(--brand)\'" onmouseout="this.style.background=\'var(--gray-50)\';this.style.borderColor=\'var(--gray-200)\'" onclick="event.stopPropagation();window.toggleRunTime(this)" data-last="' + (a.lastRun || '—') + '" data-next="' + (a.nextRun || '—') + '" title="切换执行时间"><svg style="width:12px;height:12px;color:var(--brand);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 20 7 16 11"></polyline><line x1="10" y1="7" x2="20" y2="7"></line><polyline points="8 13 4 17 8 21"></polyline><line x1="4" y1="17" x2="14" y2="17"></line></svg></div></div>',
+            v: '<span class="rt-val">' + (a.lastRun || '—') + '</span>',
+            vCls: 'muted'
           }
         ];
 
@@ -2232,6 +2335,11 @@
       document.getElementById('detailDrawer').classList.remove('show');
       document.getElementById('detailOverlay').classList.remove('show');
       document.body.style.overflow = '';
+      const importPanel = document.getElementById('importInnerPanel');
+      if (importPanel) {
+        importPanel.style.transform = 'translateX(100%)';
+        importPanel.style.visibility = 'hidden';
+      }
     }
 
     function switchDrawerTab(tab, el) {
@@ -2251,7 +2359,7 @@
         const contactRate = a.output > 0 ? (70 + (a.output % 20)).toFixed(1) : '0.0';
         const intentRate = a.output > 0 ? (10 + (a.output % 15)).toFixed(1) : '0.0';
         const applyRate = a.output > 0 ? (2 + (a.output % 5)).toFixed(1) : '0.0';
-        
+
         const overviewStats = `
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;">
             <div style="background:#f8fafc;padding:16px;border-radius:12px;border:1px solid #e2e8f0;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--brand)';this.style.boxShadow='0 4px 12px rgba(37,99,235,0.08)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.boxShadow='none'">
@@ -2287,13 +2395,13 @@
           '<div style="font-size:13px;font-weight:700;color:var(--gray-700);margin-bottom:10px;">基础信息</div>' +
           row('归属机构', a.org) +
           row('机构简称', a.orgShort) +
-          row('智能体名称', '<strong>' + a.name + '</strong>') +
+          row('智能体名称', a.name) +
           row('更新频率', FREQ_LABEL[a.freq] || '按周更新') +
           row('每批次上限', a.limit + ' 户') +
           row('名单数据源', (a.datasource || []).join('、') || '—') +
           row('名单处理', { original: '原名单输出', intersect: '取交', exclude: '排除', union: '求并' }[a.processMode] || '—') +
           row('允许导出', a.allowExport ? '是' : '否') +
-          row('白名单', a.whitelist ? '已启用' : '未启用') ;
+          row('白名单', a.whitelist ? '已启用' : '未启用');
       }
 
       if (tab === 'rules') {
@@ -2315,26 +2423,26 @@
         document.getElementById('dpane-batches').innerHTML =
           '<div class="summary-cards">' +
           '<div class="summary-card"><div class="summary-card-label">总批次数</div><div class="summary-card-value">' + a.batchList.length + '</div></div>' +
-          '<div class="summary-card"><div class="summary-card-label">累计企业总数</div><div class="summary-card-value blue">' + totalCount.toLocaleString() + '</div></div>' +
+          '<div class="summary-card"><div class="summary-card-label">累计企业总数</div><div class="summary-card-value">' + totalCount.toLocaleString() + '</div></div>' +
           '<div class="summary-card"><div class="summary-card-label">去重企业数</div><div class="summary-card-value">' + uniqueEst.toLocaleString() + '</div></div>' +
           '</div>' +
           '<div class="batch-toolbar">' +
-          '<button class="btn btn-primary btn-sm" onclick="showToast(\'任务已提交，稍后在下载中心查看\'); this.classList.remove(\'btn-primary\'); this.classList.add(\'btn-default\'); this.innerText=\'跑批中\'; this.disabled=true;">手动执行跑批</button>' +
+          '<button class="btn btn-primary btn-sm" onclick="showToast(\'任务已提交，稍后在下载中心查看\'); this.classList.remove(\'btn-primary\'); this.classList.add(\'btn-default\'); this.innerText=\'跑批中...\'; this.disabled=true;">手动执行跑批</button>' +
           '<button class="btn btn-default btn-sm" onclick="openImportBatch(\'' + a.id + '\')">导入名单</button>' +
           '</div>' +
           '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;">' +
           '<table class="batch-table"><thead><tr>' +
-          '<th>批次名称</th><th>来源</th><th>企业数</th><th>执行时间</th><th>状态</th><th>操作</th>' +
+          '<th>批次名称</th><th>来源</th><th>企业数</th><th>执行/导入时间</th><th>状态</th><th>操作</th>' +
           '</tr></thead><tbody>' +
           (a.batchList.length ? a.batchList.map(b =>
             '<tr>' +
             '<td style="font-weight:600;font-size:13px;">' + b.name + '</td>' +
             '<td><span class="tag ' + (b.src === 'auto' ? 'tag-blue' : 'tag-gray') + '">' + (b.src === 'auto' ? '系统生成' : '手工导入') + '</span></td>' +
-            '<td><strong>' + b.count.toLocaleString() + '</strong><span style="font-size:12px;color:var(--gray-400);margin-left:2px;">户</span></td>' +
+            '<td><strong>' + b.count.toLocaleString() + '</strong></td>' +
             '<td style="color:var(--gray-500);font-size:12px;">' + b.time + '</td>' +
             '<td><span class="tag ' + (b.status === '已分配' ? 'tag-green' : b.status === '分配中' ? 'tag-blue' : 'tag-amber') + '">' + b.status + '</span></td>' +
             '<td style="white-space:nowrap;">' +
-            '<button class="btn btn-default btn-sm" onclick="window.open(\'customers.html?org=\' + encodeURIComponent(a.org) + \'&batch=\' + encodeURIComponent(b.name), \'_blank\')" style="font-size:12px;margin-right:8px;">查看</button>' +
+            '<button class="btn btn-default btn-sm" onclick="window.open(\'customers.html?agent=\' + encodeURIComponent(a.name) + \'&batch=\' + encodeURIComponent(b.name), \'_blank\')" style="font-size:12px;margin-right:8px;">查看</button>' +
             '<button class="btn btn-default btn-sm" onclick="openNotify(\'名单生成任务已提交，稍后在下载中心查看。\')" style="font-size:12px;">下载</button>' +
             '</td>' +
             '</tr>'
@@ -2347,14 +2455,14 @@
         const totalSnap = a.snapshots.reduce((s, x) => s + x.count, 0);
         const snapListHtml = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;">' +
           '<table class="batch-table"><thead><tr>' +
-          '<th>快照名称</th><th>企业数</th><th>生成时间</th><th style="text-align:right;padding-right:24px;">操作</th>' +
+          '<th>快照名称</th><th>企业数</th><th>生成/导入时间</th><th style="text-align:center;">操作</th>' +
           '</tr></thead><tbody>' +
           (a.snapshots.length ? a.snapshots.map(s =>
             '<tr>' +
             '<td style="font-weight:600;font-size:13px;">' + s.name + '</td>' +
-            '<td><strong>' + s.count.toLocaleString() + '</strong><span style="font-size:12px;color:var(--gray-400);margin-left:2px;">户</span></td>' +
+            '<td><strong>' + s.count.toLocaleString() + '</strong></td>' +
             '<td style="color:var(--gray-500);font-size:12px;">' + s.time + '</td>' +
-            '<td style="text-align:right;padding-right:24px;">' +
+            '<td style="text-align:center;">' +
             '<button class="btn btn-default btn-sm" onclick="openNotify(\'名单生成任务已提交，稍后在下载中心查看。\')" style="font-size:12px;margin-right:8px;">下载</button>' +
             '<button class="btn btn-sm" onclick="confirmDeleteSnapshot(\'' + s.name + '\')" style="font-size:12px;color:#dc2626;border:1px solid #fecaca;background:#fff;">删除</button>' +
             '</td>' +
@@ -2365,8 +2473,8 @@
         document.getElementById('dpane-whitelist').innerHTML =
           '<div class="snapshot-header">' +
           '<div class="snapshot-header-info">' +
-          '<div class="label">白名单去重企业总数</div>' +
-          '<div class="value">' + totalSnap.toLocaleString() + '<span style="font-size:15px;font-weight:500;color:var(--gray-400);margin-left:4px;">户</span></div>' +
+          '<div class="label">全量白名单（去重后）</div>' +
+          '<div class="value">' + totalSnap.toLocaleString() + '</div>' +
           '</div>' +
           '<button class="btn btn-default btn-sm" onclick="openNotify(\'名单生成任务已提交，稍后在下载中心查看。\')">' +
           '<svg style="width:14px;height:14px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' +
@@ -2374,10 +2482,10 @@
           '</button>' +
           '</div>' +
           '<div class="wl-toolbar">' +
-          '<button class="btn btn-default btn-sm" onclick="document.getElementById(\'wlSnapshotFile\').click()">上传白名单文件</button>' +
-          '<input type="file" id="wlSnapshotFile" accept=".xlsx,.xls,.csv" style="display:none;" onchange="handleWlUpload(this)">' +
+          '<button class="btn btn-primary btn-sm" onclick="this.disabled=true; this.innerText=\'跑批中...\'; showToast(\'任务已提交，稍后查看\'); setTimeout(() => {this.disabled=false; this.innerText=\'立即跑批生成\'}, 2000)">立即跑批生成</button>' +
+          '' +
           '<button class="btn btn-default btn-sm" onclick="openAddSnapshot(\'' + a.id + '\')">从历史批次中添加</button>' +
-          '<button class="btn btn-default btn-sm" onclick="showToast(\'正在触发白名单跑批，请稍候...\',\'success\')">立即跑批生成</button>' +
+          '<button class="btn btn-default btn-sm" onclick="openWlImportInner()">导入白名单</button>' +
           '</div>' +
           '<div class="snapshot-list">' + snapListHtml + '</div>';
       }
@@ -2740,42 +2848,47 @@
     }
 
     /* ═══════════════════════════════════════
-       手工导入
+       手工导入 Drawer
     ═══════════════════════════════════════ */
-    function openImportModal() {
-      const sel = document.getElementById('import-agent');
-      sel.innerHTML = '<option value="">请选择对应的获客智能体</option>' +
-        AGENTS.filter(a => a.status !== 'draft').map(a =>
-          '<option value="' + a.id + '">' + a.orgShort + ' · ' + a.name + '</option>'
-        ).join('');
-      document.getElementById('importOverlay').classList.add('show');
-      document.body.style.overflow = 'hidden';
-    }
+    let currentImportAgentId = null;
 
     function openImportBatch(agentId) {
-      openImportModal();
-      setTimeout(() => {
-        const sel = document.getElementById('import-agent');
-        sel.value = agentId;
-      }, 50);
+      currentImportAgentId = agentId;
+      const a = AGENTS.find(x => x.id === agentId);
+      document.getElementById('importAgentName').textContent = a ? (a.orgShort + ' · ' + a.name) : '—';
+
+      // Reset form
+      document.getElementById('importBatchName').value = '';
+      clearImportFile();
+
+      const panel = document.getElementById('importInnerPanel');
+      panel.style.visibility = 'visible';
+      panel.style.transform = 'translateX(0)';
     }
 
-    function closeImportModal() {
-      document.getElementById('importOverlay').classList.remove('show');
-      document.body.style.overflow = '';
+    function closeImportInner() {
+      const panel = document.getElementById('importInnerPanel');
+      panel.style.transform = 'translateX(100%)';
+      setTimeout(() => { panel.style.visibility = 'hidden'; }, 300);
     }
 
     function handleImportFile(input) {
-      const f = input.files[0]; if (!f) return;
+      const f = input.files[0];
+      if (!f) return;
       const info = document.getElementById('importFileInfo');
-      info.style.display = 'block';
-      info.innerHTML = '✅ &nbsp;<strong>' + f.name + '</strong>&nbsp;&nbsp;' +
-        (f.size / 1024).toFixed(1) + ' KB &nbsp;<span style="color:#10b981;font-weight:600;">文件已选中</span>';
+      info.style.display = 'flex';
+      document.getElementById('importFileName').innerHTML = '<svg style="width:16px;height:16px;margin-right:6px;color:var(--brand);flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg><strong style="margin:0 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;">' + f.name + '</strong> <span style="color:var(--gray-500);">' + (f.size / 1024).toFixed(1) + ' KB</span>';
+    }
+
+    function clearImportFile() {
+      document.getElementById('importFile').value = '';
+      document.getElementById('importDropZone').style.display = 'block';
+      document.getElementById('importFileInfo').style.display = 'none';
     }
 
     function doImport() {
-      if (!document.getElementById('import-agent').value) { showToast('请先选择归属智能体'); return; }
-      closeImportModal();
+      if (!document.getElementById('importFile').files[0]) { showToast('请先选择或拖拽上传名单文件'); return; }
+      closeImportInner();
       showToast('名单导入成功！已生成新批次', 'success');
     }
 
@@ -2865,11 +2978,15 @@
           '</label>'
         ).join('');
       }
-      document.getElementById('addSnapshotModal').classList.add('show');
+      document.getElementById('addSnapshotInnerPanel').style.visibility = 'visible';
+      document.getElementById('addSnapshotInnerPanel').style.transform = 'translateX(0)';
     }
 
     function closeAddSnapshot() {
-      document.getElementById('addSnapshotModal').classList.remove('show');
+      document.getElementById('addSnapshotInnerPanel').style.transform = 'translateX(100%)';
+      setTimeout(() => {
+        document.getElementById('addSnapshotInnerPanel').style.visibility = 'hidden';
+      }, 300);
     }
 
     function confirmAddSnapshot() {
@@ -2965,19 +3082,61 @@
       ).join('');
     }
 
-    function handleWlUpload(input) {
-      const f = input.files[0]; if (!f) return;
-      showToast('白名单文件已上传：' + f.name, 'success');
+    function openWlImportInner() {
+      const a = AGENTS.find(x => x.id === currentAgentId);
+      document.getElementById('wlImportAgentName').textContent = a ? (a.orgShort + ' · ' + a.name) : '—';
+      document.getElementById('wlImportBatchName').value = '';
+      clearWlImportFile();
+      const panel = document.getElementById('wlImportInnerPanel');
+      panel.style.visibility = 'visible';
+      panel.style.transform = 'translateX(0)';
     }
 
-    /* ── Toast ── */
-    function showToast(msg, type) {
-      const w = document.createElement('div');
-      w.className = 'toast-wrap';
-      w.innerHTML = '<div class="toast ' + (type || '') + '">' + msg + '</div>';
-      document.body.appendChild(w);
-      setTimeout(() => w.remove(), 3000);
+    function closeWlImportInner() {
+      const panel = document.getElementById('wlImportInnerPanel');
+      panel.style.transform = 'translateX(100%)';
+      setTimeout(() => { panel.style.visibility = 'hidden'; }, 300);
     }
+
+    function handleWlImportFile(input) {
+      let f = input.files ? input.files[0] : null;
+      if (!f) return;
+      document.getElementById('wlImportDropZone').style.display = 'none';
+      const info = document.getElementById('wlImportFileInfo');
+      info.style.display = 'flex';
+      document.getElementById('wlImportFileName').innerHTML = '<svg style="width:16px;height:16px;margin-right:6px;color:var(--brand);flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg><strong style="margin:0 6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;">' + f.name + '</strong> <span style="color:var(--gray-500);">' + (f.size / 1024).toFixed(1) + ' KB</span>';
+    }
+
+    function clearWlImportFile() {
+      document.getElementById('wlImportFile').value = '';
+      document.getElementById('wlImportDropZone').style.display = 'block';
+      document.getElementById('wlImportFileInfo').style.display = 'none';
+    }
+
+    function doWlImport() {
+      if (!document.getElementById('wlImportFile').files[0]) { showToast('请先选择或拖拽上传名单文件'); return; }
+      closeWlImportInner();
+      showToast('名单导入成功！已生成新快照', 'success');
+      const a = AGENTS.find(x => x.id === currentAgentId);
+      if (a) {
+        const now = new Date();
+        const dateStr = now.getFullYear().toString() +
+          String(now.getMonth() + 1).padStart(2, '0') +
+          String(now.getDate()).padStart(2, '0');
+        const seq = String(a.snapshots.length + 1).padStart(3, '0');
+        let batchName = document.getElementById('wlImportBatchName').value.trim() || ('名单_' + dateStr + '_' + seq);
+        a.snapshots.unshift({
+          name: batchName,
+          count: Math.floor(Math.random() * 500 + 200),
+          time: now.toLocaleString('zh-CN').replace(/\//g, '-')
+        });
+        renderDrawerPane('whitelist', a);
+      }
+    }
+
+
+    /* ── Toast ── */
+
 
     /* ── 可复用搜索下拉组件 JS ── */
     function openSearchSelect(id) {
@@ -3030,7 +3189,7 @@
       });
     });
 
-    window.toggleRunTime = function(el) {
+    window.toggleRunTime = function (el) {
       const container = el.closest('.amc-stat') || el.closest('.drawer-row');
       const labelSpan = container.querySelector('.rt-label');
       const valSpan = container.querySelector('.rt-val');
@@ -3051,6 +3210,7 @@
       selectWlMode(0);
     });
   </script>
+  <script src="js/toast.js"></script>
 </body>
 
 </html>

@@ -1632,36 +1632,44 @@ select.form-control {
    ===================================================== */
 .toast-wrap {
   position: fixed;
-  top: 20px;
-  right: 20px;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 9999;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  align-items: center;
+  gap: 12px;
+  pointer-events: none;
 }
 
 .toast {
-  background: var(--gray-900);
-  color: rgba(255,255,255,0.9);
-  padding: 11px 16px;
-  border-radius: var(--r-md);
-  font-size: 13.5px;
-  font-weight: 500;
-  box-shadow: var(--shadow-lg);
+  background: rgba(0, 0, 0, 0.75) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #fff;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 400;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  min-width: 200px;
-  animation: toast-in 0.25s var(--ease);
+  min-width: auto;
+  max-width: 400px;
+  text-align: center;
+  line-height: 1.5;
+  animation: toast-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: auto;
 }
 
-.toast.success { background: #15803d; }
-.toast.danger  { background: #b91c1c; }
-.toast.warning { background: var(--gray-800); }
+
 
 @keyframes toast-in {
-  from { opacity: 0; transform: translateX(16px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from { opacity: 0; transform: translateY(-20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* =====================================================
@@ -1872,3 +1880,19 @@ select.form-control {
 .notify-title { font-size: 17px; font-weight: 700; color: var(--gray-900); margin-bottom: 8px; }
 .notify-desc { font-size: 13.5px; color: var(--gray-500); line-height: 1.7; margin-bottom: 22px; }
 .notify-btns { display: flex; gap: 10px; justify-content: center; }
+
+
+/* ── Dropzone 上传区样式 ── */
+.dropzone {
+  border: 1.5px dashed var(--gray-300);
+  border-radius: 12px;
+  background: #fafafa;
+  padding: 32px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.dropzone:hover {
+  border-color: var(--brand);
+  background: #f0fbf6; /* 轻微品牌色背景 */
+}

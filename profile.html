@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
   <title>个人中心 — 智能营销平台</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=1783685212">
   <style>
     .profile-hero {
       background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
@@ -347,13 +347,8 @@
     document.getElementById('pwdStrengthContainer').style.display = 'none';
   }
 
-  function showToast(msg, type) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.style.background = type === 'error' ? '#ef4444' : type === 'warn' ? '#f59e0b' : '#10b981';
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2800);
-  }
+
 </script>
+  <script src="js/toast.js"></script>
 </body>
 </html>

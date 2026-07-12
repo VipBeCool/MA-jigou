@@ -7,7 +7,7 @@
     <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
   <title>名单分配 - 智能营销平台</title>
   <meta name="description" content="银行名单分配，支持逐级下发与一次性到人，提供多种分配策略">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=1783685212">
   <style>
     /* ── 批次卡片 ── */
     .batch-grid {
@@ -904,7 +904,7 @@
       { id: 'b2', product: '厂房贷', batch: '2026年5月批次', total: 89, status: '未分配' },
       { id: 'b3', product: '科技贷', batch: '2026年4月批次', total: 42, status: '进行中', subStatus: 'pending_sub', allocatedToCm: 28 },
       { id: 'b6', product: '科技贷', batch: '2026年3月补充批次', total: 20, status: '进行中', subStatus: 'saved', allocatedToCm: 0 },
-      { id: 'b4', product: '助农贷', batch: '2026年3月批次', total: 310, status: '已完成', allocatedToCm: 310 },
+      { id: 'b4', product: '助农贷', batch: '2026年3月批次', total: 310, status: '已分配', allocatedToCm: 310 },
     ];
 
     // =============================================
@@ -1175,7 +1175,7 @@
 
     function renderBatch() {
       state.phase = 'batch'; state.isDirty = false; state.quotaMap = {};
-      const counts = { '未分配': 0, '进行中': 0, '已完成': 0 };
+      const counts = { '未分配': 0, '进行中': 0, '已分配': 0 };
       BATCHES.forEach(b => { if (counts[b.status] !== undefined) counts[b.status]++; });
       const filtered = BATCHES.filter(b => b.status === state.batchTab);
       const groups = {};
@@ -1201,7 +1201,7 @@
         <div style="flex:1;min-width:0;">
           <div class="batch-card-name">${b.batch}</div>
           <div class="batch-card-meta">
-            <span class="tag ${b.status === '未分配' ? 'tag-amber' : b.status === '已完成' ? 'tag-green' : 'tag-blue'}">${tagText}</span>
+            <span class="tag ${b.status === '未分配' ? 'tag-amber' : b.status === '已分配' ? 'tag-green' : 'tag-blue'}">${tagText}</span>
           </div>
           ${b.status === '进行中' && b.subStatus !== 'saved' ? `<div class="batch-progress-bar"><div class="batch-progress-fill" style="width:${pct}%"></div></div><div style="font-size:11px;color:var(--gray-400);margin-top:3px;">${b.allocatedToCm}家企业已分配到人</div>` : ''}
         </div>
@@ -1224,7 +1224,7 @@
       </div>
       <div class="card-body" style="padding-top:16px;">
         <div class="batch-tabs">
-          ${'未分配,进行中,已完成'.split(',').map(tab => `
+          ${'未分配,进行中,已分配'.split(',').map(tab => `
             <button class="batch-tab-btn ${state.batchTab === tab ? 'active' : ''}" onclick="switchBatchTab('${tab}')">
               ${tab === '进行中' ? '分配中' : tab}
               <span class="batch-tab-count">${counts[tab]}</span>
@@ -1239,7 +1239,7 @@
         ${state.selectedBatch ? `已选择：<strong style="color:var(--brand);">${state.selectedBatch.product} · ${state.selectedBatch.batch}</strong>，共 <strong>${state.selectedBatch.total}</strong> 家企业` : '请在上方选择一个批次以继续'}
       </div>
       <button class="btn btn-primary" style="${!state.selectedBatch ? 'opacity:0.4;pointer-events:none;' : ''}" onclick="gotoAlloc()">
-        ${state.selectedBatch?.status === '已完成' || state.selectedBatch?.subStatus === 'pending_sub' ? '查看分配 →' : (state.selectedBatch?.status === '进行中' ? '继续分配 →' : '开始分配 →')}
+        ${state.selectedBatch?.status === '已分配' || state.selectedBatch?.subStatus === 'pending_sub' ? '查看分配 →' : (state.selectedBatch?.status === '进行中' ? '继续分配 →' : '开始分配 →')}
       </button>
     </div>`;
     }
@@ -1258,7 +1258,7 @@
       state.quotaMap = {};
       initQuotaMap(ORG_TREE, b.total);
 
-      if (b.status === '已完成' || b.status === '进行中') {
+      if (b.status === '已分配' || b.status === '进行中') {
         state.allocMode = (b.subStatus === 'pending_sub') ? 'cascade' : 'direct';
         if (state.allocMode === 'cascade') {
           const children = ORG_TREE.children || [];
@@ -1281,7 +1281,7 @@
         }
       }
 
-      if (b.status === '已完成' || b.subStatus === 'pending_sub') {
+      if (b.status === '已分配' || b.subStatus === 'pending_sub') {
         state.phase = 'done';
         renderConfirm();
         return;
@@ -1830,7 +1830,7 @@
       state.phase = 'done';
       const b = state.selectedBatch;
       if (b) {
-        b.status = '已完成';
+        b.status = '已分配';
         b.allocatedToCm = b.total;
       }
       main.innerHTML = `
@@ -1883,19 +1883,7 @@
     // =============================================
     // Toast
     // =============================================
-    function showToast(msg) {
-      let el = document.getElementById('__toast__');
-      if (!el) {
-        el = document.createElement('div');
-        el.id = '__toast__';
-        el.style.cssText = 'position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(15,23,42,0.88);color:#fff;padding:10px 22px;border-radius:100px;font-size:13.5px;font-weight:500;z-index:9999;opacity:0;transition:all 0.3s;pointer-events:none;';
-        document.body.appendChild(el);
-      }
-      el.textContent = msg;
-      el.style.opacity = '1'; el.style.transform = 'translateX(-50%) translateY(0)';
-      clearTimeout(el._t);
-      el._t = setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(-50%) translateY(10px)'; }, 2200);
-    }
+
 
     // =============================================
     // 下拉选择逻辑
@@ -1936,7 +1924,7 @@
 
     function gotoNextBatch() {
       // 找到第一个未分配或进行中的批次进行分配
-      const next = BATCHES.find(b => b.status !== '已完成');
+      const next = BATCHES.find(b => b.status !== '已分配');
       if (next) {
         state.selectedBatch = next;
         gotoAlloc();
@@ -1960,6 +1948,7 @@
     // =============================================
     renderBatch();
   </script>
+  <script src="js/toast.js"></script>
 </body>
 
 </html>

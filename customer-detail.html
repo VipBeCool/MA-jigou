@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
   <title>客户详情 - 智能营销平台</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=1783685212">
   <style>
     /* 覆盖 main-content，去除两侧强制留白，增加呼吸感 */
     .main-content { padding: 32px 40px; }
@@ -1106,5 +1106,6 @@
   const _sideRole = sessionStorage.getItem('wb_role') || 'manager';
   renderSidebar({ currentPage: 'customers', role: _sideRole });
 </script>
+  <script src="js/toast.js"></script>
 </body>
 </html>
