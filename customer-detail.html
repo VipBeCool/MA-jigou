@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
   <title>客户详情 - 智能营销平台</title>
-  <link rel="stylesheet" href="css/style.css?v=1783685212">
+  <link rel="stylesheet" href="css/style.css?v=1783867207">
   <style>
     /* 覆盖 main-content，去除两侧强制留白，增加呼吸感 */
     .main-content { padding: 32px 40px; }
@@ -95,7 +95,8 @@
     /* ===== 内容主区（两栏） ===== */
     .content-grid {
       display: grid;
-      grid-template-columns: 1fr 340px;
+      /* grid-template-columns: 1fr 340px; (Removed) */
+      display: block;
       gap: 24px; align-items: start;
     }
 
@@ -137,28 +138,9 @@
     .info-row:first-child { padding-top: 0; }
     .info-row:last-child { border-bottom: none; padding-bottom: 0; }
     .info-label { color: var(--gray-500); font-weight: 500; width: 140px; flex-shrink: 0; }
-    .info-value { color: var(--gray-900); font-weight: 600; text-align: right; }
+    .info-value { color: var(--gray-900); font-weight: 400; text-align: right; }
 
-    /* 触达路径推荐（Tab中） */
-    .cp-card {
-      border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px;
-      display: flex; align-items: center; gap: 16px; transition: all 0.2s;
-    }
-    .cp-card:hover { border-color: var(--brand-border); background: var(--gray-50); }
-    .cp-avatar {
-      width: 44px; height: 44px; border-radius: 12px;
-      background: var(--brand-light); color: var(--brand);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .cp-info { flex: 1; }
-    .cp-name { font-size: 14.5px; font-weight: 700; color: var(--gray-900); margin-bottom: 4px; }
-    .cp-role { font-size: 13px; color: var(--gray-500); }
-    .cp-tips { font-size: 12.5px; color: var(--gray-400); margin-top: 6px; }
-    .cp-btn {
-      background: var(--brand-light); color: var(--brand); border: none; border-radius: 8px;
-      padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
-    }
-    .cp-btn:hover { background: var(--brand); color: white; }
+    
 
     /* 模型评分 Tab */
     .model-grid {
@@ -362,6 +344,71 @@
       transition: all 0.15s;
     }
     .quick-tag:hover { background: var(--brand-light); color: var(--brand); }
+  
+
+    /* ===== 触达路径弹窗 (右侧抽屉) ===== */
+    .drawer-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(4px);
+      z-index: 2000;
+      display: none;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .drawer-overlay.show { display: block; opacity: 1; }
+    .drawer-box {
+      position: absolute; right: 0; top: 0; bottom: 0;
+      width: 420px; background: #f8fafc;
+      box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+      transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex; flex-direction: column;
+    }
+    .drawer-overlay.show .drawer-box { transform: translateX(0); }
+    .modal-header {
+      padding: 24px; background: #fff; border-bottom: 1px solid var(--gray-200);
+      display: flex; justify-content: space-between; align-items: flex-start;
+    }
+    .modal-title { font-size: 20px; font-weight: 700; color: var(--gray-900); margin-bottom: 4px; }
+    .modal-subtitle { font-size: 13px; color: var(--gray-500); }
+    .modal-close {
+      width: 32px; height: 32px; border-radius: 8px; border: none; background: var(--gray-100);
+      color: var(--gray-500); cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    .modal-close:hover { background: var(--gray-200); }
+
+    /* 触达路径 Tabs */
+    .contact-tabs {
+      display: flex; gap: 4px; padding: 16px 24px 0; background: #fff;
+    }
+    .contact-tab {
+      padding: 10px 20px; font-size: 14px; font-weight: 600; color: var(--gray-500);
+      cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s;
+    }
+    .contact-tab:hover { color: var(--gray-800); }
+    .contact-tab.active { color: var(--brand); border-bottom-color: var(--brand); }
+
+    .contact-pane { display: none; padding: 24px; flex: 1; overflow-y: auto; }
+    .contact-pane.active { display: block; }
+
+    /* 触达路径列表 (对齐移动端样式) */
+    .cp-card {
+      background: #fff; border-radius: 12px; padding: 16px;
+      margin-bottom: 12px; border: 1px solid var(--gray-200);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+    .cp-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .cp-phone { font-size: 18px; font-weight: 700; font-family: monospace; color: var(--gray-900); }
+    .cp-role {
+      font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 8px;
+    }
+    .cp-tips { font-size: 13px; color: var(--gray-500); line-height: 1.5; margin-bottom: 12px; background: var(--gray-50); padding: 8px 12px; border-radius: 8px; }
+    .cp-actions-main { display: flex; justify-content: space-between; align-items: center; gap: 8px; border-top: 1px dashed var(--gray-200); padding-top: 12px; margin-top: 12px; }
+    .cp-btn-call { display: inline-flex; align-items: center; justify-content: center; padding: 6px 16px; border-radius: 100px; font-size: 13px; font-weight: 600; color: #fff; background: var(--brand); border: none; cursor: pointer; transition: all 0.2s;}
+    .cp-btn-call:hover { background: #1d4ed8; }
+    .cp-btn-fb { padding: 6px 12px; border-radius: 100px; font-size: 12px; font-weight: 500; color: var(--gray-600); background: var(--gray-100); border: none; cursor: pointer; transition: all 0.2s;}
+    .cp-btn-fb:hover { background: var(--gray-200); }
+
   </style>
 </head>
 <body>
@@ -384,8 +431,12 @@
             </div>
           </div>
         </div>
-        <div>
-          <button class="hero-btn-primary" onclick="openMarkDrawer()">
+        <div style="display: flex; gap: 12px;">
+          <button class="hero-btn-primary" style="background: white; color: var(--gray-700); border: 1px solid var(--border); box-shadow: 0 2px 6px rgba(0,0,0,0.05);" onclick="openContactModal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            触达路径
+          </button>
+          <button class="hero-btn-primary" onclick="window.openStatusDrawer('1', '苏州智云科技有限公司', '00', 'NONE')">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             更新状态
           </button>
@@ -442,32 +493,6 @@
         </div>
       </div>
 
-      <!-- 横向作业助手 (首屏可见) -->
-      <div style="background: #fff; border-radius: 12px; padding: 16px 24px; margin-bottom: 24px; border: 1px solid var(--hairline); box-shadow: var(--card-shadow); display: flex; align-items: center;">
-        <div style="font-weight: 700; color: var(--gray-900); font-size: 15px; margin-right: 32px; flex-shrink: 0; display: flex; align-items: center; gap: 8px;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-          作业助手
-        </div>
-        <div style="display: flex; gap: 16px; flex: 1;">
-          <div class="assistant-item" style="flex: 1; flex-direction: row; justify-content: flex-start; padding: 10px 16px; gap: 12px;">
-            <div class="assistant-icon" style="width: 36px; height: 36px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg></div>
-            <div class="assistant-text">企业画像</div>
-          </div>
-          <div class="assistant-item" style="flex: 1; flex-direction: row; justify-content: flex-start; padding: 10px 16px; gap: 12px;">
-            <div class="assistant-icon" style="width: 36px; height: 36px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></div>
-            <div class="assistant-text">AI尽调报告</div>
-          </div>
-          <div class="assistant-item" style="flex: 1; flex-direction: row; justify-content: flex-start; padding: 10px 16px; gap: 12px;">
-            <div class="assistant-icon" style="width: 36px; height: 36px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
-            <div class="assistant-text">智能流水</div>
-          </div>
-          <div class="assistant-item" style="flex: 1; flex-direction: row; justify-content: flex-start; padding: 10px 16px; gap: 12px;">
-            <div class="assistant-icon" style="width: 36px; height: 36px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div>
-            <div class="assistant-text">访谈助手</div>
-          </div>
-        </div>
-      </div>
-
       <div class="content-grid">
         
         <!-- 左侧 主内容 -->
@@ -475,11 +500,8 @@
           <div class="tab-header">
             <div class="tab-item active" onclick="switchTab('basic', this)">基本信息</div>
             <div class="tab-item" onclick="switchTab('data', this)">关键数据</div>
-            <div class="tab-item" onclick="switchTab('models', this)">模型评分</div>
             <div class="tab-item" onclick="switchTab('history', this)">营销轨迹</div>
-            <!-- 触达路径作为第五个 Tab 放在最后 -->
-            <div class="tab-item" onclick="switchTab('contact', this)">触达路径</div>
-          </div>
+                      </div>
 
           <!-- 基本信息 -->
           <div class="tab-pane active" id="pane-basic">
@@ -494,15 +516,10 @@
 
           <!-- 关键数据 (带授权遮罩) -->
           <div class="tab-pane" id="pane-data">
-            <!-- 前两条露出 -->
-            <div class="info-list" style="margin-bottom: 0; border-bottom: none; border-bottom-left-radius: 0; border-bottom-right-radius: 0;">
-              <div class="info-row"><div class="info-label">经营年限</div><div class="info-value">6 年</div></div>
-              <div class="info-row" style="border-bottom: none;"><div class="info-label">纳税评级</div><div class="info-value">A 级</div></div>
-            </div>
-            
-            <!-- 从第三条开始遮罩 -->
             <div style="position: relative;">
-              <div class="info-list" id="authDataBlur" style="filter: blur(5px); opacity: 0.6; pointer-events: none; user-select: none; border-top-left-radius: 0; border-top-right-radius: 0;">
+              <div class="info-list" id="authDataBlur" style="filter: blur(5px); opacity: 0.6; pointer-events: none; user-select: none;">
+                <div class="info-row"><div class="info-label">经营年限</div><div class="info-value">6 年</div></div>
+                <div class="info-row"><div class="info-label">纳税评级</div><div class="info-value">A 级</div></div>
                 <div class="info-row"><div class="info-label">近一年营收</div><div class="info-value">4,250 万</div></div>
                 <div class="info-row"><div class="info-label">实控人变更</div><div class="info-value">2.5 年内无变更</div></div>
                 <div class="info-row"><div class="info-label">开票稳定性</div><div class="info-value">优 (近12月无断票)</div></div>
@@ -510,7 +527,7 @@
                 <div class="info-row"><div class="info-label">专利新增</div><div class="info-value">近半年新增 3 项发明专利</div></div>
               </div>
               <!-- 毛玻璃遮罩引导授权 -->
-              <div id="authOverlay" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(4px); border-radius: 0 0 12px 12px; z-index: 10;">
+              <div id="authOverlay" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(4px); border-radius: 12px; z-index: 10;">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 12px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                 <div style="font-size: 15px; font-weight: 700; color: var(--gray-900); margin-bottom: 6px;">获取企业电子授权</div>
                 <div style="font-size: 13px; color: var(--gray-600); margin-bottom: 16px;">邀请企业授权即可解锁多维深度数据</div>
@@ -522,410 +539,193 @@
             </div>
           </div>
 
-          <!-- 模型评分 -->
-          <div class="tab-pane" id="pane-models">
-            <div class="model-grid">
-              <div class="model-card">
-                <div class="mc-name">资金需求</div>
-                <div class="mc-ring-wrap">
-                  <svg viewBox="0 0 36 36" class="mc-ring">
-                    <path class="bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                    <path class="fg" stroke-dasharray="92, 100" stroke="#10b981" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                  </svg>
-                  <div class="mc-score">
-                    <div class="mc-score-val">92</div>
-                    <div class="mc-score-divider"></div>
-                    <div class="mc-score-total">100</div>
-                  </div>
-                </div>
-                <div class="mc-level success">高意向</div>
-              </div>
-
-              <div class="model-card">
-                <div class="mc-name">苏信分</div>
-                <div class="mc-ring-wrap">
-                  <svg viewBox="0 0 36 36" class="mc-ring">
-                    <path class="bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                    <path class="fg" stroke-dasharray="87, 100" stroke="#10b981" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                  </svg>
-                  <div class="mc-score">
-                    <div class="mc-score-val">740</div>
-                    <div class="mc-score-divider"></div>
-                    <div class="mc-score-total">850</div>
-                  </div>
-                </div>
-                <div class="mc-level success">A+ 级</div>
-              </div>
-
-              <div class="model-card">
-                <div class="mc-name">科创评分</div>
-                <div class="mc-ring-wrap">
-                  <svg viewBox="0 0 36 36" class="mc-ring">
-                    <path class="bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                    <path class="fg" stroke-dasharray="85, 100" stroke="#10b981" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
-                  </svg>
-                  <div class="mc-score">
-                    <div class="mc-score-val">85</div>
-                    <div class="mc-score-divider"></div>
-                    <div class="mc-score-total">100</div>
-                  </div>
-                </div>
-                <div class="mc-level success">优秀</div>
-              </div>
-            </div>
-          </div>
-
+          
           <!-- 营销轨迹 -->
           <div class="tab-pane" id="pane-history">
-            <div class="history-list" id="historyList">
-              <!-- JS 渲染 -->
+            <div class="info-card" style="padding-top:12px;">
+              <div class="history-list">
+                <!-- Record 1 -->
+                <div class="history-item primary">
+                    <div class="history-dot"></div>
+                        <div style="font-size: 13px; color: var(--gray-500); margin-bottom: 4px;">今天(2026-05-13 14:30)</div>
+                        <div style="background: var(--gray-50); border: 1px solid var(--border); border-radius: 8px; padding: 12px;">
+                            <div style="display:flex; justify-content: space-between; margin-bottom: 8px;">
+                                <div style="font-weight: 600; color: var(--gray-900); display: flex; align-items: center; gap: 6px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> 李经理
+                                </div>
+                                <div style="display:flex; gap:6px;">
+                                    <span style="background: #d1fae5; color: #059669; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600;">业务状态</span>
+                                    <span style="background: #e2e8f0; color: #334155; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600;">已放款</span>
+                                </div>
+                            </div>
+                            <div style="font-weight: 600; color: var(--gray-900); font-size: 13px; margin-bottom: 4px;">放款金额：<span style="color: var(--brand);">300万</span> | 放款日期：2026-05-13</div>
+                            <div style="color: var(--gray-600); font-size: 13px; line-height: 1.5;">客户提取了剩余授信额度用于采购支付，目前该笔500万授信已全额提款。</div>
+                        </div>
+                </div>
+
+                <!-- Record 2 -->
+                <div class="history-item">
+                    <div class="history-dot"></div>
+                        <div style="font-size: 13px; color: var(--gray-500); margin-bottom: 4px;">2026-05-06 10:15</div>
+                        <div style="background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 12px;">
+                            <div style="display:flex; justify-content: space-between; margin-bottom: 8px;">
+                                <div style="font-weight: 600; color: var(--gray-600); display: flex; align-items: center; gap: 6px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> 李经理
+                                </div>
+                                <div style="display:flex; gap:6px;">
+                                    <span style="background: #d1fae5; color: #059669; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600;">业务状态</span>
+                                    <span style="background: #e2e8f0; color: #334155; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 600;">已放款</span>
+                                </div>
+                            </div>
+                            <div style="font-weight: 600; color: var(--gray-900); font-size: 13px; margin-bottom: 4px;">放款金额：<span style="color: var(--brand);">200万</span> | 放款日期：2026-05-06</div>
+                            <div style="color: var(--gray-600); font-size: 13px; line-height: 1.5;">首次提款200万元，资金已到账。</div>
+                        </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- 触达路径 Tab -->
-          <div class="tab-pane" id="pane-contact">
-            <div id="contactPaths">
-                 <div class="ai-tabs-nav">
-              <button class="ai-tab-btn active" onclick="switchAITab('ai-tab-a', this)">节点A: 外呼前速读</button>
-              <button class="ai-tab-btn" onclick="switchAITab('ai-tab-b', this)">节点B: 深度跟进</button>
-              <button class="ai-tab-btn" onclick="switchAITab('ai-tab-c', this)">节点C: 进件辅助</button>
-              <button class="ai-tab-btn" onclick="switchAITab('ai-tab-d', this)">节点D: 授信参考</button>
-            </div>
-
-            <!-- 节点A: 外呼前速读 -->
-            <div id="ai-tab-a" class="ai-tab-pane active">
-              <div style="font-size: 13px; font-weight: 600; color: #0f172a; margin-bottom: 4px;">📌 一句话画像</div>
-              <div style="font-size: 12px; color: #475569; margin-bottom: 14px; line-height: 1.6;">苏州某科技是一家专注精密零部件加工的民营企业，年营收约4200万，近两年增长稳健，有自有厂房，核心客户为知名汽车零部件集团。</div>
-              
-              <div style="font-size: 13px; font-weight: 600; color: #059669; margin-bottom: 4px;">✅ 营销亮点（3条）</div>
-              <ul style="font-size: 12px; color: #475569; padding-left: 16px; margin-bottom: 14px; line-height: 1.6;">
-                <li>纳税A级，连续3年无欠税记录</li>
-                <li>名下厂房面积2,800㎡，无抵押</li>
-                <li>近半年新增2项实用新型专利</li>
-              </ul>
-              
-              <div style="font-size: 13px; font-weight: 600; color: #d97706; margin-bottom: 4px;">⚠️ 关注事项（2条）</div>
-              <ul style="font-size: 12px; color: #475569; padding-left: 16px; margin-bottom: 14px; line-height: 1.6;">
-                <li>2025年有1笔已结清的小额诉讼</li>
-                <li>实控人名下有另一家同行业公司</li>
-              </ul>
-              
-              <div style="font-size: 10px; color: #94a3b8; border-top: 1px dashed #cbd5e1; padding-top: 10px; line-height: 1.4;">🕐 生成于 2026-06-20 14:30<br>数据来源：公开工商/司法/知识产权</div>
-            </div>
-
-            <!-- 节点B: 深度跟进 -->
-            <div id="ai-tab-b" class="ai-tab-pane">
-              <div style="font-weight: 700; margin-bottom: 12px; font-size: 14px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; color: #0f172a;">关键数据 <span style="font-size: 10px; font-weight: 600; color: #059669; background: #d1fae5; padding: 3px 6px; border-radius: 4px; float: right;">已授权解锁</span></div>
-              
-              <div style="font-size: 12px; color: #64748b; margin-bottom: 16px;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>经营时长</span><span style="color:#0f172a; font-weight: 500;">5.8年</span></div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>纳税评级</span><span style="color:#0f172a; font-weight: 500;">A级</span></div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>近一年营收</span><span style="color:#0f172a; font-weight: 500;">4,250万</span></div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>社保人数</span><span style="color:#0f172a; font-weight: 500;">65人</span></div>
-              </div>
-              
-              <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid #cbd5e1; border-radius: 8px; padding: 20px 16px; text-align: center; cursor: pointer; transition: all .2s;">
-                <div style="font-size: 20px; margin-bottom: 8px;">🔍</div>
-                <div style="font-size: 14px; font-weight: 700; color: #1e40af; margin-bottom: 6px;">查看深度经营分析 →</div>
-                <div style="font-size: 11px; color: #64748b; line-height: 1.5;">基于授权数据的企业全景研判<br>含：经营趋势 · 关联图谱 · 融资可行性分析</div>
-              </div>
-            </div>
-
-            <!-- 节点C: 进件辅助 -->
-            <div id="ai-tab-c" class="ai-tab-pane">
-              <div style="font-weight: 700; font-size: 14px; color: #0f172a; display: flex; align-items: center; gap: 8px; margin-bottom: 12px;"><span style="font-size:16px">📄</span> AI尽调报告</div>
-              
-              <div style="background: #f8fafc; border-radius: 8px; padding: 12px; margin-bottom: 16px; border: 1px solid #e2e8f0;">
-                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px;">
-                  <span style="color: #64748b;">报告状态</span>
-                  <span style="color: #059669; font-weight: 700; display: flex; align-items: center; gap: 4px;">已生成 ✓</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; font-size: 12px;">
-                  <span style="color: #64748b;">生成时间</span>
-                  <span style="color: #0f172a; font-weight: 600;">2026-06-20 15:30</span>
-                </div>
-              </div>
-              
-              <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-                <button style="flex:1; background: #1a4fd6; color: #fff; border: none; padding: 8px 0; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">在线查看</button>
-                <button style="flex:1; background: #fff; color: #1a4fd6; border: 1px solid #1a4fd6; padding: 8px 0; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">导出PDF</button>
-                <button style="flex:1; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 8px 0; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">重新生成</button>
-              </div>
-              
-              <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 10px; display: flex; gap: 8px; align-items: flex-start;">
-                <span style="font-size: 14px; margin-top: -2px;">⚠️</span>
-                <div style="font-size: 11px; color: #92400e; line-height: 1.5; font-weight: 500;">报告基于 2026-06-20 的数据快照生成，如距今超过30天建议重新生成以获取最新风险信息。</div>
-              </div>
-            </div>
-
-            <!-- 节点D: 授信参考 -->
-            <div id="ai-tab-d" class="ai-tab-pane">
-              <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; padding: 20px 0;">
-                <div style="width: 64px; height: 64px; background: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,.05); border: 1px solid #e2e8f0;">🏛️</div>
-                <div style="font-size: 16px; font-weight: 800; color: #0f172a; margin-bottom: 8px; text-align: center;">授信参考：审批系统对接AI尽调数据</div>
-                <div style="font-size: 12px; color: #475569; text-align: center; line-height: 1.6;">
-                  全量尽调报告与智能审批打通，银行审批系统可对接AI尽调报告API。<br><br>审批人在工作台直接调阅关联的深度尽调数据及风险预警，大幅提升贷前审批效率，辅助精准信贷决策。
-                </div>
-              </div>
-            </div>
-            </div>
           </div>
         </div>
-
-        <!-- 右侧边栏 -->
-        <div class="side-col">
-          <!-- 全周期 AI 锦囊 -->
-          <style>
-            .ai-tabs-nav { display: flex; background: var(--gray-100); border-radius: 8px; padding: 4px; margin-bottom: 16px; }
-            .ai-tab-btn { flex: 1; text-align: center; font-size: 13px; font-weight: 600; color: var(--gray-500); padding: 8px 4px; border-radius: 6px; cursor: pointer; transition: all 0.2s; border: none; background: transparent; }
-            .ai-tab-btn:hover { color: var(--brand); }
-            .ai-tab-btn.active { background: #fff; color: var(--brand); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-            .ai-tab-pane { display: none; animation: fadeIn 0.3s ease; }
-            .ai-tab-pane.active { display: block; }
-            @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-          </style>
-
-          <div class="assistant-card" style="padding: 16px;">
-            <div class="assistant-title" style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
-              <span>🤖 AI企业速读</span>
-            </div>
-            
-            <div class="ai-tabs-nav">
-              <button class="ai-tab-btn active" onclick="switchAITab('ai-tab-a', this)">外呼速读</button>
-              <button class="ai-tab-btn" onclick="switchAITab('ai-tab-b', this)">深度了解</button>
-              <button class="ai-tab-btn" onclick="switchAITab('ai-tab-c', this)">进件辅助</button>
-            </div>
-
-            <!-- 节点A: 外呼准备 -->
-            <div id="ai-tab-a" class="ai-tab-pane active">
-              <div style="font-size: 13.5px; color: var(--gray-900); font-weight: 600; margin-bottom: 4px;">📌 一句话画像</div>
-              <div style="font-size: 12.5px; color: var(--gray-600); margin-bottom: 12px; line-height: 1.6;">
-                苏州某科技是一家专注精密零部件加工的民营企业，年营收约4200万，近两年增长稳健，有自有厂房，核心客户为知名汽车零部件集团。
-              </div>
-
-              <div style="font-size: 13.5px; color: var(--success); font-weight: 600; margin-bottom: 4px;">✅ 营销亮点（3条）</div>
-              <ul style="font-size: 12.5px; color: var(--gray-600); padding-left: 16px; margin-bottom: 12px; line-height: 1.6; margin-top: 0;">
-                <li>纳税A级，连续3年无欠税记录</li>
-                <li>名下厂房面积2,800㎡，无抵押</li>
-                <li>近半年新增2项实用新型专利</li>
-              </ul>
-
-              <div style="font-size: 13.5px; color: #d97706; font-weight: 600; margin-bottom: 4px;">⚠️ 关注事项（2条）</div>
-              <ul style="font-size: 12.5px; color: var(--gray-600); padding-left: 16px; margin-bottom: 12px; line-height: 1.6; margin-top: 0;">
-                <li>2025年有1笔已结清的小额诉讼</li>
-                <li>实控人名下有另一家同行业公司</li>
-              </ul>
-              
-              <div style="font-size: 11px; color: var(--gray-400); border-top: 1px dashed var(--gray-300); padding-top: 8px;">
-                🕐 生成于 2026-06-20 14:30<br>数据来源：公开工商/司法/知识产权
-              </div>
-            </div>
-
-            <!-- 节点B: 深度尽调 -->
-            <div id="ai-tab-b" class="ai-tab-pane">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--hairline); padding-bottom: 8px;">
-                <span style="font-weight: 700; font-size: 14px; color: var(--gray-900);">关键数据</span>
-                <span style="font-size: 11px; font-weight: normal; color: var(--success); background: #d1fae5; padding: 2px 6px; border-radius: 4px;">已授权解锁</span>
-              </div>
-              <div style="font-size: 12.5px; color: var(--gray-600); margin-bottom: 16px;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>经营时长</span><span style="color:var(--gray-900); font-weight: 500;">5.8年</span></div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>纳税评级</span><span style="color:var(--gray-900); font-weight: 500;">A级</span></div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>近一年营收</span><span style="color:var(--gray-900); font-weight: 500;">4,250万</span></div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>社保人数</span><span style="color:var(--gray-900); font-weight: 500;">65人</span></div>
-              </div>
-
-              <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 1px solid var(--gray-300); border-radius: 8px; padding: 16px; text-align: center; cursor: pointer;">
-                <div style="font-size: 16px; margin-bottom: 8px;">🔍</div>
-                <div style="font-size: 14px; font-weight: 700; color: #1e40af; margin-bottom: 4px;">查看深度经营分析 →</div>
-                <div style="font-size: 11.5px; color: var(--gray-500); line-height: 1.5;">基于授权数据的企业全景研判<br>含：经营趋势 · 关联图谱 · 融资可行性分析</div>
-              </div>
-            </div>
-
-            <!-- 节点C: 进件辅助 -->
-            <div id="ai-tab-c" class="ai-tab-pane">
-              <div style="font-weight: 700; font-size: 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
-                📄 AI尽调报告
-              </div>
-              <div style="background: var(--gray-50); border-radius: 6px; padding: 12px; margin-bottom: 12px; border: 1px solid var(--gray-200);">
-                <div style="display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 6px;">
-                  <span style="color: var(--gray-500);">状态</span>
-                  <span style="color: var(--success); font-weight: 600;">已生成 ✓</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; font-size: 12.5px;">
-                  <span style="color: var(--gray-500);">生成时间</span>
-                  <span style="color: var(--gray-900); font-weight: 500;">2026-06-20</span>
-                </div>
-              </div>
-              <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                <button style="flex: 1; padding: 8px 0; border-radius: 6px; background: var(--brand); color: white; border: none; font-size: 13px; font-weight: 600; cursor: pointer;">[在线查看]</button>
-                <button style="flex: 1; padding: 8px 0; border-radius: 6px; background: #fff; color: var(--brand); border: 1px solid var(--brand); font-size: 13px; font-weight: 600; cursor: pointer;">[导出PDF]</button>
-                <button style="flex: 1; padding: 8px 0; border-radius: 6px; background: var(--gray-100); color: var(--gray-600); border: 1px solid var(--gray-300); font-size: 13px; font-weight: 600; cursor: pointer;">[重新生成]</button>
-              </div>
-              <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 10px; display: flex; gap: 8px; align-items: flex-start;">
-                <span style="font-size: 14px; margin-top: -2px;">⚠</span>
-                <div style="font-size: 11.5px; color: #92400e; line-height: 1.5;">报告基于2026-06-20的数据快照生成，如距今超过30天建议重新生成。</div>
-              </div>
-            </div>
-          </div>
-
-          <script>
-            function switchAITab(tabId, btn) {
-              const nav = btn.parentElement;
-              const card = nav.parentElement;
-              nav.querySelectorAll('.ai-tab-btn').forEach(b => b.classList.remove('active'));
-              card.querySelectorAll('.ai-tab-pane').forEach(p => p.classList.remove('active'));
-              btn.classList.add('active');
-              card.querySelector('#' + tabId).classList.add('active');
-            }
-          </script>
-
-          <!-- 行业背景卡片 -->
-          <div class="assistant-card" style="padding: 16px; margin-bottom: 24px;">
-            <div class="assistant-title" style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
-              <span>📊 行业背景</span>
-              <span style="font-size: 12px; color: var(--gray-500); font-weight: 500; background: var(--gray-100); padding: 2px 8px; border-radius: 4px;">制造业-通用设备</span>
-            </div>
-            
-            <div style="font-size: 13.5px; color: var(--brand); font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 4px;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> 
-              行业洞察 (2026年6月)
-            </div>
-            <div style="font-size: 13px; color: var(--gray-700); line-height: 1.6; margin-bottom: 12px;">
-              苏南制造业间接融资余额环比下降12%，企业转贷和新增信贷需求旺盛，是该行业客户的最佳触达窗口期。
-            </div>
-
-            <!-- 图表趋势占位 -->
-            <div style="height: 100px; background: var(--gray-50); border: 1px dashed var(--gray-200); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--gray-400); font-size: 12px; margin-bottom: 12px;">
-              [行业信贷需求趋势图表]
-            </div>
-
-            <div style="background: rgba(37,99,235,0.04); padding: 12px; border-radius: 8px; border: 1px solid rgba(37,99,235,0.1);">
-              <div style="font-size: 12.5px; color: var(--gray-600); font-weight: 600; margin-bottom: 6px;">💬 建议话术切入</div>
-              <div style="font-size: 13px; color: var(--gray-900); line-height: 1.6; font-style: italic;">
-                "当前苏南制造业的融资环境正在改善，您的企业条件非常好，现在是争取更优利率的好时机..."
-              </div>
-            </div>
           </div>
 
 
-          <!-- 分配记录卡片（仅管理员可见） -->
-          <div id="alloc-record-card" class="assistant-card" style="padding: 16px; display: none;">
-            <style>
-              .alloc-record-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-              .alloc-record-title { font-size: 14.5px; font-weight: 700; color: var(--gray-900); display: flex; align-items: center; gap: 6px; }
-              .alloc-record-add { font-size: 12.5px; color: var(--brand); font-weight: 600; cursor: pointer; border: 1.5px solid var(--brand-border); background: var(--brand-light); padding: 4px 10px; border-radius: 6px; transition: all 0.2s; }
-              .alloc-record-add:hover { background: var(--brand); color: #fff; }
-              .alloc-record-item {
-                display: flex; align-items: flex-start; gap: 10px;
-                padding: 11px 0; border-bottom: 1px solid var(--gray-100);
-              }
-              .alloc-record-item:last-child { border-bottom: none; padding-bottom: 0; }
-              .alloc-record-avatar {
-                width: 32px; height: 32px; border-radius: 50%;
-                background: var(--brand); color: #fff;
-                font-size: 12px; font-weight: 700;
-                display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-              }
-              .alloc-record-info { flex: 1; min-width: 0; }
-              .alloc-record-name { font-size: 13.5px; font-weight: 700; color: var(--gray-900); }
-              .alloc-record-batch { font-size: 12px; color: var(--gray-400); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-              .alloc-record-date { font-size: 11.5px; color: var(--gray-400); margin-top: 3px; }
-              .alloc-record-revoke { font-size: 12px; font-weight: 600; color: #dc2626; cursor: pointer; padding: 3px 8px; border-radius: 5px; border: 1px solid #fecaca; background: #fff; white-space: nowrap; flex-shrink: 0; transition: all 0.2s; }
-              .alloc-record-revoke:hover { background: #fef2f2; }
-              .alloc-record-empty { text-align: center; padding: 24px 0; color: var(--gray-400); font-size: 12.5px; line-height: 1.6; }
-            </style>
-            <div class="alloc-record-header">
-              <div class="alloc-record-title">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                分配记录
-              </div>
-              <span class="alloc-record-add" onclick="goToAlloc()">+ 新增分配</span>
-            </div>
-
-            <div id="alloc-record-list">
-              <!-- 动态渲染 -->
-            </div>
-          </div>
-
-          <script>
-            // 分配记录 Mock 数据
-            const ALLOC_RECORDS = [
-              { id: 'r1', managerName: '张三', batch: '橙业贷·5月8日批次', date: '2026-04-01' },
-              { id: 'r2', managerName: '李四', batch: '厂房贷·5月1日批次', date: '2026-05-02' },
-            ];
-
-            function renderAllocRecords() {
-              const list = document.getElementById('alloc-record-list');
-              if (!list) return;
-              if (ALLOC_RECORDS.length === 0) {
-                list.innerHTML = `<div class="alloc-record-empty">暂无分配记录<br>该企业尚未分配给任何客户经理</div>`;
-                return;
-              }
-              list.innerHTML = ALLOC_RECORDS.map(r => `
-                <div class="alloc-record-item" id="alloc-item-${r.id}">
-                  <div class="alloc-record-avatar">${r.managerName[0]}</div>
-                  <div class="alloc-record-info">
-                    <div class="alloc-record-name">${r.managerName}</div>
-                    <div class="alloc-record-batch">${r.batch}</div>
-                    <div class="alloc-record-date">${r.date}</div>
-                  </div>
-                  <button class="alloc-record-revoke" onclick="revokeAlloc('${r.id}', '${r.managerName}')">解除</button>
-                </div>
-              `).join('');
-            }
-
-            function revokeAlloc(id, name) {
-              if (!confirm(`确认解除 ${name} 对该企业的分配关系？\n解除后该企业将从 ${name} 的名单中移除。`)) return;
-              const idx = ALLOC_RECORDS.findIndex(r => r.id === id);
-              if (idx > -1) ALLOC_RECORDS.splice(idx, 1);
-              renderAllocRecords();
-              // Toast 提示
-              const msg = `已解除 ${name} 的分配关系`;
-              let el = document.getElementById('__detail_toast__');
-              if (!el) {
-                el = document.createElement('div');
-                el.id = '__detail_toast__';
-                el.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(15,23,42,0.88);color:#fff;padding:10px 22px;border-radius:100px;font-size:13.5px;font-weight:500;z-index:9999;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap;';
-                document.body.appendChild(el);
-              }
-              el.textContent = msg;
-              el.style.opacity = '1';
-              el.style.transform = 'translateX(-50%) translateY(0)';
-              clearTimeout(el._t);
-              el._t = setTimeout(() => {
-                el.style.opacity = '0';
-                el.style.transform = 'translateX(-50%) translateY(10px)';
-              }, 2500);
-            }
-
-            function goToAlloc() {
-              window.location.href = 'allocation.html';
-            }
-
-            // 判断角色：管理员才显示
-            (function initAllocCard() {
-              const role = sessionStorage.getItem('wb_role') || 'manager';
-              const isAdmin = role !== 'rm'; // rm 是客户经理，其他是管理员
-              const card = document.getElementById('alloc-record-card');
-              if (card && isAdmin) {
-                card.style.display = 'block';
-                renderAllocRecords();
-              }
-              // 演示：若无role信息，默认展示（便于原型演示）
-              if (card && !sessionStorage.getItem('wb_role')) {
-                card.style.display = 'block';
-                renderAllocRecords();
-              }
-            })();
-          </script>
-
+          
 
         </div>
-
-      </div>
     </div>
   </main>
 </div>
+
+
+<!-- ===== 触达路径抽屉 ===== -->
+<div class="drawer-overlay" id="contactModal">
+  <div class="drawer-box">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="contactModalTitle">触达路径</div>
+        <div class="modal-subtitle" id="contactModalSub">选择最优触达方式</div>
+      </div>
+      <button class="modal-close" onclick="closeContactModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="contact-tabs">
+      <div class="contact-tab active" onclick="contactTab(this,0)">本企触达</div>
+      <div class="contact-tab" onclick="contactTab(this,1)">关联企业</div>
+      <div class="contact-tab" onclick="contactTab(this,2)">行内关联</div>
+    </div>
+    <div class="contact-pane active" id="cPane0">
+      <div style="font-size: 12px; color: var(--gray-400); margin-bottom: 16px; line-height: 1.5; text-align: center;">以下角色及排序由系统基于多源大数据综合预测，仅供参考</div>
+      <div class="cp-card">
+          <div class="cp-top">
+              <span class="cp-phone">138****1234</span>
+              <span class="cp-role" style="background:rgba(37, 99, 235, 0.08);color:var(--brand);"><span style="opacity:0.5;">预测</span> 财务负责人</span>
+          </div>
+          <div class="cp-tips" style="display:flex;align-items:flex-start;gap:6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;color:var(--brand);opacity:0.7;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+              企业财税核心负责人，熟悉资金流向，信贷和结算类产品的关键对接人。
+          </div>
+          <div class="cp-actions-main">
+              <button class="cp-btn-fb">联系不上？反馈一下 ▾</button>
+              <button class="cp-btn-call" onclick="makeCall('13812341234')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>拨打
+              </button>
+          </div>
+      </div>
+      <div class="cp-card">
+          <div class="cp-top">
+              <span class="cp-phone">186****8888</span>
+              <span class="cp-role" style="background:rgba(37, 99, 235, 0.08);color:var(--brand);"><span style="opacity:0.5;">预测</span> 融资对接人</span>
+          </div>
+          <div class="cp-tips" style="display:flex;align-items:flex-start;gap:6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;color:var(--brand);opacity:0.7;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+              曾主导企业融资项目，有明确资金需求，转化意向高。
+          </div>
+          <div class="cp-actions-main">
+              <button class="cp-btn-fb">联系不上？反馈一下 ▾</button>
+              <button class="cp-btn-call" onclick="makeCall('18688888888')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>拨打
+              </button>
+          </div>
+      </div>
+      <div class="cp-card">
+          <div class="cp-top">
+              <span class="cp-phone">139****5678</span>
+              <span class="cp-role" style="background:rgba(37, 99, 235, 0.08);color:var(--brand);"><span style="opacity:0.5;">预测</span> 资质项目申报人</span>
+          </div>
+          <div class="cp-tips" style="display:flex;align-items:flex-start;gap:6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;color:var(--brand);opacity:0.7;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+              高新/专精特新资质申报负责人，多为高管或核心骨干。
+          </div>
+          <div class="cp-actions-main">
+              <button class="cp-btn-fb">联系不上？反馈一下 ▾</button>
+              <button class="cp-btn-call" onclick="makeCall('13956785678')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>拨打
+              </button>
+          </div>
+      </div>
+      <div class="cp-card" style="opacity:0.65;">
+          <div class="cp-top">
+              <span class="cp-phone">0512-6888****</span>
+              <span class="cp-role" style="background:rgba(239, 68, 68, 0.08);color:var(--danger);"><span style="opacity:0.5;">预测</span> 工商预留固话</span>
+          </div>
+          <div class="cp-tips" style="display:flex;align-items:flex-start;gap:6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;color:var(--danger);opacity:0.7;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              工商注册预留固话，接通率较低，建议作兜底使用。
+          </div>
+          <div class="cp-actions-main">
+              <button class="cp-btn-fb">联系不上？反馈一下 ▾</button>
+              <button class="cp-btn-call" style="background:var(--gray-300);color:var(--gray-700);" onclick="makeCall('051268881234')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>拨打
+              </button>
+          </div>
+      </div>
+    </div>
+    <div class="contact-pane" id="cPane1">
+      <div class="cp-card" style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid var(--border);">
+        <div style="margin-bottom:12px;">
+          <div style="font-size:15px;font-weight:700;color:var(--gray-900);">无锡市智云科技有限公司</div>
+          <span style="font-size:11px;padding:4px 8px;border-radius:6px;background:rgba(139,92,246,0.1);color:var(--info);margin-top:6px;display:inline-block;font-weight:600;">控股股东 (持股65%)</span>
+        </div>
+        <div style="border-top:1px dashed var(--gray-200);padding-top:12px;margin-top:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:15px;font-weight:700;color:var(--gray-900);font-family:monospace;">139****8888</span>
+            <span style="font-size:13px;color:var(--gray-500);font-weight:500;">联系方式</span>
+          </div>
+        </div>
+      </div>
+      <div class="cp-card" style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid var(--border);">
+        <div style="margin-bottom:12px;">
+          <div style="font-size:15px;font-weight:700;color:var(--gray-900);">苏州蓝天商贸有限公司</div>
+          <span style="font-size:11px;padding:4px 8px;border-radius:6px;background:rgba(245,158,11,0.1);color:var(--warning);margin-top:6px;display:inline-block;font-weight:600;">法定代表人其他企业</span>
+        </div>
+        <div style="border-top:1px dashed var(--gray-200);padding-top:12px;margin-top:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:15px;font-weight:700;color:var(--gray-900);font-family:monospace;">137****1111</span>
+            <span style="font-size:13px;color:var(--gray-500);font-weight:500;">联系方式</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="contact-pane" id="cPane2">
+      <div style="padding:16px;background:linear-gradient(135deg,rgba(37,99,235,0.06),rgba(139,92,246,0.06));border:1px solid rgba(37,99,235,0.15);border-radius:12px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+          <span style="width:40px;height:40px;background:var(--brand);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:600;box-shadow:0 4px 10px rgba(37,99,235,0.2);">关</span>
+          <div>
+            <div style="font-size:16px;font-weight:700;color:var(--gray-900);">苏州创芯微电子有限公司</div>
+            <div style="font-size:12px;color:var(--gray-500);margin-top:4px;">行内授信 · 贷款余额800万 · 经理：王强</div>
+          </div>
+        </div>
+        <div style="background:rgba(255,255,255,0.6);border-radius:8px;padding:12px;font-size:13px;color:var(--gray-700);line-height:1.6;border:1px solid rgba(255,255,255,0.8);">
+          <div style="margin-bottom:6px;"><b>关联关系：</b>该企业法人 <span style="color:var(--brand);font-weight:600;">张明</span> 同时担任行内存量客户的股东（持股32%）</div>
+          <div><b>触达建议：</b>可通过存量客户经理王强引荐，或以关联企业授信为切入点沟通</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <!-- 二维码授权弹窗 - 必须在内联 script 之前定义 -->
 <div class="drawer-overlay" id="authQrModal">
@@ -936,7 +736,7 @@
     <div style="font-size: 18px; font-weight: 700; color: var(--gray-900); margin-bottom: 8px;">扫码完成授权</div>
     <div style="font-size: 13px; color: var(--gray-500); margin-bottom: 24px; line-height: 1.5;">请企业法人或授权人使用微信扫码</div>
     <div style="background: var(--gray-50); padding: 16px; border-radius: 12px; display: inline-block; border: 1px solid var(--gray-100); margin-bottom: 24px;">
-      <img src="img/auth-qrcode.png" alt="授权二维码" style="width: 170px; height: 170px; object-fit: contain; -webkit-touch-callout: default; display: block; margin: 0 auto;">
+      <img src="data:image/png;base64,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" alt="授权二维码" style="width: 170px; height: 170px; object-fit: contain; -webkit-touch-callout: default; display: block; margin: 0 auto;">
     </div>
     <div style="display: flex; gap: 12px;">
       <button onclick="saveAuthQr()" style="flex: 1; padding: 10px; border-radius: 8px; font-size: 14px; font-weight: 600; border: none; background: var(--brand); color: #fff; cursor: pointer;">保存图片</button>
@@ -960,121 +760,8 @@
     { date: '2026-04-23 11:20', statusTag: '营销状态', result: '已触达 · 有意向', note: '上门拜访了张总，详细展示了科技信用贷的产品优势和初步额度方案，客户承诺安排财务在网银提单。', operator: '李经理' }
   ];
 
-  function renderContactPaths() {
-    const el = document.getElementById('contactPaths');
-    el.innerHTML = contactPaths.map(p => `
-      <div class="cp-card">
-        <div class="cp-avatar">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-        </div>
-        <div class="cp-info">
-          <div class="cp-name">${p.role}</div>
-          <div class="cp-role">${p.maskedPhone}</div>
-          <div class="cp-tips">${p.tips}</div>
-        </div>
-        <button class="cp-btn" onclick="alert('拨打号码：${p.fullPhone}')">拨打</button>
-      </div>
-    `).join('');
-  }
-
-  function renderHistory() {
-    const el = document.getElementById('historyList');
-    el.innerHTML = contactHistory.map((h, i) => `
-      <div class="history-item ${i===0 ? 'primary' : ''}">
-        <div class="history-dot"></div>
-        <div class="history-date">${h.date}</div>
-        <div class="history-content">
-          <div class="history-meta">
-            <span class="history-user">${h.operator}</span>
-            <span class="history-tag ${h.statusTag === '业务状态' ? 'biz' : ''}">${h.statusTag}</span>
-            <span style="font-size:13px;font-weight:600;color:var(--gray-900);">${h.result}</span>
-          </div>
-          <div class="history-text">${h.note}</div>
-        </div>
-      </div>
-    `).join('');
-  }
-
-  function switchTab(id, el) {
-    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-    el.classList.add('active');
-    document.getElementById('pane-' + id).classList.add('active');
-  }
-
-  // ===== 授权二维码交互 =====
-  function openAuthQrModal() {
-    document.getElementById('authQrModal').classList.add('show');
-  }
-  function closeAuthQrModal() {
-    const modal = document.getElementById('authQrModal');
-    if (modal.classList.contains('show')) {
-      modal.classList.remove('show');
-      
-      // 模拟已完成授权，解开遮罩
-      const authDataBlur = document.getElementById('authDataBlur');
-      const authOverlay = document.getElementById('authOverlay');
-      if (authOverlay && authOverlay.style.display !== 'none') {
-        authDataBlur.style.filter = 'none';
-        authDataBlur.style.opacity = '1';
-        authDataBlur.style.pointerEvents = 'auto';
-        authDataBlur.style.userSelect = 'auto';
-        authOverlay.style.display = 'none';
-        
-        const toast = document.createElement('div');
-        toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#10b981;color:white;padding:10px 24px;border-radius:100px;font-size:13.5px;font-weight:600;z-index:9999;box-shadow:0 4px 12px rgba(16,185,129,0.3);';
-        toast.textContent = '已模拟：企业完成授权';
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 2000);
-      }
-    }
-  }
-  function saveAuthQr() {
-    const toast = document.createElement('div');
-    toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#10b981;color:white;padding:10px 24px;border-radius:100px;font-size:13.5px;font-weight:600;z-index:9999;box-shadow:0 4px 12px rgba(16,185,129,0.3);';
-    toast.textContent = '✓ 二维码已保存到本地相册';
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 2000);
-    closeAuthQrModal();
-  }
-  // ===== 状态标记抽屉交互 (适配公共组件) =====
-  function openMarkDrawer() {
-    const pageTitle = document.querySelector('.hero-title')?.textContent || '企业详情';
-    window.openStatusDrawer(1, pageTitle, '40', 'APPLIED');
-  }
-
-  window.onStatusSaved = function(l1Code, bizCode, reachNoteVal, bizNoteVal) {
-    const reachText = L1_DISPLAY[l1Code] ? L1_DISPLAY[l1Code].l : '待触达';
-    const bizText = BIZ_MAP[bizCode] ? BIZ_MAP[bizCode].l : '未申请';
-    
-    // 更新页面头部卡片状态
-    const statusText = bizText ? `${reachText} · ${bizText}` : reachText;
-    document.getElementById('pageStatus').textContent = statusText;
-    
-    let combinedNote = '';
-    if (reachNoteVal) combinedNote += `【营销反馈】${reachNoteVal} `;
-    if (bizNoteVal) combinedNote += `【业务备注】${bizNoteVal}`;
-    if (!combinedNote) combinedNote = `更新了客户状态。`;
-    
-    const now = new Date();
-    const formatTime = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-    
-    // 写入营销轨迹
-    contactHistory.unshift({
-      date: formatTime,
-      statusTag: bizCode !== 'NONE' ? '业务状态' : '营销状态',
-      result: statusText,
-      note: combinedNote,
-      operator: '李经理'
-    });
-    
-    // 重新渲染跟进历史
-    renderHistory();
-  };
-
   // 脚本在 body 末尾，DOM 已就绪，直接执行
   (function() {
-    renderContactPaths();
     renderHistory();
     
     // authQrModal 点击背景关闭
@@ -1107,5 +794,49 @@
   renderSidebar({ currentPage: 'customers', role: _sideRole });
 </script>
   <script src="js/toast.js"></script>
+<script>
+// ===== 触达路径弹窗 =====
+function openContactModal() {
+  document.getElementById('contactModalTitle').textContent = '触达路径';
+  document.getElementById('contactModalSub').textContent = '苏州智云科技有限公司';
+  document.getElementById('contactModal').classList.add('show');
+}
+function closeContactModal() {
+  document.getElementById('contactModal').classList.remove('show');
+}
+function contactTab(el, idx) {
+  document.querySelectorAll('.contact-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.contact-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('cPane' + idx).classList.add('active');
+}
+function makeCall(phone) {
+  alert('正在呼叫 ' + phone);
+}
+</script>
+<script>
+
+function switchTab(tabId, el) {
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  var targetPane = document.getElementById('pane-' + tabId);
+  if (targetPane) targetPane.classList.add('active');
+}
+
+</script>
+<script>
+
+function openAuthQrModal() {
+  document.getElementById('authQrModal').classList.add('show');
+}
+function closeAuthQrModal() {
+  document.getElementById('authQrModal').classList.remove('show');
+}
+function saveAuthQr() {
+  alert('图片已保存');
+}
+
+</script>
 </body>
 </html>

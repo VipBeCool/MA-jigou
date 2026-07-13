@@ -7,7 +7,7 @@
   <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
   <title>智能体管理 - 智能营销平台</title>
   <meta name="description" content="配置获客智能体规则引擎，管理名单批次与白名单快照">
-  <link rel="stylesheet" href="css/style.css?v=1783685212">
+  <link rel="stylesheet" href="css/style.css?v=1783867207">
   <style>
     /* ====================================================
        智能体管理 —— 专属样式
@@ -720,7 +720,7 @@
     }
 
     .wiz-step.done .wiz-step-num {
-      background: #10b981;
+      background: var(--brand);
       color: #fff;
     }
 
@@ -736,7 +736,7 @@
     }
 
     .wiz-step.done .wiz-step-label {
-      color: #10b981;
+      color: var(--brand);
     }
 
     .wiz-line {
@@ -749,7 +749,7 @@
     }
 
     .wiz-line.done {
-      background: #10b981;
+      background: var(--brand);
     }
 
     .wizard-body {
@@ -906,22 +906,7 @@
       border: 1px solid var(--border);
     }
 
-    .rule-row select,
-    .rule-row input {
-      flex: 1;
-      padding: 6px 10px;
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      font-size: 13px;
-      background: #fff;
-      color: var(--gray-800);
-      outline: none;
-    }
-
-    .rule-row select:focus,
-    .rule-row input:focus {
-      border-color: var(--brand);
-    }
+    /* 旧的 .rule-row select 和 input 样式已被移除，以防覆盖自定义搜索下拉框的内部样式 */
 
     .rule-del-btn {
       width: 26px;
@@ -1743,30 +1728,21 @@
             </div>
           </div>
           <input type="hidden" id="f-org" value="">
-          <div class="form-hint">从组织机构管理中选择</div>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
-          <div class="form-group">
-            <label class="form-label">机构简称</label>
-            <input class="form-input" id="f-orgshort" type="text" placeholder="如：平安银行">
-          </div>
-          <div class="form-group">
-            <label class="form-label">智能体名称<span style="color:#ef4444">*</span></label>
-            <input class="form-input" id="f-name" type="text" placeholder="如：橙业贷、厂房贷">
-          </div>
+                <div class="form-group">
+          <label class="form-label">机构简称</label>
+          <input class="form-input" id="f-orgshort" type="text" placeholder="" disabled style="background-color: var(--gray-50); cursor: not-allowed; color: var(--gray-500);">
+        </div>
+        <div class="form-group">
+          <label class="form-label">智能体名称<span style="color:#ef4444">*</span></label>
+          <input class="form-input" id="f-name" type="text" placeholder="如：橙业贷、厂房贷">
         </div>
       </div>
 
       <!-- Step 1: 获客规则 -->
       <div class="wizard-page" id="wp-1">
         <div class="section-heading">获客规则配置</div>
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
-          <span style="font-size:13px;color:var(--gray-500);">规则关系：</span>
-          <div class="logic-toggle">
-            <button class="logic-btn active" id="logicAnd" onclick="setLogic('AND')">AND（全部满足）</button>
-            <button class="logic-btn" id="logicOr" onclick="setLogic('OR')">OR（满足其一）</button>
-          </div>
-        </div>
+        <div style="margin-bottom:12px; font-size:13px; color:var(--gray-500);">满足以下全部条件：</div>
         <div id="ruleContainer"></div>
         <button onclick="addRule()"
           style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border:1.5px dashed var(--brand);border-radius:8px;color:var(--brand);font-size:13px;font-weight:600;background:transparent;cursor:pointer;margin-top:6px;">
@@ -1776,9 +1752,7 @@
           </svg>
           添加规则
         </button>
-        <div style="margin-top:16px;padding:12px 14px;background:var(--gray-50);border-radius:8px;font-size:13px;">
-          预估覆盖企业：<strong id="rulePreview" style="color:var(--brand);font-size:15px;">约 1,200 家</strong>
-        </div>
+
       </div>
 
       <!-- Step 2: 名单策略 -->
@@ -2405,15 +2379,23 @@
       }
 
       if (tab === 'rules') {
-        const rulesHtml = a.rules.map(r =>
-          '<span style="display:inline-flex;align-items:center;gap:4px;margin:2px 4px 2px 0;background:var(--gray-100);padding:4px 10px;border-radius:6px;font-size:12.5px;color:var(--gray-700);">' +
-          r.field + ' <span style="color:var(--gray-400);">' + r.op + '</span> ' + r.val +
-          '</span>'
+        const rulesListItems = a.rules.map(r =>
+          '<div style="display:flex; gap:8px; align-items:center; margin-bottom:8px; padding:10px 12px; background:var(--gray-50); border-radius:8px; border:1px solid var(--border);">' +
+            '<div style="background:#fff; border:1px solid var(--gray-200); padding:6px 12px; border-radius:6px; font-size:13px; color:var(--gray-700); min-width:120px; font-weight: 500;">' + r.field + '</div>' +
+            '<div style="background:#fff; border:1px solid var(--gray-200); padding:6px 12px; border-radius:6px; font-size:13px; color:var(--gray-600); min-width:90px; text-align:center;">' + r.op + '</div>' +
+            '<div style="background:#fff; border:1px solid var(--gray-200); padding:6px 12px; border-radius:6px; font-size:13px; color:var(--gray-900); flex:1;">' + r.val + '</div>' +
+          '</div>'
         ).join('');
 
+        const ruleBuilderView = 
+          '<div style="position:relative; padding-left:36px; border-left:2px solid var(--gray-200); margin: 16px 0 16px 16px;">' +
+            '<div style="position:absolute; left:-18px; top:50%; transform:translateY(-50%); background:var(--brand-light); color:var(--brand); border:1px solid var(--brand-border); padding:2px 8px; border-radius:12px; font-size:12px; font-weight:700;">AND</div>' +
+            '<div style="display:flex; flex-direction:column; justify-content:center;">' + rulesListItems + '</div>' +
+          '</div>';
+
         document.getElementById('dpane-rules').innerHTML =
-          '<div style="font-size:13px;font-weight:700;color:var(--gray-700);margin-bottom:10px;">获客规则（AND 关系）</div>' +
-          row('筛选条件', rulesHtml);
+          '<div style="font-size:13px; color:var(--gray-500); margin-bottom:12px;">满足以下全部条件：</div>' +
+          ruleBuilderView;
       }
 
       /* ── Tab 2: 名单批次 ── */
@@ -2482,10 +2464,9 @@
           '</button>' +
           '</div>' +
           '<div class="wl-toolbar">' +
-          '<button class="btn btn-primary btn-sm" onclick="this.disabled=true; this.innerText=\'跑批中...\'; showToast(\'任务已提交，稍后查看\'); setTimeout(() => {this.disabled=false; this.innerText=\'立即跑批生成\'}, 2000)">立即跑批生成</button>' +
-          '' +
+          '<button class="btn btn-primary btn-sm" onclick="openWlImportInner()">导入白名单</button>' +
           '<button class="btn btn-default btn-sm" onclick="openAddSnapshot(\'' + a.id + '\')">从历史批次中添加</button>' +
-          '<button class="btn btn-default btn-sm" onclick="openWlImportInner()">导入白名单</button>' +
+          '<button class="btn btn-default btn-sm" onclick="this.disabled=true; this.innerText=\'跑批中...\'; showToast(\'任务已提交，稍后查看\'); setTimeout(() => {this.disabled=false; this.innerText=\'立即跑批生成\'}, 2000)">立即跑批生成</button>' +
           '</div>' +
           '<div class="snapshot-list">' + snapListHtml + '</div>';
       }
@@ -2640,18 +2621,97 @@
     const RULE_FIELDS = ['主体划型', '企业状态', '成立年限', '行业类型', '纳税信用', '特色认证', '无贷户', '企业规模', '厂房类型', '年营业收入', '注册资本', '所属地区'];
     const RULE_OPS = ['=', '≠', '>', '<', '≥', '≤', '包含', '不包含'];
 
+    const RULE_UNITS = {
+      '成立年限': '年',
+      '年营业收入': '万元',
+      '注册资本': '万元',
+      '企业规模': '人'
+    };
+
+    function updateRuleUnit(row, field) {
+      const unitSpan = row.querySelector('.rule-unit-text');
+      const inputEl = row.querySelector('.rule-val-input');
+      const unit = RULE_UNITS[field] || '';
+      unitSpan.textContent = unit;
+      if (unit) {
+        inputEl.style.paddingRight = '36px';
+      } else {
+        inputEl.style.paddingRight = '12px';
+      }
+    }
+
+    function filterRuleSelect(inputEl, keyword) {
+      const wrap = inputEl.closest('.search-select');
+      wrap.classList.add('open');
+      const kw = keyword.trim().toLowerCase();
+      let hasVisible = false;
+      wrap.querySelectorAll('.search-select-option').forEach(opt => {
+        const match = !kw || opt.textContent.toLowerCase().includes(kw);
+        opt.style.display = match ? '' : 'none';
+        if (match) hasVisible = true;
+      });
+      const empty = wrap.querySelector('.search-select-empty');
+      if (empty) empty.style.display = hasVisible ? 'none' : '';
+    }
+
+    function selectRuleField(optEl, value) {
+      const wrap = optEl.closest('.search-select');
+      wrap.querySelector('.search-select-input').value = value;
+      wrap.querySelectorAll('.search-select-option').forEach(o => o.classList.remove('selected'));
+      optEl.classList.add('selected');
+      wrap.classList.remove('open');
+      const row = optEl.closest('.rule-row');
+      updateRuleUnit(row, value);
+    }
+
+    function selectRuleOp(optEl, value) {
+      const wrap = optEl.closest('.search-select');
+      wrap.querySelector('.search-select-input').value = value;
+      wrap.querySelectorAll('.search-select-option').forEach(o => o.classList.remove('selected'));
+      optEl.classList.add('selected');
+      wrap.classList.remove('open');
+    }
+
     function addRule(field, op, val) {
       const c = document.getElementById('ruleContainer');
       const d = document.createElement('div');
       d.className = 'rule-row';
+
+      let unit = field ? (RULE_UNITS[field] || '') : '';
+      let pr = unit ? '36px' : '12px';
+
+      const fieldOptions = RULE_FIELDS.map(f => '<div class="search-select-option' + (f === field ? ' selected' : '') + '" onclick="event.stopPropagation(); selectRuleField(this, \'' + f + '\')">' + f + '</div>').join('');
+      const opOptions = RULE_OPS.map(o => '<div class="search-select-option' + (o === op ? ' selected' : '') + '" onclick="event.stopPropagation(); selectRuleOp(this, \'' + o + '\')">' + o + '</div>').join('');
+
       d.innerHTML =
-        '<select style="flex:1.5;">' + RULE_FIELDS.map(f => '<option' + (f === field ? ' selected' : '') + '>' + f + '</option>').join('') + '</select>' +
-        '<select style="width:85px;">' + RULE_OPS.map(o => '<option' + (o === op ? ' selected' : '') + '>' + o + '</option>').join('') + '</select>' +
-        '<input type="text" placeholder="值" style="flex:1;" value="' + (val || '') + '">' +
-        '<button class="rule-del-btn" onclick="this.closest(\'.rule-row\').remove();updateRulePreview();" title="删除"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
-      d.querySelectorAll('select,input').forEach(el => el.addEventListener('change', updateRulePreview));
+        '<div class="search-select" style="flex:1.5;">' +
+          '<div class="search-select-input-wrap" onclick="this.parentElement.classList.toggle(\'open\');">' +
+            '<input type="text" class="search-select-input" placeholder="请选择条件..." value="' + (field || '') + '" ' +
+              'oninput="filterRuleSelect(this, this.value)" onclick="event.stopPropagation(); this.closest(\'.search-select\').classList.add(\'open\');" autocomplete="off">' +
+            '<svg class="search-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9" /></svg>' +
+          '</div>' +
+          '<div class="search-select-dropdown">' +
+            fieldOptions +
+            '<div class="search-select-empty" style="display:none;"><span>未找到匹配项</span></div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="search-select" style="width:110px;">' +
+          '<div class="search-select-input-wrap" onclick="this.parentElement.classList.toggle(\'open\');">' +
+            '<input type="text" class="search-select-input" placeholder="请选择" value="' + (op || '=') + '" ' +
+              'readonly style="cursor:pointer;" onclick="event.stopPropagation(); this.closest(\'.search-select\').classList.add(\'open\');" autocomplete="off">' +
+            '<svg class="search-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9" /></svg>' +
+          '</div>' +
+          '<div class="search-select-dropdown">' +
+            opOptions +
+          '</div>' +
+        '</div>' +
+        '<div style="flex:1.5; display:flex; align-items:center; position:relative;">' +
+          '<input type="text" class="form-input rule-val-input" placeholder="值" style="width:100%; padding-right:' + pr + ';" value="' + (val || '') + '">' +
+          '<span class="rule-unit-text" style="position:absolute; right:12px; font-size:13px; color:var(--gray-400); pointer-events:none;">' + unit + '</span>' +
+        '</div>' +
+        '<button class="rule-del-btn" onclick="this.closest(\'.rule-row\').remove();if(window.updateRulePreview) updateRulePreview();" title="删除条件"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
       c.appendChild(d);
-      updateRulePreview();
+      if(window.updateRulePreview) updateRulePreview();
     }
 
     function updateRulePreview() {

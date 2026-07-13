@@ -7,7 +7,7 @@
     <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
   <title>组织与成员管理 - 智能营销平台</title>
   <meta name="description" content="统一配置银行组织层级结构及各机构人员归属">
-  <link rel="stylesheet" href="css/style.css?v=1783685212">
+  <link rel="stylesheet" href="css/style.css?v=1783867207">
   <style>
     /* ── Tabs ── */
     .tabs-header {
@@ -1486,12 +1486,7 @@
         </button>
       </div>
       <div class="modal-body" style="flex:1;overflow-y:auto;">
-        <!-- 步骤进度条 -->
-        <div class="import-wizard-steps" id="iwSteps">
-          <!-- 动态渲染 -->
-        </div>
-
-        <!-- 步骤内容区 -->
+<!-- 步骤内容区 -->
         <div id="iwContent"></div>
       </div>
       <div class="modal-footer" id="iwFooter" style="flex-shrink:0;border-top:1px solid var(--border);">
@@ -2758,193 +2753,74 @@
     /* ============================================================
        导入向导
     ============================================================ */
+
     let iwStep = 1;
-    const IW_STEPS = ['下载模板', '上传文件', '预览确认', '导入完成'];
 
     function openImportWizard() {
       iwStep = 1;
-      renderIWSteps();
       renderIWContent();
       renderIWFooter();
       document.getElementById('importModal').classList.add('show');
       document.body.style.overflow = 'hidden';
     }
 
-    function renderIWSteps() {
-      const el = document.getElementById('iwSteps');
-      let html = '';
-      IW_STEPS.forEach((label, i) => {
-        const n = i + 1;
-        const cls = n < iwStep ? 'done' : (n === iwStep ? 'active' : '');
-        if (i > 0) html += `<div class="iw-connector ${n <= iwStep ? 'done' : ''}"></div>`;
-        html += `<div class="iw-step ${cls}">
-      <div class="iw-step-dot">${n < iwStep ? '✓' : n}</div>
-      <span class="iw-step-label">${label}</span>
-    </div>`;
-      });
-      el.innerHTML = html;
-    }
-
     function renderIWContent() {
       const el = document.getElementById('iwContent');
       if (iwStep === 1) {
         el.innerHTML = `
-      <div style="padding:4px 0;">
-        <div style="font-size:13.5px;color:var(--gray-500);line-height:1.7;margin-bottom:20px;">
-          下载模板后按格式填入机构层级及人员信息，系统将自动解析并创建对应节点与账号。
+      <div style="padding:16px 0;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <span style="font-size:14px;font-weight:600;color:var(--gray-800);">上传文件</span>
+          <button class="btn btn-ghost" onclick="downloadTemplate()" style="color:var(--brand);font-weight:600;padding:4px 8px;border:1px solid var(--brand);border-radius:6px;">下载名单模板</button>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;">
-          ${[
-            { col: '一级机构 *', desc: '签约行根节点，如「江苏省分行」' },
-            { col: '二级机构', desc: '下属机构，如「苏州分行」' },
-            { col: '三级机构', desc: '如「姑苏支行」' },
-            { col: '四级机构', desc: '如「城东网点」' },
-            { col: '五级机构', desc: '如有更深层级可继续填写' },
-            { col: '角色', desc: '管理员 或 客户经理' },
-            { col: '姓名 *', desc: '员工真实姓名（必填）' },
-            { col: '账号 *', desc: '登录账号，需唯一（必填）' },
-            { col: '手机号', desc: '接收初始密码短信' },
-          ].map(f => `
-            <div style="display:flex;gap:8px;padding:7px 10px;background:var(--gray-50);border-radius:8px;border:1px solid var(--border);">
-              <span style="font-size:12px;font-weight:700;color:var(--brand);white-space:nowrap;">${f.col}</span>
-              <span style="font-size:12px;color:var(--gray-500);">${f.desc}</span>
+        <div class="upload-zone" id="uploadZone"
+          ondragover="event.preventDefault();this.classList.add('drag-over')"
+          ondragleave="this.classList.remove('drag-over')"
+          ondrop="handleFileDrop(event)">
+          <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleFileSelect(this)">
+          <div class="upload-zone-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
+          <div class="upload-zone-title">点击或将文件拖拽到这里上传</div>
+          <div class="upload-zone-desc">支持 .xlsx / .xls / .csv 格式，单个文件不超过 10MB</div>
+          <button class="btn btn-default btn-sm" style="margin-top:12px;" onclick="event.stopPropagation();document.getElementById('fileInput').click()">选择文件</button>
+        </div>
+        <div id="filePreview" style="margin-top:12px;display:none;">
+          <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--gray-50);border-radius:10px;border:1px solid var(--border);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--brand);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <div style="flex:1;">
+              <div id="fileName" style="font-size:13.5px;font-weight:600;color:var(--gray-800);"></div>
+              <div id="fileSize" style="font-size:12px;color:var(--gray-400);"></div>
             </div>
-          `).join('')}
+            <span style="color:var(--success);font-size:12.5px;font-weight:600;">✓ 已选择</span>
+          </div>
         </div>
-        <div style="padding:10px 14px;background:var(--gray-50);border-radius:8px;border:1px solid var(--border);font-size:12.5px;color:var(--gray-600);line-height:1.6;margin-bottom:20px;">
-          从左到右逐级填写机构名称，右侧留空表示到当前层级为止；如账号已存在将跳过，机构已存在将复用并追加成员。
-        </div>
-        <button class="btn btn-primary" onclick="downloadTemplate()" style="width:100%;justify-content:center;">
-          下载 Excel 模板
-        </button>
       </div>
     `;
       } else if (iwStep === 2) {
         el.innerHTML = `
-      <div class="upload-zone" id="uploadZone"
-        ondragover="event.preventDefault();this.classList.add('drag-over')"
-        ondragleave="this.classList.remove('drag-over')"
-        ondrop="handleFileDrop(event)">
-        <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleFileSelect(this)">
-        <div class="upload-zone-icon">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        </div>
-        <div class="upload-zone-title">将文件拖拽到此处</div>
-        <div class="upload-zone-desc">支持 .xlsx / .xls / .csv</div>
-        <button class="btn btn-default btn-sm" style="margin-top:12px;" onclick="event.stopPropagation();document.getElementById('fileInput').click()">选择文件</button>
-      </div>
-      <div id="filePreview" style="margin-top:12px;display:none;">
-        <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--gray-50);border-radius:10px;border:1px solid var(--border);">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--brand);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-          <div style="flex:1;">
-            <div id="fileName" style="font-size:13.5px;font-weight:600;color:var(--gray-800);"></div>
-            <div id="fileSize" style="font-size:12px;color:var(--gray-400);"></div>
-          </div>
-          <span style="color:var(--success);font-size:12.5px;font-weight:600;">格式校验通过</span>
-        </div>
-      </div>
-    `;
-      } else if (iwStep === 3) {
-        el.innerHTML = `
-      <div style="margin-bottom:14px;padding:12px 16px;background:var(--gray-50);border-radius:10px;border:1px solid var(--border);display:flex;align-items:center;gap:16px;">
-        <div style="text-align:center;">
-          <div style="font-size:20px;font-weight:800;color:var(--success);">34</div>
-          <div style="font-size:11px;color:var(--gray-400);">有效数据行</div>
-        </div>
-        <div style="width:1px;height:36px;background:var(--border);"></div>
-        <div style="text-align:center;">
-          <div style="font-size:20px;font-weight:800;color:var(--brand);">8</div>
-          <div style="font-size:11px;color:var(--gray-400);">机构节点</div>
-        </div>
-        <div style="width:1px;height:36px;background:var(--border);"></div>
-        <div style="text-align:center;">
-          <div style="font-size:20px;font-weight:800;color:var(--brand);">34</div>
-          <div style="font-size:11px;color:var(--gray-400);">账号</div>
-        </div>
-        <div style="width:1px;height:36px;background:var(--border);"></div>
-        <div style="text-align:center;">
-          <div style="font-size:20px;font-weight:800;color:#f59e0b;">2</div>
-          <div style="font-size:11px;color:var(--gray-400);">警告</div>
-        </div>
-      </div>
-      <div class="preview-grid">
-        <!-- 机构树预览 -->
-        <div class="preview-panel">
-          <div class="preview-panel-title">机构层级预览</div>
-          ${[
-            { indent: 0, name: '江苏省分行', status: 'exists' },
-            { indent: 1, name: '+ 南京分行', status: 'exists' },
-            { indent: 2, name: '+ 建邺支行', status: 'new' },
-            { indent: 2, name: '+ 鼓楼支行', status: 'exists' },
-            { indent: 2, name: '+ 同城个贷三部', status: 'new' },
-            { indent: 1, name: '+ 徐州分行', status: 'new' },
-            { indent: 2, name: '+ 徐州支行', status: 'new' },
-            { indent: 1, name: '+ 南通分行', status: 'new' },
-            { indent: 2, name: '+ 南通支行', status: 'new' },
-            { indent: 1, name: '+ 泰州分行', status: 'new' },
-          ].map(r => `
-            <div class="preview-tree-node ${r.status}" style="padding-left:${r.indent * 16}px;">
-              ${r.name}
-              <span style="font-size:10px;margin-left:4px;">${r.status === 'new' ? '(新建)' : '(已存在)'}</span>
-            </div>
-          `).join('')}
-        </div>
-        <!-- 账号预览 -->
-        <div class="preview-panel">
-          <div class="preview-panel-title">账号预览 (共34条，显示前8条)</div>
-          ${[
-            { name: '陈菱', account: 'yxw_pabank', role: '管理员', status: 'ok' },
-            { name: '王某某', account: 'cw_shi', role: '管理员', status: 'ok' },
-            { name: '郑婵婷', account: 'ztt_zhi', role: '客户经理', status: 'ok' },
-            { name: '陈菱·支2', account: 'cw_zhi02', role: '管理员', status: 'ok' },
-            { name: '徐志忠', account: 'xzh_zhi', role: '客户经理', status: 'ok' },
-            { name: '李四（手机号格式错误）', account: 'ls_001', role: '客户经理', status: 'warn' },
-            { name: '王五（账号重复）', account: 'cw_shi', role: '客户经理', status: 'error' },
-            { name: '杨守衡', account: 'yyh_zhi', role: '客户经理', status: 'ok' },
-          ].map(r => `
-            <div class="preview-account-row ${r.status !== 'ok' ? r.status : ''}">
-              <div style="flex:1;min-width:0;">
-                <div style="font-size:13px;font-weight:600;color:${r.status === 'error' ? '#dc2626' : r.status === 'warn' ? '#d97706' : 'var(--gray-800)'};">${r.name}</div>
-                <div style="font-size:11.5px;color:var(--gray-400);">${r.account} · ${r.role}</div>
-              </div>
-              <span style="font-size:11px;${r.status === 'ok' ? 'color:var(--success)' : r.status === 'warn' ? 'color:#d97706' : 'color:#dc2626'};">
-                ${r.status === 'ok' ? '✓' : r.status === 'warn' ? '警告' : '冲突'}
-              </span>
-            </div>
-          `).join('')}
-          <div style="margin-top:8px;font-size:12px;color:var(--gray-400);">剩余26条正常，点击「确认导入」后统一处理</div>
-        </div>
-      </div>
-      <div style="margin-top:12px;padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;font-size:12.5px;color:#dc2626;line-height:1.6;">
-        发现 1 个账号冲突（已存在）将跳过，1 个警告项将继续创建。确认前请检查红色标注行。
-      </div>
-    `;
-      } else if (iwStep === 4) {
-        el.innerHTML = `
       <div style="text-align:center;padding:24px 0;">
-        <div style="width:72px;height:72px;background:var(--success-bg);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;color:var(--success);">
+        <div style="width:72px;height:72px;background:#d1fae5;border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;color:#059669;">
           <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
         <h3 style="font-size:20px;font-weight:800;color:var(--gray-900);margin-bottom:8px;">导入成功！</h3>
         <p style="font-size:14px;color:var(--gray-500);margin-bottom:24px;line-height:1.7;">
           已创建 <strong style="color:var(--brand);">7</strong> 个机构节点，<br>
-          开通 <strong style="color:var(--brand);">33</strong> 个账号（1个冲突已跳过），<br>
-          初始密码已通过短信发送至对应手机。
+          开通 <strong style="color:var(--brand);">33</strong> 个账号（1个冲突账号已跳过），<br>
+          初始密码已通过短信发送至对应手机号。
         </p>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:480px;margin:0 auto 24px;">
-          ${[
-            { label: '管理员', val: '13' },
-            { label: '客户经理', val: '20' },
-          ].map(s => `
-            <div style="padding:12px 20px;background:var(--gray-50);border-radius:10px;border:1px solid var(--border);text-align:center;">
-              <div style="font-size:22px;font-weight:800;color:var(--brand);">${s.val}</div>
-              <div style="font-size:12px;color:var(--gray-500);">${s.label}</div>
-            </div>
-          `).join('')}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:360px;margin:0 auto 28px;">
+          <div style="padding:14px 20px;background:var(--gray-50);border-radius:10px;border:1px solid var(--border);text-align:center;">
+            <div style="font-size:24px;font-weight:800;color:var(--brand);">13</div>
+            <div style="font-size:12px;color:var(--gray-500);">管理员</div>
+          </div>
+          <div style="padding:14px 20px;background:var(--gray-50);border-radius:10px;border:1px solid var(--border);text-align:center;">
+            <div style="font-size:24px;font-weight:800;color:var(--brand);">20</div>
+            <div style="font-size:12px;color:var(--gray-500);">客户经理</div>
+          </div>
         </div>
         <div style="display:flex;gap:10px;justify-content:center;">
           <button class="btn btn-default" onclick="closeModal('importModal')">关闭</button>
-          <button class="btn btn-ghost" onclick="downloadImportReport()">下载导入报告</button>
           <button class="btn btn-primary" onclick="closeModal('importModal');switchTab('members')">查看人员列表 →</button>
         </div>
       </div>
@@ -2954,34 +2830,25 @@
 
     function renderIWFooter() {
       const el = document.getElementById('iwFooter');
-      if (iwStep === 4) { el.innerHTML = ''; return; }
-      const canNext = iwStep !== 2; // Step2 需要上传文件才能继续
+      if (iwStep === 2) { el.innerHTML = ''; return; }
+      
       el.innerHTML = `
     <button class="btn btn-default" onclick="closeModal('importModal')">取消</button>
     <div style="flex:1;"></div>
-    ${iwStep === 1 ? `<button class="btn btn-ghost" onclick="iwNext()">跳过模板，直接上传 →</button>` : `<button class="btn btn-default" onclick="iwPrev()">← 上一步</button>`}
     <button class="btn btn-primary" id="iwNextBtn"
-      onclick="iwNext()"
-      ${!canNext ? 'disabled style="opacity:0.4;pointer-events:none;"' : ''}>
-      ${iwStep === 3 ? '确认导入生效' : '下一步 →'}
+      onclick="doImportSubmit()"
+      disabled style="opacity:0.4;pointer-events:none;">
+      确认导入
     </button>
   `;
-    }
-
-    function iwNext() {
-      if (iwStep < 4) { iwStep++; renderIWSteps(); renderIWContent(); renderIWFooter(); }
-    }
-    function iwPrev() {
-      if (iwStep > 1) { iwStep--; renderIWSteps(); renderIWContent(); renderIWFooter(); }
     }
 
     function handleFileSelect(input) {
       const f = input.files[0];
       if (!f) return;
       document.getElementById('fileName').textContent = f.name;
-      document.getElementById('fileSize').textContent = `${(f.size / 1024).toFixed(1)} KB · 共 34 行数据`;
+      document.getElementById('fileSize').textContent = `${(f.size / 1024).toFixed(1)} KB`;
       document.getElementById('filePreview').style.display = '';
-      // 启用下一步
       const btn = document.getElementById('iwNextBtn');
       if (btn) { btn.removeAttribute('disabled'); btn.style.opacity = ''; btn.style.pointerEvents = ''; }
     }
@@ -2992,11 +2859,21 @@
       const f = event.dataTransfer.files[0];
       if (f) {
         document.getElementById('fileName').textContent = f.name;
-        document.getElementById('fileSize').textContent = `${(f.size / 1024).toFixed(1)} KB · 共 34 行数据`;
+        document.getElementById('fileSize').textContent = `${(f.size / 1024).toFixed(1)} KB`;
         document.getElementById('filePreview').style.display = '';
         const btn = document.getElementById('iwNextBtn');
         if (btn) { btn.removeAttribute('disabled'); btn.style.opacity = ''; btn.style.pointerEvents = ''; }
       }
+    }
+
+    function doImportSubmit() {
+      const btn = document.getElementById('iwNextBtn');
+      if (btn) { btn.textContent = '导入中…'; btn.disabled = true; }
+      setTimeout(() => {
+        iwStep = 2;
+        renderIWContent();
+        renderIWFooter();
+      }, 1200);
     }
 
     function downloadTemplate() {
