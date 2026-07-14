@@ -332,10 +332,11 @@
       <img src="img/logo-color.png" alt="江苏联合征信">
     </div>
     
-    <div class="login-header">
-      <h2>欢迎回来</h2>
-      <p>请使用用户名/手机号登录系统</p>
-    </div>
+    <div id="loginBlock">
+      <div class="login-header">
+        <h2>欢迎回来</h2>
+        <p>请使用用户名/手机号登录系统</p>
+      </div>
 
     <div class="err-bar" id="errBar">
       <svg viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
@@ -364,7 +365,7 @@
       
       <div class="frow">
         <label class="fck"><input type="checkbox" id="rem"> 自动登录</label>
-        <a href="#" class="flk">忘记密码？</a>
+        <a href="javascript:void(0)" class="flk" onclick="document.getElementById('loginBlock').style.display='none'; document.getElementById('forgotBlock').style.display='block'">忘记密码？</a>
       </div>
       
       <button type="submit" class="btn-go" id="loginBtn">
@@ -372,6 +373,27 @@
         <span id="btnTxt">登 录</span>
       </button>
     </form>
+    </div>
+    
+    <!-- 忘记密码区块 -->
+    <div id="forgotBlock" style="display: none; margin-top: 40px;">
+      <div class="login-header">
+        <h2>忘记密码</h2>
+        <p>为保障账户安全，系统暂不支持自助修改密码</p>
+      </div>
+      <div style="background: var(--gray-50); border-radius: var(--r-md); padding: 24px; margin-bottom: 32px; border: 1px solid var(--gray-100);">
+        <div style="display: flex; align-items: flex-start; gap: 12px;">
+          <div style="width: 24px; height: 24px; border-radius: 50%; background: var(--brand); color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 14px; font-weight: bold;">!</div>
+          <div style="font-size: 14px; color: var(--gray-700); line-height: 1.6;">
+            请联系您的<b style="color: var(--gray-900);">系统管理员</b>为您重置密码。<br>
+            如遇特殊情况，可联系联合征信平台运营人员协助处理。
+          </div>
+        </div>
+      </div>
+      <button type="button" class="btn-go" onclick="document.getElementById('forgotBlock').style.display='none'; document.getElementById('loginBlock').style.display='block'">
+        <span>返回登录</span>
+      </button>
+    </div>
     
     <div class="cr">
       © 2026 江苏省联合征信有限公司
@@ -418,6 +440,8 @@
     <button class="btn-lt" onclick="skipPwd()">稍后在个人中心修改</button>
   </div>
 </div>
+
+
 
 <script>
 const USERS={
