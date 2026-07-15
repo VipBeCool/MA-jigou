@@ -964,7 +964,7 @@
     /* 名单处理选项（单选） */
     .process-opts {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 8px;
       margin-top: 2px;
     }
@@ -1441,7 +1441,7 @@
           <div class="stat-value" id="statOutput">3,842</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">白名单的客户数</div>
+          <div class="stat-label">白名单</div>
           <div class="stat-value" style="font-size:26px;" id="statSync">1,250</div>
         </div>
       </div>
@@ -1509,8 +1509,8 @@
       <div class="drawer-tab active" onclick="switchDrawerTab('config',this)">概览</div>
       <div class="drawer-tab" onclick="switchDrawerTab('rules',this)">获客规则</div>
       <div class="drawer-tab" onclick="switchDrawerTab('batches',this)">名单批次</div>
-      <div class="drawer-tab" onclick="switchDrawerTab('whitelist',this)">白名单快照</div>
-      <div class="drawer-tab" onclick="switchDrawerTab('logs',this)">执行日志</div>
+      <div class="drawer-tab" onclick="switchDrawerTab('whitelist',this)">黑/白名单</div>
+      <!-- <div class="drawer-tab" onclick="switchDrawerTab('logs',this)">执行日志</div> -->
     </div>
     <div class="drawer-body">
       <div class="drawer-pane active" id="dpane-config"></div>
@@ -1610,7 +1610,7 @@
             —</div>
         </div>
         <div class="form-group" style="margin-top:20px;">
-          <label class="form-label">快照名称</label>
+          <label class="form-label">名单名称</label>
           <input type="text" class="form-control" id="wlImportBatchName" placeholder="不填写则系统默认生成">
         </div>
         <div class="form-group" style="margin-top:20px;">
@@ -1647,7 +1647,13 @@
               <path
                 d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
             </svg>
-            <span style="color:#b91c1c;">导入的名单将作为一条新的白名单快照插入。</span>
+            <span style="color:#b91c1c;">黑/白名单支持多个，导入的名单将作为一条新的黑/白名单插入。</span>
+          </div>
+          <div style="margin-top:16px; display:flex; align-items:center; justify-content:space-between; padding:12px 14px; background:var(--gray-50); border:1px solid var(--border); border-radius:9px;">
+            <div>
+              <div style="font-size:13.5px;font-weight:600;color:var(--gray-800);">启用名单</div>
+            </div>
+            <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
           </div>
         </div>
       </div>
@@ -1735,13 +1741,47 @@
         </div>
         <div class="form-group">
           <label class="form-label">智能体名称<span style="color:#ef4444">*</span></label>
-          <input class="form-input" id="f-name" type="text" placeholder="如：橙业贷、厂房贷">
+          <input class="form-input" id="f-name" type="text" placeholder="建议以银行产品命名，如橙业贷、科创贷">
         </div>
       </div>
 
       <!-- Step 1: 获客规则 -->
       <div class="wizard-page" id="wp-1">
         <div class="section-heading">获客规则配置</div>
+        
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label class="form-label">上传规则截图</label>
+          <div class="upload-zone" id="ruleUploadZone"
+            ondragover="event.preventDefault();this.classList.add('drag-over')"
+            ondragleave="this.classList.remove('drag-over')"
+            ondrop="event.preventDefault();this.classList.remove('drag-over');">
+            <input type="file" id="ruleFileInput" accept="image/*" style="display:none" onchange="document.getElementById('ruleFileName').innerText = this.files[0] ? this.files[0].name : ''; document.getElementById('ruleFilePreview').style.display = this.files[0] ? 'block' : 'none';">
+            <div class="upload-zone-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            <div class="upload-zone-title">点击或将规则截图拖拽到这里上传</div>
+            <div class="upload-zone-desc">支持 .jpg / .png 格式</div>
+            <button class="btn btn-default btn-sm" style="margin-top:12px;" onclick="event.stopPropagation();document.getElementById('ruleFileInput').click()">选择截图</button>
+          </div>
+          <div id="ruleFilePreview" style="margin-top:12px;display:none;">
+            <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--gray-50);border-radius:10px;border:1px solid var(--border);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--brand);"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <div style="flex:1; overflow:hidden;">
+                <div id="ruleFileName" style="font-size:13.5px;font-weight:600;color:var(--gray-800); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
+              </div>
+              <button onclick="removeRuleFile(event)" style="background:none;border:none;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;justify-content:center;padding:4px;border-radius:4px;" onmouseover="this.style.color='#ef4444';this.style.background='#fee2e2';" onmouseout="this.style.color='var(--gray-400)';this.style.background='none';">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">DWS 数据源<span style="color:#ef4444">*</span></label>
+          <input class="form-input" id="f-dws" type="text" placeholder="输入关联的 DWS 数据表名称，如：dws_agent_xxx">
+        </div>
+
+        <!-- 暂存原版规则配置器，后续优化后启用
         <div style="margin-bottom:12px; font-size:13px; color:var(--gray-500);">满足以下全部条件：</div>
         <div id="ruleContainer"></div>
         <button onclick="addRule()"
@@ -1752,7 +1792,7 @@
           </svg>
           添加规则
         </button>
-
+        -->
       </div>
 
       <!-- Step 2: 名单策略 -->
@@ -1791,56 +1831,7 @@
           </div>
         </div>
 
-        <div class="section-heading">名单处理</div>
-        <div class="process-opts" id="processOpts">
-          <div class="process-opt active" onclick="selectProcess(this,'original')">
-            <input type="radio" name="procMode" checked style="margin-top:2px;">
-            <div>
-              <div class="process-opt-label">原名单输出</div>
-              <div class="process-opt-desc">直接输出规则筛选结果，不做额外处理</div>
-            </div>
-          </div>
-          <div class="process-opt" onclick="selectProcess(this,'intersect')">
-            <input type="radio" name="procMode" style="margin-top:2px;">
-            <div>
-              <div class="process-opt-label">取交</div>
-              <div class="process-opt-desc">仅保留与上传名单均有的企业</div>
-            </div>
-          </div>
-          <div class="process-opt" onclick="selectProcess(this,'exclude')">
-            <input type="radio" name="procMode" style="margin-top:2px;">
-            <div>
-              <div class="process-opt-label">排除</div>
-              <div class="process-opt-desc">从输出名单中排除上传名单中的企业</div>
-            </div>
-          </div>
-          <div class="process-opt" onclick="selectProcess(this,'union')">
-            <input type="radio" name="procMode" style="margin-top:2px;">
-            <div>
-              <div class="process-opt-label">求并</div>
-              <div class="process-opt-desc">合并输出名单与上传名单（自动去重）</div>
-            </div>
-          </div>
-        </div>
-        <div id="processUploadArea" style="display:none;margin-top:12px;">
-          <div style="display:flex; align-items:center; gap:12px; margin-top:8px;">
-            <button class="btn btn-default" onclick="document.getElementById('processFile').click()">
-              <svg style="width:14px;height:14px;margin-right:6px;vertical-align:-2px;" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="17 8 12 3 7 8" />
-                <line x1="12" y1="3" x2="12" y2="15" />
-              </svg>
-              点击上传名单
-            </button>
-            <span style="font-size:12px;color:var(--gray-400);">支持 .xlsx / .xls / .csv（可多选）</span>
-            <button class="btn btn-ghost btn-sm" style="color:var(--brand);margin-left:auto;padding:2px 8px;"
-              onclick="window.open('#')">下载模版</button>
-          </div>
-          <input type="file" id="processFile" accept=".xlsx,.xls,.csv" style="display:none;" multiple
-            onchange="handleProcessUpload(this)">
-          <div id="processFileList" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
-        </div>
+
 
         <div class="section-heading">更新时间</div>
         <div class="freq-options" id="freqOpts2">
@@ -1880,94 +1871,45 @@
         </div>
       </div>
 
-      <!-- Step 3: 营销白名单 -->
+      <!-- Step 3: 黑/白名单 -->
       <div class="wizard-page" id="wp-3">
-        <div class="section-heading">营销白名单配置</div>
-        <div
-          style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--gray-50);border-radius:9px;margin-bottom:18px;">
-          <div>
-            <div style="font-size:13.5px;font-weight:600;color:var(--gray-800);">启用营销白名单</div>
-            <div style="font-size:12px;color:var(--gray-400);margin-top:2px;">开启后将维护一份白名单快照，作为名单输出的授权依据</div>
-          </div>
-          <div class="toggle-switch on" id="wlToggle" onclick="toggleWlDrawer()"></div>
+        <div class="section-heading">黑/白名单配置</div>
+        <div style="font-size:13px;color:var(--gray-500);margin-bottom:20px;padding:12px 16px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;display:flex;align-items:flex-start;gap:8px;">
+          <svg style="width:16px;height:16px;color:var(--brand);flex-shrink:0;margin-top:2px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <div style="line-height:1.5;">支持上传黑白名单，以对通过智能体交付的名单进行排除或取交处理，可选项，不配置可直接进入下一步。</div>
         </div>
-        <div id="wlConfigArea">
-          <label
-            style="font-size:13px;font-weight:600;color:var(--gray-700);display:block;margin-bottom:10px;">白名单生成方式</label>
-          <div style="display:flex;flex-direction:column;gap:8px;">
-            <label
-              style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1.5px solid var(--border);border-radius:9px;cursor:pointer;background:#fff;"
-              id="wlOpt1" onclick="selectWlMode(0)">
-              <input type="radio" name="wlMode" checked style="margin-top:3px;">
-              <div>
-                <div style="font-size:13.5px;font-weight:600;color:var(--gray-800);">根据营销智能体跑批生成</div>
-                <div style="font-size:12px;color:var(--gray-400);margin-top:2px;">每次跑批时，系统自动将输出名单同步至白名单快照</div>
-              </div>
-            </label>
-            <label
-              style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1.5px solid var(--border);border-radius:9px;cursor:pointer;background:#fff;"
-              id="wlOpt2" onclick="selectWlMode(1)">
-              <input type="radio" name="wlMode" style="margin-top:3px;">
-              <div>
-                <div style="font-size:13.5px;font-weight:600;color:var(--gray-800);">独立定时任务跑批生成</div>
-                <div style="font-size:12px;color:var(--gray-400);margin-top:2px;">单独配置白名单跑批任务，不依赖营销名单跑批</div>
-              </div>
-            </label>
-            <div id="wlIndepSchedule"
-              style="display:none;padding:12px 14px;background:var(--gray-50);border-radius:8px;margin-top:-4px;">
-              <div class="freq-options" id="wlFreqOpts">
-                <div class="freq-opt" onclick="selectWlFreq('daily',this)">每天</div>
-                <div class="freq-opt active" onclick="selectWlFreq('weekly',this)">每周</div>
-                <div class="freq-opt" onclick="selectWlFreq('monthly',this)">每月</div>
-                <div class="freq-opt" onclick="selectWlFreq('quarterly',this)">每季度</div>
-                <div class="freq-opt" onclick="selectWlFreq('once',this)">仅一次</div>
-              </div>
-              <div class="freq-detail" id="wlFreqDetail">
-                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-                  <span style="font-size:13px;font-weight:600;color:var(--gray-600);">执行日：</span>
-                  <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input
-                      type="checkbox"> 周一</label>
-                  <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input
-                      type="checkbox" checked> 周二</label>
-                  <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input
-                      type="checkbox"> 周三</label>
-                  <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input
-                      type="checkbox"> 周四</label>
-                  <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input
-                      type="checkbox"> 周五</label>
-                  <span style="font-size:13px;font-weight:600;color:var(--gray-600);margin-left:6px;">时间：</span>
-                  <input type="time" class="form-input" value="03:00" style="width:110px;">
-                </div>
-              </div>
+
+        <div style="display:flex;gap:20px;">
+          <!-- 上传白名单 -->
+          <div style="flex:1;background:#fff;border:1px solid var(--border);border-radius:10px;padding:20px;">
+            <div style="font-size:14px;font-weight:600;color:var(--gray-800);margin-bottom:4px;">上传白名单</div>
+            <div style="font-size:12px;color:var(--gray-400);margin-bottom:16px;">导入作为新名单插入，不覆盖原有名单</div>
+            <div class="dropzone" onclick="document.getElementById('wlFile').click()"
+              ondragover="event.preventDefault(); this.style.borderColor='var(--brand)'; this.style.background='#eff6ff';"
+              ondragleave="this.style.borderColor='var(--gray-300)'; this.style.background='#fafafa';"
+              ondrop="event.preventDefault(); this.style.borderColor='var(--gray-300)'; this.style.background='#fafafa'; handleWlWizardUpload({files: event.dataTransfer.files}, 'wl')">
+              <svg style="width:24px;height:24px;color:var(--gray-400);margin-bottom:8px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <div style="font-size:13px;font-weight:500;color:var(--gray-600);margin-bottom:4px;">点击上传白名单</div>
+              <div style="font-size:12px;color:var(--gray-400);">支持 .xlsx / .csv (可多选)</div>
             </div>
-            <label
-              style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1.5px solid var(--border);border-radius:9px;cursor:pointer;background:#fff;"
-              id="wlOpt3" onclick="selectWlMode(2)">
-              <input type="radio" name="wlMode" style="margin-top:3px;">
-              <div>
-                <div style="font-size:13.5px;font-weight:600;color:var(--gray-800);">上传营销白名单</div>
-                <div style="font-size:12px;color:var(--gray-400);margin-top:2px;">手动上传已整理好的白名单文件</div>
-              </div>
-            </label>
-            <div id="wlUploadArea" style="display:none;margin-top:12px;">
-              <div style="display:flex; align-items:center; gap:12px; margin-top:8px;">
-                <button class="btn btn-default" onclick="document.getElementById('wlFile').click()">
-                  <svg style="width:14px;height:14px;margin-right:6px;vertical-align:-2px;" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="17 8 12 3 7 8" />
-                    <line x1="12" y1="3" x2="12" y2="15" />
-                  </svg>
-                  点击上传名单
-                </button>
-                <span style="font-size:12px;color:var(--gray-400);">支持 .xlsx / .xls / .csv（可多选）</span>
-                <button class="btn btn-ghost btn-sm" style="color:var(--brand);margin-left:auto;padding:2px 8px;"
-                  onclick="window.open('#')">下载模版</button>
-              </div>
-              <input type="file" id="wlFile" accept=".xlsx,.xls,.csv" style="display:none;" multiple
-                onchange="handleWlWizardUpload(this)">
-              <div id="wlFileList" style="margin-top:10px;display:flex;flex-direction:column;gap:6px;"></div>
+            <input type="file" id="wlFile" accept=".xlsx,.xls,.csv" multiple style="display:none;" onchange="handleWlWizardUpload(this, 'wl')">
+            <div id="wlFileList" style="margin-top:12px;display:flex;flex-direction:column;gap:6px;"></div>
+          </div>
+          
+          <!-- 上传黑名单 -->
+          <div style="flex:1;background:#fff;border:1px solid var(--border);border-radius:10px;padding:20px;">
+            <div style="font-size:14px;font-weight:600;color:var(--gray-800);margin-bottom:4px;">上传黑名单</div>
+            <div style="font-size:12px;color:var(--gray-400);margin-bottom:16px;">导入作为新名单插入，不覆盖原有名单</div>
+            <div class="dropzone" onclick="document.getElementById('blFile').click()"
+              ondragover="event.preventDefault(); this.style.borderColor='var(--brand)'; this.style.background='#eff6ff';"
+              ondragleave="this.style.borderColor='var(--gray-300)'; this.style.background='#fafafa';"
+              ondrop="event.preventDefault(); this.style.borderColor='var(--gray-300)'; this.style.background='#fafafa'; handleWlWizardUpload({files: event.dataTransfer.files}, 'bl')">
+              <svg style="width:24px;height:24px;color:var(--gray-400);margin-bottom:8px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <div style="font-size:13px;font-weight:500;color:var(--gray-600);margin-bottom:4px;">点击上传黑名单</div>
+              <div style="font-size:12px;color:var(--gray-400);">支持 .xlsx / .csv (可多选)</div>
             </div>
+            <input type="file" id="blFile" accept=".xlsx,.xls,.csv" multiple style="display:none;" onchange="handleWlWizardUpload(this, 'bl')">
+            <div id="blFileList" style="margin-top:12px;display:flex;flex-direction:column;gap:6px;"></div>
           </div>
         </div>
       </div>
@@ -2373,29 +2315,25 @@
           row('更新频率', FREQ_LABEL[a.freq] || '按周更新') +
           row('每批次上限', a.limit + ' 户') +
           row('名单数据源', (a.datasource || []).join('、') || '—') +
-          row('名单处理', { original: '原名单输出', intersect: '取交', exclude: '排除', union: '求并' }[a.processMode] || '—') +
           row('允许导出', a.allowExport ? '是' : '否') +
           row('白名单', a.whitelist ? '已启用' : '未启用');
       }
 
       if (tab === 'rules') {
-        const rulesListItems = a.rules.map(r =>
-          '<div style="display:flex; gap:8px; align-items:center; margin-bottom:8px; padding:10px 12px; background:var(--gray-50); border-radius:8px; border:1px solid var(--border);">' +
-            '<div style="background:#fff; border:1px solid var(--gray-200); padding:6px 12px; border-radius:6px; font-size:13px; color:var(--gray-700); min-width:120px; font-weight: 500;">' + r.field + '</div>' +
-            '<div style="background:#fff; border:1px solid var(--gray-200); padding:6px 12px; border-radius:6px; font-size:13px; color:var(--gray-600); min-width:90px; text-align:center;">' + r.op + '</div>' +
-            '<div style="background:#fff; border:1px solid var(--gray-200); padding:6px 12px; border-radius:6px; font-size:13px; color:var(--gray-900); flex:1;">' + r.val + '</div>' +
-          '</div>'
-        ).join('');
-
-        const ruleBuilderView = 
-          '<div style="position:relative; padding-left:36px; border-left:2px solid var(--gray-200); margin: 16px 0 16px 16px;">' +
-            '<div style="position:absolute; left:-18px; top:50%; transform:translateY(-50%); background:var(--brand-light); color:var(--brand); border:1px solid var(--brand-border); padding:2px 8px; border-radius:12px; font-size:12px; font-weight:700;">AND</div>' +
-            '<div style="display:flex; flex-direction:column; justify-content:center;">' + rulesListItems + '</div>' +
-          '</div>';
-
         document.getElementById('dpane-rules').innerHTML =
-          '<div style="font-size:13px; color:var(--gray-500); margin-bottom:12px;">满足以下全部条件：</div>' +
-          ruleBuilderView;
+          '<div style="margin-bottom:24px;">' +
+            '<div style="font-size:13px; color:var(--gray-500); margin-bottom:8px;">规则截图：</div>' +
+            '<div style="width:100%; height:160px; background:var(--gray-100); border:1px solid var(--border); border-radius:8px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--gray-400); gap: 8px;">' +
+              '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>' +
+              '<span style="font-size: 13px;">规则截图预览</span>' +
+            '</div>' +
+          '</div>' +
+          '<div>' +
+            '<div style="font-size:13px; color:var(--gray-500); margin-bottom:8px;">DWS 数据源：</div>' +
+            '<div style="font-size:14px; font-weight:500; color:var(--gray-800); background:var(--gray-50); padding:10px 14px; border-radius:6px; border:1px solid var(--border);">' +
+              'dws_agent_' + a.id + 
+            '</div>' +
+          '</div>';
       }
 
       /* ── Tab 2: 名单批次 ── */
@@ -2409,7 +2347,7 @@
           '<div class="summary-card"><div class="summary-card-label">去重企业数</div><div class="summary-card-value">' + uniqueEst.toLocaleString() + '</div></div>' +
           '</div>' +
           '<div class="batch-toolbar">' +
-          '<button class="btn btn-primary btn-sm" onclick="showToast(\'任务已提交，稍后在下载中心查看\'); this.classList.remove(\'btn-primary\'); this.classList.add(\'btn-default\'); this.innerText=\'跑批中...\'; this.disabled=true;">手动执行跑批</button>' +
+          '<button class="btn btn-primary btn-sm" onclick="showToast(\'任务已提交，稍后在下方列表查看\'); this.classList.remove(\'btn-primary\'); this.classList.add(\'btn-default\'); this.innerText=\'跑批中...\'; this.disabled=true;">手动执行跑批</button>' +
           '<button class="btn btn-default btn-sm" onclick="openImportBatch(\'' + a.id + '\')">导入名单</button>' +
           '</div>' +
           '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;">' +
@@ -2434,41 +2372,79 @@
 
       /* ── Tab 3: 白名单快照 ── */
       if (tab === 'whitelist') {
-        const totalSnap = a.snapshots.reduce((s, x) => s + x.count, 0);
-        const snapListHtml = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;">' +
+        const totalWl = a.snapshots.reduce((s, x) => s + x.count, 0);
+        const wlHtml = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;">' +
           '<table class="batch-table"><thead><tr>' +
-          '<th>快照名称</th><th>企业数</th><th>生成/导入时间</th><th style="text-align:center;">操作</th>' +
+          '<th>白名单</th><th>企业数</th><th>导入时间</th><th style="text-align:center;width:80px;">启用/禁用</th><th style="text-align:center;">操作</th>' +
           '</tr></thead><tbody>' +
-          (a.snapshots.length ? a.snapshots.map(s =>
+          (a.snapshots.length ? a.snapshots.map((s, index) =>
             '<tr>' +
             '<td style="font-weight:600;font-size:13px;">' + s.name + '</td>' +
             '<td><strong>' + s.count.toLocaleString() + '</strong></td>' +
             '<td style="color:var(--gray-500);font-size:12px;">' + s.time + '</td>' +
+            '<td style="text-align:center;vertical-align:middle;">' +
+            '<div class="toggle-switch on" style="transform:scale(0.85);margin:0 auto;" onclick="const isOn = this.classList.toggle(\'on\'); showToast(isOn?\'已启用\':\'已禁用\'); const tEl = document.getElementById(\'wlTotalCount\'); let t = parseInt(tEl.innerText.replace(/,/g,\'\')) || 0; t += isOn ? ' + s.count + ' : -' + s.count + '; tEl.innerText = t.toLocaleString();"></div>' +
+            '</td>' +
             '<td style="text-align:center;">' +
-            '<button class="btn btn-default btn-sm" onclick="openNotify(\'名单生成任务已提交，稍后在下载中心查看。\')" style="font-size:12px;margin-right:8px;">下载</button>' +
+            '<button class="btn btn-default btn-sm" onclick="openNotify(\'名单下载任务已提交，稍后在下载中心查看。\')" style="font-size:12px;margin-right:8px;">下载</button>' +
             '<button class="btn btn-sm" onclick="confirmDeleteSnapshot(\'' + s.name + '\')" style="font-size:12px;color:#dc2626;border:1px solid #fecaca;background:#fff;">删除</button>' +
             '</td>' +
             '</tr>'
-          ).join('') : '<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--gray-400);">暂无白名单快照</td></tr>') +
+          ).join('') : '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--gray-400);">暂无白名单</td></tr>') +
+          '</tbody></table></div>';
+
+        const blData = [
+          { name: '行内高风险客户_20260710', count: 420, time: '2026-07-10 10:00' }
+        ];
+        const totalBl = blData.reduce((s, x) => s + x.count, 0);
+        const blHtml = '<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-top:24px;">' +
+          '<table class="batch-table"><thead><tr>' +
+          '<th>黑名单</th><th>企业数</th><th>导入时间</th><th style="text-align:center;width:80px;">启用/禁用</th><th style="text-align:center;">操作</th>' +
+          '</tr></thead><tbody>' +
+          (blData.length ? blData.map((s, index) =>
+            '<tr>' +
+            '<td style="font-weight:600;font-size:13px;">' + s.name + '</td>' +
+            '<td><strong>' + s.count.toLocaleString() + '</strong></td>' +
+            '<td style="color:var(--gray-500);font-size:12px;">' + s.time + '</td>' +
+            '<td style="text-align:center;vertical-align:middle;">' +
+            '<div class="toggle-switch on" style="transform:scale(0.85);margin:0 auto;" onclick="const isOn = this.classList.toggle(\'on\'); showToast(isOn?\'已启用\':\'已禁用\'); const tEl = document.getElementById(\'blTotalCount\'); let t = parseInt(tEl.innerText.replace(/,/g,\'\')) || 0; t += isOn ? ' + s.count + ' : -' + s.count + '; tEl.innerText = t.toLocaleString();"></div>' +
+            '</td>' +
+            '<td style="text-align:center;">' +
+            '<button class="btn btn-default btn-sm" onclick="openNotify(\'名单下载任务已提交，稍后在下载中心查看。\')" style="font-size:12px;margin-right:8px;">下载</button>' +
+            '<button class="btn btn-sm" onclick="confirmDeleteSnapshot(\'' + s.name + '\')" style="font-size:12px;color:#dc2626;border:1px solid #fecaca;background:#fff;">删除</button>' +
+            '</td>' +
+            '</tr>'
+          ).join('') : '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--gray-400);">暂无黑名单</td></tr>') +
           '</tbody></table></div>';
 
         document.getElementById('dpane-whitelist').innerHTML =
-          '<div class="snapshot-header">' +
+          '<div style="display:flex;gap:16px;">' + 
+          '<div class="snapshot-header" style="flex:1;">' +
           '<div class="snapshot-header-info">' +
           '<div class="label">全量白名单（去重后）</div>' +
-          '<div class="value">' + totalSnap.toLocaleString() + '</div>' +
+          '<div class="value" id="wlTotalCount">' + totalWl.toLocaleString() + '</div>' +
           '</div>' +
-          '<button class="btn btn-default btn-sm" onclick="openNotify(\'名单生成任务已提交，稍后在下载中心查看。\')">' +
+          '<button class="btn btn-default btn-sm" onclick="openNotify(\'名单下载任务已提交，稍后在下载中心查看。\')">' +
           '<svg style="width:14px;height:14px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' +
           ' 下载全量白名单' +
           '</button>' +
           '</div>' +
-          '<div class="wl-toolbar">' +
-          '<button class="btn btn-primary btn-sm" onclick="openWlImportInner()">导入白名单</button>' +
-          '<button class="btn btn-default btn-sm" onclick="openAddSnapshot(\'' + a.id + '\')">从历史批次中添加</button>' +
-          '<button class="btn btn-default btn-sm" onclick="this.disabled=true; this.innerText=\'跑批中...\'; showToast(\'任务已提交，稍后查看\'); setTimeout(() => {this.disabled=false; this.innerText=\'立即跑批生成\'}, 2000)">立即跑批生成</button>' +
+          '<div class="snapshot-header" style="flex:1;">' +
+          '<div class="snapshot-header-info">' +
+          '<div class="label">全量黑名单（去重后）</div>' +
+          '<div class="value" style="color:var(--gray-800);" id="blTotalCount">' + totalBl.toLocaleString() + '</div>' +
           '</div>' +
-          '<div class="snapshot-list">' + snapListHtml + '</div>';
+          '<button class="btn btn-default btn-sm" onclick="openNotify(\'名单下载任务已提交，稍后在下载中心查看。\')">' +
+          '<svg style="width:14px;height:14px;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' +
+          ' 下载全量黑名单' +
+          '</button>' +
+          '</div>' +
+          '</div>' +
+          '<div class="wl-toolbar" style="margin-top:16px;">' +
+          '<button class="btn btn-default btn-sm" onclick="openWlImportInner()">导入白名单</button>' +
+          '<button class="btn btn-default btn-sm" onclick="openWlImportInner()" style="margin-left:8px;">导入黑名单</button>' +
+          '</div>' +
+          '<div class="snapshot-list">' + wlHtml + blHtml + '</div>';
       }
 
       /* ── Tab 4: 执行日志 ── */
@@ -2502,7 +2478,7 @@
        新建/编辑向导（右侧抽屉）
     ═══════════════════════════════════════ */
     let wizStep = 0;
-    const WIZ_STEPS = ['基础配置', '获客规则', '名单策略', '营销白名单', '名单字段'];
+    const WIZ_STEPS = ['基础配置', '获客规则', '名单策略', '黑/白名单', '名单字段'];
 
     function updateWizardUI() {
       const steps = document.getElementById('wizardStepsEl');
@@ -2546,13 +2522,18 @@
       document.getElementById('f-orgshort').value = a ? a.orgShort : '';
       document.getElementById('f-name').value = a ? a.name : '';
 
-      // 规则
-      document.getElementById('ruleContainer').innerHTML = '';
-      if (a) {
-        a.rules.forEach(r => addRule(r.field, r.op, r.val));
-      } else {
-        addRule(); addRule();
+      // 规则（暂存）
+      /*
+      const c = document.getElementById('ruleContainer');
+      if (c) {
+        c.innerHTML = '';
+        if (a) {
+          a.rules.forEach(r => addRule(r.field, r.op, r.val));
+        } else {
+          addRule(); addRule();
+        }
       }
+      */
 
       // 字段网格
       selectAllFields(true);
@@ -3106,36 +3087,41 @@
     }
 
     let uploadedWlFiles = [];
+    let uploadedBlFiles = [];
 
-    function handleWlWizardUpload(input) {
+    function handleWlWizardUpload(input, type = 'wl') {
       if (!input.files || input.files.length === 0) return;
+      const targetList = type === 'wl' ? uploadedWlFiles : uploadedBlFiles;
       for (let i = 0; i < input.files.length; i++) {
-        uploadedWlFiles.push(input.files[i]);
+        targetList.push(input.files[i]);
       }
       input.value = '';
-      renderWlFiles();
+      renderWizardFiles(type);
     }
 
-    function removeWlFile(index) {
-      uploadedWlFiles.splice(index, 1);
-      renderWlFiles();
+    function removeWizardFile(index, type) {
+      const targetList = type === 'wl' ? uploadedWlFiles : uploadedBlFiles;
+      targetList.splice(index, 1);
+      renderWizardFiles(type);
     }
 
-    function renderWlFiles() {
-      const container = document.getElementById('wlFileList');
+    function renderWizardFiles(type) {
+      const containerId = type === 'wl' ? 'wlFileList' : 'blFileList';
+      const container = document.getElementById(containerId);
       if (!container) return;
-      if (uploadedWlFiles.length === 0) {
+      const targetList = type === 'wl' ? uploadedWlFiles : uploadedBlFiles;
+      if (targetList.length === 0) {
         container.innerHTML = '';
         return;
       }
-      container.innerHTML = uploadedWlFiles.map((f, i) =>
+      container.innerHTML = targetList.map((f, i) =>
         '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--gray-50);padding:8px 12px;border-radius:6px;border:1px solid var(--border);">' +
         '<div style="display:flex;align-items:center;gap:8px;">' +
         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
         '<span style="font-size:13px;color:var(--gray-800);">' + f.name + '</span>' +
         '<span style="font-size:12px;color:var(--gray-400);">(' + (f.size / 1024).toFixed(1) + ' KB)</span>' +
         '</div>' +
-        '<button class="btn btn-sm" onclick="removeWlFile(' + i + ')" style="padding:4px;color:var(--gray-400);border:none;background:transparent;height:auto;" title="移除文件">' +
+        '<button class="btn btn-sm" onclick="removeWizardFile(' + i + ', \\\'' + type + '\\\')" style="padding:4px;color:var(--gray-400);border:none;background:transparent;height:auto;" title="移除文件">' +
         '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
         '</button>' +
         '</div>'
@@ -3269,6 +3255,12 @@
       // 默认选中 Step3 白名单的第一个选项样式
       selectWlMode(0);
     });
+    function removeRuleFile(e) {
+      if(e) e.stopPropagation();
+      const input = document.getElementById('ruleFileInput');
+      if (input) input.value = '';
+      document.getElementById('ruleFilePreview').style.display = 'none';
+    }
   </script>
   <script src="js/toast.js"></script>
 </body>

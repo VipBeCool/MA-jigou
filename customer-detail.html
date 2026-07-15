@@ -28,35 +28,35 @@
     }
     .back-btn:hover { background: var(--gray-50); color: var(--brand); border-color: var(--brand-border); }
 
-    /* ===== Unified Hero Card (合并原先的1和2) ===== */
+    /* ===== Unified Hero Card ===== */
     .unified-hero {
-      background: white; border-radius: 20px;
-      padding: 24px 32px; margin-bottom: 20px;
+      background: white; border-radius: 16px;
+      padding: 16px 24px; margin-bottom: 16px;
       border: 1px solid var(--border);
-      box-shadow: 0 4px 12px rgba(15,23,42,0.03);
-      display: flex; align-items: center; justify-content: space-between; gap: 40px;
+      box-shadow: 0 2px 8px rgba(15,23,42,0.04);
+      display: flex; align-items: center; justify-content: space-between; gap: 32px;
     }
-    .uh-left { flex: 1; }
-    .uh-title-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-    .uh-title { font-size: 22px; font-weight: 800; color: var(--gray-900); }
+    .uh-left { flex: 1; min-width: 0; }
+    .uh-title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+    .uh-title { font-size: 18px; font-weight: 800; color: var(--gray-900); }
     .uh-status {
       display: inline-flex; align-items: center;
       background: var(--brand-light); color: var(--brand); border: 1px solid var(--brand-border);
-      padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 600;
+      padding: 2px 9px; border-radius: 100px; font-size: 11px; font-weight: 600;
     }
-    .uh-uscc { font-size: 13px; color: var(--gray-500); font-family: monospace; letter-spacing: 0.5px; margin-bottom: 14px; }
-    .uh-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+    .uh-uscc { font-size: 12px; color: var(--gray-400); font-family: monospace; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .uh-tags { display: flex; gap: 6px; flex-wrap: wrap; }
     .uh-tag {
-      background: var(--gray-50); color: var(--gray-600); border: 1px solid var(--gray-200);
-      padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: 500;
+      background: var(--gray-50); color: var(--gray-500); border: 1px solid var(--gray-200);
+      padding: 2px 8px; border-radius: 5px; font-size: 11.5px; font-weight: 500;
     }
     
-    .uh-divider { width: 1px; height: 80px; background: var(--gray-200); }
+    .uh-divider { width: 1px; height: 56px; background: var(--gray-200); flex-shrink: 0; }
     
-    .uh-right { display: flex; align-items: center; gap: 40px; }
-    .uh-stat { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-    .uh-stat-label { font-size: 13px; color: var(--gray-500); font-weight: 600; }
-    .uh-stat-val { font-size: 20px; font-weight: 800; color: var(--gray-900); }
+    .uh-right { display: flex; align-items: center; gap: 28px; flex-shrink: 0; }
+    .uh-stat { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .uh-stat-label { font-size: 11px; color: var(--gray-400); font-weight: 500; }
+    .uh-stat-val { font-size: 17px; font-weight: 800; color: var(--gray-900); }
     .uh-stat-val.blue { color: var(--brand); }
     .uh-stat-val.green { color: var(--success); }
     
@@ -69,6 +69,26 @@
       box-shadow: 0 4px 12px rgba(37,99,235,0.2);
     }
     .hero-btn-primary:hover { background: var(--brand-hover); }
+
+    /* ===== 分配信息块 ===== */
+    .assign-bar {
+      display: flex; align-items: center; gap: 0;
+      margin-top: 14px;
+      background: var(--gray-50); border-radius: 10px;
+      border: 1px solid var(--gray-200);
+      overflow: hidden;
+    }
+    .assign-action {
+      display: flex; align-items: center; justify-content: center; padding: 10px 14px;
+      border-left: 1px solid var(--gray-200);
+    }
+    .assign-btn {
+      display: inline-flex; align-items: center; gap: 4px;
+      color: var(--brand); font-size: 12px; font-weight: 500;
+      padding: 0; border: none; background: none;
+      cursor: pointer; white-space: nowrap; opacity: 0.75;
+    }
+    .assign-btn:hover { opacity: 1; }
 
     /* ===== AI Banner (横向铺开) ===== */
     .ai-banner {
@@ -443,35 +463,45 @@
         </div>
       </div>
 
-      <!-- Unified Hero (结合原先的企业信息与核心指标) -->
-      <div class="unified-hero">
-        <div class="uh-left">
-          <div class="uh-title-row">
-            <h2 class="uh-title" id="pageTitle">苏州智云科技有限公司</h2>
-            <div class="uh-status" id="pageStatus">有意向 · 已申请</div>
+      <!-- Unified Hero -->
+      <div class="unified-hero" style="flex-direction:column;gap:0;">
+        <!-- 上部：企业信息 + 分配 -->
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;width:100%;padding-bottom:16px;">
+          <div class="uh-left">
+            <div class="uh-title-row">
+              <h2 class="uh-title" id="pageTitle">苏州智云科技有限公司</h2>
+              <span class="uh-uscc" id="pageUscc" style="margin-bottom:0;">91320594MA1EXAMPLE1</span>
+              <div class="uh-status" id="pageStatus">有意向 &middot; 已申请</div>
+            </div>
+            <div class="uh-tags" id="pageTags">
+              <div class="uh-tag">民营企业</div>
+              <div class="uh-tag">专精特新小巨人</div>
+              <div class="uh-tag">高新技术企业</div>
+            </div>
           </div>
-          <div class="uh-uscc" id="pageUscc">91320594MA1EXAMPLE1</div>
-          <div class="uh-tags" id="pageTags">
-            <div class="uh-tag">民营企业</div>
-            <div class="uh-tag">专精特新小巨人</div>
-            <div class="uh-tag">高新技术企业</div>
+          <!-- 分配信息 + hover tooltip -->
+          <div style="position:relative;display:flex;align-items:center;gap:8px;" id="assignWrap">
+            <span id="assignDisplay" style="font-size:12.5px;color:var(--gray-500);cursor:default;">新街口支行 &middot; 李明</span>
+            <div id="assignTooltip" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:var(--gray-900);color:white;font-size:12px;padding:8px 12px;border-radius:8px;white-space:nowrap;z-index:200;box-shadow:0 4px 12px rgba(0,0,0,0.2);line-height:1.8;"></div>
+            <button class="assign-btn" onclick="openAssignModal()">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              更改
+            </button>
           </div>
         </div>
-        
-        <div class="uh-divider"></div>
-        
-        <div class="uh-right">
-          <div class="uh-stat">
-            <div class="uh-stat-label">资金需求</div>
-            <div class="uh-stat-val blue">高意向</div>
+        <!-- 底部：三个指标横排统计条 -->
+        <div style="display:flex;gap:0;border-top:1px solid var(--gray-100);padding-top:14px;width:100%;">
+          <div style="flex:1;display:flex;flex-direction:column;gap:3px;">
+            <div style="font-size:11px;color:var(--gray-400);font-weight:500;">资金需求</div>
+            <div class="uh-stat-val blue" style="font-size:16px;">高意向</div>
           </div>
-          <div class="uh-stat">
-            <div class="uh-stat-label">综合信用评级</div>
-            <div class="uh-stat-val">A+</div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:3px;border-left:1px solid var(--gray-100);padding-left:20px;">
+            <div style="font-size:11px;color:var(--gray-400);font-weight:500;">综合信用评级</div>
+            <div class="uh-stat-val" style="font-size:16px;">A+</div>
           </div>
-          <div class="uh-stat">
-            <div class="uh-stat-label">违约风险</div>
-            <div class="uh-stat-val green">低风险</div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:3px;border-left:1px solid var(--gray-100);padding-left:20px;">
+            <div style="font-size:11px;color:var(--gray-400);font-weight:500;">违约风险</div>
+            <div class="uh-stat-val green" style="font-size:16px;">低风险</div>
           </div>
         </div>
       </div>
@@ -838,5 +868,210 @@ function saveAuthQr() {
 }
 
 </script>
+
+<!-- 更改分配 - 右侧抄屉 -->
+<div id="assignModal" style="position:fixed;inset:0;z-index:1000;display:none;justify-content:flex-end;background:rgba(0,0,0,0.25);">
+  <div id="assignDrawer" style="width:380px;height:100vh;background:white;display:flex;flex-direction:column;box-shadow:-4px 0 24px rgba(0,0,0,0.12);transform:translateX(100%);transition:transform 0.25s cubic-bezier(.4,0,.2,1);">
+    <!-- 抄屉头部 -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:20px 20px 16px;border-bottom:1px solid var(--gray-100);">
+      <div>
+        <div style="font-size:15px;font-weight:700;color:var(--gray-900);margin-bottom:3px;">更改分配</div>
+        <div style="font-size:12px;color:var(--gray-400);">管理该企业的对接机构与客户经理</div>
+      </div>
+      <button onclick="closeAssignModal()" style="padding:4px;border:none;background:none;cursor:pointer;color:var(--gray-400);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <!-- 可滚动内容区 -->
+    <div style="flex:1;overflow-y:auto;padding:16px 20px;">
+      <div style="margin-bottom:18px;">
+        <div style="font-size:11px;color:var(--gray-400);font-weight:600;letter-spacing:0.5px;margin-bottom:10px;text-transform:uppercase;">当前分配</div>
+        <div id="assignList"></div>
+      </div>
+      <div style="font-size:11px;color:var(--gray-400);font-weight:600;letter-spacing:0.5px;margin-bottom:10px;text-transform:uppercase;">添加分配</div>
+      <div style="position:relative;margin-bottom:10px;">
+        <svg style="position:absolute;left:10px;top:50%;transform:translateY(-50%);" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gray-400)" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input id="managerSearch" type="text" placeholder="搜索客户经理或支行名称…" oninput="renderPicker()" style="width:100%;padding:9px 12px 9px 32px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--gray-800);outline:none;box-sizing:border-box;background:var(--gray-50);" onfocus="this.style.borderColor='var(--brand)';this.style.background='white'" onblur="this.style.borderColor='var(--border)';this.style.background='var(--gray-50)'">
+      </div>
+      <div id="pickerPanel" style="border:1px solid var(--gray-100);border-radius:10px;overflow:hidden;"></div>
+    </div>
+    <div style="padding:14px 20px;border-top:1px solid var(--gray-100);display:flex;gap:10px;">
+      <button onclick="closeAssignModal()" style="flex:1;padding:10px;border-radius:8px;background:var(--gray-100);color:var(--gray-600);border:none;font-weight:600;cursor:pointer;font-size:14px;">取消</button>
+      <button onclick="saveAssignModal()" style="flex:1;padding:10px;border-radius:8px;background:var(--brand);color:white;border:none;font-weight:600;cursor:pointer;font-size:14px;">确认更改</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.pick-branch{padding:10px 14px;font-size:13px;font-weight:600;color:var(--gray-700);cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;background:var(--gray-50);}
+.pick-branch:hover{background:var(--gray-100);}
+.pick-sub{padding:9px 14px 9px 28px;font-size:13px;color:var(--gray-600);cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;}
+.pick-sub:hover{background:var(--gray-50);}
+.pick-manager{padding:8px 14px 8px 44px;font-size:13px;color:var(--gray-800);cursor:pointer;display:flex;align-items:center;justify-content:space-between;}
+.pick-manager:hover{background:var(--brand-light);color:var(--brand);}
+.pick-manager.selected{background:var(--brand-light);color:var(--brand);font-weight:600;}
+.pick-result{padding:10px 14px;font-size:13px;color:var(--gray-800);cursor:pointer;display:flex;flex-direction:column;gap:2px;border-bottom:1px solid var(--gray-100);}
+.pick-result:hover{background:var(--brand-light);}
+.pick-result:last-child{border-bottom:none;}
+.assign-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;border-radius:8px;background:var(--gray-50);border:1px solid var(--gray-200);margin-bottom:6px;}
+.assign-item-text{flex:1;min-width:0;font-size:13px;color:var(--gray-700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.assign-item-del{width:20px;height:20px;border-radius:50%;border:none;background:var(--gray-200);color:var(--gray-500);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.assign-item-del:hover{background:#fecaca;color:#dc2626;}
+.pick-chevron{transition:transform 0.2s;}
+.pick-chevron.open{transform:rotate(90deg);}
+</style>
+
+<script>
+const ORG_DATA = {
+  nanjing:   {label:'南京分行', subs:{nj_xg:{label:'新街口支行',managers:['李明','赵雷']},nj_gl:{label:'鼓楼支行',managers:['王强','陈明']},nj_yh:{label:'雨花支行',managers:['张华','刘明']}}},
+  suzhou:    {label:'苏州分行', subs:{sz_gyy:{label:'工业园支行',managers:['周嵊','吴钓']},sz_gx:{label:'高新区支行',managers:['陈明','孙丽']}}},
+  wuxi:      {label:'无锡分行', subs:{wx_bz:{label:'滨湖支行',managers:['刘伟','杨山']},wx_hy:{label:'惠山支行',managers:['高峰','许海']}}},
+  changzhou: {label:'常州分行', subs:{cz_tj:{label:'天宁支行',managers:['赵金','魏同']},cz_wj:{label:'武进支行',managers:['安娜','刘兰']}}}
+};
+
+let currentAssignments = [
+  {branchKey:'nanjing',subKey:'nj_xg',branchLabel:'南京分行',subLabel:'新街口支行',manager:'李明'},
+  {branchKey:'suzhou',subKey:'sz_gyy',branchLabel:'苏州分行',subLabel:'工业园支行',manager:'周嵊'}
+];
+
+function renderAssignList() {
+  const el = document.getElementById('assignList');
+  if (!el) return;
+  if (currentAssignments.length === 0) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--gray-400);padding:10px 0;">暂无分配，请在下方添加</div>';
+    return;
+  }
+  el.innerHTML = currentAssignments.map((a,i) => `
+    <div class="assign-item">
+      <div class="assign-item-text">${a.subLabel} &middot; <strong style="color:var(--gray-900);">${a.manager}</strong></div>
+      <button class="assign-item-del" onclick="removeAssignment(${i})" title="移除">&times;</button>
+    </div>`).join('');
+}
+
+function removeAssignment(idx) {
+  currentAssignments.splice(idx,1);
+  renderAssignList();
+}
+
+function addAssignment(bk,sk,m) {
+  if (currentAssignments.find(a=>a.branchKey===bk&&a.subKey===sk&&a.manager===m)) return;
+  currentAssignments.push({branchKey:bk,subKey:sk,branchLabel:ORG_DATA[bk]?.label||'',subLabel:ORG_DATA[bk]?.subs[sk]?.label||'',manager:m});
+  renderAssignList();
+  document.getElementById('managerSearch').value='';
+  renderPicker();
+}
+
+function renderPicker() {
+  const q=(document.getElementById('managerSearch')?.value||'').trim();
+  const panel=document.getElementById('pickerPanel');
+  if (!panel) return;
+  if (q) {
+    const res=[];
+    Object.entries(ORG_DATA).forEach(([bk,bv])=>{
+      Object.entries(bv.subs).forEach(([sk,sv])=>{
+        sv.managers.forEach(m=>{
+          if(m.includes(q)||sv.label.includes(q)||bv.label.includes(q)){
+            res.push({bk,bv,sk,sv,m,already:currentAssignments.find(a=>a.branchKey===bk&&a.subKey===sk&&a.manager===m)});
+          }
+        });
+      });
+    });
+    panel.innerHTML = res.length?res.map(r=>`
+      <div class="pick-result" onclick="${r.already?'':`addAssignment('${r.bk}','${r.sk}','${r.m}')`}"
+        style="${r.already?'background:var(--brand-light);':''};cursor:${r.already?'default':'pointer'};">
+        <div style="font-weight:600;color:${r.already?'var(--brand)':'var(--gray-900)'}">${r.m}${r.already?' <span style="font-size:11px;font-weight:400">已分配</span>':''}</div>
+        <div style="font-size:11.5px;color:var(--gray-400)">${r.sv.label} &middot; ${r.bv.label}</div>
+      </div>`).join(''):'<div style="padding:20px;text-align:center;font-size:13px;color:var(--gray-400)">无匹配结果</div>';
+    return;
+  }
+  let html='';
+  Object.entries(ORG_DATA).forEach(([bk,bv])=>{
+    html+=`<div class="pick-branch" onclick="toggleBranch('${bk}')">
+      <span>${bv.label}</span>
+      <svg class="pick-chevron" id="chev_${bk}" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </div><div id="branch_${bk}" style="display:none">`;
+    Object.entries(bv.subs).forEach(([sk,sv])=>{
+      html+=`<div class="pick-sub" onclick="toggleSub('${sk}')">
+        <span>${sv.label}</span>
+        <svg class="pick-chevron" id="chev_${sk}" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </div><div id="sub_${sk}" style="display:none">`;
+      sv.managers.forEach(m=>{
+        const already=currentAssignments.find(a=>a.branchKey===bk&&a.subKey===sk&&a.manager===m);
+        html+=`<div class="pick-manager ${already?'selected':''}" onclick="${already?'':`addAssignment('${bk}','${sk}','${m}')`}">
+          <span>${m}</span>
+          ${already?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>':''}
+        </div>`;
+      });
+      html+=`</div>`;
+    });
+    html+=`</div>`;
+  });
+  panel.innerHTML=html;
+}
+
+function toggleBranch(bk){
+  const el=document.getElementById('branch_'+bk),chev=document.getElementById('chev_'+bk);
+  const open=el.style.display==='block';
+  el.style.display=open?'none':'block';
+  chev.classList.toggle('open',!open);
+}
+function toggleSub(sk){
+  const el=document.getElementById('sub_'+sk),chev=document.getElementById('chev_'+sk);
+  const open=el.style.display==='block';
+  el.style.display=open?'none':'block';
+  chev.classList.toggle('open',!open);
+}
+
+function updateAssignDisplay(){
+  const display=document.getElementById('assignDisplay');
+  const tooltip=document.getElementById('assignTooltip');
+  const wrap=document.getElementById('assignWrap');
+  if(!display) return;
+  if(currentAssignments.length===0){
+    display.innerHTML='暂无分配';
+    if(wrap){wrap.onmouseenter=null;wrap.onmouseleave=null;}
+    return;
+  }
+  if(currentAssignments.length===1){
+    const a=currentAssignments[0];
+    display.innerHTML=`${a.subLabel} &middot; <strong style="color:var(--gray-900);">${a.manager}</strong>`;
+    if(wrap){wrap.onmouseenter=null;wrap.onmouseleave=null;}
+    if(tooltip) tooltip.style.display='none';
+  } else {
+    const first=currentAssignments[0];
+    display.innerHTML=`${first.subLabel} &middot; <strong style="color:var(--gray-900);">${first.manager}</strong> <span style="color:var(--brand);font-size:11.5px;font-weight:600;">+${currentAssignments.length-1}</span>`;
+    if(tooltip) tooltip.innerHTML=currentAssignments.map(a=>`${a.subLabel} &middot; <strong>${a.manager}</strong>`).join('<br>');
+    if(wrap){
+      wrap.onmouseenter=()=>{if(tooltip) tooltip.style.display='block';};
+      wrap.onmouseleave=()=>{if(tooltip) tooltip.style.display='none';};
+    }
+  }
+}
+
+function openAssignModal(){
+  const modal=document.getElementById('assignModal');
+  const drawer=document.getElementById('assignDrawer');
+  modal.style.display='flex';
+  setTimeout(()=>{drawer.style.transform='translateX(0)';},10);
+  renderAssignList();
+  renderPicker();
+}
+function closeAssignModal(){
+  const drawer=document.getElementById('assignDrawer');
+  drawer.style.transform='translateX(100%)';
+  setTimeout(()=>{document.getElementById('assignModal').style.display='none';},260);
+}
+function saveAssignModal(){
+  if(currentAssignments.length===0){alert('请至少分配一位客户经理');return;}
+  updateAssignDisplay();
+  if(typeof window.showToast==='function') window.showToast('分配更改成功','success');
+  else alert('分配更改成功');
+  closeAssignModal();
+}
+
+document.addEventListener('DOMContentLoaded',()=>{updateAssignDisplay();});
+document.getElementById('assignModal').addEventListener('click',function(e){if(e.target===this) closeAssignModal();});
+</script>
+
 </body>
 </html>

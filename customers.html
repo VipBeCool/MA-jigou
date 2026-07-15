@@ -1236,8 +1236,8 @@ const L2_OPTIONS = {
 
 // ===== Mock 数据 =====
 const ALL_DATA = [
-  { id:1, name:'苏州智云科技有限公司', uscc:'91320594MA1EXAMPLE1', region: '江苏省/苏州市/工业园区', addr:'苏州市工业园区星湖街5号', rs:'PENDING', bs:'NONE', product:'橙业贷, 厂房贷', nature:'民营企业', honor:'高新技术', intent:'高', risk:'低', batch:'橙业贷20160508', batchSource:'auto', lastContact: '2026-07-11 10:30', ds:92, legalPerson: '张三', status: '存续', entityType: '有限责任公司', indCat: '信息传输、软件 and 信息技术服务业', indType: '软件开发', regCap: '1000万人民币', regDate: '2016-05-08', owner: '李明', org: '南京分行' },
-  { id:2, name:'苏州生物医药研究院有限公司', uscc:'91320594MA5EXAMPLE5', region: '江苏省/苏州市/工业园区', addr:'苏州市工业园区独墅湖大道88号', rs:'UNREACHED_NO_ANSWER', bs:'NONE', product:'橙业贷', nature:'外资企业', honor:'独角兽企业', intent:'中', risk:'高', batch:'橙业贷20160508', batchSource:'auto', lastContact: '2026-07-12 14:15', ds:81, legalPerson: '李四', status: '存续', entityType: '外商独资', indCat: '科学研究 and 技术服务业', indType: '医学研究 and 试验发展', regCap: '5000万人民币', regDate: '2018-09-12', owner: '刘伟', org: '南京分行' },
+  { id:1, name:'苏州智云科技有限公司', uscc:'91320594MA1EXAMPLE1', region: '江苏省/苏州市/工业园区', addr:'苏州市工业园区星湖街5号', rs:'PENDING', bs:'NONE', product:'橙业贷, 厂房贷', nature:'民营企业', honor:'高新技术', intent:'高', risk:'低', batch:'橙业贷20160508', batchSource:'auto', lastContact: '2026-07-11 10:30', ds:92, legalPerson: '张三', status: '存续', entityType: '有限责任公司', indCat: '信息传输、软件 and 信息技术服务业', indType: '软件开发', regCap: '1000万人民币', regDate: '2016-05-08', owner: '李明, 王强', org: '南京分行, 苏州分行' },
+  { id:2, name:'苏州生物医药研究院有限公司', uscc:'91320594MA5EXAMPLE5', region: '江苏省/苏州市/工业园区', addr:'苏州市工业园区独墅湖大道88号', rs:'UNREACHED_NO_ANSWER', bs:'NONE', product:'橙业贷', nature:'外资企业', honor:'独角兽企业', intent:'中', risk:'高', batch:'橙业贷20160508', batchSource:'auto', lastContact: '2026-07-12 14:15', ds:81, legalPerson: '李四', status: '存续', entityType: '外商独资', indCat: '科学研究 and 技术服务业', indType: '医学研究 and 试验发展', regCap: '5000万人民币', regDate: '2018-09-12', owner: '刘伟, 陈明, 赵雷', org: '南京分行, 无锡分行, 常州分行' },
   { id:3, name:'常州新能源科技股份有限公司', uscc:'91320412MA4EXAMPLE4', region: '江苏省/常州市/武进区', addr:'常州市武进区高新区南区', rs:'REACHED_NO_INTEREST', bs:'NONE', product:'橙业贷, 税务贷', nature:'国有企业', honor:'专精特新', intent:'低', risk:'中', batch:'橙业贷20160509', batchSource:'auto', lastContact: '2026-07-13 09:45', ds:72, legalPerson: '王五', status: '存续', entityType: '股份有限公司', indCat: '制造业', indType: '电气机械 and 器材制造业', regCap: '1亿人民币', regDate: '2015-03-20', owner: '李明', org: '无锡分行' },
   { id:4, name:'南京创新智造集团有限公司', uscc:'91320115MA2EXAMPLE2', region: '江苏省/南京市/江宁区', addr:'南京市江宁区将军大道100号', rs:'FOLLOWING', bs:'NONE', product:'厂房贷', nature:'民营企业', honor:'高新技术', intent:'高', risk:'低', batch:'厂房贷20160501', batchSource:'auto', lastContact: '2026-07-14 11:20', ds:88, legalPerson: '赵六', status: '存续', entityType: '集团公司', indCat: '制造业', indType: '专用设备制造业', regCap: '2亿人民币', regDate: '2010-11-11', owner: '刘伟', org: '无锡分行' },
   { id:5, name:'苏州纳米智能装备有限公司', uscc:'91320594MA7EXAMPLE7', region: '江苏省/苏州市/高新区', addr:'苏州市高新区科技城锦峰路10号', rs:'REACHED_INTERESTED', bs:'NONE', product:'厂房贷', nature:'合资企业', honor:'瞪羚企业', intent:'高', risk:'低', batch:'厂房贷20160501', batchSource:'auto', lastContact: '2026-07-13 15:30', ds:78, legalPerson: '孙七', status: '存续', entityType: '中外合资', indCat: '制造业', indType: '通用设备制造业', regCap: '3000万美元', regDate: '2019-07-01', owner: '刘伟', org: '苏州分行' },
@@ -1324,8 +1324,8 @@ function doFilter() {
       if (!isUnreached(c.rs)) return false;
     }
     
-    if (fOrg !== 'ALL' && c.org !== fOrg) return false;
-    if (fOwner !== 'ALL' && c.owner !== fOwner) return false;
+    if (fOrg !== 'ALL' && (!c.org || !c.org.includes(fOrg))) return false;
+    if (fOwner !== 'ALL' && (!c.owner || !c.owner.includes(fOwner))) return false;
     
     return true;
   });
