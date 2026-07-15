@@ -789,6 +789,8 @@
 
   
     /* ===== Fixed Action Column ===== */
+    .main-content { min-width: 0; }
+    #tableView { width: 100%; min-width: 0; }
     .col-fixed-action {
       position: sticky;
       right: 0;
@@ -1459,6 +1461,23 @@ function resetColumns() {
 }
 
 // 覆盖原本的 renderTable
+function renderMultiText(text) {
+  if (!text) return '-';
+  const parts = text.split(/[,，、]/).map(p => p.trim()).filter(Boolean);
+  if (parts.length <= 1) return text;
+  const tooltipHtml = parts.join('<br>');
+  return `<div style="display:flex;align-items:center;gap:4px;">
+    <span style="max-width:80px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${parts[0]}</span>
+    <div style="position:relative;display:inline-flex;" class="multi-info-wrap" onmouseenter="this.querySelector('.multi-info-popup').style.display='block'" onmouseleave="this.querySelector('.multi-info-popup').style.display='none'">
+      <span style="color:var(--brand);font-size:11px;font-weight:600;background:#eff6ff;padding:2px 6px;border-radius:4px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#eff6ff'">+${parts.length - 1}</span>
+      <div class="multi-info-popup" style="display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--gray-900);color:white;padding:6px 10px;border-radius:6px;font-size:12px;white-space:nowrap;z-index:200;line-height:1.6;font-weight:normal;box-shadow:0 4px 12px rgba(0,0,0,0.2);">
+        ${tooltipHtml}
+        <div style="position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);border-width:4px 4px 0;border-style:solid;border-color:var(--gray-900) transparent transparent;"></div>
+      </div>
+    </div>
+  </div>`;
+}
+
 function renderTable(list) {
   if(!list) list = [];
   const thead = document.getElementById('tableHead');
@@ -1506,8 +1525,8 @@ function renderTable(list) {
         else if (c.key === 'regDate') tbHtml += `<td>${item.regDate || '-'}</td>`;
         else if (c.key === 'addr') tbHtml += `<td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${item.addr || ''}">${item.addr || '-'}</td>`;
         else if (c.key === 'product') tbHtml += `<td>${item.product}</td>`;
-        else if (c.key === 'owner') tbHtml += `<td style="color:var(--gray-800);">${item.owner || '-'}</td>`;
-        else if (c.key === 'org') tbHtml += `<td style="color:var(--gray-800);">${item.org || '-'}</td>`;
+        else if (c.key === 'owner') tbHtml += `<td style="color:var(--gray-800);">${renderMultiText(item.owner)}</td>`;
+        else if (c.key === 'org') tbHtml += `<td style="color:var(--gray-800);">${renderMultiText(item.org)}</td>`;
         else if (c.key === 'rs') {
           const r = RS_MAP[item.rs] || { l: '-', c: 'var(--gray-500)', bg: 'var(--gray-100)' };
           tbHtml += `<td style="text-align:center;"><span class="status-badge" style="background:${r.bg};color:${r.c};">${r.l}</span></td>`;
