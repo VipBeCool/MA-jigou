@@ -109,6 +109,7 @@ function getNavConfig(role) {
       label: '数据分析',
       items: [
         { id: 'dashboard', label: '数据看板', icon: 'chart', href: 'dashboard.html' },
+        { id: 'report', label: '营销跟踪', icon: 'layers', href: 'report.html' },
       ],
     });
   }

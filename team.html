@@ -169,6 +169,7 @@
           <option value="week">本周</option>
           <option value="month">本月</option>
           <option value="quarter">本季度</option>
+          <option value="year">本年</option>
         </select>
 
       </div>
@@ -195,7 +196,7 @@
               <span class="card-title-icon" id="rankIcon"></span>
               <span id="rankTitle">排行榜</span>
             </h3>
-            <select class="form-control" onchange="switchRankDim(this.value)" style="height:22px; line-height:20px; padding: 0 16px 0 6px; font-size:12px; background-color:var(--gray-50); border:1px solid var(--border); border-radius:4px; width:auto; min-width:65px; outline:none;">
+            <select id="rankDimSelect" onchange="switchRankDim(this.value)" style="display:none; height:22px; line-height:20px; padding: 0 16px 0 6px; font-size:12px; background-color:var(--gray-50); border:1px solid var(--border); border-radius:4px; width:auto; min-width:65px; outline:none; cursor:pointer; color:var(--gray-700); -webkit-appearance:auto; appearance:auto;">
               <option value="count">数量</option>
               <option value="amount">金额</option>
             </select>
@@ -238,64 +239,64 @@ const SVG_ARROW_R = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none"
 const ORG_TREE = {
   id: 'root', name: '江苏省分行', level: 'province',
   members: [
-    { id:'u12', name:'马浩然', touch:8, intent:2, credit:500, allocated:12, trend:[1,1,2,1,0,2,1] }
+    { id:'u12', name:'马浩然', touch:8, intent:2, credit:0, allocated:12, trend:[1,1,2,1,0,2,1] }
   ],
   children: [
     {
       id: 'sz', name: '苏州市分行', level: 'city',
       members: [
-        { id:'u11', name:'吴雅婷', touch:6, intent:1, credit:0, allocated:8, trend:[1,0,1,1,1,1,1] }
+        { id:'u11', name:'吴雅婷', touch:6, intent:1, credit:1, allocated:8, trend:[1,0,1,1,1,1,1] }
       ],
       children: [
         {
           id: 'sz-gs', name: '姑苏支行', level: 'branch',
           members: [
-            { id:'u1', name:'朱某人',  touch:17, intent:3, credit:480, allocated:25, trend:[2,3,3,2,3,2,2] },
-            { id:'u7', name:'钱伟东',  touch:19, intent:4, credit:620, allocated:22, trend:[3,2,3,3,2,4,2] },
+            { id:'u1', name:'朱某人',  touch:17, intent:3, credit:1, allocated:25, trend:[2,3,3,2,3,2,2] },
+            { id:'u7', name:'钱伟东',  touch:19, intent:4, credit:2, allocated:22, trend:[3,2,3,3,2,4,2] },
           ]
         },
         {
           id: 'sz-gyy', name: '工业园区支行', level: 'branch',
           members: [
-            { id:'u2', name:'王芳',    touch:14, intent:2, credit:340, allocated:18, trend:[2,2,2,1,2,3,2] },
-            { id:'u10', name:'林建国', touch:11, intent:2, credit:240, allocated:16, trend:[2,1,2,1,2,1,2] },
+            { id:'u2', name:'王芳',    touch:14, intent:2, credit:0, allocated:18, trend:[2,2,2,1,2,3,2] },
+            { id:'u10', name:'林建国', touch:11, intent:2, credit:0, allocated:16, trend:[2,1,2,1,2,1,2] },
           ]
         },
         {
           id: 'sz-wz', name: '吴中支行', level: 'branch',
           members: [
-            { id:'u9', name:'周明辉',  touch:13, intent:3, credit:310, allocated:19, trend:[2,2,1,2,2,2,2] },
+            { id:'u9', name:'周明辉',  touch:13, intent:3, credit:1, allocated:19, trend:[2,2,1,2,2,2,2] },
           ]
         }
       ]
     },
     {
       id: 'nt', name: '南通市分行', level: 'city',
-      members: [ { id:'u20', name:'林冲', touch:10, intent:3, credit:200, allocated:15, trend:[2,1,1,2,3,1,0] } ],
+      members: [ { id:'u20', name:'林冲', touch:10, intent:3, credit:1, allocated:15, trend:[2,1,1,2,3,1,0] } ],
       children: [
-        { id: 'nt-ch', name: '崇川支行', level: 'branch', members: [ { id:'u21', name:'孙二娘', touch:14, intent:2, credit:150, allocated:20, trend:[1,2,2,1,2,3,3] } ] },
-        { id: 'nt-tz', name: '通州支行', level: 'branch', members: [ { id:'u22', name:'张青', touch:8, intent:1, credit:80, allocated:10, trend:[1,1,1,1,1,1,2] } ] }
+        { id: 'nt-ch', name: '崇川支行', level: 'branch', members: [ { id:'u21', name:'孙二娘', touch:14, intent:2, credit:1, allocated:20, trend:[1,2,2,1,2,3,3] } ] },
+        { id: 'nt-tz', name: '通州支行', level: 'branch', members: [ { id:'u22', name:'张青', touch:8, intent:1, credit:1, allocated:10, trend:[1,1,1,1,1,1,2] } ] }
       ]
     },
     {
       id: 'yz', name: '扬州市分行', level: 'city',
-      members: [ { id:'u23', name:'顾大嫂', touch:15, intent:4, credit:300, allocated:22, trend:[3,2,1,4,2,1,2] } ],
+      members: [ { id:'u23', name:'顾大嫂', touch:15, intent:4, credit:4, allocated:22, trend:[3,2,1,4,2,1,2] } ],
       children: [
-        { id: 'yz-gj', name: '广陵支行', level: 'branch', members: [ { id:'u24', name:'解珍', touch:12, intent:2, credit:210, allocated:18, trend:[2,2,1,2,2,2,1] } ] },
-        { id: 'yz-hj', name: '邗江支行', level: 'branch', members: [ { id:'u25', name:'解宝', touch:18, intent:5, credit:420, allocated:25, trend:[3,3,3,2,4,2,1] } ] }
+        { id: 'yz-gj', name: '广陵支行', level: 'branch', members: [ { id:'u24', name:'解珍', touch:12, intent:2, credit:2, allocated:18, trend:[2,2,1,2,2,2,1] } ] },
+        { id: 'yz-hj', name: '邗江支行', level: 'branch', members: [ { id:'u25', name:'解宝', touch:18, intent:5, credit:1, allocated:25, trend:[3,3,3,2,4,2,1] } ] }
       ]
     },
     {
       id: 'xz', name: '徐州市分行', level: 'city',
-      members: [ { id:'u26', name:'燕青', touch:20, intent:6, credit:550, allocated:30, trend:[4,3,4,2,3,2,2] } ]
+      members: [ { id:'u26', name:'燕青', touch:20, intent:6, credit:3, allocated:30, trend:[4,3,4,2,3,2,2] } ]
     },
     {
       id: 'sq', name: '宿迁市分行', level: 'city',
-      members: [ { id:'u27', name:'卢俊义', touch:25, intent:8, credit:800, allocated:35, trend:[5,4,5,4,3,2,2] } ]
+      members: [ { id:'u27', name:'卢俊义', touch:25, intent:8, credit:6, allocated:35, trend:[5,4,5,4,3,2,2] } ]
     },
     {
       id: 'lyg', name: '连云港市分行', level: 'city',
-      members: [ { id:'u28', name:'柴进', touch:9, intent:1, credit:100, allocated:12, trend:[1,2,1,1,1,1,2] } ]
+      members: [ { id:'u28', name:'柴进', touch:9, intent:1, credit:1, allocated:12, trend:[1,2,1,1,1,1,2] } ]
     },
     {
       id: 'nj', name: '南京市分行', level: 'city',
@@ -303,21 +304,21 @@ const ORG_TREE = {
         {
           id: 'nj-gl', name: '鼓楼支行', level: 'branch',
           members: [
-            { id:'u3', name:'张伟',    touch:11, intent:1, credit:200, allocated:15, trend:[1,2,2,1,2,1,2] },
+            { id:'u3', name:'张伟',    touch:11, intent:1, credit:1, allocated:15, trend:[1,2,2,1,2,1,2] },
             { id:'u8', name:'孙秀英',  touch:6,  intent:0, credit:0,   allocated:12, trend:[1,0,1,1,1,1,1] },
           ]
         },
         {
           id: 'nj-jy', name: '建邺支行', level: 'branch',
           members: [
-            { id:'u4', name:'陈静',    touch:8,  intent:2, credit:280, allocated:14, trend:[1,1,1,2,1,1,1] },
-            { id:'u5_nj', name:'刘雨辰', touch:10, intent:2, credit:190, allocated:14, trend:[1,2,1,2,2,1,1] },
+            { id:'u4', name:'陈静',    touch:8,  intent:2, credit:2, allocated:14, trend:[1,1,1,2,1,1,1] },
+            { id:'u5_nj', name:'刘雨辰', touch:10, intent:2, credit:1, allocated:14, trend:[1,2,1,2,2,1,1] },
           ]
         },
         {
           id: 'nj-qh', name: '秦淮支行', level: 'branch',
           members: [
-            { id:'u5b', name:'高建军',  touch:12, intent:3, credit:360, allocated:17, trend:[2,2,1,2,2,1,2] },
+            { id:'u5b', name:'高建军',  touch:12, intent:3, credit:1, allocated:17, trend:[2,2,1,2,2,1,2] },
           ]
         }
       ]
@@ -328,21 +329,21 @@ const ORG_TREE = {
         {
           id: 'wx-hs', name: '惠山支行', level: 'branch',
           members: [
-            { id:'u5', name:'李磊',    touch:12, intent:3, credit:520, allocated:18, trend:[2,1,2,2,2,2,1] },
-            { id:'u5c', name:'朱晓敏', touch:9,  intent:2, credit:180, allocated:13, trend:[1,1,2,1,2,1,1] },
+            { id:'u5', name:'李磊',    touch:12, intent:3, credit:0, allocated:18, trend:[2,1,2,2,2,2,1] },
+            { id:'u5c', name:'朱晓敏', touch:9,  intent:2, credit:1, allocated:13, trend:[1,1,2,1,2,1,1] },
           ]
         },
         {
           id: 'wx-bh', name: '滨湖支行', level: 'branch',
           members: [
-            { id:'u6', name:'赵小雨',  touch:9,  intent:1, credit:150, allocated:14, trend:[1,2,1,1,1,2,1] },
+            { id:'u6', name:'赵小雨',  touch:9,  intent:1, credit:0, allocated:14, trend:[1,2,1,1,1,2,1] },
           ]
         },
         {
           id: 'wx-xw', name: '新吴支行', level: 'branch',
           members: [
-            { id:'u6b', name:'许鹏飞', touch:14, intent:3, credit:420, allocated:20, trend:[2,2,2,2,2,2,2] },
-            { id:'u6c', name:'蔡雯雯', touch:7,  intent:1, credit:80,  allocated:11, trend:[1,1,1,1,1,1,1] },
+            { id:'u6b', name:'许鹏飞', touch:14, intent:3, credit:1, allocated:20, trend:[2,2,2,2,2,2,2] },
+            { id:'u6c', name:'蔡雯雯', touch:7,  intent:1, credit:1,  allocated:11, trend:[1,1,1,1,1,1,1] },
           ]
         }
       ]
@@ -353,13 +354,13 @@ const ORG_TREE = {
         {
           id: 'cz-wb', name: '武进支行', level: 'branch',
           members: [
-            { id:'u13', name:'周浩然', touch:13, intent:2, credit:290, allocated:18, trend:[2,2,1,2,2,2,2] },
+            { id:'u13', name:'周浩然', touch:13, intent:2, credit:1, allocated:18, trend:[2,2,1,2,2,2,2] },
           ]
         },
         {
           id: 'cz-xb', name: '新北支行', level: 'branch',
           members: [
-            { id:'u14', name:'唐晓燕', touch:10, intent:2, credit:240, allocated:15, trend:[1,2,2,1,2,1,1] },
+            { id:'u14', name:'唐晓燕', touch:10, intent:2, credit:1, allocated:15, trend:[1,2,2,1,2,1,1] },
           ]
         }
       ]
@@ -372,7 +373,7 @@ const ORG_TREE = {
 ═══════════════════════════════════════ */
 // 递归汇总节点数据（含直属 members）
 function aggregateNode(node) {
-  let base = { memberCount: 0, touch: 0, intent: 0, credit: 0, allocated: 0 };
+  let base = { memberCount: 0, touch: 0, intent: 0, credit:0, allocated: 0 };
   if (node.members) {
     base.memberCount += node.members.length;
     node.members.forEach(m => {
@@ -458,6 +459,10 @@ function switchRankTab(type, el) {
   currentRankType = type;
   el.parentElement.querySelectorAll('.rank-tab').forEach(e => e.classList.remove('active'));
   el.classList.add('active');
+  const dimSelect = document.getElementById('rankDimSelect');
+  if (dimSelect) {
+    dimSelect.style.display = (type === 'credit') ? 'inline-block' : 'none';
+  }
   renderRank();
 }
 
@@ -494,7 +499,7 @@ function render() {
     { icon: 'users',       label: '管辖客户经理', value: agg.memberCount, suffix: '人', featured: true },
     { icon: 'layers',      label: '已分配名单',   value: agg.allocated,   suffix: '家' },
     { icon: 'trending_up', label: '已触达',        value: agg.touch,       suffix: '家' },
-    { icon: 'target',      label: '意向转化',      value: agg.intent,      suffix: '家' },
+    { icon: 'target',      label: '有意向',      value: agg.intent,      suffix: '家' },
   ].map(s => `
     <div class="stat-card ${s.featured ? 'featured' : ''}" style="display: flex; align-items: center; justify-content: space-between; padding: 18px 22px;">
       <div>
@@ -574,13 +579,13 @@ function renderOrgCard(c) {
           <div class="node-card-name">${c.name}</div>
           <div class="node-card-sub">${agg.memberCount} 名客户经理</div>
         </div>
-        <span class="tag tag-blue" style="font-size:11px;white-space:nowrap;">${convRate}% 意向转化</span>
+        <span class="tag tag-blue" style="font-size:11px;white-space:nowrap;">${convRate}% 意向转化率</span>
       </div>
       <div class="kpi-row">
         <div class="kpi-box"><div class="kpi-val">${agg.allocated}</div><div class="kpi-lbl">已分配</div></div>
         <div class="kpi-box"><div class="kpi-val">${agg.touch}</div><div class="kpi-lbl">已触达</div></div>
         <div class="kpi-box"><div class="kpi-val">${agg.intent}</div><div class="kpi-lbl">意向</div></div>
-        <div class="kpi-box"><div class="kpi-val ${agg.credit > 0 ? '' : 'muted'}">${agg.credit > 0 ? agg.credit + '万' : '—'}</div><div class="kpi-lbl">授信</div></div>
+        <div class="kpi-box"><div class="kpi-val ${agg.credit > 0 ? '' : 'muted'}">${agg.credit > 0 ? agg.credit : '—'}</div><div class="kpi-lbl">授信</div></div>
       </div>
       
       <div class="progress-bar-wrap"><div class="progress-bar-inner" style="width:${Math.min(reachRate, 100)}%;"></div></div>
@@ -608,13 +613,13 @@ function renderMemberCard(m) {
           <div class="node-card-name">${m.name}</div>
           <div class="node-card-sub">客户经理</div>
         </div>
-        <span class="tag ${tagCls}" style="font-size:11px;white-space:nowrap;">${convRate}% 意向转化</span>
+        <span class="tag ${tagCls}" style="font-size:11px;white-space:nowrap;">${convRate}% 意向转化率</span>
       </div>
       <div class="kpi-row">
         <div class="kpi-box"><div class="kpi-val">${m.allocated}</div><div class="kpi-lbl">已分配</div></div>
         <div class="kpi-box"><div class="kpi-val">${m.touch}</div><div class="kpi-lbl">已触达</div></div>
         <div class="kpi-box"><div class="kpi-val">${m.intent}</div><div class="kpi-lbl">意向</div></div>
-        <div class="kpi-box"><div class="kpi-val ${m.credit > 0 ? '' : 'muted'}">${m.credit > 0 ? m.credit + '万' : '—'}</div><div class="kpi-lbl">授信</div></div>
+        <div class="kpi-box"><div class="kpi-val ${m.credit > 0 ? '' : 'muted'}">${m.credit > 0 ? m.credit : '—'}</div><div class="kpi-lbl">授信</div></div>
       </div>
       
       <div class="progress-bar-wrap"><div class="progress-bar-inner" style="width:${Math.min(reachRate, 100)}%;"></div></div>
@@ -633,20 +638,28 @@ function renderMemberRank(members) {
   const sorted = [...members].sort((a, b) => b[currentRankType] - a[currentRankType]).slice(0, 12);
   
   let label = currentRankType === 'touch' ? '触达' : currentRankType === 'intent' ? '意向' : '授信';
-  let unit = currentRankType === 'credit' ? '万' : '家';
+  let unit = '家';
+  if (currentRankType === 'credit') {
+    unit = currentRankDim === 'amount' ? '万' : '';
+  }
   
-  document.getElementById('rankList').innerHTML = sorted.map((m, i) => `
+  document.getElementById('rankList').innerHTML = sorted.map((m, i) => {
+    let val = m[currentRankType] || 0;
+    if (currentRankType === 'credit' && currentRankDim === 'amount') {
+      val = val * 125; // mock amount
+    }
+    return `
     <div class="rank-row">
       <div class="rank-num ${i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n'}">${i + 1}</div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:13px;font-weight:600;color:var(--gray-800);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.name}</div>
       </div>
       <div style="text-align:right;flex-shrink:0; display:flex; align-items:baseline; gap:4px;">
-        <div style="font-size:15px;font-weight:800;color:var(--brand);">${m[currentRankType] > 0 ? m[currentRankType] : '0'}</div>
+        <div style="font-size:15px;font-weight:800;color:var(--brand);">${val > 0 ? val : '0'}</div>
         <div style="font-size:11px;color:var(--gray-400);">${unit}</div>
       </div>
     </div>
-  `).join('');
+  `}).join('');
 }
 
 function renderOrgRank(orgList) {
@@ -654,24 +667,49 @@ function renderOrgRank(orgList) {
   const sorted = [...orgList].sort((a, b) => b[currentRankType] - a[currentRankType]).slice(0, 12);
   
   let label = currentRankType === 'touch' ? '触达' : currentRankType === 'intent' ? '意向' : '授信';
-  let unit = currentRankType === 'credit' ? '万' : '家';
+  let unit = '家';
+  if (currentRankType === 'credit') {
+    unit = currentRankDim === 'amount' ? '万' : '';
+  }
   
-  document.getElementById('rankList').innerHTML = sorted.map((o, i) => `
+  document.getElementById('rankList').innerHTML = sorted.map((o, i) => {
+    let val = o[currentRankType] || 0;
+    if (currentRankType === 'credit' && currentRankDim === 'amount') {
+      val = val * 125; // mock amount
+    }
+    return `
     <div class="rank-row">
       <div class="rank-num ${i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n'}">${i + 1}</div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:13px;font-weight:600;color:var(--gray-800);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${o.name}</div>
       </div>
       <div style="text-align:right;flex-shrink:0; display:flex; align-items:baseline; gap:4px;">
-        <div style="font-size:15px;font-weight:800;color:var(--brand);">${o[currentRankType] > 0 ? o[currentRankType] : '0'}</div>
+        <div style="font-size:15px;font-weight:800;color:var(--brand);">${val > 0 ? val : '0'}</div>
         <div style="font-size:11px;color:var(--gray-400);">${unit}</div>
       </div>
     </div>
-  `).join('');
+  `}).join('');
 }
 
-
 render();
+
+document.addEventListener("DOMContentLoaded", () => {
+  const rankCardHeader = document.querySelector('.card[style*="340px"] .card-header');
+  if (rankCardHeader) {
+    const selects = rankCardHeader.querySelectorAll('select');
+    if (selects.length > 1) {
+      for (let i = 0; i < selects.length - 1; i++) {
+        selects[i].remove();
+      }
+    }
+  }
+  
+  const remaining = document.querySelector('#rankDimSelect') || (rankCardHeader ? rankCardHeader.querySelector('select') : null);
+  if (remaining) {
+    remaining.style.display = (currentRankType === 'credit') ? 'block' : 'none';
+    if (!remaining.id) remaining.id = 'rankDimSelect';
+  }
+});
 </script>
   <script src="js/toast.js"></script>
 </body>

@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+  <title>营销跟踪 - 智能营销平台</title>
+  <meta name="description" content="营销状态跟踪报表，按机构、客户经理、批次多维度查看转化数据">
+  <link rel="stylesheet" href="css/style.css?v=1783867207">
+  <style>
+    /* ===== 报表页专属样式 ===== */
+
+    /* 顶部汇总 KPI 卡片（已移除） */
+
+    /* 维度 Tab */
+    .dim-tabs {
+      display: flex;
+      gap: 4px;
+      padding: 3px;
+      background: var(--gray-100);
+      border-radius: 8px;
+      width: fit-content;
+    }
+    .dim-tab {
+      padding: 8px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--gray-600);
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .dim-tab:hover { color: var(--gray-800); }
+    .dim-tab.active { background: #fff; color: var(--brand); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+    /* 筛选行 */
+    .rpt-filters {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    /* 漏斗进度条（已移除） */
+
+    /* 数据表格 */
+    .rpt-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .rpt-table thead th {
+      background: var(--gray-50);
+      color: var(--gray-500);
+      font-weight: 600;
+      text-align: left;
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--gray-200);
+      white-space: nowrap;
+      font-size: 12px;
+      letter-spacing: 0.3px;
+    }
+    .rpt-table thead th.num { text-align: right; }
+    .rpt-table tbody td {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--gray-100);
+      color: var(--gray-700);
+    }
+    .rpt-table tbody td.num {
+      text-align: right;
+      font-family: 'SF Mono', 'Cascadia Code', monospace;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .rpt-table tbody tr:hover { background: #f8fafc; }
+    .rpt-table tbody tr.total-row {
+      background: var(--gray-50);
+      font-weight: 700;
+    }
+    .rpt-table tbody tr.total-row td { border-top: 2px solid var(--gray-200); color: var(--gray-900); }
+
+    /* 排名文字 */
+    .rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-500);
+      margin-right: 6px;
+      flex-shrink: 0;
+    }
+
+    /* 报表更新时间 */
+    .rpt-update-time {
+      font-size: 12px;
+      color: var(--gray-400);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* 表格横向滚动 */
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main-content anim-fade-in" id="main">
+
+    <!-- 页头 -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1 class="page-title">营销跟踪</h1>
+        <p class="page-breadcrumb">
+          <a href="index.html">工作台</a><span class="sep">/</span>数据分析<span class="sep">/</span>营销跟踪
+        </p>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <div class="rpt-update-time" id="updateTime"></div>
+        <button class="btn btn-default" onclick="exportReport()">
+          <span id="btnExportIcon" style="width:15px;height:15px;"></span>
+          导出报表
+        </button>
+      </div>
+    </div>
+
+
+
+    <!-- 维度 Tab + 筛选 + 数据表 -->
+    <div class="card">
+      <div class="card-header" style="flex-direction:column; align-items:stretch; gap:4px; padding-bottom:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h3 class="card-title">
+            数据汇总
+          </h3>
+          <div class="dim-tabs" id="dimTabs">
+            <div class="dim-tab active" onclick="switchDim('batch', this)">按批次</div>
+            <div class="dim-tab" onclick="switchDim('org', this)">按机构</div>
+            <div class="dim-tab" onclick="switchDim('member', this)">按客户经理</div>
+          </div>
+        </div>
+        <div class="rpt-filters" id="tableFilters"></div>
+      </div>
+      <div class="card-body" style="padding:0 24px 24px 24px;">
+        <div class="table-wrapper">
+          <table class="rpt-table" id="dataTable"></table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="js/sidebar.js?v=3"></script>
+<script src="js/toast.js"></script>
+<script>
+const role = sessionStorage.getItem('wb_role') || 'admin';
+renderSidebar({ currentPage: 'report', role });
+
+document.getElementById('btnExportIcon').innerHTML = ICONS.download;
+document.getElementById('updateTime').innerHTML = `<span style="width:14px;height:14px;">${ICONS.activity}</span> 数据更新于 ${new Date().toLocaleDateString('zh-CN')} ${new Date().toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'})}`;
+
+/* ═══════════════════════════════════════
+   Mock 数据 —— 后续替换为真实接口
+   数据结构设计：以明细行为单位，每行代表一个维度组合
+═══════════════════════════════════════ */
+
+// 营销状态枚举及配色
+const STATUS_META = {
+  '待触达':  { color: '#94a3b8', bg: '#f1f5f9', order: 0 },
+  '触达失败': { color: '#ef4444', bg: '#fef2f2', order: 1 },
+  '无意向':  { color: '#f59e0b', bg: '#fffbeb', order: 2 },
+  '跟进中':  { color: '#3b82f6', bg: '#eff6ff', order: 3 },
+  '有意向':  { color: '#10b981', bg: '#ecfdf5', order: 4 },
+  '已申请':  { color: '#6366f1', bg: '#eef2ff', order: 5 },
+  '已授信':  { color: '#059669', bg: '#ecfdf5', order: 6 },
+  '已放款':  { color: '#047857', bg: '#ecfdf5', order: 7 },
+};
+const STATUS_LIST = Object.keys(STATUS_META);
+
+// 机构列表
+const ORGS = ['苏州分行', '南京分行', '无锡分行', '常州分行', '南通分行'];
+
+// 客户经理列表（含所属机构）
+const MEMBERS = [
+  { name: '王芳',  org: '苏州分行' },
+  { name: '李明',  org: '南京分行' },
+  { name: '张伟',  org: '苏州分行' },
+  { name: '陈静',  org: '无锡分行' },
+  { name: '赵阳',  org: '常州分行' },
+  { name: '周丽',  org: '南通分行' },
+  { name: '刘强',  org: '南京分行' },
+  { name: '吴佳',  org: '无锡分行' },
+];
+
+// 批次列表（来自真实 Excel 数据）
+const BATCHES = [
+  '企业导入-平安银行V3(厂房、税）',
+  '企业导入-V1商机（税）进系统',
+  '企业导入-平安银行V6脱核',
+  '企业导入-平安银行0601外贸商机',
+];
+
+// 明细数据：batch × org × member × status → count
+// 这是扁平化的数据数组，后续接口直接返回这种格式即可
+const RAW_DATA = [];
+
+// 使用真实 Excel 中的批次汇总数据作为基准
+const BATCH_TOTALS = {
+  '企业导入-平安银行V3(厂房、税）':    { '待触达': 302, '触达失败': 31, '无意向': 24, '跟进中': 4, '有意向': 1, '未申请': 2 },
+  '企业导入-V1商机（税）进系统':       { '待触达': 284, '触达失败': 32, '无意向': 21, '跟进中': 4, '有意向': 2, '未申请': 1 },
+  '企业导入-平安银行V6脱核':           { '待触达': 82,  '触达失败': 14, '无意向': 12 },
+  '企业导入-平安银行0601外贸商机':     { '待触达': 10,  '触达失败': 51, '无意向': 58, '跟进中': 4 },
+};
+
+// 将批次汇总数据拆分为 org × member 明细（模拟）
+function generateMockDetails() {
+  BATCHES.forEach(batch => {
+    const batchData = BATCH_TOTALS[batch] || {};
+    STATUS_LIST.forEach(status => {
+      const total = batchData[status] || 0;
+      if (total === 0) return;
+      // 按机构随机分配
+      let remaining = total;
+      const orgShares = {};
+      ORGS.forEach((org, i) => {
+        if (i === ORGS.length - 1) {
+          orgShares[org] = remaining;
+        } else {
+          const share = Math.floor(remaining * (0.15 + Math.random() * 0.25));
+          orgShares[org] = Math.min(share, remaining);
+          remaining -= orgShares[org];
+        }
+      });
+      // 再按客户经理分
+      ORGS.forEach(org => {
+        const orgMembers = MEMBERS.filter(m => m.org === org);
+        if (orgMembers.length === 0 || orgShares[org] === 0) return;
+        let orgRemaining = orgShares[org];
+        orgMembers.forEach((m, mi) => {
+          let val;
+          if (mi === orgMembers.length - 1) {
+            val = orgRemaining;
+          } else {
+            val = Math.floor(orgRemaining / orgMembers.length) + Math.floor(Math.random() * 3);
+            val = Math.min(val, orgRemaining);
+          }
+          orgRemaining -= val;
+          if (val > 0) {
+            RAW_DATA.push({ batch, org, member: m.name, status, count: val });
+          }
+        });
+      });
+    });
+  });
+}
+generateMockDetails();
+
+/* ═══════════════════════════════════════
+   数据聚合工具
+═══════════════════════════════════════ */
+
+function aggregate(data, groupKey) {
+  const map = {};
+  data.forEach(d => {
+    const key = d[groupKey];
+    if (!map[key]) {
+      map[key] = { _key: key };
+      STATUS_LIST.forEach(s => map[key][s] = 0);
+      map[key]._total = 0;
+    }
+    map[key][d.status] = (map[key][d.status] || 0) + d.count;
+    map[key]._total += d.count;
+  });
+  return Object.values(map).sort((a, b) => b._total - a._total);
+}
+
+function totalByStatus(data) {
+  const result = {};
+  STATUS_LIST.forEach(s => result[s] = 0);
+  result._total = 0;
+  data.forEach(d => {
+    result[d.status] = (result[d.status] || 0) + d.count;
+    result._total += d.count;
+  });
+  return result;
+}
+
+/* ═══════════════════════════════════════
+   渲染
+═══════════════════════════════════════ */
+
+let currentDim = 'batch';
+let filterOrg = 'all';
+let filterBatch = 'all';
+
+
+
+function getTableData() {
+  let data = [...RAW_DATA];
+  // 应用机构筛选
+  const orgEl = document.getElementById('tblFilterOrg');
+  const batchEl = document.getElementById('tblFilterBatch');
+  if (orgEl && orgEl.value !== 'all') data = data.filter(d => d.org === orgEl.value);
+  if (batchEl && batchEl.value !== 'all') data = data.filter(d => d.batch === batchEl.value);
+  return data;
+}
+
+
+
+// 渲染表格筛选
+function renderTableFilters() {
+  let html = '';
+  if (currentDim === 'member') {
+    html += `
+      <select class="form-control" style="width:auto;" id="tblFilterOrg" onchange="renderTable()">
+        <option value="all">全部机构</option>
+        ${ORGS.map(o => `<option value="${o}">${o}</option>`).join('')}
+      </select>
+    `;
+  }
+  if (currentDim !== 'batch') {
+    html += `
+      <select class="form-control" style="width:auto;" id="tblFilterBatch" onchange="renderTable()">
+        <option value="all">全部批次</option>
+        ${BATCHES.map(b => `<option value="${b}">${b.length > 20 ? b.slice(0, 20) + '…' : b}</option>`).join('')}
+      </select>
+    `;
+  }
+  if (currentDim === 'batch') {
+    html += `
+      <select class="form-control" style="width:auto;" id="tblFilterOrg" onchange="renderTable()">
+        <option value="all">全部机构</option>
+        ${ORGS.map(o => `<option value="${o}">${o}</option>`).join('')}
+      </select>
+    `;
+  }
+  document.getElementById('tableFilters').innerHTML = html;
+}
+
+// 渲染数据表
+function renderTable() {
+  const data = getTableData();
+  let groupKey, nameLabel;
+  if (currentDim === 'batch')  { groupKey = 'batch';  nameLabel = '批次名称'; }
+  if (currentDim === 'org')    { groupKey = 'org';    nameLabel = '机构名称'; }
+  if (currentDim === 'member') { groupKey = 'member'; nameLabel = '客户经理'; }
+
+  const rows = aggregate(data, groupKey);
+  const totals = totalByStatus(data);
+  const maxTotal = Math.max(...rows.map(r => r._total), 1);
+
+  // 显示所有状态列
+  const activeCols = STATUS_LIST;
+
+  let html = `<thead><tr>
+    <th style="width:36px;">序号</th>
+    <th>${nameLabel}</th>
+    ${currentDim === 'member' ? '<th>所属机构</th>' : ''}
+    <th class="num">总量</th>
+    ${activeCols.map(s => `<th class="num">${s}</th>`).join('')}
+    <th class="num">触达率</th>
+    <th class="num">意向率</th>
+  </tr></thead>`;
+
+  html += '<tbody>';
+  rows.forEach((r, i) => {
+    const touchedCount = r._total - (r['待触达'] || 0);
+    const intentCount = (r['有意向'] || 0) + (r['已申请'] || 0) + (r['已授信'] || 0) + (r['已放款'] || 0);
+    const touchRate = r._total > 0 ? ((touchedCount / r._total) * 100).toFixed(1) : '0.0';
+    const intentRate = touchedCount > 0 ? ((intentCount / touchedCount) * 100).toFixed(1) : '0.0';
+    const rankCls = i === 0 ? 'r1' : i === 1 ? 'r2' : i === 2 ? 'r3' : 'rn';
+
+    const memberOrg = currentDim === 'member' ? MEMBERS.find(m => m.name === r._key)?.org || '' : '';
+    const displayName = currentDim === 'batch' && r._key.length > 30 ? r._key.slice(0, 30) + '…' : r._key;
+
+    html += `<tr>
+      <td><span class="rank-badge ${rankCls}">${i + 1}</span></td>
+      <td title="${r._key}" style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${displayName}</td>
+      ${currentDim === 'member' ? `<td style="color:var(--gray-500);font-size:12px;">${memberOrg}</td>` : ''}
+      <td class="num" style="font-weight:800;color:var(--gray-900);">${r._total.toLocaleString()}</td>
+      ${activeCols.map(s => {
+        const val = r[s] || 0;
+        return `<td class="num">${val.toLocaleString()}</td>`;
+      }).join('')}
+      <td class="num">${touchRate}%</td>
+      <td class="num">${intentRate}%</td>
+    </tr>`;
+  });
+
+  // 合计行
+  const totalTouched = totals._total - (totals['待触达'] || 0);
+  const totalIntent = (totals['有意向'] || 0) + (totals['已申请'] || 0) + (totals['已授信'] || 0) + (totals['已放款'] || 0);
+  const totalTouchRate = totals._total > 0 ? ((totalTouched / totals._total) * 100).toFixed(1) : '0.0';
+  const totalIntentRate = totalTouched > 0 ? ((totalIntent / totalTouched) * 100).toFixed(1) : '0.0';
+
+  html += `<tr class="total-row">
+    <td></td>
+    <td>合计</td>
+    ${currentDim === 'member' ? '<td></td>' : ''}
+    <td class="num">${totals._total.toLocaleString()}</td>
+    ${activeCols.map(s => `<td class="num">${(totals[s] || 0).toLocaleString()}</td>`).join('')}
+    <td class="num">${totalTouchRate}%</td>
+    <td class="num">${totalIntentRate}%</td>
+  </tr>`;
+
+  html += '</tbody>';
+  document.getElementById('dataTable').innerHTML = html;
+}
+
+// 维度切换
+function switchDim(dim, el) {
+  currentDim = dim;
+  document.querySelectorAll('.dim-tab').forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+  renderTableFilters();
+  renderTable();
+}
+
+
+
+// 全部渲染
+function renderAll() {
+  renderTable();
+}
+
+// 导出（暂用 Toast 提示）
+function exportReport() {
+  if (window.showToast) showToast('导出任务已提交，请前往下载中心查看', 'success');
+  else alert('导出任务已提交');
+}
+
+// 启动
+renderTableFilters();
+renderTable();
+
+</script>
+</body>
+</html>
