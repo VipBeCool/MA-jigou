@@ -1860,6 +1860,16 @@
           </div>
         </div>
 
+        <div class="section-heading" style="margin-top:20px;">推送排重</div>
+        <div
+          style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--gray-50);border-radius:9px;">
+          <div>
+            <div style="font-size:13.5px;font-weight:600;color:var(--gray-800);">历史推送排重</div>
+            <div style="font-size:12px;color:var(--gray-400);margin-top:2px;">开启后，每次生成新批次时自动排除该智能体历史已推送过的企业，避免重复营销</div>
+          </div>
+          <div class="toggle-switch on" id="dedupToggle" onclick="this.classList.toggle('on')"></div>
+        </div>
+
         <div class="section-heading" style="margin-top:20px;">导出控制</div>
         <div
           style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--gray-50);border-radius:9px;">
@@ -1924,7 +1934,7 @@
         <div class="field-grid" id="requiredFieldGrid"></div>
 
         <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0 8px;">
-          <div style="font-size:13px;font-weight:600;color:var(--gray-600);">扩展字段（默认全选）</div>
+          <div style="font-size:13px;font-weight:600;color:var(--gray-600);">扩展字段</div>
           <div style="display:flex;gap:16px;font-size:13px;">
             <a href="javascript:void(0)" onclick="selectAllFields(true)"
               style="color:var(--brand);text-decoration:none;">全部选中</a>
@@ -2306,17 +2316,28 @@
           </div>
         `;
 
-        document.getElementById('dpane-config').innerHTML =
+          const freqDetail = {
+            daily: '每天 06:00',
+            weekly: '每周二 06:00',
+            monthly: '每月 1日 06:00',
+            quarterly: '每季度首月 1日 06:00',
+            manual: '手动触发',
+            once: '仅一次'
+          };
+          
+          document.getElementById('dpane-config').innerHTML =
           overviewStats +
           '<div style="font-size:13px;font-weight:700;color:var(--gray-700);margin-bottom:10px;">基础信息</div>' +
           row('归属机构', a.org) +
           row('机构简称', a.orgShort) +
           row('智能体名称', a.name) +
-          row('更新频率', FREQ_LABEL[a.freq] || '按周更新') +
+          row('更新频率', freqDetail[a.freq] || '每周二 06:00') +
           row('每批次上限', a.limit + ' 户') +
           row('名单数据源', (a.datasource || []).join('、') || '—') +
+          row('推送排重', a.dedup ? '已启用' : '未启用') +
           row('允许导出', a.allowExport ? '是' : '否') +
-          row('白名单', a.whitelist ? '已启用' : '未启用');
+          row('白名单', a.whitelist ? '已启用' : '未启用') +
+          row('黑名单', a.blacklist ? '已启用' : '未启用');
       }
 
       if (tab === 'rules') {
@@ -2387,7 +2408,7 @@
             '</td>' +
             '<td style="text-align:center;">' +
             '<button class="btn btn-default btn-sm" onclick="openNotify(\'名单下载任务已提交，稍后在下载中心查看。\')" style="font-size:12px;margin-right:8px;">下载</button>' +
-            '<button class="btn btn-sm" onclick="confirmDeleteSnapshot(\'' + s.name + '\')" style="font-size:12px;color:#dc2626;border:1px solid #fecaca;background:#fff;">删除</button>' +
+            '<button class="btn btn-sm" onclick="confirmDeleteSnapshot(\'' + s.name + '\', \'白名单\')" style="font-size:12px;color:#dc2626;border:1px solid #fecaca;background:#fff;">删除</button>' +
             '</td>' +
             '</tr>'
           ).join('') : '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--gray-400);">暂无白名单</td></tr>') +
@@ -2411,7 +2432,7 @@
             '</td>' +
             '<td style="text-align:center;">' +
             '<button class="btn btn-default btn-sm" onclick="openNotify(\'名单下载任务已提交，稍后在下载中心查看。\')" style="font-size:12px;margin-right:8px;">下载</button>' +
-            '<button class="btn btn-sm" onclick="confirmDeleteSnapshot(\'' + s.name + '\')" style="font-size:12px;color:#dc2626;border:1px solid #fecaca;background:#fff;">删除</button>' +
+            '<button class="btn btn-sm" onclick="confirmDeleteSnapshot(\'' + s.name + '\', \'黑名单\')" style="font-size:12px;color:#dc2626;border:1px solid #fecaca;background:#fff;">删除</button>' +
             '</td>' +
             '</tr>'
           ).join('') : '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--gray-400);">暂无黑名单</td></tr>') +
@@ -2975,10 +2996,10 @@
       );
     }
 
-    function confirmDeleteSnapshot(name) {
+    function confirmDeleteSnapshot(name, typeName = '白名单') {
       openConfirm(
-        '确认删除快照？',
-        '将删除白名单快照「' + name + '」，此操作不可恢复。',
+        '确认删除' + typeName + '？',
+        '将删除' + typeName + '「' + name + '」，此操作不可恢复。',
         '确认删除', '#dc2626',
         function () {
           const a = AGENTS.find(x => x.id === currentAgentId);
@@ -2986,7 +3007,7 @@
             a.snapshots = a.snapshots.filter(s => s.name !== name);
             renderDrawerPane('whitelist', a);
           }
-          showToast('快照已删除');
+          showToast(typeName + '已删除');
         }
       );
     }
