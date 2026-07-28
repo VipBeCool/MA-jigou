@@ -2384,7 +2384,8 @@
             '<td><span class="tag ' + (b.status === '已分配' ? 'tag-green' : b.status === '分配中' ? 'tag-blue' : 'tag-amber') + '">' + b.status + '</span></td>' +
             '<td style="white-space:nowrap;">' +
             '<button class="btn btn-default btn-sm" onclick="window.open(\'customers.html?agent=\' + encodeURIComponent(a.name) + \'&batch=\' + encodeURIComponent(b.name), \'_blank\')" style="font-size:12px;margin-right:8px;">查看</button>' +
-            '<button class="btn btn-default btn-sm" onclick="openNotify(\'名单生成任务已提交，稍后在下载中心查看。\')" style="font-size:12px;">下载</button>' +
+            '<button class="btn btn-default btn-sm" onclick="openNotify(\'名单生成任务已提交，稍后在下载中心查看。\')" style="font-size:12px;margin-right:8px;">下载</button>' +
+            '<button class="btn btn-sm" onclick="confirmDeleteBatch(\'' + b.name + '\')" style="font-size:12px;color:#dc2626;border:1px solid #fecaca;background:#fff;">删除</button>' +
             '</td>' +
             '</tr>'
           ).join('') : '<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--gray-400);">暂无批次记录</td></tr>') +
@@ -3008,6 +3009,24 @@
             renderDrawerPane('whitelist', a);
           }
           showToast(typeName + '已删除');
+        }
+      );
+    }
+
+    function confirmDeleteBatch(name) {
+      openConfirm(
+        '确认删除名单批次？',
+        '将删除名单批次「' + name + '」，此操作不可恢复。',
+        '确认删除', '#dc2626',
+        function () {
+          const a = AGENTS.find(x => x.id === currentAgentId);
+          if (a) {
+            a.batchList = a.batchList.filter(b => b.name !== name);
+            a.batches = a.batchList.length;
+            renderDrawerPane('batches', a);
+            renderGrid();
+          }
+          showToast('名单批次已删除');
         }
       );
     }
