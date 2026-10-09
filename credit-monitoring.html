@@ -1,0 +1,2297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+  <title>信贷余额监控 - 智能营销平台</title>
+  <meta name="description" content="智能营销平台交付名单信贷余额监控，穿透人行征信多期负债，评估累计用信转化率与撬动增量，赋能续贷精准获客">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="css/style.css?v=1783867207">
+  <style>
+    /* 专属样式 */
+    /* 一级主视图 Tab 栏 (与下方数据表格融为一体) */
+    .tab-nav-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      border-bottom: 1px solid #e2e8f0;
+      margin-bottom: 0;
+      background: #ffffff;
+      padding: 0 20px;
+    }
+    .tab-nav-item {
+      padding: 13px 18px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: #64748b;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: -1px;
+      transition: all 0.2s;
+    }
+    .tab-nav-item:hover {
+      color: var(--brand);
+    }
+    .tab-nav-item.active {
+      color: var(--brand);
+      border-bottom-color: var(--brand);
+      font-weight: 600;
+    }
+    .tab-nav-badge {
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      background: #f1f5f9;
+      color: #64748b;
+      font-weight: 500;
+    }
+    .tab-nav-item.active .tab-nav-badge {
+      background: #eff6ff;
+      color: var(--brand);
+      font-weight: 600;
+    }
+
+    /* 机构选择控件 */
+    .bank-select-box {
+      display: inline-flex;
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 5px 12px;
+      gap: 8px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      transition: border-color 0.2s;
+    }
+    .bank-select-box:hover, .bank-select-box:focus-within {
+      border-color: var(--brand);
+    }
+    .bank-select-box select {
+      border: none;
+      background: transparent;
+      font-size: 13px;
+      font-weight: 600;
+      color: #0f172a;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* 四分类徽章样式 - 克制金融质感 */
+    .cat-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 11.5px;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+    }
+    .cat-retained { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; } /* 新增用信 */
+    .cat-cleared  { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; } /* 用信降低 */
+    .cat-repaid   { background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; } /* 存量缩减 */
+    .cat-static   { background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; } /* 无新增用信 */
+
+    /* 增量数据单元格 */
+    .cell-up   { background: #f1f5f9; color: #1e293b; font-weight: 600; }
+    .cell-down { color: var(--gray-600); }
+    .cell-zero { color: var(--gray-400); }
+
+    /* 限制内容区宽度防穿透 */
+    .main-content {
+      min-width: 0;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
+    /* 宽表局部平滑双向滚动容器 (解决批次过多拉长页面问题) */
+    .table-scroll-wrap {
+      overflow-x: auto;
+      overflow-y: auto;
+      max-height: 520px;
+      width: 100%;
+      max-width: 100%;
+      position: relative;
+      border-radius: 0 0 12px 12px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .table-scroll-wrap::-webkit-scrollbar {
+      height: 6px;
+      width: 6px;
+    }
+    .table-scroll-wrap::-webkit-scrollbar-track {
+      background: #f8fafc;
+      border-radius: 4px;
+    }
+    .table-scroll-wrap::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .table-scroll-wrap::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* 表头置顶吸附 (当批次过多纵向滚动时表头固定) */
+    .table-scroll-wrap thead tr th {
+      position: sticky;
+      top: 0;
+      z-index: 7;
+      background: var(--gray-50);
+    }
+
+    /* 冻结列：第1列序号 + 第2列批次名称 */
+    .col-sticky-1 {
+      position: sticky;
+      left: 0;
+      z-index: 5;
+      background: #ffffff;
+      text-align: center;
+    }
+    th.col-sticky-1 {
+      background: var(--gray-50);
+      z-index: 9 !important;
+    }
+    .col-sticky-2 {
+      position: sticky;
+      left: 50px;
+      z-index: 5;
+      background: #ffffff;
+      box-shadow: 4px 0 8px -2px rgba(15, 23, 42, 0.08);
+      white-space: nowrap;
+    }
+    th.col-sticky-2 {
+      background: var(--gray-50);
+      z-index: 9 !important;
+      box-shadow: 4px 0 8px -2px rgba(15, 23, 42, 0.08);
+    }
+    tr:hover .col-sticky-1, tr:hover .col-sticky-2 {
+      background: #f8fafc;
+    }
+    /* 全批次合计行底部吸底固定 */
+    tr.summary-row td {
+      position: sticky;
+      bottom: 0;
+      z-index: 6;
+      background: #f8fafc;
+      font-weight: 700;
+      box-shadow: 0 -2px 6px rgba(15, 23, 42, 0.06);
+    }
+    tr.summary-row td.col-sticky-1 {
+      z-index: 8;
+      left: 0;
+    }
+    tr.summary-row td.col-sticky-2 {
+      z-index: 8;
+      left: 50px;
+    }
+
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.3); opacity: 0.2; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .pulse-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #16a34a;
+      box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7);
+      animation: pulse-ring 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+    }
+
+    /* 复合多级分组表头 */
+    .group-header th {
+      text-align: center !important;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      padding: 6px 8px !important;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid #e2e8f0;
+    }
+    .group-header th:last-child { border-right: none; }
+    .grp-base  { background: #f8fafc; color: #475569; }
+    .grp-match { background: #f0fdf4; color: #166534; }
+    .grp-conv  { background: #eff6ff; color: #1e40af; }
+    .grp-ret   { background: #f0fdf4; color: #15803d; }
+    .grp-cat   { background: #faf5ff; color: #7e22ce; }
+    .grp-amt   { background: #fff7ed; color: #c2410c; }
+
+    /* 四分类微型堆叠结构分布条 */
+    .dist-bar-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .dist-bar {
+      display: flex;
+      height: 12px;
+      width: 110px;
+      border-radius: 3px;
+      overflow: hidden;
+      background: #f1f5f9;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.06);
+    }
+    .dist-seg {
+      height: 100%;
+      position: relative;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .dist-seg:hover {
+      opacity: 0.82;
+    }
+    .seg-retained { background: #16a34a; }
+    .seg-cleared  { background: #f59e0b; }
+    .seg-repaid   { background: #64748b; }
+    .seg-static   { background: #cbd5e1; }
+
+    /* 自定义精美结构分布 Tooltip 浮层 (毫秒级响应、深色微磨砂毛玻璃卡片) */
+    .dist-pop-tooltip {
+      position: fixed;
+      z-index: 99999;
+      pointer-events: none;
+      background: rgba(15, 23, 42, 0.94);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      padding: 10px 14px;
+      width: 245px;
+      box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.38), 0 4px 8px -2px rgba(0, 0, 0, 0.15);
+      color: #fff;
+      font-size: 12px;
+      opacity: 0;
+      transform: translate(-50%, -100%) scale(0.96);
+      transition: opacity 0.12s ease, transform 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+      display: none;
+    }
+    .dist-pop-tooltip.show {
+      opacity: 1;
+      transform: translate(-50%, -100%) scale(1);
+    }
+    .dist-pop-tooltip.flip-down {
+      transform: translate(-50%, 0) scale(0.96);
+    }
+    .dist-pop-tooltip.flip-down.show {
+      opacity: 1;
+      transform: translate(-50%, 0) scale(1);
+    }
+    .dist-pop-tooltip .tooltip-arrow {
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 6px solid rgba(15, 23, 42, 0.94);
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .dist-pop-tooltip.flip-down .tooltip-arrow {
+      bottom: auto;
+      top: -6px;
+      border-top: none;
+      border-bottom: 6px solid rgba(15, 23, 42, 0.94);
+    }
+
+    /* 宽表横向滚动容器 */
+    .wide-table-wrap {
+      overflow-x: auto;
+      max-width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .wide-table-wrap::-webkit-scrollbar {
+      height: 6px;
+      width: 6px;
+    }
+    .wide-table-wrap::-webkit-scrollbar-track {
+      background: #f8fafc;
+      border-radius: 4px;
+    }
+    .wide-table-wrap::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .wide-table-wrap::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    .wide-table th {
+      white-space: nowrap;
+      background: var(--gray-50);
+      font-size: 12.5px;
+      padding: 10px 12px;
+      text-align: right;
+    }
+    .wide-table td {
+      white-space: nowrap;
+      font-size: 12.5px;
+      padding: 10px 12px;
+      text-align: right;
+    }
+    .wide-table th.col-left, .wide-table td.col-left {
+      text-align: left;
+    }
+
+    /* 抽屉 Drawer (全平台统一右侧滑出规范) */
+    .drawer-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      overscroll-behavior: contain;
+    }
+    .drawer-overlay.show, .drawer-overlay.active { opacity: 1; pointer-events: auto; }
+    .drawer-container {
+      position: fixed;
+      top: 0; right: 0; bottom: 0;
+      width: 640px;
+      max-width: 92vw;
+      background: #fff;
+      box-shadow: -6px 0 36px rgba(0, 0, 0, 0.18);
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      overscroll-behavior: contain;
+    }
+    .drawer-overlay.show .drawer-container,
+    .drawer-overlay.active .drawer-container { transform: translateX(0); }
+    .drawer-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid #e2e8f0;
+      background: #fafbfc;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      padding: 22px 24px;
+    }
+    .drawer-footer {
+      padding: 14px 24px;
+      border-top: 1px solid #e2e8f0;
+      background: #fafbfc;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    /* 居中弹窗与遮罩 */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(2px);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .modal-overlay.show { opacity: 1; pointer-events: auto; }
+    .modal-dialog {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: var(--shadow-lg);
+      width: 680px;
+      max-width: 90vw;
+      overflow: hidden;
+      transform: translateY(14px);
+      transition: transform 0.2s ease;
+    }
+    .modal-overlay.show .modal-dialog { transform: translateY(0); }
+    .modal-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-body { padding: 24px; }
+    /* 客群来源徽章 */
+    .source-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+    .source-tag.source-agent {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+    }
+    .source-tag.source-delivery {
+      background: #f0fdf4;
+      color: #15803d;
+      border: 1px solid #bbf7d0;
+    }
+    .source-tag.source-import {
+      background: #f8fafc;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+    }
+
+    /* 运营端监控策略规则状态看板条 */
+    .scope-rule-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 20px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+    .config-card-choice {
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #fff;
+    }
+    .config-card-choice:hover {
+      border-color: #cbd5e1;
+      background: #f8fafc;
+    }
+    .config-card-choice.active {
+      border-color: var(--brand);
+      background: #f0fdf4;
+    }
+
+    /* Switch 开关规范 */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 42px;
+      height: 22px;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #cbd5e1;
+      transition: .25s;
+      border-radius: 22px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .25s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: var(--brand);
+    }
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+    /* 精致小型开关 */
+    .switch.switch-sm {
+      width: 32px;
+      height: 18px;
+    }
+    .switch.switch-sm .slider:before {
+      height: 12px;
+      width: 12px;
+      left: 3px;
+      bottom: 3px;
+    }
+    .switch.switch-sm input:checked + .slider:before {
+      transform: translateX(14px);
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main-content anim-fade-in">
+
+    <!-- 顶部标题与操作区 -->
+    <div class="page-header" style="position:relative;align-items:center;margin-bottom:18px;">
+      <!-- 全局所属机构（居中突出按钮，与营销名单、统计分析等各页面统一标准） -->
+      <div id="globalOrgBtn" onclick="openOrgModal()" style="position:absolute; left:50%; transform:translateX(-50%); display:flex;align-items:center;gap:16px;height:44px;box-sizing:border-box;padding:0 6px 0 20px;background:white;border:1.5px solid #e5e7eb;border-radius:22px;cursor:pointer;user-select:none;transition:all 0.2s;box-shadow:0 2px 10px rgba(0,0,0,0.03);" onmouseenter="this.style.borderColor='var(--brand)';this.style.boxShadow='0 4px 12px rgba(0,0,0,0.06)';" onmouseleave="this.style.borderColor='#e5e7eb';this.style.boxShadow='0 2px 10px rgba(0,0,0,0.03)';">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M9 8h1"/><path d="M9 12h1"/><path d="M9 16h1"/><path d="M14 8h1"/><path d="M14 12h1"/><path d="M14 16h1"/><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/></svg>
+          <span style="font-size:14px;color:var(--gray-500);font-weight:500;">当前查看：</span>
+          <span style="font-size:15px;font-weight:700;color:var(--gray-900);" id="globalOrgDisplay">江苏银行</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center;height:32px;padding:0 16px;background:var(--brand);color:white;border-radius:16px;font-size:13px;font-weight:600;gap:6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="M16 21l4-4-4-4"/><path d="M20 17H4"/></svg>
+          切换机构
+        </div>
+      </div>
+
+      <div class="page-header-left">
+        <h1 class="page-title">信贷余额监控</h1>
+        <p class="page-breadcrumb">
+          <a href="index.html">工作台</a><span class="sep">/</span>客户大盘<span class="sep">/</span>信贷余额监控
+        </p>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:center;">
+        <button class="btn btn-primary" onclick="exportAnalysisExcel()" style="display:inline-flex;align-items:center;gap:6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          导出报告
+        </button>
+      </div>
+    </div>
+
+    <!-- 运营端专属：贷后信贷监控策略规则状态看板条 -->
+    <div class="scope-rule-card">
+      <div style="display:flex;align-items:center;flex-wrap:wrap;gap:16px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:28px;height:28px;border-radius:6px;background:#f0fdf4;border:1px solid #bbf7d0;display:flex;align-items:center;justify-content:center;color:var(--brand);flex-shrink:0;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:13px;">
+            <span style="color:#64748b;">纳管范围：</span>
+            <span style="font-weight:700;color:#0f172a;" id="displayScopeName">全部纳管客户</span>
+            <span id="scopeDescText" style="color:#64748b;font-size:12.5px;">(3,257 户 · 营销 1,860 + 导入 1,397)</span>
+          </div>
+        </div>
+        <div style="width:1px;height:18px;background:#e2e8f0;"></div>
+        <div style="font-size:12.5px;color:#475569;display:flex;gap:16px;flex-wrap:wrap;align-items:center;">
+          <div>跟踪周期：<span style="color:#0f172a;font-weight:600;" id="displayWindowRule">持续跟踪</span></div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;">
+        <!-- 人行数据更新说明 (非按钮纯文本展示) -->
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#64748b;">
+          <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#16a34a;"></span>
+          <span>人行数据月更：<span style="color:#0f172a;font-weight:600;" id="pbDataDate">2026年07月</span></span>
+        </div>
+        <!-- 余额监控总开关 -->
+        <div style="display:inline-flex;align-items:center;gap:8px;padding:5px 12px;background:#fff;border:1px solid #cbd5e1;border-radius:6px;">
+          <label class="switch switch-sm" style="margin:0;flex-shrink:0;">
+            <input type="checkbox" id="balanceMonitoringToggle" checked onchange="toggleBalanceMonitoring(this)">
+            <span class="slider"></span>
+          </label>
+          <span id="balanceMonitoringStatusText" style="font-size:12.5px;font-weight:600;color:#0f172a;white-space:nowrap;">余额监控开启</span>
+        </div>
+        <!-- 策略配置按钮 -->
+        <button type="button" class="btn btn-default" onclick="openMonitoringConfigModal()" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:6px 14px;border-color:#cbd5e1;color:#0f172a;background:#fff;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l-.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          监控策略配置
+        </button>
+      </div>
+    </div>
+
+    <!-- 顶部总指标卡片 (5项高维指标，随纳管范围动态联动) -->
+    <div class="stat-cards" style="grid-template-columns: repeat(5, 1fr); margin-bottom:20px; margin-top:16px;">
+      <!-- 卡片 1 -->
+      <div class="stat-card">
+        <div class="stat-label">交付名单 / 征信查得</div>
+        <div class="stat-value" style="color:var(--gray-900);" id="statCard1">3,316<span style="font-size:14px;color:var(--gray-400);margin:0 2px;">/</span>3,257 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span></div>
+        <div style="font-size:12px;color:var(--gray-500);margin-top:4px;" id="statCard1Sub">人行征信查得覆盖率 98.2%</div>
+      </div>
+      <!-- 卡片 2 -->
+      <div class="stat-card">
+        <div class="stat-label">累计用信转化率</div>
+        <div class="stat-value" style="color:var(--gray-900);" id="statCard2">42.85<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span></div>
+        <div style="font-size:12px;color:var(--gray-500);margin-top:4px;" id="statCard2Sub">期间曾用信 1,421 户</div>
+      </div>
+      <!-- 卡片 3 -->
+      <div class="stat-card">
+        <div class="stat-label">新增用信留存率</div>
+        <div class="stat-value" style="color:var(--gray-900);" id="statCard3">39.11<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span></div>
+        <div style="font-size:12px;color:var(--gray-500);margin-top:4px;" id="statCard3Sub">期末在贷仍净增 1,297 户</div>
+      </div>
+      <!-- 卡片 4 -->
+      <div class="stat-card">
+        <div class="stat-label">用信降低（待续贷）</div>
+        <div class="stat-value" style="color:var(--gray-900);" id="statCard4">124 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span></div>
+        <div style="font-size:12px;color:var(--gray-500);margin-top:4px;" id="statCard4Sub">曾借款但已结清或压降，续贷目标</div>
+      </div>
+      <!-- 卡片 5 -->
+      <div class="stat-card">
+        <div class="stat-label">用信峰值 / 当前净增</div>
+        <div class="stat-value" style="color:var(--gray-900);" id="statCard5">55.2<span style="font-size:13px;color:var(--gray-400);margin:0 2px;">/</span>43.1 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">亿元</span></div>
+        <div style="font-size:12px;color:var(--gray-500);margin-top:4px;" id="statCard5Sub">历史峰值增量 55.2 亿，留存 43.1 亿</div>
+      </div>
+    </div>
+
+    <!-- 主体三大维度 Tab 与内容一体化卡片容器 -->
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:24px;border-radius:12px;border:1px solid var(--border);background:#fff;box-shadow:var(--shadow-sm);">
+
+      <!-- 卡片 Header：Tab 导航条与右侧操作项 -->
+      <div class="tab-nav-bar">
+        <div style="display:flex;gap:4px;align-items:flex-end;">
+          <div class="tab-nav-item active" id="tabNavBatch" onclick="switchMainTab('batch')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span>概览</span>
+          </div>
+          <div class="tab-nav-item" id="tabNavCategory" onclick="switchMainTab('category')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span>分类</span>
+          </div>
+          <div class="tab-nav-item" id="tabNavDetail" onclick="switchMainTab('detail')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            <span>明细</span>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;">
+          <button class="btn btn-default" onclick="openRulesModal()" style="display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;font-size:12.5px;color:var(--gray-700);border-radius:6px;border:1px solid #cbd5e1;background:#ffffff;cursor:pointer;transition:all 0.15s ease;" onmouseenter="this.style.borderColor='var(--brand)';this.style.color='var(--brand)';" onmouseleave="this.style.borderColor='#cbd5e1';this.style.color='var(--gray-700)';">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            指标说明
+          </button>
+        </div>
+      </div>
+
+      <!-- ================= Tab 1：各批次信贷转化与在贷增量总体概览 (表一) ================= -->
+      <div id="tabPaneBatch">
+        <!-- 筛选与操作工具条 -->
+        <div style="display:flex;justify-content:flex-start;align-items:center;padding:10px 20px;background:#fafbfc;border-bottom:1px solid #e2e8f0;gap:12px;">
+          <input type="text" id="batchSearchInput" class="form-control" placeholder="按批次名快速筛选..." style="width:200px;height:32px;font-size:12px;padding:3px 10px;background:#fff;border:1px solid #cbd5e1;border-radius:6px;" oninput="filterBatchRows(this.value)">
+        </div>
+        <!-- 数据表格滚动区 -->
+        <div class="table-scroll-wrap" style="border-radius:0;">
+          <table class="table" id="tableOverview" style="margin:0;font-size:12.5px;">
+            <thead>
+              <tr>
+                <th class="col-sticky-1" style="width:48px;">序号</th>
+                <th class="col-sticky-2" style="min-width:90px;">交付批次</th>
+                <th style="min-width:90px;">交付时间</th>
+                <th class="col-ext" style="min-width:140px;">监控时间跨度</th>
+                <th style="text-align:right;min-width:70px;">交付数</th>
+                <th style="text-align:right;min-width:70px;">匹配数</th>
+                <th style="text-align:right;min-width:70px;" class="col-ext">覆盖率</th>
+                <th style="text-align:right;min-width:90px;">期间曾用信(户)</th>
+                <th style="text-align:right;min-width:90px;">累计转化率</th>
+                <th style="text-align:right;min-width:90px;">新增用信</th>
+                <th style="text-align:right;min-width:85px;" class="col-ext">最新留存率</th>
+                <th style="text-align:right;min-width:75px;" class="col-ext">用信降低</th>
+                <th style="text-align:right;min-width:70px;" class="col-ext">存量缩减</th>
+                <th style="text-align:right;min-width:70px;" class="col-ext">无新增用信</th>
+                <th style="text-align:right;min-width:110px;" class="col-ext">最大增量(万)</th>
+                <th style="text-align:right;min-width:110px;font-weight:600;">最新留存净增(万)</th>
+              </tr>
+            </thead>
+            <tbody id="tableOverviewBody">
+              <!-- JS 动态渲染各机构批次数据与吸底合计行 -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ================= Tab 2：企业用信变动分类结构分布 (表二) ================= -->
+      <div id="tabPaneCategory" style="display:none;">
+        <!-- 筛选与图例工具条 -->
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 20px;background:#fafbfc;border-bottom:1px solid #e2e8f0;flex-wrap:wrap;gap:12px;">
+          <input type="text" id="categorySearchInput" class="form-control" placeholder="按批次名快速筛选..." style="width:180px;height:32px;font-size:12px;padding:3px 10px;background:#fff;border:1px solid #cbd5e1;border-radius:6px;" oninput="filterCategoryRows(this.value)">
+          <!-- 图例 -->
+          <div style="display:flex;align-items:center;gap:14px;font-size:11.5px;color:var(--gray-600);background:#ffffff;padding:5px 12px;border-radius:6px;border:1px solid #e2e8f0;">
+            <span style="display:inline-flex;align-items:center;gap:4px;"><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:#16a34a;"></span>新增用信</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;"><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:#f59e0b;"></span>用信降低</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;"><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:#64748b;"></span>存量缩减</span>
+            <span style="display:inline-flex;align-items:center;gap:4px;"><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:#cbd5e1;"></span>无新增用信</span>
+          </div>
+        </div>
+        <!-- 数据表格滚动区 -->
+        <div class="table-scroll-wrap" style="border-radius:0;">
+          <table class="table" style="margin:0;font-size:12.5px;">
+            <thead>
+              <tr>
+                <th class="col-sticky-1" style="width:48px;text-align:center;">序号</th>
+                <th class="col-sticky-2" style="min-width:90px;">交付批次</th>
+                <th style="text-align:right;min-width:80px;">交付企业数</th>
+                <th style="min-width:145px;text-align:center;">结构分布</th>
+                <th style="text-align:right;min-width:95px;color:#166534;">新增用信 (户)</th>
+                <th style="text-align:right;min-width:90px;color:#166534;">新增用信占比</th>
+                <th style="text-align:right;min-width:95px;color:#92400e;">用信降低 (户)</th>
+                <th style="text-align:right;min-width:90px;color:#92400e;">用信降低占比</th>
+                <th style="text-align:right;min-width:95px;color:#475569;">存量缩减 (户)</th>
+                <th style="text-align:right;min-width:90px;color:#475569;">缩减占比</th>
+                <th style="text-align:right;min-width:95px;color:#64748b;">无新增用信 (户)</th>
+                <th style="text-align:right;min-width:90px;color:#64748b;">无新增占比</th>
+              </tr>
+            </thead>
+            <tbody id="tableCategoryBody">
+              <!-- JS 动态渲染各机构四分类结构分布与吸底合计行 -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ================= Tab 3：客户时序明细宽表 ================= -->
+      <div id="tabPaneDetail" style="display:none;">
+        <!-- 筛选工具条：融入大卡片，取消多余外框与圆角 -->
+        <div style="padding:12px 20px;background:#fafbfc;border-bottom:1px solid #e2e8f0;display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+          <select class="form-control" style="width:175px;height:34px;font-size:12.5px;background:#fff;border:1px solid #cbd5e1;border-radius:6px;" id="batchSelect" onchange="renderWideTable()">
+            <option value="all">全批次 (3,257户)</option>
+            <option value="1">第一批 (354户)</option>
+            <option value="2">第二批 (985户)</option>
+            <option value="3">第三批 (364户)</option>
+            <option value="4">第四批 (473户)</option>
+            <option value="5">第五批 (975户)</option>
+            <option value="6">第六批 (106户)</option>
+          </select>
+
+          <select class="form-control" style="width:195px;height:34px;font-size:12.5px;background:#fff;border:1px solid #cbd5e1;border-radius:6px;" id="categoryFilter" onchange="renderWideTable()">
+            <option value="all">全部用信分类</option>
+            <option value="retained">新增用信 (1,297)</option>
+            <option value="cleared">用信降低 (124)</option>
+            <option value="repaid">存量缩减 (497)</option>
+            <option value="static">无新增用信 (1,398)</option>
+          </select>
+
+          <select class="form-control" style="width:235px;height:34px;font-size:12.5px;background:#fff;border:1px solid #cbd5e1;border-radius:6px;" id="metricSelect" onchange="renderWideTable()">
+            <option value="balance">时序展开: 在贷总余额(元)</option>
+            <option value="count">时序展开: 在贷贷款笔数</option>
+            <option value="credit">时序展开: 信用贷款余额</option>
+            <option value="pledge">时序展开: 抵押贷款余额</option>
+          </select>
+
+          <input type="text" id="corpSearch" class="form-control" placeholder="搜索企业名称 / 统一社会信用代码..." style="width:280px;height:34px;font-size:12.5px;background:#fff;border:1px solid #cbd5e1;border-radius:6px;" oninput="renderWideTable()">
+
+          <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+            <span style="font-size:12px;color:var(--gray-500);" id="wideTableCountLabel">显示 8 条</span>
+          </div>
+        </div>
+
+        <!-- 大宽表容器：与大卡片融为一体 -->
+        <div class="wide-table-wrap" style="border:none;border-radius:0;">
+          <table class="table wide-table" style="margin:0;">
+            <thead>
+              <tr>
+                <th style="width:50px;text-align:center;">序号</th>
+                <th class="sticky-col col-left" style="width:220px;">企业名称</th>
+                <th class="col-left" style="width:170px;">统一社会信用代码</th>
+                <th class="col-left" style="width:100px;">客群来源</th>
+                <th class="col-left" style="width:80px;">法人</th>
+                <th class="col-left" style="width:110px;">用信分类画像</th>
+                <th style="text-align:center;width:90px;">期间曾用信</th>
+                <th style="text-align:center;width:90px;">最新仍净增</th>
+                <th style="text-align:right;width:110px;">最大增量(元)</th>
+                <th style="text-align:right;width:110px;">最新净增(元)</th>
+                
+                <!-- 动态多期展开列 -->
+                <th style="text-align:right;background:#f8fafc;">基准月(202603)</th>
+                <th style="text-align:right;">202604</th>
+                <th style="text-align:right;">202605</th>
+                <th style="text-align:right;">202606</th>
+                <th style="text-align:right;background:#f8fafc;font-weight:600;">最新月(202607)</th>
+                <th style="text-align:center;width:120px;">数据分析与明细</th>
+              </tr>
+            </thead>
+            <tbody id="wideTableBody">
+              <!-- JS 渲染数据 -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+  
+</div>
+
+<!-- 单企时序趋势弹窗 -->
+<div class="modal-overlay" id="trendModal" onclick="if(event.target===this) closeTrendModal()">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <div>
+        <div style="font-size:16px;font-weight:700;color:var(--gray-900);" id="modalCorpName">企业名称</div>
+        <div style="font-size:12px;color:var(--gray-500);margin-top:2px;" id="modalCorpSub">统一社会信用代码</div>
+      </div>
+      <button class="btn modal-close-btn" onclick="closeTrendModal()" style="font-size:18px;color:var(--gray-400);line-height:1;">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <span style="font-size:13px;font-weight:600;color:var(--gray-800);">交付前后人行在贷余额时序变动 (万元)</span>
+        <span style="font-size:11.5px;color:var(--gray-500);">区间下限保守估值</span>
+      </div>
+
+      <div style="height:190px;width:100%;position:relative;background:var(--gray-50);border-radius:8px;padding:10px 0;">
+        <svg id="modalTrendSvg" viewBox="0 0 600 170" style="width:100%;height:100%;overflow:visible;"></svg>
+      </div>
+
+      <div style="margin-top:14px;background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:12px;font-size:12.5px;color:var(--gray-700);line-height:1.5;" id="modalAdviceText">
+        用信行为分析与建议...
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeTrendModal()">关闭</button>
+      <button class="btn btn-primary" onclick="quickSendRenewal()">转入续贷营销任务</button>
+    </div>
+  </div>
+</div>
+
+<!-- 指标口径与分类规则说明弹窗 -->
+<div class="modal-overlay" id="rulesModal" onclick="if(event.target===this) closeRulesModal()">
+  <div class="modal-dialog" style="width:860px;max-width:92vw;">
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="display:inline-block;width:4px;height:16px;background:var(--brand);border-radius:2px;"></span>
+        <span style="font-size:16px;font-weight:700;color:var(--gray-900);">指标说明</span>
+      </div>
+      <button class="btn modal-close-btn" onclick="closeRulesModal()" style="font-size:18px;color:var(--gray-400);line-height:1;border:none;background:transparent;cursor:pointer;">&times;</button>
+    </div>
+    <div class="modal-body" style="max-height:76vh;overflow-y:auto;padding:24px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        
+        <!-- 左列：统计指标计算口径 -->
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px 18px;">
+          <div style="font-size:13.5px;font-weight:700;color:#0f172a;margin-bottom:14px;display:flex;align-items:center;gap:6px;">
+            <span style="display:inline-block;width:3px;height:13px;background:var(--brand);border-radius:2px;"></span>
+            统计指标计算口径释义
+          </div>
+          <div style="display:flex;flex-direction:column;gap:13px;font-size:12.5px;color:#334155;line-height:1.6;">
+            <div>
+              <b style="color:#0f172a;">基准月份（底账期）：</b>以名单交付月份前一月作为人行征信时序比对的基准底账，剔除交付前历史存量在贷余额干扰，精确核算交付后的真实新增用信。
+            </div>
+            <div>
+              <b style="color:#0f172a;">期间曾新增放款：</b>在监控周期内，企业任意单月的人行在贷总余额高于基准期余额（高水线过程指标，衡量交付后企业曾发生实际信贷转化与提用）。
+            </div>
+            <div>
+              <b style="color:#0f172a;">累计用信转化率：</b><code style="background:#e2e8f0;padding:2px 6px;border-radius:4px;font-size:11.5px;color:#0f172a;">期间曾新增企业数 ÷ 人行匹配企业数 × 100%</code>，反映交付名单在全监控周期内的累计转化获客效果。
+            </div>
+            <div>
+              <b style="color:#0f172a;">存续增量用信（留存户）：</b>最新监控期末在贷总余额依然高于基准月余额的企业户数，反映真实留在行内形成利息沉淀的存续贷款资产。
+            </div>
+            <div>
+              <b style="color:#0f172a;">存续留存率：</b><code style="background:#e2e8f0;padding:2px 6px;border-radius:4px;font-size:11.5px;color:#0f172a;">最新期末存续增量企业数 ÷ 人行匹配企业数 × 100%</code>，衡量获客后在贷资金沉淀质量。
+            </div>
+            <div>
+              <b style="color:#0f172a;">撬动期间最大增量：</b>各企业在监控期内峰值增量金额（峰值余额 - 基准余额）之和（统一按人行区间下限保守估值）。
+            </div>
+            <div>
+              <b style="color:#0f172a;">留存净增余额：</b>各企业最新期末相对于基准月份的实际在贷净增金额之和。
+            </div>
+          </div>
+        </div>
+
+        <!-- 右列：用信变动分类标准与经营指引 -->
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:16px 18px;">
+          <div style="font-size:13.5px;font-weight:700;color:#0f172a;margin-bottom:14px;display:flex;align-items:center;gap:6px;">
+            <span style="display:inline-block;width:3px;height:13px;background:#16a34a;border-radius:2px;"></span>
+            企业用信变动分类标准与经营指引
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;font-size:12.5px;color:#334155;line-height:1.6;">
+            <div style="border-bottom:1px dashed #e2e8f0;padding-bottom:10px;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                <span class="cat-badge cat-retained">存续增量用信</span>
+                <span style="font-size:12px;color:#64748b;">最新期末余额 > 基准期余额（净增量 > 0）</span>
+              </div>
+              <div style="font-size:12px;color:#475569;">
+                <b>业务释义与经营：</b>交付后实现新增用信且当前仍保持在贷净沉淀。属于核心优质资产，纳入常态化时序监控，防范五级分类下调，深挖授信提额空间。
+              </div>
+            </div>
+
+            <div style="border-bottom:1px dashed #e2e8f0;padding-bottom:10px;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                <span class="cat-badge cat-cleared">期间用信结清</span>
+                <span style="font-size:12px;color:#64748b;">期间曾新增放款 且 最新期末余额 ≤ 基准期余额</span>
+              </div>
+              <div style="font-size:12px;color:#475569;">
+                <b>业务释义与经营：</b>监控期内曾借款提用，但最新期末贷款已还清结清。属于高价值续贷机会客户，自动推入续贷名单池，抢抓下一轮转贷续贷窗口。
+              </div>
+            </div>
+
+            <div style="border-bottom:1px dashed #e2e8f0;padding-bottom:10px;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                <span class="cat-badge cat-repaid">纯存量还款</span>
+                <span style="font-size:12px;color:#64748b;">期间无新增放款 且 最新期末余额 < 基准期余额</span>
+              </div>
+              <div style="font-size:12px;color:#475569;">
+                <b>业务释义与经营：</b>期间未发生任何新放款，存量借款呈单向正常还款。属于存量自然萎缩户，需防范被他行竞争分流，适时安排客户经理回访了解资金需求。
+              </div>
+            </div>
+
+            <div>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                <span class="cat-badge cat-static">无信贷变动</span>
+                <span style="font-size:12px;color:#64748b;">监控期内各月贷款总余额及笔数全程无增减</span>
+              </div>
+              <div style="font-size:12px;color:#475569;">
+                <b>业务释义与经营：</b>交付后全程未发生新用信或还款波动（含全程无授信在贷户）。属于观望未激活客户，保留在客户池底账中，待推出专项优惠信贷政策时实施二次唤醒。
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="modal-footer" style="padding:14px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;">
+      <button class="btn btn-primary" onclick="closeRulesModal()">我知道了</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/sidebar.js"></script>
+<script src="js/toast.js"></script>
+<script>
+renderSidebar({ currentPage: 'credit-monitoring', role: 'admin' });
+
+// 主体三维度 Tab 切换控制 (概览 vs 分类 vs 明细)
+function switchMainTab(tab) {
+  ['tabNavBatch', 'tabNavCategory', 'tabNavDetail'].forEach(id => {
+    document.getElementById(id).classList.remove('active');
+  });
+  document.getElementById('tabPaneBatch').style.display = 'none';
+  document.getElementById('tabPaneCategory').style.display = 'none';
+  document.getElementById('tabPaneDetail').style.display = 'none';
+
+  if (tab === 'batch') {
+    document.getElementById('tabNavBatch').classList.add('active');
+    document.getElementById('tabPaneBatch').style.display = 'block';
+  } else if (tab === 'category') {
+    document.getElementById('tabNavCategory').classList.add('active');
+    document.getElementById('tabPaneCategory').style.display = 'block';
+  } else if (tab === 'detail') {
+    document.getElementById('tabNavDetail').classList.add('active');
+    document.getElementById('tabPaneDetail').style.display = 'block';
+    renderWideTable();
+  }
+}
+
+// 全局自定义结构分布 Tooltip 控制函数（毫秒级极速响应、深色微磨砂质感卡片）
+function showDistTooltip(el, name, retained, retRate, cleared, clearedRate, repaid, repaidRate, staticCnt, staticRate) {
+  const tip = document.getElementById('distBarTooltip');
+  const content = document.getElementById('distBarTooltipContent');
+  if (!tip || !content) return;
+
+  content.innerHTML = `
+    <div style="font-size:12px;font-weight:700;color:#f8fafc;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.12);display:flex;justify-content:space-between;align-items:center;">
+      <span>${name}</span>
+      <span style="font-size:11px;font-weight:400;color:#94a3b8;">用信结构分布</span>
+    </div>
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:11.5px;line-height:1.4;">
+      <div style="display:flex;align-items:center;gap:6px;color:#e2e8f0;">
+        <span style="width:7px;height:7px;border-radius:50%;background:#22c55e;display:inline-block;flex-shrink:0;"></span>
+        <span>新增用信</span>
+      </div>
+      <div style="text-align:right;color:#fff;font-weight:600;">
+        ${Number(retained).toLocaleString()} 户 <span style="color:#4ade80;font-weight:500;margin-left:4px;">(${retRate})</span>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:6px;color:#e2e8f0;">
+        <span style="width:7px;height:7px;border-radius:50%;background:#f59e0b;display:inline-block;flex-shrink:0;"></span>
+        <span>用信降低</span>
+      </div>
+      <div style="text-align:right;color:#fff;font-weight:600;">
+        ${Number(cleared).toLocaleString()} 户 <span style="color:#fcd34d;font-weight:500;margin-left:4px;">(${clearedRate})</span>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:6px;color:#e2e8f0;">
+        <span style="width:7px;height:7px;border-radius:50%;background:#94a3b8;display:inline-block;flex-shrink:0;"></span>
+        <span>存量缩减</span>
+      </div>
+      <div style="text-align:right;color:#fff;font-weight:600;">
+        ${Number(repaid).toLocaleString()} 户 <span style="color:#cbd5e1;font-weight:500;margin-left:4px;">(${repaidRate})</span>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:6px;color:#e2e8f0;">
+        <span style="width:7px;height:7px;border-radius:50%;background:#cbd5e1;display:inline-block;flex-shrink:0;"></span>
+        <span>无新增用信</span>
+      </div>
+      <div style="text-align:right;color:#fff;font-weight:600;">
+        ${Number(staticCnt).toLocaleString()} 户 <span style="color:#94a3b8;font-weight:500;margin-left:4px;">(${staticRate})</span>
+      </div>
+    </div>
+  `;
+
+  tip.style.display = 'block';
+
+  // 测量与坐标计算
+  const rect = el.getBoundingClientRect();
+  const tipWidth = 245;
+  const tipHeight = tip.offsetHeight || 136;
+  let left = rect.left + rect.width / 2;
+  // 防左右溢出
+  left = Math.max(tipWidth / 2 + 10, Math.min(window.innerWidth - tipWidth / 2 - 10, left));
+
+  // 判断上方高度是否够用（小于 tipHeight + 16 则翻转到下方）
+  if (rect.top < tipHeight + 16) {
+    tip.classList.add('flip-down');
+    tip.style.left = `${left}px`;
+    tip.style.top = `${rect.bottom + 8}px`;
+  } else {
+    tip.classList.remove('flip-down');
+    tip.style.left = `${left}px`;
+    tip.style.top = `${rect.top - 8}px`;
+  }
+
+  requestAnimationFrame(() => {
+    tip.classList.add('show');
+  });
+}
+
+function hideDistTooltip() {
+  const tip = document.getElementById('distBarTooltip');
+  if (!tip) return;
+  tip.classList.remove('show');
+  setTimeout(() => {
+    if (!tip.classList.contains('show')) {
+      tip.style.display = 'none';
+    }
+  }, 120);
+}
+
+// 当前运营端选中的合作金融机构（每次至少展示一家机构）与监控纳管范围
+let currentInst = 'JSB';
+let currentScope = 'all';
+
+// 多机构数据配置矩阵 (批次数据、四分类结构分布与代表企业样本)
+const INST_CONFIG = {
+  JSB: {
+    name: '江苏银行',
+    totalClients: '3,257',
+    syncInfo: '人行征信核心库表直连 · T+1 自动跑批更新 · 今日 04:30 (跨度: 202603～202607)',
+    batches: [
+      { idx: 1, name: '第一批', time: '2026年04月', span: '202603-202607 (5月)', delivered: 354, matched: 354, coverage: '100.0%', increased: 235, rate: '66.38%', retained: 220, retRate: '62.15%', cleared: 15, clearedRate: '4.24%', repaid: 56, repaidRate: '15.82%', staticCnt: 63, staticRate: '17.80%', maxIncrAmt: '55,180', retainedAmt: '44,320' },
+      { idx: 2, name: '第二批', time: '2026年05月', span: '202604-202607 (4月)', delivered: 1000, matched: 985, coverage: '98.5%', increased: 393, rate: '39.30%', retained: 361, retRate: '36.10%', cleared: 32, clearedRate: '3.20%', repaid: 155, repaidRate: '15.50%', staticCnt: 452, staticRate: '45.20%', maxIncrAmt: '73,640', retainedAmt: '61,200' },
+      { idx: 3, name: '第三批', time: '2026年05月', span: '202604-202607 (4月)', delivered: 364, matched: 364, coverage: '100.0%', increased: 247, rate: '67.86%', retained: 228, retRate: '62.64%', cleared: 19, clearedRate: '5.22%', repaid: 63, repaidRate: '17.31%', staticCnt: 54, staticRate: '14.84%', maxIncrAmt: '169,860', retainedAmt: '148,500' },
+      { idx: 4, name: '第四批', time: '2026年06月', span: '202605-202607 (3月)', delivered: 490, matched: 473, coverage: '96.5%', increased: 180, rate: '36.73%', retained: 157, retRate: '32.04%', cleared: 23, clearedRate: '4.69%', repaid: 71, repaidRate: '14.49%', staticCnt: 239, staticRate: '48.78%', maxIncrAmt: '125,700', retainedAmt: '98,600' },
+      { idx: 5, name: '第五批', time: '2026年06月', span: '202605-202607 (3月)', delivered: 1000, matched: 975, coverage: '97.5%', increased: 323, rate: '32.30%', retained: 290, retRate: '29.00%', cleared: 33, clearedRate: '3.30%', repaid: 138, repaidRate: '13.80%', staticCnt: 539, staticRate: '53.90%', maxIncrAmt: '102,420', retainedAmt: '62,100' },
+      { idx: 6, name: '第六批', time: '2026年06月', span: '202605-202607 (3月)', delivered: 108, matched: 106, coverage: '98.1%', increased: 43, rate: '39.81%', retained: 41, retRate: '37.96%', cleared: 2, clearedRate: '1.85%', repaid: 14, repaidRate: '12.96%', staticCnt: 51, staticRate: '47.22%', maxIncrAmt: '24,900', retainedAmt: '16,480' }
+    ],
+    summary: { delivered: '3,316', matched: '3,257', coverage: '98.2%', increased: '1,421', rate: '42.85%', retained: '1,297', retRate: '39.11%', cleared: '124', clearedRate: '3.74%', repaid: '497', repaidRate: '14.99%', staticCnt: '1,398', staticRate: '42.16%', maxIncrAmt: '551,700', retainedAmt: '431,200' },
+    scopes: {
+      all: {
+        desc: '(3,257 户 · 营销 1,860 + 导入 1,397)',
+        card1: '3,316<span style="font-size:14px;color:var(--gray-400);margin:0 2px;">/</span>3,257 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card1Sub: '人行征信查得覆盖率 98.2%',
+        card2: '42.85<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card2Sub: '期间曾用信 1,421 户',
+        card3: '39.11<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card3Sub: '期末在贷仍净增 1,297 户',
+        card4: '124 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card4Sub: '曾借款但已结清或压降，续贷目标',
+        card5: '55.2<span style="font-size:13px;color:var(--gray-400);margin:0 2px;">/</span>43.1 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">亿元</span>',
+        card5Sub: '历史峰值增量 55.2 亿，留存 43.1 亿'
+      },
+      marketing: {
+        desc: '(1,860 户 · 营销平台转化)',
+        card1: '1,890<span style="font-size:14px;color:var(--gray-400);margin:0 2px;">/</span>1,860 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card1Sub: '覆盖营销平台闭环撮合放款客群',
+        card2: '46.20<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card2Sub: '期间曾用信 860 户 (转化率优于大盘)',
+        card3: '42.50<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card3Sub: '期末在贷仍净增 790 户',
+        card4: '68 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card4Sub: '曾借款但已结清或压降，续贷目标',
+        card5: '36.8<span style="font-size:13px;color:var(--gray-400);margin:0 2px;">/</span>30.2 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">亿元</span>',
+        card5Sub: '历史峰值增量 36.8 亿，留存 30.2 亿'
+      },
+      import: {
+        desc: '(1,397 户 · 人工导入)',
+        card1: '1,426<span style="font-size:14px;color:var(--gray-400);margin:0 2px;">/</span>1,397 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card1Sub: '覆盖行内导入的存量纳管名单',
+        card2: '38.40<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card2Sub: '期间曾追加用信提款 536 户',
+        card3: '34.60<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card3Sub: '期末在贷仍净增 483 户',
+        card4: '56 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card4Sub: '曾借款但已结清或压降，续贷目标',
+        card5: '18.4<span style="font-size:13px;color:var(--gray-400);margin:0 2px;">/</span>12.9 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">亿元</span>',
+        card5Sub: '历史峰值增量 18.4 亿，留存 12.9 亿'
+      }
+    },
+    corps: [
+      { name: '江苏星湖科技有限公司', batch: '第一批', source: 'AGENT', uscc: '91320106663761927H', corp: '尤万成', cat: 'retained', catLabel: '新增用信', hasIncr: '是', stillIncr: '是', maxIncr: '2,400,000', latestIncr: '400,000', months: [1000, 1800, 1900, 1800, 1400], counts: [2, 3, 4, 3, 3], credits: [300, 800, 900, 800, 600], pledges: [700, 1000, 1000, 1000, 800] },
+      { name: '江苏舜天力佳服饰有限公司', batch: '第一批', source: 'AGENT', uscc: '913200007357248278', corp: '邱峰', cat: 'cleared', catLabel: '用信降低', hasIncr: '是', stillIncr: '否', maxIncr: '2,800,000', latestIncr: '0', months: [1000, 1280, 1150, 1000, 950], counts: [1, 2, 2, 1, 1], credits: [200, 480, 350, 200, 150], pledges: [800, 800, 800, 800, 800] },
+      { name: '江苏海畅线缆有限公司', batch: '第二批', source: 'AGENT', uscc: '9132010575686743XM', corp: '张健', cat: 'repaid', catLabel: '存量缩减', hasIncr: '否', stillIncr: '否', maxIncr: '0', latestIncr: '0', months: [850, 820, 780, 750, 700], counts: [2, 2, 2, 2, 2], credits: [150, 140, 130, 120, 100], pledges: [700, 680, 650, 630, 600] },
+      { name: '江苏教院印务有限公司', batch: '第二批', source: 'AGENT', uscc: '913200006668322765', corp: '黄永生', cat: 'static', catLabel: '无新增用信', hasIncr: '否', stillIncr: '否', maxIncr: '0', latestIncr: '0', months: [400, 400, 400, 400, 400], counts: [1, 1, 1, 1, 1], credits: [0, 0, 0, 0, 0], pledges: [400, 400, 400, 400, 400] },
+      { name: '南京福得食品贸易有限公司', batch: '第三批', source: 'BANK_IMPORT', uscc: '913201026713376830', corp: '何圣飞', cat: 'retained', catLabel: '新增用信', hasIncr: '是', stillIncr: '是', maxIncr: '2,000,000', latestIncr: '2,000,000', months: [200, 300, 400, 400, 400], counts: [1, 2, 2, 2, 2], credits: [100, 200, 300, 300, 300], pledges: [100, 100, 100, 100, 100] },
+      { name: '格拉琪全钢防火科技（江苏）有限公司', batch: '第四批', source: 'BANK_IMPORT', uscc: '913201056790194875', corp: '周承志', cat: 'retained', catLabel: '新增用信', hasIncr: '是', stillIncr: '是', maxIncr: '12,000,000', latestIncr: '12,000,000', months: [500, 800, 1500, 1700, 1700], counts: [1, 2, 3, 3, 3], credits: [200, 500, 1000, 1200, 1200], pledges: [300, 300, 500, 500, 500] },
+      { name: '南京欣荣自动化成套设备有限公司', batch: '第五批', source: 'BANK_IMPORT', uscc: '91320115MA1WXXXX99', corp: '陈欣荣', cat: 'cleared', catLabel: '用信降低', hasIncr: '是', stillIncr: '否', maxIncr: '3,000,000', latestIncr: '0', months: [300, 600, 450, 300, 280], counts: [1, 2, 1, 1, 1], credits: [100, 300, 150, 100, 80], pledges: [200, 300, 300, 200, 200] },
+      { name: '南京创智互联信息科技有限公司', batch: '第六批', source: 'BANK_IMPORT', uscc: '91320102MA2XXXXX11', corp: '孙创智', cat: 'static', catLabel: '无新增用信', hasIncr: '否', stillIncr: '否', maxIncr: '0', latestIncr: '0', months: [0, 0, 0, 0, 0], counts: [0, 0, 0, 0, 0], credits: [0, 0, 0, 0, 0], pledges: [0, 0, 0, 0, 0] }
+    ]
+  },
+  SZB: {
+    name: '苏州银行',
+    totalClients: '2,180',
+    syncInfo: '人行征信核心库表直连 · T+1 自动跑批更新 · 今日 04:30 (跨度: 202603～202607)',
+    batches: [
+      { idx: 1, name: '第一批', time: '2026年04月', span: '202603-202607 (5月)', delivered: 520, matched: 512, coverage: '98.5%', increased: 268, rate: '52.34%', retained: 245, retRate: '47.85%', cleared: 23, clearedRate: '4.49%', repaid: 74, repaidRate: '14.45%', staticCnt: 193, staticRate: '37.70%', maxIncrAmt: '98,500', retainedAmt: '76,200' },
+      { idx: 2, name: '第二批', time: '2026年05月', span: '202604-202607 (4月)', delivered: 680, matched: 672, coverage: '98.8%', increased: 295, rate: '43.90%', retained: 270, retRate: '40.18%', cleared: 25, clearedRate: '3.72%', repaid: 102, repaidRate: '15.18%', staticCnt: 300, staticRate: '44.64%', maxIncrAmt: '112,000', retainedAmt: '85,400' },
+      { idx: 3, name: '第三批', time: '2026年06月', span: '202605-202607 (3月)', delivered: 650, matched: 641, coverage: '98.6%', increased: 248, rate: '38.69%', retained: 228, retRate: '35.57%', cleared: 20, clearedRate: '3.12%', repaid: 96, repaidRate: '14.98%', staticCnt: 317, staticRate: '49.45%', maxIncrAmt: '105,400', retainedAmt: '78,200' },
+      { idx: 4, name: '第四批', time: '2026年06月', span: '202605-202607 (3月)', delivered: 360, matched: 355, coverage: '98.6%', increased: 150, rate: '42.25%', retained: 134, retRate: '37.75%', cleared: 16, clearedRate: '4.51%', repaid: 54, repaidRate: '15.21%', staticCnt: 167, staticRate: '47.04%', maxIncrAmt: '62,100', retainedAmt: '46,200' }
+    ],
+    summary: { delivered: '2,210', matched: '2,180', coverage: '98.6%', increased: '961', rate: '44.10%', retained: '877', retRate: '40.23%', cleared: '84', clearedRate: '3.85%', repaid: '326', repaidRate: '14.95%', staticCnt: '893', staticRate: '40.96%', maxIncrAmt: '378,000', retainedAmt: '286,000' },
+    scopes: {
+      all: {
+        desc: '(2,180 户 · 营销 1,240 + 导入 940)',
+        card1: '2,210<span style="font-size:14px;color:var(--gray-400);margin:0 2px;">/</span>2,180 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card1Sub: '人行征信查得覆盖率 98.6%',
+        card2: '44.10<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card2Sub: '期间曾用信放款 961 户',
+        card3: '40.23<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card3Sub: '期末净增在贷 877 户留存客户',
+        card4: '84 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card4Sub: '用信降低客户支持续贷提额',
+        card5: '37.8<span style="font-size:13px;color:var(--gray-400);margin:0 2px;">/</span>28.6 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">亿元</span>',
+        card5Sub: '峰值 37.80 亿元，留存净增 28.60 亿元'
+      },
+      marketing: {
+        desc: '(1,240 户 · 营销平台转化)',
+        card1: '1,255<span style="font-size:14px;color:var(--gray-400);margin:0 2px;">/</span>1,240 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card1Sub: '科创与高端制造类转化客户',
+        card2: '47.50<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card2Sub: '期间曾用信放款 589 户',
+        card3: '43.80<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card3Sub: '期末在贷留存 543 户',
+        card4: '46 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card4Sub: '已自动归集入续贷名单',
+        card5: '25.6<span style="font-size:13px;color:var(--gray-400);margin:0 2px;">/</span>19.8 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">亿元</span>',
+        card5Sub: '峰值 25.60 亿元，留存净增 19.80 亿元'
+      },
+      import: {
+        desc: '(940 户 · 人工导入)',
+        card1: '955<span style="font-size:14px;color:var(--gray-400);margin:0 2px;">/</span>940 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card1Sub: '苏信贷等存量批量名单',
+        card2: '39.50<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card2Sub: '期间新增或置换 371 户',
+        card3: '35.50<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card3Sub: '期末在贷留存 334 户',
+        card4: '38 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card4Sub: '存量户用信降低待续贷',
+        card5: '12.2<span style="font-size:13px;color:var(--gray-400);margin:0 2px;">/</span>8.8 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">亿元</span>',
+        card5Sub: '峰值 12.20 亿元，留存净增 8.80 亿元'
+      }
+    },
+    corps: [
+      { name: '苏州国轩新能源科技有限公司', batch: '第一批', source: 'AGENT', uscc: '91320500MA1T88888X', corp: '李国轩', cat: 'retained', catLabel: '新增用信', hasIncr: '是', stillIncr: '是', maxIncr: '5,000,000', latestIncr: '3,500,000', months: [1200, 1500, 2200, 2000, 1750], counts: [2, 2, 4, 3, 3], credits: [400, 500, 1000, 900, 800], pledges: [800, 1000, 1200, 1100, 950] },
+      { name: '苏州科达光电技术有限公司', batch: '第一批', source: 'AGENT', uscc: '91320505MA20XXXX12', corp: '陈科达', cat: 'cleared', catLabel: '用信降低', hasIncr: '是', stillIncr: '否', maxIncr: '3,200,000', latestIncr: '0', months: [800, 1200, 1000, 800, 750], counts: [1, 2, 2, 1, 1], credits: [200, 500, 300, 150, 100], pledges: [600, 700, 700, 650, 650] },
+      { name: '苏州纳米新材料创新中心', batch: '第二批', source: 'AGENT', uscc: '91320594MA1W777771', corp: '王纳米', cat: 'retained', catLabel: '新增用信', hasIncr: '是', stillIncr: '是', maxIncr: '8,000,000', latestIncr: '6,000,000', months: [2000, 2500, 3200, 3000, 2600], counts: [3, 4, 5, 4, 4], credits: [800, 1100, 1500, 1400, 1200], pledges: [1200, 1400, 1700, 1600, 1400] },
+      { name: '苏州金鸡湖智慧物流有限公司', batch: '第二批', source: 'BANK_IMPORT', uscc: '913205007890123456', corp: '金物流', cat: 'repaid', catLabel: '存量缩减', hasIncr: '否', stillIncr: '否', maxIncr: '0', latestIncr: '0', months: [1100, 1050, 1000, 950, 900], counts: [2, 2, 2, 2, 2], credits: [300, 280, 260, 240, 220], pledges: [800, 770, 740, 710, 680] },
+      { name: '苏州高新精工模具配件厂', batch: '第三批', source: 'BANK_IMPORT', uscc: '91320505MA1M333333', corp: '吴精工', cat: 'retained', catLabel: '新增用信', hasIncr: '是', stillIncr: '是', maxIncr: '1,800,000', latestIncr: '1,200,000', months: [400, 600, 800, 700, 520], counts: [1, 2, 2, 2, 2], credits: [100, 200, 300, 250, 200], pledges: [300, 400, 500, 450, 320] },
+      { name: '苏州工业园区现代农贸有限公司', batch: '第四批', source: 'BANK_IMPORT', uscc: '91320594MA2P666666', corp: '周农贸', cat: 'static', catLabel: '无新增用信', hasIncr: '否', stillIncr: '否', maxIncr: '0', latestIncr: '0', months: [300, 300, 300, 300, 300], counts: [1, 1, 1, 1, 1], credits: [0, 0, 0, 0, 0], pledges: [300, 300, 300, 300, 300] }
+    ]
+  },
+  NJB: {
+    name: '南京银行',
+    totalClients: '1,850',
+    syncInfo: '人行征信核心库表直连 · T+1 自动跑批更新 · 今日 04:30 (跨度: 202603～202607)',
+    batches: [
+      { idx: 1, name: '第一批', time: '2026年04月', span: '202603-202607 (5月)', delivered: 450, matched: 442, coverage: '98.2%', increased: 198, rate: '44.80%', retained: 182, retRate: '41.18%', cleared: 16, clearedRate: '3.62%', repaid: 68, repaidRate: '15.38%', staticCnt: 176, staticRate: '39.82%', maxIncrAmt: '78,200', retainedAmt: '60,500' },
+      { idx: 2, name: '第二批', time: '2026年05月', span: '202604-202607 (4月)', delivered: 550, matched: 542, coverage: '98.5%', increased: 232, rate: '42.80%', retained: 214, retRate: '39.48%', cleared: 18, clearedRate: '3.32%', repaid: 82, repaidRate: '15.13%', staticCnt: 228, staticRate: '42.07%', maxIncrAmt: '95,600', retainedAmt: '74,200' },
+      { idx: 3, name: '第三批', time: '2026年06月', span: '202605-202607 (3月)', delivered: 500, matched: 492, coverage: '98.4%', increased: 202, rate: '41.06%', retained: 185, retRate: '37.60%', cleared: 17, clearedRate: '3.46%', repaid: 75, repaidRate: '15.24%', staticCnt: 215, staticRate: '43.70%', maxIncrAmt: '83,400', retainedAmt: '64,100' },
+      { idx: 4, name: '第四批', time: '2026年06月', span: '202605-202607 (3月)', delivered: 380, matched: 374, coverage: '98.4%', increased: 138, rate: '36.90%', retained: 126, retRate: '33.69%', cleared: 12, clearedRate: '3.21%', repaid: 55, repaidRate: '14.71%', staticCnt: 181, staticRate: '48.40%', maxIncrAmt: '57,800', retainedAmt: '44,200' }
+    ],
+    summary: { delivered: '1,880', matched: '1,850', coverage: '98.4%', increased: '770', rate: '41.60%', retained: '707', retRate: '38.20%', cleared: '63', clearedRate: '3.41%', repaid: '280', repaidRate: '15.14%', staticCnt: '800', staticRate: '43.24%', maxIncrAmt: '315,000', retainedAmt: '243,000' },
+    scopes: {
+      all: {
+        desc: '(1,850 户 · 营销 1,020 + 导入 830)',
+        card1: '1,880<span style="font-size:14px;color:var(--gray-400);margin:0 2px;">/</span>1,850 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card1Sub: '人行征信查得覆盖率 98.4%',
+        card2: '41.60<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card2Sub: '期间曾用信放款 770 户',
+        card3: '38.20<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card3Sub: '期末净增在贷 707 户留存客户',
+        card4: '63 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card4Sub: '首批用信降低待续贷，已推入续贷名单',
+        card5: '31.5<span style="font-size:13px;color:var(--gray-400);margin:0 2px;">/</span>24.3 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">亿元</span>',
+        card5Sub: '峰值 31.50 亿元，留存净增 24.30 亿元'
+      },
+      marketing: {
+        desc: '(1,020 户 · 营销平台转化)',
+        card1: '1,035<span style="font-size:14px;color:var(--gray-400);margin:0 2px;">/</span>1,020 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card1Sub: '智能体精准拓客名单',
+        card2: '45.10<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card2Sub: '期间曾用信放款 460 户',
+        card3: '41.80<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card3Sub: '期末在贷留存 426 户',
+        card4: '34 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card4Sub: '已纳入转贷留存池',
+        card5: '21.0<span style="font-size:13px;color:var(--gray-400);margin:0 2px;">/</span>16.5 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">亿元</span>',
+        card5Sub: '峰值 21.00 亿元，留存净增 16.50 亿元'
+      },
+      import: {
+        desc: '(830 户 · 人工导入)',
+        card1: '845<span style="font-size:14px;color:var(--gray-400);margin:0 2px;">/</span>830 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card1Sub: '行内存量鑫微贷等名单',
+        card2: '37.30<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card2Sub: '期间曾用信放款 310 户',
+        card3: '33.80<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card3Sub: '期末在贷留存 281 户',
+        card4: '29 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card4Sub: '用信降低',
+        card5: '10.5<span style="font-size:13px;color:var(--gray-400);margin:0 2px;">/</span>7.8 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">亿元</span>',
+        card5Sub: '峰值 10.50 亿元，留存净增 7.80 亿元'
+      }
+    },
+    corps: [
+      { name: '南京金陵电气自动化股份有限公司', batch: '第一批', source: 'AGENT', uscc: '91320100MA1T111111', corp: '张电气', cat: 'retained', catLabel: '新增用信', hasIncr: '是', stillIncr: '是', maxIncr: '4,000,000', latestIncr: '3,000,000', months: [1000, 1300, 1800, 1600, 1400], counts: [2, 3, 3, 3, 3], credits: [300, 500, 800, 700, 600], pledges: [700, 800, 1000, 900, 800] },
+      { name: '南京雨花软件外包服务有限公司', batch: '第二批', source: 'AGENT', uscc: '91320114MA22222222', corp: '刘软件', cat: 'cleared', catLabel: '用信降低', hasIncr: '是', stillIncr: '否', maxIncr: '2,500,000', latestIncr: '0', months: [600, 900, 850, 600, 550], counts: [1, 2, 2, 1, 1], credits: [200, 450, 400, 200, 150], pledges: [400, 450, 450, 400, 400] },
+      { name: '南京江宁精密铸造厂', batch: '第三批', source: 'BANK_IMPORT', uscc: '91320115MA33333333', corp: '赵铸造', cat: 'repaid', catLabel: '存量缩减', hasIncr: '否', stillIncr: '否', maxIncr: '0', latestIncr: '0', months: [900, 860, 820, 780, 740], counts: [2, 2, 2, 2, 2], credits: [200, 180, 160, 140, 120], pledges: [700, 680, 660, 640, 620] },
+      { name: '南京栖霞现代生态农业有限公司', batch: '第四批', source: 'BANK_IMPORT', uscc: '91320113MA44444444', corp: '钱生态', cat: 'static', catLabel: '无新增用信', hasIncr: '否', stillIncr: '否', maxIncr: '0', latestIncr: '0', months: [350, 350, 350, 350, 350], counts: [1, 1, 1, 1, 1], credits: [0, 0, 0, 0, 0], pledges: [350, 350, 350, 350, 350] }
+    ]
+  },
+  WXRCB: {
+    name: '无锡农商行',
+    totalClients: '1,420',
+    syncInfo: '人行征信核心库表直连 · T+1 自动跑批更新 · 今日 04:30 (跨度: 202603～202607)',
+    batches: [
+      { idx: 1, name: '第一批', time: '2026年04月', span: '202603-202607 (5月)', delivered: 500, matched: 492, coverage: '98.4%', increased: 215, rate: '43.70%', retained: 202, retRate: '41.06%', cleared: 13, clearedRate: '2.64%', repaid: 76, repaidRate: '15.45%', staticCnt: 201, staticRate: '40.85%', maxIncrAmt: '92,400', retainedAmt: '72,100' },
+      { idx: 2, name: '第二批', time: '2026年05月', span: '202604-202607 (4月)', delivered: 520, matched: 512, coverage: '98.5%', increased: 200, rate: '39.06%', retained: 185, retRate: '36.13%', cleared: 15, clearedRate: '2.93%', repaid: 78, repaidRate: '15.23%', staticCnt: 234, staticRate: '45.70%', maxIncrAmt: '86,200', retainedAmt: '67,500' },
+      { idx: 3, name: '第三批', time: '2026年06月', span: '202605-202607 (3月)', delivered: 425, matched: 416, coverage: '97.9%', increased: 150, rate: '36.06%', retained: 137, retRate: '32.93%', cleared: 13, clearedRate: '3.13%', repaid: 61, repaidRate: '14.66%', staticCnt: 205, staticRate: '49.28%', maxIncrAmt: '63,400', retainedAmt: '49,400' }
+    ],
+    summary: { delivered: '1,445', matched: '1,420', coverage: '98.3%', increased: '565', rate: '39.80%', retained: '524', retRate: '36.90%', cleared: '41', clearedRate: '2.89%', repaid: '215', repaidRate: '15.14%', staticCnt: '640', staticRate: '45.07%', maxIncrAmt: '242,000', retainedAmt: '189,000' },
+    scopes: {
+      all: {
+        desc: '(1,420 户 · 营销 760 + 导入 660)',
+        card1: '1,445<span style="font-size:14px;color:var(--gray-400);margin:0 2px;">/</span>1,420 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card1Sub: '人行征信查得覆盖率 98.3%',
+        card2: '39.80<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card2Sub: '期间曾用信放款 565 户',
+        card3: '36.90<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card3Sub: '期末净增在贷 524 户留存客户',
+        card4: '41 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card4Sub: '用信降低',
+        card5: '24.2<span style="font-size:13px;color:var(--gray-400);margin:0 2px;">/</span>18.9 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">亿元</span>',
+        card5Sub: '峰值 24.20 亿元，留存净增 18.90 亿元'
+      },
+      marketing: {
+        desc: '(760 户 · 营销平台转化)',
+        card1: '772<span style="font-size:14px;color:var(--gray-400);margin:0 2px;">/</span>760 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card1Sub: '无锡本地中小微转化名单',
+        card2: '43.20<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card2Sub: '期间曾用信放款 328 户',
+        card3: '40.50<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card3Sub: '期末在贷留存 308 户',
+        card4: '20 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card4Sub: '已纳入续贷服务专班',
+        card5: '15.6<span style="font-size:13px;color:var(--gray-400);margin:0 2px;">/</span>12.4 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">亿元</span>',
+        card5Sub: '峰值 15.60 亿元，留存净增 12.40 亿元'
+      },
+      import: {
+        desc: '(660 户 · 人工导入)',
+        card1: '673<span style="font-size:14px;color:var(--gray-400);margin:0 2px;">/</span>660 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card1Sub: '存量纳管排查客户',
+        card2: '35.90<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card2Sub: '期间曾用信放款 237 户',
+        card3: '32.70<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card3Sub: '期末在贷留存 216 户',
+        card4: '21 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card4Sub: '用信降低',
+        card5: '8.6<span style="font-size:13px;color:var(--gray-400);margin:0 2px;">/</span>6.5 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">亿元</span>',
+        card5Sub: '峰值 8.60 亿元，留存净增 6.50 亿元'
+      }
+    },
+    corps: [
+      { name: '无锡锡山精密齿轮制造有限公司', batch: '第一批', source: 'AGENT', uscc: '91320205MA1T555555', corp: '孙齿轮', cat: 'retained', catLabel: '新增用信', hasIncr: '是', stillIncr: '是', maxIncr: '3,000,000', latestIncr: '2,200,000', months: [800, 1100, 1400, 1200, 1020], counts: [2, 2, 3, 3, 3], credits: [200, 400, 600, 500, 420], pledges: [600, 700, 800, 700, 600] },
+      { name: '无锡宜兴紫砂文化发展有限公司', batch: '第二批', source: 'AGENT', uscc: '91320282MA20666666', corp: '顾紫砂', cat: 'cleared', catLabel: '用信降低', hasIncr: '是', stillIncr: '否', maxIncr: '1,500,000', latestIncr: '0', months: [500, 750, 680, 500, 450], counts: [1, 2, 2, 1, 1], credits: [150, 350, 280, 150, 100], pledges: [350, 400, 400, 350, 350] },
+      { name: '无锡惠山集成电路封装厂', batch: '第三批', source: 'BANK_IMPORT', uscc: '91320206MA33777777', corp: '朱封装', cat: 'repaid', catLabel: '存量缩减', hasIncr: '否', stillIncr: '否', maxIncr: '0', latestIncr: '0', months: [1200, 1150, 1100, 1050, 1000], counts: [2, 2, 2, 2, 2], credits: [300, 270, 240, 210, 180], pledges: [900, 880, 860, 840, 820] }
+    ]
+  },
+  CSRCB: {
+    name: '常熟农商行',
+    totalClients: '960',
+    syncInfo: '人行征信核心库表直连 · T+1 自动跑批更新 · 今日 04:30 (跨度: 202603～202607)',
+    batches: [
+      { idx: 1, name: '第一批', time: '2026年04月', span: '202603-202607 (5月)', delivered: 330, matched: 325, coverage: '98.5%', increased: 152, rate: '46.77%', retained: 140, retRate: '43.08%', cleared: 12, clearedRate: '3.69%', repaid: 48, repaidRate: '14.77%', staticCnt: 135, staticRate: '41.54%', maxIncrAmt: '58,400', retainedAmt: '45,600' },
+      { idx: 2, name: '第二批', time: '2026年05月', span: '202604-202607 (4月)', delivered: 350, matched: 343, coverage: '98.0%', increased: 145, rate: '42.27%', retained: 132, retRate: '38.48%', cleared: 13, clearedRate: '3.79%', repaid: 52, repaidRate: '15.16%', staticCnt: 159, staticRate: '46.36%', maxIncrAmt: '56,200', retainedAmt: '43,900' },
+      { idx: 3, name: '第三批', time: '2026年06月', span: '202605-202607 (3月)', delivered: 298, matched: 292, coverage: '98.0%', increased: 118, rate: '40.41%', retained: 107, retRate: '36.64%', cleared: 11, clearedRate: '3.77%', repaid: 45, repaidRate: '15.41%', staticCnt: 140, staticRate: '47.95%', maxIncrAmt: '45,400', retainedAmt: '35,500' }
+    ],
+    summary: { delivered: '978', matched: '960', coverage: '98.2%', increased: '415', rate: '43.20%', retained: '379', retRate: '39.50%', cleared: '36', clearedRate: '3.75%', repaid: '145', repaidRate: '15.10%', staticCnt: '400', staticRate: '41.67%', maxIncrAmt: '160,000', retainedAmt: '125,000' },
+    scopes: {
+      all: {
+        desc: '(960 户 · 营销 520 + 导入 440)',
+        card1: '978<span style="font-size:14px;color:var(--gray-400);margin:0 2px;">/</span>960 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card1Sub: '人行征信查得覆盖率 98.2%',
+        card2: '43.20<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card2Sub: '期间曾用信放款 415 户',
+        card3: '39.50<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card3Sub: '期末净增在贷 379 户留存客户',
+        card4: '36 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card4Sub: '优质微贷用信降低客户',
+        card5: '16.0<span style="font-size:13px;color:var(--gray-400);margin:0 2px;">/</span>12.5 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">亿元</span>',
+        card5Sub: '峰值 16.00 亿元，留存净增 12.50 亿元'
+      },
+      marketing: {
+        desc: '(520 户 · 营销平台转化)',
+        card1: '530<span style="font-size:14px;color:var(--gray-400);margin:0 2px;">/</span>520 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card1Sub: '普惠微贷撮合转化名单',
+        card2: '46.50<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card2Sub: '期间曾用信放款 242 户',
+        card3: '42.80<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card3Sub: '期末在贷留存 223 户',
+        card4: '19 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card4Sub: '续贷精准唤醒池',
+        card5: '10.5<span style="font-size:13px;color:var(--gray-400);margin:0 2px;">/</span>8.2 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">亿元</span>',
+        card5Sub: '峰值 10.50 亿元，留存净增 8.20 亿元'
+      },
+      import: {
+        desc: '(440 户 · 人工导入)',
+        card1: '448<span style="font-size:14px;color:var(--gray-400);margin:0 2px;">/</span>440 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card1Sub: '行内存量微贷借据池',
+        card2: '39.30<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card2Sub: '期间曾用信放款 173 户',
+        card3: '35.50<span style="font-size:14px;font-weight:400;color:var(--gray-500);">%</span>',
+        card3Sub: '期末在贷留存 156 户',
+        card4: '17 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+        card4Sub: '用信降低',
+        card5: '5.5<span style="font-size:13px;color:var(--gray-400);margin:0 2px;">/</span>4.3 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">亿元</span>',
+        card5Sub: '峰值 5.50 亿元，留存净增 4.30 亿元'
+      }
+    },
+    corps: [
+      { name: '常熟服装城飞跃纺织商行', batch: '第一批', source: 'AGENT', uscc: '91320581MA1T999999', corp: '张纺织', cat: 'retained', catLabel: '新增用信', hasIncr: '是', stillIncr: '是', maxIncr: '1,200,000', latestIncr: '800,000', months: [300, 500, 700, 600, 450], counts: [1, 2, 2, 2, 2], credits: [100, 200, 300, 250, 200], pledges: [200, 300, 400, 350, 250] },
+      { name: '常熟虞山精密五金加工部', batch: '第二批', source: 'AGENT', uscc: '91320581MA20888888', corp: '王五金', cat: 'cleared', catLabel: '用信降低', hasIncr: '是', stillIncr: '否', maxIncr: '900,000', latestIncr: '0', months: [250, 450, 350, 250, 230], counts: [1, 2, 1, 1, 1], credits: [80, 200, 120, 80, 60], pledges: [170, 250, 230, 170, 170] },
+      { name: '常熟市莫城羽绒制品制造厂', batch: '第三批', source: 'BANK_IMPORT', uscc: '91320581MA33222222', corp: '沈羽绒', cat: 'repaid', catLabel: '存量缩减', hasIncr: '否', stillIncr: '否', maxIncr: '0', latestIncr: '0', months: [600, 580, 550, 520, 490], counts: [2, 2, 2, 2, 2], credits: [150, 140, 130, 120, 110], pledges: [450, 440, 420, 400, 380] }
+    ]
+  }
+};
+
+// 多机构不同纳管口径客户数量分布字典
+const INST_SCOPE_COUNTS = {
+  JSB: { all: '3,257', marketing: '1,860', import: '1,397' },
+  SZB: { all: '2,180', marketing: '1,240', import: '940' },
+  NJB: { all: '1,850', marketing: '1,020', import: '830' },
+  WXRCB: { all: '1,420', marketing: '760', import: '660' },
+  CSRCB: { all: '960', marketing: '520', import: '440' }
+};
+
+// 监控策略全局配置对象
+let monitoringConfig = {
+  scope: 'all',
+  autoEnroll: true,
+  trackingWindow: 'ALL',
+  lossPercent: '30',
+  renewMinAmt: '100',
+  creditClass: 'normal',
+  autoReport: true
+};
+
+// 弹窗内部临时选中的纳管范围
+let tempSelectedScope = 'all';
+
+// 更新策略配置弹窗中的覆盖户数
+function updateConfigScopeCounts() {
+  const counts = INST_SCOPE_COUNTS[currentInst] || INST_SCOPE_COUNTS.JSB;
+  const elAll = document.getElementById('cfgScopeCount_all');
+  const elMkt = document.getElementById('cfgScopeCount_marketing');
+  const elImp = document.getElementById('cfgScopeCount_import');
+  if (elAll) elAll.textContent = `覆盖 ${counts.all} 户`;
+  if (elMkt) elMkt.textContent = `覆盖 ${counts.marketing} 户`;
+  if (elImp) elImp.textContent = `覆盖 ${counts.import} 户`;
+}
+
+// 切换机构并触发全局联动（每次至少保证展示一家机构）
+function onInstChange(instCode, showToastTip = false) {
+  currentInst = instCode;
+  const inst = INST_CONFIG[instCode] || INST_CONFIG.JSB;
+
+  // 同步更新顶部/控制条中展示的机构名称
+  document.querySelectorAll('#globalOrgDisplay').forEach(e => { e.innerText = inst.name; });
+
+  // 同步弹窗卡片的高亮样式
+  document.querySelectorAll('.org-choice').forEach(c => {
+    c.style.borderColor = '#e5e7eb';
+    c.style.background = 'white';
+    const nameEl = c.querySelector('.org-name');
+    if (nameEl) nameEl.style.color = '#1f2937';
+    const subEl = c.querySelector('.org-sub');
+    if (subEl) subEl.style.color = '#6b7280';
+  });
+  const activeCard = document.getElementById(`orgCard_${instCode}`);
+  if (activeCard) {
+    activeCard.style.borderColor = 'var(--brand)';
+    activeCard.style.background = '#f0fdf4';
+    const nameEl = activeCard.querySelector('.org-name');
+    if (nameEl) nameEl.style.color = 'var(--brand)';
+    const subEl = activeCard.querySelector('.org-sub');
+    if (subEl) subEl.style.color = '#15803d';
+  }
+
+  updateConfigScopeCounts();
+  refreshDashboardMetrics();
+  renderBatchTables(instCode);
+  updateBatchSelectOptions(inst);
+  const detailBadge = document.getElementById('tabDetailBadge');
+  if (detailBadge) detailBadge.textContent = `${inst.totalClients}户`;
+  renderWideTable();
+
+  if (showToastTip) {
+    showToast(`已切换至「${inst.name}」信贷余额监控看板`);
+  }
+}
+
+// 切换信贷余额监控启停状态
+function toggleBalanceMonitoring(cb) {
+  const isEnabled = cb.checked;
+  const statusText = document.getElementById('balanceMonitoringStatusText');
+  const windowRule = document.getElementById('displayWindowRule');
+  if (statusText) {
+    statusText.textContent = isEnabled ? '余额监控开启' : '余额监控已暂停';
+    statusText.style.color = isEnabled ? '#0f172a' : '#94a3b8';
+  }
+  if (windowRule) {
+    if (isEnabled) {
+      windowRule.textContent = (typeof monitoringConfig !== 'undefined' && monitoringConfig.trackingWindow !== 'ALL')
+        ? `持续跟踪 ${monitoringConfig.trackingWindow} 个月`
+        : '持续跟踪';
+      windowRule.style.color = '#0f172a';
+    } else {
+      windowRule.textContent = '已暂停跟踪';
+      windowRule.style.color = '#94a3b8';
+    }
+  }
+  if (isEnabled) {
+    showToast('信贷余额监控已开启，每月人行征信数据自动对齐');
+  } else {
+    showToast('信贷余额监控已暂停，数据跟踪与变动提醒已挂起');
+  }
+}
+
+// 打开监控策略配置抽屉
+function openMonitoringConfigModal() {
+  tempSelectedScope = monitoringConfig.scope;
+  updateConfigScopeCounts();
+
+  // 高亮当前选中的纳管范围卡片
+  ['all', 'marketing', 'import'].forEach(s => {
+    const card = document.getElementById(`cfgScopeCard_${s}`);
+    if (card) {
+      if (s === tempSelectedScope) {
+        card.classList.add('active');
+      } else {
+        card.classList.remove('active');
+      }
+    }
+  });
+
+  // 回显表单项
+  const chkAutoEnroll = document.getElementById('cfgAutoEnroll');
+  if (chkAutoEnroll) chkAutoEnroll.checked = monitoringConfig.autoEnroll;
+
+  const selWindow = document.getElementById('cfgTrackingWindow');
+  const customWrap = document.getElementById('customMonthsWrap');
+  const customInput = document.getElementById('cfgCustomMonths');
+  if (selWindow) {
+    const val = monitoringConfig.trackingWindow;
+    if (['ALL', '3', '6', '12', '24'].includes(val)) {
+      selWindow.value = val;
+      if (customWrap) customWrap.style.display = 'none';
+    } else {
+      selWindow.value = 'CUSTOM';
+      if (customWrap) {
+        customWrap.style.display = 'inline-flex';
+        if (customInput) customInput.value = val;
+      }
+    }
+  }
+
+  const selLoss = document.getElementById('cfgLossPercent');
+  if (selLoss) selLoss.value = monitoringConfig.lossPercent;
+
+  const selRenew = document.getElementById('cfgRenewMinAmt');
+  if (selRenew) selRenew.value = monitoringConfig.renewMinAmt;
+
+  const selClass = document.getElementById('cfgCreditClass');
+  if (selClass) selClass.value = monitoringConfig.creditClass || 'normal';
+
+  const chkAutoReport = document.getElementById('cfgAutoReport');
+  if (chkAutoReport) chkAutoReport.checked = monitoringConfig.autoReport;
+
+  const modal = document.getElementById('monitoringConfigModal');
+  if (modal) modal.classList.add('show');
+}
+
+// 关闭监控策略配置抽屉
+function closeMonitoringConfigModal(event) {
+  if (event && event.target && event.target.id !== 'monitoringConfigModal') return;
+  const modal = document.getElementById('monitoringConfigModal');
+  if (modal) modal.classList.remove('show');
+}
+
+// 切换监控跟踪周期下拉
+function onTrackingWindowChange() {
+  const selWindow = document.getElementById('cfgTrackingWindow');
+  const customWrap = document.getElementById('customMonthsWrap');
+  const customInput = document.getElementById('cfgCustomMonths');
+  if (!selWindow || !customWrap) return;
+  if (selWindow.value === 'CUSTOM') {
+    customWrap.style.display = 'inline-flex';
+    if (customInput) {
+      if (!customInput.value) {
+        customInput.value = (monitoringConfig.trackingWindow !== 'ALL' && !['3', '6', '12', '24'].includes(monitoringConfig.trackingWindow)) 
+          ? monitoringConfig.trackingWindow 
+          : '18';
+      }
+      customInput.focus();
+    }
+  } else {
+    customWrap.style.display = 'none';
+  }
+}
+
+// 弹窗内选择纳管范围卡片
+function selectConfigScope(scope) {
+  tempSelectedScope = scope;
+  ['all', 'marketing', 'import'].forEach(s => {
+    const card = document.getElementById(`cfgScopeCard_${s}`);
+    if (card) {
+      if (s === scope) {
+        card.classList.add('active');
+      } else {
+        card.classList.remove('active');
+      }
+    }
+  });
+}
+
+// 保存监控策略配置并应用
+function saveMonitoringConfig() {
+  monitoringConfig.scope = tempSelectedScope;
+  currentScope = tempSelectedScope;
+
+  const chkAutoEnroll = document.getElementById('cfgAutoEnroll');
+  if (chkAutoEnroll) monitoringConfig.autoEnroll = chkAutoEnroll.checked;
+
+  const selWindow = document.getElementById('cfgTrackingWindow');
+  const customInput = document.getElementById('cfgCustomMonths');
+  if (selWindow) {
+    if (selWindow.value === 'CUSTOM') {
+      let customMonths = parseInt(customInput ? customInput.value : '12', 10);
+      if (isNaN(customMonths) || customMonths <= 0) {
+        customMonths = 12;
+      }
+      monitoringConfig.trackingWindow = String(customMonths);
+    } else {
+      monitoringConfig.trackingWindow = selWindow.value;
+    }
+  }
+
+  const selLoss = document.getElementById('cfgLossPercent');
+  if (selLoss) monitoringConfig.lossPercent = selLoss.value;
+
+  const selRenew = document.getElementById('cfgRenewMinAmt');
+  if (selRenew) monitoringConfig.renewMinAmt = selRenew.value;
+
+  const selClass = document.getElementById('cfgCreditClass');
+  if (selClass) monitoringConfig.creditClass = selClass.value;
+
+  const chkAutoReport = document.getElementById('cfgAutoReport');
+  if (chkAutoReport) monitoringConfig.autoReport = chkAutoReport.checked;
+
+  // 更新顶部规则看板条
+  const scopeNames = {
+    all: '全部纳管客户',
+    marketing: '仅营销智能体推送',
+    import: '仅客户池导入客户'
+  };
+  const dispScopeEl = document.getElementById('displayScopeName');
+  if (dispScopeEl) dispScopeEl.textContent = scopeNames[monitoringConfig.scope] || '全部纳管客户';
+
+  const dispWindowEl = document.getElementById('displayWindowRule');
+  if (dispWindowEl) {
+    dispWindowEl.textContent = monitoringConfig.trackingWindow === 'ALL' 
+      ? '持续跟踪' 
+      : `持续跟踪 ${monitoringConfig.trackingWindow} 个月`;
+  }
+
+  const dispLossEl = document.getElementById('displayLossThreshold');
+  if (dispLossEl) dispLossEl.textContent = `降幅 ≥ ${monitoringConfig.lossPercent}%`;
+
+  const dispRenewEl = document.getElementById('displayRenewThreshold');
+  if (dispRenewEl) {
+    const classLabels = { normal: '', normal_focus: '·关注放宽', all: '·不限' };
+    const classSuffix = classLabels[monitoringConfig.creditClass] || '';
+    dispRenewEl.textContent = `回落 ≥ ${monitoringConfig.renewMinAmt}万${classSuffix}`;
+  }
+
+  // 刷新指标卡片与表格
+  refreshDashboardMetrics();
+  renderWideTable();
+
+  closeMonitoringConfigModal();
+  showToast(`监控策略已更新并生效：已按「${scopeNames[monitoringConfig.scope]}」口径对齐`);
+}
+
+// 兼容老调用
+function setMonitoringScope(scope) {
+  currentScope = scope;
+  monitoringConfig.scope = scope;
+  refreshDashboardMetrics();
+  renderWideTable();
+}
+
+// 统一刷新指标卡片与控制栏说明
+function refreshDashboardMetrics() {
+  const inst = INST_CONFIG[currentInst] || INST_CONFIG.JSB;
+  const cfg = inst.scopes[currentScope] || inst.scopes.all;
+
+  const descEl = document.getElementById('scopeDescText');
+  if (descEl) {
+    const counts = INST_SCOPE_COUNTS[currentInst] || INST_SCOPE_COUNTS.JSB;
+    if (currentScope === 'all') {
+      descEl.textContent = `(${counts.all} 户 · 营销 ${counts.marketing} + 导入 ${counts.import})`;
+    } else if (currentScope === 'marketing') {
+      descEl.textContent = `(${counts.marketing} 户 · 营销转化)`;
+    } else if (currentScope === 'import') {
+      descEl.textContent = `(${counts.import} 户 · 人工导入)`;
+    }
+  }
+
+  const syncEl = document.getElementById('autoSyncStatusText');
+  if (syncEl) syncEl.innerHTML = inst.syncInfo;
+
+  document.getElementById('statCard1').innerHTML = cfg.card1;
+  document.getElementById('statCard1Sub').innerHTML = cfg.card1Sub;
+  document.getElementById('statCard2').innerHTML = cfg.card2;
+  document.getElementById('statCard2Sub').innerHTML = cfg.card2Sub;
+  document.getElementById('statCard3').innerHTML = cfg.card3;
+  document.getElementById('statCard3Sub').innerHTML = cfg.card3Sub;
+  document.getElementById('statCard4').innerHTML = cfg.card4;
+  document.getElementById('statCard4Sub').innerHTML = cfg.card4Sub;
+  document.getElementById('statCard5').innerHTML = cfg.card5;
+  document.getElementById('statCard5Sub').innerHTML = cfg.card5Sub;
+}
+
+// 渲染 Tab 1 (表一各批次概览) 与 Tab 2 (表二四分类分布)
+function renderBatchTables(instCode) {
+  const inst = INST_CONFIG[instCode] || INST_CONFIG.JSB;
+  const batches = inst.batches || [];
+  const sum = inst.summary || {};
+
+  // 1. 渲染 Tab 1 表格
+  const t1Body = document.getElementById('tableOverviewBody');
+  if (t1Body) {
+    t1Body.innerHTML = batches.map(b => `
+      <tr class="batch-row" data-batch-name="${b.name}">
+        <td class="col-sticky-1" style="color:#64748b;">${b.idx}</td>
+        <td class="col-sticky-2"><b>${b.name}</b></td>
+        <td>${b.time}</td>
+        <td class="col-ext" style="color:#64748b;">${b.span}</td>
+        <td style="text-align:right;">${b.delivered.toLocaleString()}</td>
+        <td style="text-align:right;">${b.matched.toLocaleString()}</td>
+        <td style="text-align:right;" class="col-ext">${b.coverage}</td>
+        <td style="text-align:right;font-weight:600;color:#1e40af;">${b.increased.toLocaleString()}</td>
+        <td style="text-align:right;font-weight:600;color:#1e40af;">${b.rate}</td>
+        <td style="text-align:right;font-weight:600;color:#166534;">${b.retained.toLocaleString()}</td>
+        <td style="text-align:right;font-weight:600;color:#166534;" class="col-ext">${b.retRate}</td>
+        <td style="text-align:right;" class="col-ext">${b.cleared}</td>
+        <td style="text-align:right;" class="col-ext">${b.repaid}</td>
+        <td style="text-align:right;" class="col-ext">${b.staticCnt}</td>
+        <td style="text-align:right;" class="col-ext">${b.maxIncrAmt}</td>
+        <td style="text-align:right;font-weight:700;color:#c2410c;">${b.retainedAmt}</td>
+      </tr>
+    `).join('') + `
+      <tr class="summary-row" style="background:#f8fafc;">
+        <td class="col-sticky-1" style="color:#64748b;">-</td>
+        <td class="col-sticky-2"><b>全批次合计</b></td>
+        <td>-</td>
+        <td class="col-ext" style="color:#64748b;">202603-202607</td>
+        <td style="text-align:right;font-weight:700;">${sum.delivered}</td>
+        <td style="text-align:right;font-weight:700;">${sum.matched}</td>
+        <td style="text-align:right;font-weight:700;" class="col-ext">${sum.coverage}</td>
+        <td style="text-align:right;font-weight:700;color:#1e40af;">${sum.increased}</td>
+        <td style="text-align:right;font-weight:700;color:#1e40af;">${sum.rate}</td>
+        <td style="text-align:right;font-weight:700;color:#166534;">${sum.retained}</td>
+        <td style="text-align:right;font-weight:700;color:#166534;" class="col-ext">${sum.retRate}</td>
+        <td style="text-align:right;" class="col-ext">${sum.cleared}</td>
+        <td style="text-align:right;" class="col-ext">${sum.repaid}</td>
+        <td style="text-align:right;" class="col-ext">${sum.staticCnt}</td>
+        <td style="text-align:right;font-weight:700;" class="col-ext">${sum.maxIncrAmt}</td>
+        <td style="text-align:right;font-weight:700;color:#c2410c;">${sum.retainedAmt}</td>
+      </tr>
+    `;
+  }
+
+  // 2. 渲染 Tab 2 表格
+  const t2Body = document.getElementById('tableCategoryBody');
+  if (t2Body) {
+    t2Body.innerHTML = batches.map(b => `
+      <tr class="category-row" data-batch-name="${b.name}">
+        <td class="col-sticky-1" style="color:#64748b;">${b.idx}</td>
+        <td class="col-sticky-2"><b>${b.name}</b></td>
+        <td style="text-align:right;">${b.matched.toLocaleString()}</td>
+        <td style="text-align:center;">
+          <div class="dist-bar-box" onmouseenter="showDistTooltip(this, '${b.name}', '${b.retained}', '${b.retRate}', '${b.cleared}', '${b.clearedRate}', '${b.repaid}', '${b.repaidRate}', '${b.staticCnt}', '${b.staticRate}')" onmouseleave="hideDistTooltip()">
+            <div class="dist-bar">
+              <div class="dist-seg seg-retained" style="width:${b.retRate};"></div>
+              <div class="dist-seg seg-cleared" style="width:${b.clearedRate};"></div>
+              <div class="dist-seg seg-repaid" style="width:${b.repaidRate};"></div>
+              <div class="dist-seg seg-static" style="width:${b.staticRate};"></div>
+            </div>
+            <span style="font-size:11.5px;font-weight:700;color:#166534;">${b.retRate}</span>
+          </div>
+        </td>
+        <td style="text-align:right;font-weight:600;color:#166534;">${b.retained.toLocaleString()}</td>
+        <td style="text-align:right;font-weight:600;color:#166534;">${b.retRate}</td>
+        <td style="text-align:right;color:#92400e;">${b.cleared}</td>
+        <td style="text-align:right;color:#92400e;">${b.clearedRate}</td>
+        <td style="text-align:right;color:#475569;">${b.repaid}</td>
+        <td style="text-align:right;color:#475569;">${b.repaidRate}</td>
+        <td style="text-align:right;color:#64748b;">${b.staticCnt}</td>
+        <td style="text-align:right;color:#64748b;">${b.staticRate}</td>
+      </tr>
+    `).join('') + `
+      <tr class="summary-row" style="background:#f8fafc;">
+        <td class="col-sticky-1" style="color:#64748b;">-</td>
+        <td class="col-sticky-2"><b>全批次合计</b></td>
+        <td style="text-align:right;font-weight:700;">${sum.matched}</td>
+        <td style="text-align:center;">
+          <div class="dist-bar-box" onmouseenter="showDistTooltip(this, '全批次合计', '${sum.retained}', '${sum.retRate}', '${sum.cleared}', '${sum.clearedRate}', '${sum.repaid}', '${sum.repaidRate}', '${sum.staticCnt}', '${sum.staticRate}')" onmouseleave="hideDistTooltip()">
+            <div class="dist-bar">
+              <div class="dist-seg seg-retained" style="width:${sum.retRate};"></div>
+              <div class="dist-seg seg-cleared" style="width:${sum.clearedRate};"></div>
+              <div class="dist-seg seg-repaid" style="width:${sum.repaidRate};"></div>
+              <div class="dist-seg seg-static" style="width:${sum.staticRate};"></div>
+            </div>
+            <span style="font-size:11.5px;font-weight:700;color:#166534;">${sum.retRate}</span>
+          </div>
+        </td>
+        <td style="text-align:right;font-weight:700;color:#166534;">${sum.retained}</td>
+        <td style="text-align:right;font-weight:700;color:#166534;">${sum.retRate}</td>
+        <td style="text-align:right;font-weight:600;color:#92400e;">${sum.cleared}</td>
+        <td style="text-align:right;font-weight:600;color:#92400e;">${sum.clearedRate}</td>
+        <td style="text-align:right;font-weight:600;color:#475569;">${sum.repaid}</td>
+        <td style="text-align:right;font-weight:600;color:#475569;">${sum.repaidRate}</td>
+        <td style="text-align:right;font-weight:600;color:#64748b;">${sum.staticCnt}</td>
+        <td style="text-align:right;font-weight:600;color:#64748b;">${sum.staticRate}</td>
+      </tr>
+    `;
+  }
+
+  // 3. 更新 Tab 1 的徽章 Badge
+  const tabBatchBadge = document.getElementById('tabBatchBadge');
+  if (tabBatchBadge) {
+    tabBatchBadge.textContent = `${batches.length}个批次`;
+  }
+}
+
+// 联动更新 Tab 3 批次下拉筛选列表
+function updateBatchSelectOptions(inst) {
+  const select = document.getElementById('batchSelect');
+  if (!select) return;
+  const batches = inst.batches || [];
+  let html = `<option value="all">全批次 (${inst.totalClients}户)</option>`;
+  batches.forEach(b => {
+    html += `<option value="${b.name}">${b.name} (${b.matched}户)</option>`;
+  });
+  select.innerHTML = html;
+}
+
+// Tab 1 批次行搜索过滤
+function filterBatchRows(query) {
+  const q = query.trim().toLowerCase();
+  const rows = document.querySelectorAll('#tableOverviewBody tr.batch-row');
+  rows.forEach(r => {
+    const name = (r.getAttribute('data-batch-name') || '').toLowerCase();
+    const text = r.innerText.toLowerCase();
+    if (!q || name.includes(q) || text.includes(q)) {
+      r.style.display = '';
+    } else {
+      r.style.display = 'none';
+    }
+  });
+}
+
+// Tab 2 批次行搜索过滤
+function filterCategoryRows(query) {
+  const q = query.trim().toLowerCase();
+  const rows = document.querySelectorAll('#tableCategoryBody tr.category-row');
+  rows.forEach(r => {
+    const name = (r.getAttribute('data-batch-name') || '').toLowerCase();
+    const text = r.innerText.toLowerCase();
+    if (!q || name.includes(q) || text.includes(q)) {
+      r.style.display = '';
+    } else {
+      r.style.display = 'none';
+    }
+  });
+}
+
+// 渲染在贷客户多期时序明细大宽表
+function renderWideTable() {
+  const inst = INST_CONFIG[currentInst] || INST_CONFIG.JSB;
+  const corps = inst.corps || [];
+  const selectedBatch = document.getElementById('batchSelect') ? document.getElementById('batchSelect').value : 'all';
+  const cat = document.getElementById('categoryFilter') ? document.getElementById('categoryFilter').value : 'all';
+  const metric = document.getElementById('metricSelect') ? document.getElementById('metricSelect').value : 'balance';
+  const query = document.getElementById('corpSearch') ? document.getElementById('corpSearch').value.trim().toLowerCase() : '';
+
+  const filtered = corps.filter(item => {
+    // 按运营端选定的监控范围过滤
+    if (currentScope === 'marketing' && item.source !== 'AGENT') return false;
+    if (currentScope === 'import' && item.source !== 'BANK_IMPORT') return false;
+
+    // 批次筛选
+    if (selectedBatch !== 'all' && item.batch !== selectedBatch) return false;
+
+    // 分类筛选
+    if (cat !== 'all' && item.cat !== cat) return false;
+
+    // 关键字搜索
+    if (query && !item.name.toLowerCase().includes(query) && !item.uscc.toLowerCase().includes(query) && !item.corp.toLowerCase().includes(query)) return false;
+
+    return true;
+  });
+
+  const tbody = document.getElementById('wideTableBody');
+  if (!tbody) return;
+
+  tbody.innerHTML = filtered.map((item, idx) => {
+    let catClass = 'cat-static';
+    if (item.cat === 'retained') catClass = 'cat-retained';
+    if (item.cat === 'cleared') catClass = 'cat-cleared';
+    if (item.cat === 'repaid') catClass = 'cat-repaid';
+
+    const hasBadge = item.hasIncr === '是' ? '<span class="cell-up" style="padding:2px 6px;border-radius:4px;">是</span>' : '<span class="cell-zero">否</span>';
+    const stillBadge = item.stillIncr === '是' ? '<span class="cell-up" style="padding:2px 6px;border-radius:4px;">是</span>' : '<span class="cell-zero">否</span>';
+
+    const sourceText = item.source === 'AGENT' ? '营销智能体推送' : (item.source === 'DELIVERY' ? '名单交付导入' : '客户池导入');
+
+    // 根据指标维度展开不同数据列
+    let series = item.months;
+    let unit = '万';
+    if (metric === 'count') {
+      series = item.counts || [1, 1, 1, 1, 1];
+      unit = '笔';
+    } else if (metric === 'credit') {
+      series = item.credits || item.months.map(v => Math.round(v * 0.4));
+      unit = '万';
+    } else if (metric === 'pledge') {
+      series = item.pledges || item.months.map(v => Math.round(v * 0.6));
+      unit = '万';
+    }
+
+    return `
+      <tr>
+        <td style="text-align:center;color:#64748b;font-size:12.5px;">${idx + 1}</td>
+        <td class="sticky-col col-left">
+          <a href="javascript:void(0)" onclick="openCorpDetailDrawer('${item.name}')" style="font-weight:600;color:var(--brand);" title="点击查看人行征信13项指标多期明细">${item.name}</a>
+          <div style="font-size:11px;color:#94a3b8;">${item.batch}</div>
+        </td>
+        <td class="col-left" style="font-size:12px;color:var(--gray-600);">${item.uscc}</td>
+        <td class="col-left" style="font-size:12.5px;color:var(--gray-700);">${sourceText}</td>
+        <td class="col-left">${item.corp}</td>
+        <td class="col-left">
+          <span class="cat-badge ${catClass}">${item.catLabel}</span>
+        </td>
+        <td style="text-align:center;">${hasBadge}</td>
+        <td style="text-align:center;">${stillBadge}</td>
+        <td style="font-weight:600;color:${item.maxIncr !== '0' ? 'var(--gray-900)' : 'var(--gray-400)'};">${item.maxIncr}</td>
+        <td style="font-weight:600;color:${item.latestIncr !== '0' ? 'var(--gray-900)' : 'var(--gray-400)'};">${item.latestIncr}</td>
+        <td style="background:#f8fafc;">${series[0].toLocaleString()}${unit}</td>
+        <td>${series[1].toLocaleString()}${unit}</td>
+        <td>${series[2].toLocaleString()}${unit}</td>
+        <td>${series[3].toLocaleString()}${unit}</td>
+        <td style="font-weight:600;color:var(--gray-900);background:#eff6ff;">${series[4].toLocaleString()}${unit}</td>
+        <td style="text-align:center;white-space:nowrap;">
+          <button class="btn btn-sm btn-default" onclick="openTrendModal('${item.name}')" style="padding:2px 7px;font-size:12px;" title="查看余额走势折线图">走势</button>
+          <button class="btn btn-sm btn-primary" onclick="openCorpDetailDrawer('${item.name}')" style="padding:2px 7px;font-size:12px;margin-left:4px;" title="查看人行13项指标时序明细全貌">详情</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  const countLabel = document.getElementById('wideTableCountLabel');
+  if (countLabel) countLabel.innerText = `筛选出 ${filtered.length} 户在贷企业`;
+}
+
+// 当前选中的详情企业
+let activeDetailCorp = null;
+
+// 打开企业人行时序数据详情抽屉
+function openCorpDetailDrawer(corpName) {
+  const inst = INST_CONFIG[currentInst] || INST_CONFIG.JSB;
+  const item = (inst.corps || []).find(c => c.name === corpName) || inst.corps[0];
+  if (!item) return;
+
+  activeDetailCorp = item;
+
+  // 1. 填充头部
+  document.getElementById('drawerDetailCorpName').innerText = item.name;
+  
+  const sourceTagEl = document.getElementById('drawerDetailSourceTag');
+  if (sourceTagEl) {
+    const sourceLabel = item.source === 'AGENT' ? '营销智能体推送' : (item.source === 'DELIVERY' ? '名单交付导入' : '客户池导入');
+    const sourceCls = item.source === 'AGENT' ? 'source-agent' : (item.source === 'DELIVERY' ? 'source-delivery' : 'source-import');
+    sourceTagEl.innerHTML = `<span class="source-tag ${sourceCls}">${sourceLabel}</span>`;
+  }
+
+  let catClass = 'cat-static';
+  let catDesc = '无新增用信：全程无新增放款，余额持平无变动';
+  if (item.cat === 'retained') {
+    catClass = 'cat-retained';
+    catDesc = '新增用信：实现新增放款且持续留存净增';
+  } else if (item.cat === 'cleared') {
+    catClass = 'cat-cleared';
+    catDesc = '用信降低：期间曾用信放款，但增量已降低';
+  } else if (item.cat === 'repaid') {
+    catClass = 'cat-repaid';
+    catDesc = '存量缩减：无新增放款，存量余额自然下降';
+  }
+
+  const catTagEl = document.getElementById('drawerDetailCatTag');
+  if (catTagEl) {
+    catTagEl.innerHTML = `<span class="cat-badge ${catClass}">${item.catLabel}</span>`;
+  }
+
+  document.getElementById('drawerDetailCorpSub').innerText = 
+    `统一代码: ${item.uscc} · 法人: ${item.corp} · 批次: ${item.batch} · 合作机构: ${inst.name}`;
+
+  // 2. 填充四大核心评估指标卡片
+  document.getElementById('metricCard_cat').innerText = item.catLabel;
+  document.getElementById('metricCard_catDesc').innerText = catDesc;
+
+  document.getElementById('metricCard_hasIncr').innerHTML = item.hasIncr === '是' 
+    ? `<span style="color:#dc2626;">是</span> · <span style="font-size:13.5px;color:#0f172a;">+${item.maxIncr}元</span>`
+    : `<span style="color:#64748b;">否</span> · <span style="font-size:13px;color:#94a3b8;">未发生新增</span>`;
+
+  document.getElementById('metricCard_stillIncr').innerHTML = item.stillIncr === '是'
+    ? `<span style="color:#16a34a;">是</span> · <span style="font-size:13.5px;color:#0f172a;">+${item.latestIncr}元</span>`
+    : `<span style="color:#64748b;">否</span> · <span style="font-size:13px;color:#94a3b8;">期末无净增</span>`;
+
+  const counts = item.counts || [2, 2, 2, 2, 2];
+  document.getElementById('metricCard_inst').innerText = `合作机构 ${counts[counts.length - 1]} 家`;
+  document.getElementById('metricCard_newBorrower').innerText = `基准期无贷破冰: 否 (入池前已有在贷)`;
+
+  // 3. 构建并渲染 13 项人行信贷监控指标多期时序大表格
+  render13MetricsTable(item);
+
+  // 4. 填充企业工商与交付档案信息
+  renderCorpBaseInfo(item);
+
+  // 打开抽屉
+  const drawer = document.getElementById('corpDetailDrawer');
+  if (drawer) drawer.classList.add('show');
+}
+
+// 关闭企业详情抽屉
+function closeCorpDetailDrawer(event) {
+  if (event && event.target && event.target.id !== 'corpDetailDrawer') return;
+  const drawer = document.getElementById('corpDetailDrawer');
+  if (drawer) drawer.classList.remove('show');
+}
+
+// 从详情抽屉一键唤起走势折线图
+function openTrendModalFromDrawer() {
+  if (activeDetailCorp) {
+    openTrendModal(activeDetailCorp.name);
+  }
+}
+
+// 导出单企时序 Excel
+function exportCorpDetailExcel() {
+  if (activeDetailCorp) {
+    showToast(`正在导出「${activeDetailCorp.name}」人行信贷13项多期时序监控明细台账 (Excel)...`);
+  }
+}
+
+// 渲染 13 项人行信贷指标时序明细表格（与线下 Excel 分析 100% 对齐）
+function render13MetricsTable(item) {
+  const tbody = document.getElementById('drawerDetailMetricsTableBody');
+  if (!tbody) return;
+
+  const m = item.months || [1000, 1000, 1000, 1000, 1000];
+  const cnt = item.counts || [2, 2, 2, 2, 2];
+  const cred = item.credits || m.map(v => Math.round(v * 0.4));
+  const pled = item.pledges || m.map(v => Math.round(v * 0.6));
+
+  // 定义 13 项监测指标
+  const metricsConfig = [
+    // 分组 1: 贷款余额类（6项，单位：元，下限保守估值）
+    { name: '在贷贷款余额总额', type: '余额类', vals: m.map(v => v * 10000), isCurrency: true },
+    { name: '信用贷款余额总额', type: '余额类', vals: cred.map(v => v * 10000), isCurrency: true },
+    { name: '企业抵押类贷款余额之和', type: '余额类', vals: pled.map(v => v * 10000), isCurrency: true },
+    { name: '企业质押类贷款余额之和', type: '余额类', vals: [0, 0, 0, 0, 0], isCurrency: true },
+    { name: '企业保证类贷款余额之和', type: '余额类', vals: m.map((v, i) => Math.max(0, (v - cred[i] - pled[i]) * 10000)), isCurrency: true },
+    { name: '企业混合类贷款余额之和', type: '余额类', vals: [0, 0, 0, 0, 0], isCurrency: true },
+
+    // 分组 2: 贷款笔数与多头机构类（7项，单位：笔/家）
+    { name: '在贷贷款总笔数', type: '笔数类', vals: cnt, isCurrency: false, unit: '笔' },
+    { name: '在贷金融机构数量', type: '机构类', vals: cnt.map(v => Math.max(1, v - 1)), isCurrency: false, unit: '家' },
+    { name: '信用类贷款笔数', type: '笔数类', vals: cred.map(v => v > 0 ? 1 : 0), isCurrency: false, unit: '笔' },
+    { name: '抵押类贷款笔数', type: '笔数类', vals: pled.map(v => v > 0 ? 1 : 0), isCurrency: false, unit: '笔' },
+    { name: '质押类贷款笔数', type: '笔数类', vals: [0, 0, 0, 0, 0], isCurrency: false, unit: '笔' },
+    { name: '保证类贷款笔数', type: '笔数类', vals: [1, 0, 0, 0, 0], isCurrency: false, unit: '笔' },
+    { name: '混合类贷款笔数', type: '笔数类', vals: [0, 0, 0, 0, 0], isCurrency: false, unit: '笔' }
+  ];
+
+  tbody.innerHTML = metricsConfig.map((row, rIdx) => {
+    const v = row.vals;
+    const base = v[0];
+    const postMax = Math.max(v[1], v[2], v[3], v[4]);
+    const maxIncr = postMax - base;
+    const netIncr = v[4] - base;
+
+    // 计算变动特征说明
+    let featText = '全程持平未变';
+    let featColor = '#64748b';
+    if (maxIncr > 0 && netIncr > 0) {
+      featText = '持续净增提款';
+      featColor = '#dc2626';
+    } else if (maxIncr > 0 && netIncr <= 0) {
+      featText = '期间用信降低';
+      featColor = '#d97706';
+    } else if (maxIncr <= 0 && netIncr < 0) {
+      featText = '无新增用信';
+      featColor = '#16a34a';
+    }
+    if (row.name.includes('抵押') && base > 0 && v[4] === 0) {
+      featText = '抵押解押·商机释放';
+      featColor = '#2563eb';
+    } else if (row.name.includes('保证') && base > 0 && v[4] === 0) {
+      featText = '保证解除·转纯信用';
+      featColor = '#0891b2';
+    }
+
+    const fmt = (val) => {
+      if (val === 0) return '0';
+      if (row.isCurrency) {
+        return val.toLocaleString() + '元';
+      }
+      return val + (row.unit || '');
+    };
+
+    const fmtDiff = (diff) => {
+      if (diff === 0) return '<span style="color:#94a3b8;">0</span>';
+      if (diff > 0) {
+        return `<span style="color:#dc2626;font-weight:700;">+${diff.toLocaleString()}${row.isCurrency ? '元' : (row.unit || '')}</span>`;
+      }
+      return `<span style="color:#16a34a;font-weight:700;">${diff.toLocaleString()}${row.isCurrency ? '元' : (row.unit || '')}</span>`;
+    };
+
+    // 月度单元格带轻量条件底色
+    const getMonthTd = (val, prevVal, isLatest) => {
+      let bg = isLatest ? '#eff6ff' : '#ffffff';
+      let color = '#334155';
+      if (prevVal !== undefined && val > prevVal) {
+        bg = '#fef2f2';
+        color = '#dc2626';
+      } else if (prevVal !== undefined && val < prevVal) {
+        bg = '#f0fdf4';
+        color = '#16a34a';
+      }
+      return `<td style="padding:9px 8px;text-align:right;background:${bg};color:${color};border-bottom:1px solid #f1f5f9;font-variant-numeric:tabular-nums;">${fmt(val)}</td>`;
+    };
+
+    const isFirstGroup = rIdx === 0;
+    const isSecondGroup = rIdx === 6;
+
+    let groupRow = '';
+    if (isFirstGroup) {
+      groupRow = `<tr style="background:#f8fafc;"><td colspan="10" style="padding:7px 12px;font-weight:700;color:#0f172a;font-size:12px;border-bottom:1px solid #e2e8f0;">一、贷款金额与信贷负债规模区间类（共 6 项，按保底区间下限保守估值）</td></tr>`;
+    } else if (isSecondGroup) {
+      groupRow = `<tr style="background:#f8fafc;"><td colspan="10" style="padding:7px 12px;font-weight:700;color:#0f172a;font-size:12px;border-top:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;">二、贷款笔数与授信机构数量类（共 7 项，多头借贷与担保结构）</td></tr>`;
+    }
+
+    return `
+      ${groupRow}
+      <tr style="hover:background-color:#f8fafc;">
+        <td style="padding:9px 12px;border-bottom:1px solid #f1f5f9;font-weight:600;color:#0f172a;">${row.name}</td>
+        <td style="padding:9px 8px;text-align:center;border-bottom:1px solid #f1f5f9;color:#64748b;font-size:11px;">
+          <span style="padding:1px 6px;border-radius:3px;background:${row.type === '余额类' ? '#f1f5f9' : '#f8fafc'};border:1px solid #e2e8f0;">${row.type}</span>
+        </td>
+        <td style="padding:9px 8px;text-align:right;background:#f8fafc;color:#475569;border-bottom:1px solid #f1f5f9;font-variant-numeric:tabular-nums;">${fmt(v[0])}</td>
+        ${getMonthTd(v[1], v[0], false)}
+        ${getMonthTd(v[2], v[1], false)}
+        ${getMonthTd(v[3], v[2], false)}
+        ${getMonthTd(v[4], v[3], true)}
+        <td style="padding:9px 8px;text-align:right;border-bottom:1px solid #f1f5f9;">${fmtDiff(maxIncr)}</td>
+        <td style="padding:9px 8px;text-align:right;border-bottom:1px solid #f1f5f9;">${fmtDiff(netIncr)}</td>
+        <td style="padding:9px 10px;border-bottom:1px solid #f1f5f9;font-size:11.5px;color:${featColor};font-weight:500;">${featText}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// 填充企业基础工商档案
+function renderCorpBaseInfo(item) {
+  const container = document.getElementById('drawerDetailBaseInfo');
+  if (!container) return;
+
+  const regCapMap = {
+    '江苏星湖科技有限公司': '5,058 万元人民币',
+    '格拉琪全钢防火科技（江苏）有限公司': '1,000 万元人民币',
+    '南京福得食品贸易有限公司': '100 万元人民币',
+    '江苏教院印务有限公司': '500 万元人民币',
+    '江苏万星云计算系统有限公司': '3,000 万元人民币'
+  };
+
+  const regDateMap = {
+    '江苏星湖科技有限公司': '2007-07-18',
+    '格拉琪全钢防火科技（江苏）有限公司': '2008-09-23',
+    '南京福得食品贸易有限公司': '2008-04-08',
+    '江苏教院印务有限公司': '2007-09-13',
+    '江苏万星云计算系统有限公司': '2019-10-12'
+  };
+
+  const addrMap = {
+    '江苏星湖科技有限公司': '南京市鼓楼区幕府南路190号七层',
+    '格拉琪全钢防火科技（江苏）有限公司': '南京市建邺区所街116号711-969室',
+    '南京福得食品贸易有限公司': '南京市玄武区孝陵卫顾家营劳动工业园区',
+    '江苏教院印务有限公司': '南京市北京西路77号'
+  };
+
+  container.innerHTML = `
+    <div><span style="color:#64748b;">法定代表人：</span><b>${item.corp}</b></div>
+    <div><span style="color:#64748b;">注册资本：</span><b>${regCapMap[item.name] || '1,000 万元人民币'}</b></div>
+    <div><span style="color:#64748b;">成立日期：</span><span>${regDateMap[item.name] || '2015-06-18'}</span></div>
+    <div><span style="color:#64748b;">所属地区：</span><span>江苏省 · 南京市</span></div>
+    <div><span style="color:#64748b;">资金需求评分：</span><span style="color:#2563eb;font-weight:700;">88 分 (高需求等级)</span></div>
+    <div><span style="color:#64748b;">名单交付批次：</span><span style="font-weight:500;">${item.batch} (2026年04月)</span></div>
+    <div style="grid-column: span 3;"><span style="color:#64748b;">企业住所：</span><span>${addrMap[item.name] || '江苏省南京市高新技术产业园区创新大道88号'}</span></div>
+    <div style="grid-column: span 3;"><span style="color:#64748b;">联系电话清单：</span><span style="font-family:monospace;color:#0f172a;">13305155668, 025-85601668, 15150502531</span></div>
+  `;
+}
+
+// 趋势走势弹窗
+function openTrendModal(corpName) {
+  const inst = INST_CONFIG[currentInst] || INST_CONFIG.JSB;
+  const item = (inst.corps || []).find(c => c.name === corpName) || inst.corps[0];
+  if (!item) return;
+
+  document.getElementById('modalCorpName').innerText = item.name;
+  document.getElementById('modalCorpSub').innerText = `合作机构: ${inst.name} · 批次: ${item.batch} · 统一代码: ${item.uscc} · 画像: ${item.catLabel}`;
+
+  // 绘制走势折线
+  renderModalSvg(item.months);
+  document.getElementById('trendModal').classList.add('show');
+}
+
+function closeTrendModal() {
+  document.getElementById('trendModal').classList.remove('show');
+}
+
+function renderModalSvg(data) {
+  const svg = document.getElementById('modalTrendSvg');
+  const W = 600, H = 170, PAD_X = 50, PAD_Y = 25;
+  const labels = ['基准月(03)', '04月', '05月', '06月', '07月'];
+  const maxVal = Math.max(...data, 100) * 1.25;
+
+  function toX(i) { return PAD_X + (i / (data.length - 1)) * (W - PAD_X * 2); }
+  function toY(v) { return H - PAD_Y - (v / maxVal) * (H - PAD_Y * 2); }
+
+  let lines = '';
+  data.forEach((v, i) => {
+    lines += `<text x="${toX(i)}" y="${H - 6}" text-anchor="middle" font-size="11" fill="var(--gray-500)">${labels[i]}</text>`;
+  });
+
+  const pathD = data.map((v, i) => `${i === 0 ? 'M' : 'L'}${toX(i)},${toY(v)}`).join(' ');
+  const areaD = `${pathD} L${toX(data.length - 1)},${toY(0)} L${toX(0)},${toY(0)} Z`;
+
+  const points = data.map((v, i) => `
+    <circle cx="${toX(i)}" cy="${toY(v)}" r="5" fill="var(--brand)" stroke="#fff" stroke-width="2"/>
+    <text x="${toX(i)}" y="${toY(v) - 8}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--brand)">${v}万</text>
+  `).join('');
+
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="mGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#2563eb" stop-opacity="0.25"/>
+        <stop offset="100%" stop-color="#2563eb" stop-opacity="0.02"/>
+      </linearGradient>
+    </defs>
+    <path d="${areaD}" fill="url(#mGrad)"/>
+    <path d="${pathD}" fill="none" stroke="var(--brand)" stroke-width="3" stroke-linecap="round"/>
+    ${lines}
+    ${points}
+  `;
+}
+
+// 规则说明弹窗
+function openRulesModal() { document.getElementById('rulesModal').classList.add('show'); }
+function closeRulesModal() { document.getElementById('rulesModal').classList.remove('show'); }
+
+// 导出分析报告（按当前机构动态导出）
+function exportAnalysisExcel() {
+  const inst = INST_CONFIG[currentInst] || INST_CONFIG.JSB;
+  showToast(`正在生成《${inst.name}交付名单人行信贷监控多期全景分析报告.xlsx》...`);
+}
+
+// ===== 全局统一机构切换弹窗交互函数（与营销名单 customers.html 统一）=====
+function openOrgModal() {
+  const modal = document.getElementById('globalOrgModal');
+  if (modal) modal.style.display = 'flex';
+}
+function closeOrgModal() {
+  const modal = document.getElementById('globalOrgModal');
+  if (modal) modal.style.display = 'none';
+}
+function selectOrg(el, instCode, name) {
+  document.querySelectorAll('.org-choice').forEach(function(c) {
+    c.style.borderColor = '#e5e7eb';
+    c.style.background = 'white';
+    const nameEl = c.querySelector('.org-name');
+    if (nameEl) nameEl.style.color = '#1f2937';
+    const subEl = c.querySelector('.org-sub');
+    if (subEl) subEl.style.color = '#6b7280';
+  });
+  if (el) {
+    el.style.borderColor = 'var(--brand)';
+    el.style.background = '#f0fdf4';
+    const nameEl = el.querySelector('.org-name');
+    if (nameEl) nameEl.style.color = 'var(--brand)';
+    const subEl = el.querySelector('.org-sub');
+    if (subEl) subEl.style.color = '#15803d';
+  }
+  document.querySelectorAll('#globalOrgDisplay').forEach(function(e) {
+    e.innerText = name;
+  });
+  setTimeout(function() {
+    closeOrgModal();
+    onInstChange(instCode, true);
+  }, 200);
+}
+function filterOrgs(val) {
+  const kw = (val || '').trim().toLowerCase();
+  document.querySelectorAll('.org-choice').forEach(function(c) {
+    c.style.display = c.innerText.toLowerCase().includes(kw) ? '' : 'none';
+  });
+}
+// 点击背景遮罩关闭
+document.getElementById('globalOrgModal')?.addEventListener('click', function(e) {
+  if (e.target === this) closeOrgModal();
+});
+window.openGlobalOrgModal = openOrgModal;
+window.closeGlobalOrgModal = closeOrgModal;
+// 支持任意全局机构切换按钮点击事件代理
+document.addEventListener('click', function(e) {
+  if (e.target.closest('#globalOrgBtn')) openOrgModal();
+});
+
+// 页面加载自动执行初始化（静默加载，不弹 Toast）
+document.addEventListener('DOMContentLoaded', () => {
+  onInstChange('JSB', false);
+});
+// 保障即时运行（静默加载，不弹 Toast）
+onInstChange('JSB', false);
+</script>
+</body>
+</html>

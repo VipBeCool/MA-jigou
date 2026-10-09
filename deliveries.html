@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+  <title>名单交付 - 金融机构端工作台</title>
+  <meta name="description" content="接收与管理联合征信平台交付的营销名单记录">
+  <link rel="stylesheet" href="css/style.css?v=1783867207">
+  <style>
+    /* ====================================================
+       名单交付 — 机构端专属样式（对齐联合征信管理平台）
+       ==================================================== */
+
+    /* 工具栏 */
+    .delivery-toolbar {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
+    }
+    .delivery-search-box {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 14px; border: 1.5px solid var(--border);
+      border-radius: 9px; background: var(--bg-card);
+      transition: border-color 0.2s; min-width: 240px;
+    }
+    .delivery-search-box:focus-within { border-color: var(--brand); }
+    .delivery-search-box input {
+      border: none; background: transparent; outline: none;
+      font-size: 13px; color: var(--gray-900); flex: 1;
+    }
+    .delivery-search-box svg {
+      width: 14px; height: 14px; stroke: var(--gray-400); fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0;
+    }
+    .filter-select {
+      padding: 8px 28px 8px 12px; border: 1.5px solid var(--border);
+      border-radius: 9px; background: var(--bg-card); color: var(--gray-700);
+      font-size: 13px; cursor: pointer; outline: none; font-family: inherit;
+      -webkit-appearance: none; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 10px center;
+    }
+    .filter-select:focus { border-color: var(--brand); }
+    .delivery-count { margin-left: auto; font-size: 13px; color: var(--gray-400); white-space: nowrap; }
+
+    /* 列表名称列 */
+    .delivery-name { font-size: 13.5px; font-weight: 700; color: var(--brand); cursor: pointer; display: inline-block; }
+    .delivery-name:hover { text-decoration: underline; }
+    .delivery-remark { font-size: 12px; color: var(--gray-400); max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; margin-top: 2px; }
+
+    /* tag & badge */
+    .tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 500; }
+    .tag-gray { background: var(--gray-100); color: var(--gray-600); }
+    .col-badge { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 11px; font-weight: 500; background: #fef3c7; color: #92400e; margin-right: 3px; margin-bottom: 2px; }
+    .new-badge { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; background: #fef3c7; color: #d97706; margin-left: 6px; vertical-align: middle; }
+
+    /* 状态 badge */
+    .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 99px; font-size: 12px; font-weight: 500; white-space: nowrap; }
+    .status-in-pool { background: #dcfce7; color: #16a34a; }
+    .status-archived { background: var(--gray-100); color: var(--gray-600); }
+
+    /* 详情抽屉 */
+    .side-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.28); z-index: 900; }
+    .side-overlay.show { display: block; }
+    .detail-drawer { position: fixed; top: 0; right: -620px; width: 600px; height: 100vh; background: var(--bg-card); z-index: 901; box-shadow: -4px 0 32px rgba(0,0,0,0.14); display: flex; flex-direction: column; transition: right 0.32s cubic-bezier(0.4,0,0.2,1); }
+    .detail-drawer.show { right: 0; }
+    .drawer-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .drawer-title { font-size: 16px; font-weight: 700; color: var(--gray-900); }
+    .drawer-subtitle { font-size: 12px; color: var(--gray-400); margin-top: 3px; }
+    .drawer-close-btn { width: 32px; height: 32px; border-radius: 8px; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--gray-400); transition: background 0.15s, color 0.15s; }
+    .drawer-close-btn:hover { background: var(--gray-100); color: var(--gray-700); }
+    .drawer-close-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 24px; }
+    .detail-section { margin-bottom: 24px; }
+    .detail-section-title { font-size: 12px; font-weight: 700; color: var(--gray-500); letter-spacing: 0.5px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--gray-100); }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; }
+    .detail-item label { font-size: 12px; color: var(--gray-400); display: block; margin-bottom: 3px; }
+    .detail-item span { font-size: 13.5px; font-weight: 600; color: var(--gray-800); }
+    .field-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .field-table th { background: var(--gray-50); padding: 8px 10px; text-align: left; font-size: 11.5px; font-weight: 600; color: var(--gray-500); border-bottom: 1px solid var(--border); }
+    .field-table td { padding: 8px 10px; border-bottom: 1px solid var(--gray-100); color: var(--gray-700); }
+    .field-table tr:last-child td { border-bottom: none; }
+    .field-required { display: inline-block; padding: 1px 5px; border-radius: 3px; font-size: 10px; font-weight: 600; background: #eff6ff; color: #2563eb; }
+    .field-optional { display: inline-block; padding: 1px 5px; border-radius: 3px; font-size: 10px; font-weight: 600; background: #f3f4f6; color: #6b7280; }
+    .file-download-card { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 10px; background: var(--gray-50); border: 1px solid var(--border); transition: background 0.15s; }
+    .file-download-card:hover { background: #eff6ff; border-color: #bfdbfe; }
+    .file-icon-wrap { width: 40px; height: 40px; border-radius: 10px; background: #eff6ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .file-icon-wrap svg { width: 20px; height: 20px; stroke: #2563eb; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .file-info { flex: 1; min-width: 0; }
+    .file-name { font-size: 13px; font-weight: 600; color: var(--gray-800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-meta { font-size: 11.5px; color: var(--gray-400); margin-top: 2px; }
+
+    /* 分页控件 */
+    .pagination { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-top: 1px solid var(--gray-100); }
+    .pagination-info { font-size: 13px; color: var(--gray-400); }
+    .pagination-controls { display: flex; align-items: center; gap: 6px; }
+    .page-btn { height: 32px; min-width: 32px; padding: 0 10px; border: 1px solid var(--border); border-radius: 7px; background: var(--bg-card); color: var(--gray-700); font-size: 13px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; }
+    .page-btn:hover:not(:disabled) { border-color: var(--brand); color: var(--brand); background: #eff6ff; }
+    .page-btn.active { background: var(--brand); color: #fff; border-color: var(--brand); font-weight: 600; }
+    .page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* 确认对话框 */
+    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 2000; align-items: center; justify-content: center; }
+    .modal-backdrop.show { display: flex; }
+    .modal-box { background: #fff; border-radius: 16px; width: 420px; max-width: 95vw; padding: 32px 28px; box-shadow: 0 12px 48px rgba(0,0,0,0.18); animation: fadeInUp 0.22s ease; text-align: center; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-icon.danger { width: 52px; height: 52px; border-radius: 50%; background: #fee2e2; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+    .modal-icon.danger svg { width: 26px; height: 26px; stroke: #dc2626; fill: none; stroke-width: 2; }
+    .modal-title { font-size: 18px; font-weight: 700; color: var(--gray-900); margin-bottom: 8px; }
+    .modal-desc { font-size: 13.5px; color: var(--gray-500); line-height: 1.6; margin-bottom: 24px; }
+    .modal-btns { display: flex; gap: 12px; justify-content: center; }
+
+    /* 提示横幅 */
+    .info-banner { display: flex; align-items: flex-start; gap: 10px; padding: 12px 16px; border-radius: 10px; margin-bottom: 20px; background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; font-size: 13px; line-height: 1.6; }
+    .info-banner svg { width: 16px; height: 16px; stroke: #2563eb; flex-shrink: 0; margin-top: 2px; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main-content">
+    <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <h1 class="page-title">名单交付</h1>
+        <p class="page-breadcrumb"><a href="index.html">工作台</a><span class="sep">/</span>运营管理<span class="sep">/</span>名单交付</p>
+      </div>
+    </div>
+
+    <div class="info-banner">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <span>以下为联合征信平台向本机构交付的营销名单，仅管理员可见。点击名单名称查看字段详情与数据预览，点击「下载」获取原始加密数据文件。</span>
+    </div>
+
+    <!-- 顶部工具条（对齐联合征信端样式） -->
+    <div class="delivery-toolbar">
+      <div class="delivery-search-box">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="searchInput" placeholder="搜索名单名称..." oninput="filterTable()">
+      </div>
+      <select class="filter-select" id="poolFilter" onchange="filterTable()">
+        <option value="">全部状态</option>
+        <option value="true">已入机构客户池</option>
+        <option value="false">仅存档</option>
+      </select>
+      <div class="delivery-count" id="resultCount">共 9 条记录</div>
+    </div>
+
+    <!-- 列表（8列丰富对齐联合征信端） -->
+    <div class="card" style="margin-top:0;overflow-x:auto;">
+      <div class="table-wrapper">
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width:50px;">序号</th>
+              <th>名单名称</th>
+              <th>企业数</th>
+              <th>关键数据字段</th>
+              <th>机构客户池</th>
+              <th>交付时间</th>
+              <th>操作人</th>
+              <th style="text-align:right;">操作</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+      <!-- 分页控件 -->
+      <div class="pagination" id="pagination">
+        <div class="pagination-info" id="paginationInfo">显示 1 到 9 条，共 9 条记录</div>
+        <div class="pagination-controls" id="paginationControls"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- 详情抽屉 -->
+<div class="side-overlay" id="overlay" onclick="closeDrawer()"></div>
+<div class="detail-drawer" id="detailDrawer">
+  <div class="drawer-header">
+    <div>
+      <div class="drawer-title" id="drawerTitle">名单详情</div>
+      <div class="drawer-subtitle" id="drawerSubtitle"></div>
+    </div>
+    <button class="drawer-close-btn" onclick="closeDrawer()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</div>
+
+<!-- 确认删除 Modal -->
+<div class="modal-backdrop" id="confirmModal">
+  <div class="modal-box">
+    <div class="modal-icon danger">
+      <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+    </div>
+    <div class="modal-title" id="confirmTitle">确认删除？</div>
+    <div class="modal-desc" id="confirmDesc">此操作不可恢复。</div>
+    <div class="modal-btns">
+      <button class="btn btn-default" style="min-width:90px;" onclick="closeConfirm()">取消</button>
+      <button class="btn btn-primary" id="confirmOkBtn" style="min-width:90px;background:#dc2626;border-color:#dc2626;">确认删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-wrap" id="toastWrap" style="display:none;"></div>
+
+<script src="js/sidebar.js"></script>
+<script>
+// 权限校验与导航渲染
+const role = localStorage.getItem('userRole') || 'manager';
+if (role !== 'manager' && typeof isAdminRole === 'function' && !isAdminRole(role)) {
+  alert('您没有权限访问该功能，仅管理员可见。');
+  window.location.href = 'index.html';
+}
+renderSidebar({ currentPage: 'deliveries', role });
+
+let DELIVERIES = [
+  { id:'D20260728001', name:'平安银行-小微普惠2026Q2', remark:'苏州辖区，注册资本500万以上，成立2年+', source:'联合征信平台', count:380, customCols:['近一年营收'], pool:true, deliveredAt:'2026-07-28 09:42', sender:'张铁', status:'new', fileName:'平安银行-小微普惠2026Q2_加密.xlsx', fileSize:'2.3 MB', fields:[{col:'企业名称',mapped:'企业名称',type:'必填'},{col:'统一社会信用代码',mapped:'社会信用代码',type:'必填'},{col:'法人姓名',mapped:'法人',type:'可选'},{col:'注册资本(万元)',mapped:'注册资本',type:'可选'},{col:'近一年营收(万元)',mapped:'最近一年营业收入',type:'可选'},{col:'信用评分',mapped:'评分',type:'可选'}], preview:[{name:'苏州科技有限公司',uscc:'91320500MA1T****X1',score:728},{name:'南京创新智造集团',uscc:'91320100MA2P****X2',score:691},{name:'无锡精密机械股份',uscc:'91320200MA3Q****X3',score:715}]},
+  { id:'D20260728002', name:'平安银行-小微普惠2026Q2（追加）', remark:'追加10个江北区企业，平均评分720+', source:'联合征信平台', count:120, customCols:['近一年营收'], pool:true, deliveredAt:'2026-07-28 11:15', sender:'张薇', status:'new', fileName:'平安银行-小微普惠2026Q2_追加_加密.xlsx', fileSize:'0.8 MB', fields:[{col:'企业名称',mapped:'企业名称',type:'必填'},{col:'统一社会信用代码',mapped:'社会信用代码',type:'必填'},{col:'法人姓名',mapped:'法人',type:'可选'},{col:'近一年营收(万元)',mapped:'最近一年营业收入',type:'可选'},{col:'信用评分',mapped:'评分',type:'可选'}], preview:[{name:'南京光电材料研究院',uscc:'91320100MA5A****X4',score:744},{name:'苏州生物医药有限公司',uscc:'91320500MA6B****X5',score:722}]},
+  { id:'D20260720001', name:'招商银行-科创企业名单', remark:'招商银行，科创+专精特新方向', source:'联合征信平台', count:230, customCols:['专利数','资质评级'], pool:true, deliveredAt:'2026-07-20 14:30', sender:'李宁', status:'received', fileName:'招商银行-科创企业名单_加密.xlsx', fileSize:'1.6 MB', fields:[{col:'企业名称',mapped:'企业名称',type:'必填'},{col:'统一社会信用代码',mapped:'社会信用代码',type:'必填'},{col:'专利数',mapped:'专利数量',type:'可选'},{col:'资质评级',mapped:'高企/专精特新等级',type:'可选'},{col:'信用评分',mapped:'评分',type:'可选'}], preview:[{name:'南京半导体科技集团',uscc:'91320100MA8C****X6',score:761},{name:'苏州集成电路设计院',uscc:'91320500MA9D****X7',score:738}]},
+  { id:'D20260715001', name:'农业银行-惠农贷客群', remark:'农业银行，全省农业经营主体', source:'省征信中心', count:560, customCols:['行业类型','经营年限'], pool:true, deliveredAt:'2026-07-15 10:00', sender:'王芳', status:'received', fileName:'农业银行-惠农贷客群_加密.xlsx', fileSize:'3.7 MB', fields:[{col:'企业名称',mapped:'企业名称',type:'必填'},{col:'统一社会信用代码',mapped:'社会信用代码',type:'必填'},{col:'行业类型',mapped:'所属行业大类',type:'可选'},{col:'经营年限',mapped:'存续时间',type:'可选'},{col:'信用评分',mapped:'评分',type:'可选'}], preview:[{name:'盐城绿源农业发展公司',uscc:'91320900MAA****X8',score:682},{name:'淮安粮食购销合作社',uscc:'91320803MAB****X9',score:670}]},
+  { id:'D20260712001', name:'农业银行-惠农贷客群（追加）', remark:'苏北地区追加补充，农业经营主体', source:'省征信中心', count:180, customCols:['行业类型'], pool:true, deliveredAt:'2026-07-12 16:22', sender:'王芳', status:'received', fileName:'农业银行-惠农贷客群_追加_加密.xlsx', fileSize:'1.2 MB', fields:[{col:'企业名称',mapped:'企业名称',type:'必填'},{col:'统一社会信用代码',mapped:'社会信用代码',type:'必填'},{col:'行业类型',mapped:'所属行业大类',type:'可选'},{col:'信用评分',mapped:'评分',type:'可选'}], preview:[{name:'徐州金色农场有限公司',uscc:'91320300MAC****YA',score:665}]},
+  { id:'D20260710001', name:'农业银行-惠农贷客群（第三批）', remark:'第三批次补充，聚焦养殖、渔业经营主体', source:'省征信中心', count:90, customCols:[], pool:false, deliveredAt:'2026-07-10 09:15', sender:'王芳', status:'received', fileName:'农业银行-惠农贷客群_第三批_加密.xlsx', fileSize:'0.6 MB', fields:[{col:'企业名称',mapped:'企业名称',type:'必填'},{col:'统一社会信用代码',mapped:'社会信用代码',type:'必填'},{col:'信用评分',mapped:'评分',type:'可选'}], preview:[{name:'连云港海洋渔业合作社',uscc:'91320700MAD****YB',score:651}]},
+  { id:'D20260705001', name:'江苏银行-厂房贷企业', remark:'自贸区平台工业企业，主营制造业', source:'联合征信平台', count:145, customCols:['厂房面积','经营年限'], pool:true, deliveredAt:'2026-07-05 11:30', sender:'陈静', status:'received', fileName:'江苏银行-厂房贷企业_加密.xlsx', fileSize:'1.0 MB', fields:[{col:'企业名称',mapped:'企业名称',type:'必填'},{col:'统一社会信用代码',mapped:'社会信用代码',type:'必填'},{col:'厂房面积(㎡)',mapped:'自持工业房产面积',type:'可选'},{col:'经营年限',mapped:'存续时间',type:'可选'},{col:'信用评分',mapped:'评分',type:'可选'}], preview:[{name:'苏州精密制造科技有限公司',uscc:'91320500MAE****YC',score:703}]},
+  { id:'D20260701001', name:'南京银行-外贸企业名单', remark:'南京银行，出口创汇，展业2年以上', source:'联合征信平台', count:210, customCols:['出口额','海关评级'], pool:true, deliveredAt:'2026-07-01 15:00', sender:'刘洋', status:'received', fileName:'南京银行-外贸企业名单_加密.xlsx', fileSize:'1.4 MB', fields:[{col:'企业名称',mapped:'企业名称',type:'必填'},{col:'统一社会信用代码',mapped:'社会信用代码',type:'必填'},{col:'出口额(万元)',mapped:'上一年度出口总金额',type:'可选'},{col:'海关评级',mapped:'海关信用状况评级',type:'可选'},{col:'信用评分',mapped:'评分',type:'可选'}], preview:[{name:'南京华远进出口贸易公司',uscc:'91320100MAF****YD',score:718}]},
+  { id:'D20260625001', name:'平安银行-税务企业名单', remark:'纳税评级B级及以上企业', source:'联合征信平台', count:320, customCols:['纳税评级','开票金额'], pool:true, deliveredAt:'2026-06-25 10:45', sender:'张薇', status:'received', fileName:'平安银行-税务企业名单_加密.xlsx', fileSize:'2.1 MB', fields:[{col:'企业名称',mapped:'企业名称',type:'必填'},{col:'统一社会信用代码',mapped:'社会信用代码',type:'必填'},{col:'纳税评级',mapped:'上一年度税务信用评级',type:'可选'},{col:'开票金额(万元)',mapped:'年开票额统计',type:'可选'},{col:'信用评分',mapped:'评分',type:'可选'}], preview:[{name:'苏州纺织集团有限公司',uscc:'91320500MAG****YE',score:695}]}
+];
+
+let currentPage = 1, pageSize = 10;
+let filtered = [...DELIVERIES];
+let confirmCallback = null;
+
+function filterTable() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const pool = document.getElementById('poolFilter').value;
+  filtered = DELIVERIES.filter(d => {
+    const mq = !q || d.name.toLowerCase().includes(q) || (d.remark && d.remark.toLowerCase().includes(q));
+    const mPool = pool === '' || String(d.pool) === pool;
+    return mq && mPool;
+  });
+  currentPage = 1;
+  renderTable();
+}
+
+function renderTable() {
+  const total = filtered.length;
+  document.getElementById('resultCount').textContent = '共 ' + total + ' 条记录';
+  const start = (currentPage - 1) * pageSize;
+  const page = filtered.slice(start, start + pageSize);
+  const tbody = document.getElementById('tableBody');
+
+  if (!page.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:48px;color:var(--gray-400);">暂无符合条件的名单交付记录</td></tr>';
+  } else {
+    tbody.innerHTML = page.map((r, idx) => {
+      const colBadges = r.customCols.length
+        ? r.customCols.map(c => '<span class="col-badge">' + c + '</span>').join('')
+        : '<span style="color:var(--gray-300);font-size:12px;">—</span>';
+      const newTag = r.status === 'new' ? '<span class="new-badge">NEW</span>' : '';
+      return '<tr>' +
+        '<td style="color:var(--gray-400);font-size:12.5px;">' + (start + idx + 1) + '</td>' +
+        '<td>' +
+          '<span class="delivery-name" onclick="openDrawer(\'' + r.id + '\')">' + r.name + '</span>' + newTag +
+          (r.remark ? '<span class="delivery-remark" title="' + r.remark + '">' + r.remark + '</span>' : '') +
+        '</td>' +
+        '<td><strong>' + r.count.toLocaleString() + '</strong> 家</td>' +
+        '<td>' + colBadges + '</td>' +
+        '<td><span class="status-badge ' + (r.pool ? 'status-in-pool' : 'status-archived') + '">' + (r.pool ? '已入池' : '仅存档') + '</span></td>' +
+        '<td style="color:var(--gray-500);font-size:12.5px;">' + r.deliveredAt + '</td>' +
+        '<td style="color:var(--gray-600);">' + r.sender + '</td>' +
+        '<td style="text-align:right;white-space:nowrap;">' +
+          '<button class="btn btn-default btn-sm" onclick="openDrawer(\'' + r.id + '\')" style="font-size:12px;margin-right:6px;padding:3px 10px;background:#fff;border:1px solid var(--border);color:var(--gray-700);border-radius:6px;cursor:pointer;">查看</button>' +
+          '<button class="btn btn-sm" onclick="downloadFile(\'' + r.id + '\')" style="font-size:12px;margin-right:6px;padding:3px 10px;color:#15803d;border:1px solid #86efac;background:#dcfce7;border-radius:6px;cursor:pointer;">下载</button>' +
+          '<button class="btn btn-sm" onclick="prepareDelete(\'' + r.id + '\',\'' + r.name + '\')" style="font-size:12px;padding:3px 10px;color:#dc2626;border:1px solid #fecaca;background:#fff;border-radius:6px;cursor:pointer;">删除</button>' +
+        '</td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  // 渲染分页控件
+  const totalPages = Math.ceil(total / pageSize) || 1;
+  document.getElementById('paginationInfo').textContent =
+    total ? '显示 1 到 ' + page.length + ' 条，共 ' + total + ' 条记录' : '共 0 条记录';
+
+  let btns = '<button class="page-btn" onclick="goPage(' + (currentPage-1) + ')" ' + (currentPage===1?'disabled':'') + '><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>';
+  for (let i = 1; i <= totalPages; i++) {
+    btns += '<button class="page-btn ' + (i===currentPage?'active':'') + '" onclick="goPage(' + i + ')">' + i + '</button>';
+  }
+  btns += '<button class="page-btn" onclick="goPage(' + (currentPage+1) + ')" ' + (currentPage===totalPages?'disabled':'') + '><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>';
+  document.getElementById('paginationControls').innerHTML = btns;
+}
+
+function goPage(p) {
+  const t = Math.ceil(filtered.length / pageSize) || 1;
+  if (p < 1 || p > t) return;
+  currentPage = p;
+  renderTable();
+}
+
+/* ════════ 详情抽屉 ════════ */
+function openDrawer(id) {
+  const d = DELIVERIES.find(x => x.id === id);
+  if (!d) return;
+  if (d.status === 'new') {
+    d.status = 'received';
+    renderTable();
+  }
+  document.getElementById('drawerTitle').textContent = d.name;
+  document.getElementById('drawerSubtitle').textContent = '交付编号：' + d.id + '  ·  由 ' + d.sender + ' 交付';
+  const fr = (d.fields||[]).map(f =>
+    '<tr><td style="color:var(--gray-500);">' + f.col + '</td><td style="font-weight:600;">' + f.mapped + '</td><td><span class="' + (f.type==='必填'?'field-required':'field-optional') + '">' + f.type + '</span></td></tr>'
+  ).join('');
+  const pr = (d.preview||[]).map(p =>
+    '<tr><td style="font-weight:600;">' + p.name + '</td><td style="font-size:12px;color:var(--gray-500);">' + p.uscc + '</td><td style="font-weight:700;color:var(--brand);">' + p.score + '</td></tr>'
+  ).join('');
+  document.getElementById('drawerBody').innerHTML =
+    '<div class="detail-section"><div class="detail-section-title">基本信息</div><div class="detail-grid">' +
+    '<div class="detail-item"><label>名单编号</label><span>' + d.id + '</span></div>' +
+    '<div class="detail-item"><label>企业数量</label><span>' + d.count.toLocaleString() + ' 家</span></div>' +
+    '<div class="detail-item"><label>交付时间</label><span>' + d.deliveredAt + '</span></div>' +
+    '<div class="detail-item"><label>交付来源</label><span>' + d.source + ' (' + d.sender + ')</span></div>' +
+    '<div class="detail-item"><label>导入机构客户池</label><span>' + (d.pool?'已入池':'仅存档') + '</span></div>' +
+    '<div class="detail-item"><label>备注说明</label><span style="font-size:12.5px;">' + (d.remark||'—') + '</span></div>' +
+    '</div></div>' +
+    '<div class="detail-section"><div class="detail-section-title">数据文件</div>' +
+    '<div class="file-download-card">' +
+    '<div class="file-icon-wrap"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg></div>' +
+    '<div class="file-info"><div class="file-name">' + d.fileName + '</div><div class="file-meta">AES-256 加密 · ' + d.fileSize + ' · 交付时间 ' + d.deliveredAt + '</div></div>' +
+    '<button class="btn btn-sm" onclick="downloadFile(\'' + d.id + '\')" style="font-size:12px;color:#15803d;border:1px solid #86efac;background:#dcfce7;border-radius:6px;cursor:pointer;">下载</button>' +
+    '</div></div>' +
+    '<div class="detail-section"><div class="detail-section-title">字段映射规则</div>' +
+    '<table class="field-table"><thead><tr><th>原始列名</th><th>系统映射字段</th><th>字段类型</th></tr></thead><tbody>' + fr + '</tbody></table></div>' +
+    '<div class="detail-section"><div class="detail-section-title">数据预览（前 ' + d.preview.length + ' 条，脱敏展示）</div>' +
+    '<table class="field-table"><thead><tr><th>企业名称</th><th>社会信用代码</th><th>信用评分</th></tr></thead><tbody>' + pr + '</tbody></table>' +
+    '<div style="margin-top:10px;font-size:12px;color:var(--gray-400);">仅展示部分数据，完整企业清单及联调字段请下载原始 Excel 文件。</div></div>';
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('detailDrawer').classList.add('show');
+}
+
+function closeDrawer() {
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('detailDrawer').classList.remove('show');
+}
+
+function downloadFile(id) {
+  const d = DELIVERIES.find(x => x.id === id);
+  if (!d) return;
+  if (d.status === 'new') {
+    d.status = 'received';
+    renderTable();
+  }
+  showToast('⬇️ 开始下载：' + d.fileName);
+}
+
+/* ════════ 删除 / 移除 ════════ */
+function prepareDelete(id, name) {
+  openConfirm(
+    '确认删除？',
+    '将删除交付名单「' + name + '」，此操作仅在机构端列表中移除记录。',
+    function() {
+      DELIVERIES = DELIVERIES.filter(r => r.id !== id);
+      filterTable();
+      showToast('已移除交付记录');
+    }
+  );
+}
+
+function openConfirm(title, desc, cb) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmDesc').textContent = desc;
+  confirmCallback = cb;
+  document.getElementById('confirmModal').classList.add('show');
+  document.getElementById('confirmOkBtn').onclick = function() {
+    closeConfirm();
+    if(confirmCallback) confirmCallback();
+  };
+}
+
+function closeConfirm() {
+  document.getElementById('confirmModal').classList.remove('show');
+}
+
+document.getElementById('confirmModal').addEventListener('click', function(e) {
+  if (e.target === this) closeConfirm();
+});
+
+/* ════════ Toast ════════ */
+function showToast(msg) {
+  const wrap = document.getElementById('toastWrap');
+  wrap.textContent = msg;
+  wrap.style.display = 'block';
+  wrap.style.position = 'fixed';
+  wrap.style.top = '24px';
+  wrap.style.left = '50%';
+  wrap.style.transform = 'translateX(-50%)';
+  wrap.style.background = '#1e293b';
+  wrap.style.color = '#fff';
+  wrap.style.padding = '10px 20px';
+  wrap.style.borderRadius = '8px';
+  wrap.style.fontSize = '13.5px';
+  wrap.style.zIndex = '9999';
+  wrap.style.boxShadow = '0 8px 24px rgba(0,0,0,0.18)';
+  setTimeout(() => { wrap.style.display = 'none'; }, 2400);
+}
+
+renderTable();
+</script>
+</body>
+</html>

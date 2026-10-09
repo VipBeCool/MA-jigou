@@ -108,6 +108,30 @@
       width: 100%;
       overflow-x: auto;
     }
+
+    /* 批次直达营销名单链接 */
+    .batch-link {
+      color: var(--brand, #059669);
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s ease;
+    }
+    .batch-link:hover {
+      color: #047857;
+      text-decoration: underline;
+    }
+    .batch-link svg {
+      opacity: 0.55;
+      transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+    .batch-link:hover svg {
+      opacity: 1;
+      transform: translateX(1px);
+    }
   </style>
 </head>
 <body>
@@ -142,9 +166,8 @@
             数据汇总
           </h3>
           <div class="dim-tabs" id="dimTabs">
-            <div class="dim-tab active" onclick="switchDim('batch', this)">按批次</div>
-            <div class="dim-tab" onclick="switchDim('org', this)">按机构</div>
-            <div class="dim-tab" onclick="switchDim('member', this)">按客户经理</div>
+            <div class="dim-tab active" data-dim="batch" onclick="switchDim('batch', this)">按批次</div>
+            <div class="dim-tab" data-dim="member" onclick="switchDim('member', this)">按客户经理</div>
           </div>
         </div>
         <div class="rpt-filters" id="tableFilters"></div>
@@ -298,49 +321,114 @@ function totalByStatus(data) {
    渲染
 ═══════════════════════════════════════ */
 
+
+
 let currentDim = 'batch';
 let filterOrg = 'all';
 let filterBatch = 'all';
+let searchKeyword = '';
 
+function onSearchInput(val) {
+  searchKeyword = (val || '').trim();
+  renderTable();
+}
 
+function clearSearch() {
+  searchKeyword = '';
+  const inputEl = document.getElementById('tblSearchKeyword');
+  if (inputEl) inputEl.value = '';
+  renderTable();
+}
+
+function resetBatchFilter() {
+  filterBatch = 'all';
+  const batchEl = document.getElementById('tblFilterBatch');
+  if (batchEl) batchEl.value = 'all';
+  renderTableFilters();
+  renderTable();
+}
+
+// 从批次下钻到客户经理
+function drillDownMember(batchName) {
+  currentDim = 'member';
+  filterBatch = batchName;
+  searchKeyword = '';
+
+  document.querySelectorAll('.dim-tab').forEach(e => {
+    e.classList.toggle('active', e.getAttribute('data-dim') === 'member');
+  });
+  renderTableFilters();
+  renderTable();
+  if (window.showToast) {
+    showToast(`已下钻查看批次【${batchName.length > 12 ? batchName.slice(0, 12) + '…' : batchName}】各客户经理跟进情况`, 'info');
+  }
+}
 
 function getTableData() {
   let data = [...RAW_DATA];
-  // 应用机构筛选
+  // 应用分支行筛选
   const orgEl = document.getElementById('tblFilterOrg');
   const batchEl = document.getElementById('tblFilterBatch');
-  if (orgEl && orgEl.value !== 'all') data = data.filter(d => d.org === orgEl.value);
-  if (batchEl && batchEl.value !== 'all') data = data.filter(d => d.batch === batchEl.value);
+  if (orgEl) filterOrg = orgEl.value;
+  if (batchEl) filterBatch = batchEl.value;
+
+  if (filterOrg !== 'all') data = data.filter(d => d.org === filterOrg);
+  if (filterBatch !== 'all') data = data.filter(d => d.batch === filterBatch);
+
+  if (searchKeyword) {
+    const kw = searchKeyword.toLowerCase();
+    if (currentDim === 'batch') {
+      data = data.filter(d => (d.batch || '').toLowerCase().includes(kw));
+    } else {
+      data = data.filter(d => (d.member || '').toLowerCase().includes(kw));
+    }
+  }
   return data;
 }
-
-
 
 // 渲染表格筛选
 function renderTableFilters() {
   let html = '';
-  if (currentDim === 'member') {
-    html += `
-      <select class="form-control" style="width:auto;" id="tblFilterOrg" onchange="renderTable()">
-        <option value="all">全部机构</option>
-        ${ORGS.map(o => `<option value="${o}">${o}</option>`).join('')}
-      </select>
-    `;
-  }
-  if (currentDim !== 'batch') {
-    html += `
-      <select class="form-control" style="width:auto;" id="tblFilterBatch" onchange="renderTable()">
-        <option value="all">全部批次</option>
-        ${BATCHES.map(b => `<option value="${b}">${b.length > 20 ? b.slice(0, 20) + '…' : b}</option>`).join('')}
-      </select>
-    `;
-  }
   if (currentDim === 'batch') {
-    html += `
-      <select class="form-control" style="width:auto;" id="tblFilterOrg" onchange="renderTable()">
-        <option value="all">全部机构</option>
-        ${ORGS.map(o => `<option value="${o}">${o}</option>`).join('')}
-      </select>
+    html = `
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:13px;color:var(--gray-600);font-weight:500;">分支行：</span>
+        <select class="form-control" style="width:auto;min-width:130px;" id="tblFilterOrg" onchange="renderTable()">
+          <option value="all">全部分支行</option>
+          ${ORGS.map(o => `<option value="${o}" ${filterOrg === o ? 'selected' : ''}>${o}</option>`).join('')}
+        </select>
+      </div>
+      <div style="position:relative;display:flex;align-items:center;">
+        <input type="text" class="form-control" id="tblSearchKeyword" placeholder="搜索批次名称..." value="${searchKeyword}" oninput="onSearchInput(this.value)" style="width:200px;padding-right:26px;">
+        ${searchKeyword ? `<span onclick="clearSearch()" style="position:absolute;right:8px;cursor:pointer;color:var(--gray-400);font-size:12px;" title="清空搜索">✕</span>` : ''}
+      </div>
+    `;
+  } else if (currentDim === 'member') {
+    html = `
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:13px;color:var(--gray-600);font-weight:500;">分支行：</span>
+        <select class="form-control" style="width:auto;min-width:130px;" id="tblFilterOrg" onchange="renderTable()">
+          <option value="all">全部分支行</option>
+          ${ORGS.map(o => `<option value="${o}" ${filterOrg === o ? 'selected' : ''}>${o}</option>`).join('')}
+        </select>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:13px;color:var(--gray-600);font-weight:500;">所属批次：</span>
+        <select class="form-control" style="width:auto;max-width:240px;" id="tblFilterBatch" onchange="renderTable()">
+          <option value="all">全部批次</option>
+          ${BATCHES.map(b => `<option value="${b}" ${filterBatch === b ? 'selected' : ''}>${b.length > 20 ? b.slice(0, 20) + '…' : b}</option>`).join('')}
+        </select>
+      </div>
+      <div style="position:relative;display:flex;align-items:center;">
+        <input type="text" class="form-control" id="tblSearchKeyword" placeholder="搜索客户经理..." value="${searchKeyword}" oninput="onSearchInput(this.value)" style="width:160px;padding-right:26px;">
+        ${searchKeyword ? `<span onclick="clearSearch()" style="position:absolute;right:8px;cursor:pointer;color:var(--gray-400);font-size:12px;" title="清空搜索">✕</span>` : ''}
+      </div>
+      ${filterBatch !== 'all' ? `
+        <div style="display:flex;align-items:center;gap:6px;padding:4px 10px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:14px;font-size:12px;color:#047857;">
+          <span>已锁定批次：<strong>${filterBatch.length > 15 ? filterBatch.slice(0, 15) + '…' : filterBatch}</strong></span>
+          <span onclick="resetBatchFilter()" style="cursor:pointer;font-weight:bold;margin-left:4px;" title="解除批次锁定">✕</span>
+        </div>
+      ` : ''}
     `;
   }
   document.getElementById('tableFilters').innerHTML = html;
@@ -351,12 +439,10 @@ function renderTable() {
   const data = getTableData();
   let groupKey, nameLabel;
   if (currentDim === 'batch')  { groupKey = 'batch';  nameLabel = '批次名称'; }
-  if (currentDim === 'org')    { groupKey = 'org';    nameLabel = '机构名称'; }
   if (currentDim === 'member') { groupKey = 'member'; nameLabel = '客户经理'; }
 
   const rows = aggregate(data, groupKey);
   const totals = totalByStatus(data);
-  const maxTotal = Math.max(...rows.map(r => r._total), 1);
 
   // 显示所有状态列
   const activeCols = STATUS_LIST;
@@ -364,7 +450,7 @@ function renderTable() {
   let html = `<thead><tr>
     <th style="width:36px;">序号</th>
     <th>${nameLabel}</th>
-    ${currentDim === 'member' ? '<th>所属机构</th>' : ''}
+    ${currentDim === 'member' ? '<th>所属分支行</th>' : ''}
     <th class="num">总量</th>
     ${activeCols.map(s => `<th class="num">${s}</th>`).join('')}
     <th class="num">触达率</th>
@@ -372,45 +458,56 @@ function renderTable() {
   </tr></thead>`;
 
   html += '<tbody>';
-  rows.forEach((r, i) => {
-    const touchedCount = r._total - (r['待触达'] || 0);
-    const intentCount = (r['有意向'] || 0) + (r['已申请'] || 0) + (r['已授信'] || 0) + (r['已放款'] || 0);
-    const touchRate = r._total > 0 ? ((touchedCount / r._total) * 100).toFixed(1) : '0.0';
-    const intentRate = touchedCount > 0 ? ((intentCount / touchedCount) * 100).toFixed(1) : '0.0';
-    const rankCls = i === 0 ? 'r1' : i === 1 ? 'r2' : i === 2 ? 'r3' : 'rn';
+  if (rows.length === 0) {
+    const colSpan = (currentDim === 'member' ? 1 : 0) + 3 + activeCols.length;
+    html += `<tr><td colspan="${colSpan}" style="text-align:center;padding:36px;color:var(--gray-400);">暂无符合筛选条件的数据</td></tr>`;
+  } else {
+    rows.forEach((r, i) => {
+      const touchedCount = r._total - (r['待触达'] || 0);
+      const intentCount = (r['有意向'] || 0) + (r['已申请'] || 0) + (r['已授信'] || 0) + (r['已放款'] || 0);
+      const touchRate = r._total > 0 ? ((touchedCount / r._total) * 100).toFixed(1) : '0.0';
+      const intentRate = touchedCount > 0 ? ((intentCount / touchedCount) * 100).toFixed(1) : '0.0';
+      const rankCls = i === 0 ? 'r1' : i === 1 ? 'r2' : i === 2 ? 'r3' : 'rn';
 
-    const memberOrg = currentDim === 'member' ? MEMBERS.find(m => m.name === r._key)?.org || '' : '';
-    const displayName = currentDim === 'batch' && r._key.length > 30 ? r._key.slice(0, 30) + '…' : r._key;
+      const memberOrg = currentDim === 'member' ? MEMBERS.find(m => m.name === r._key)?.org || '' : '';
+      const displayName = currentDim === 'batch' && r._key.length > 30 ? r._key.slice(0, 30) + '…' : r._key;
+      const nameCellHtml = currentDim === 'batch'
+        ? `<a href="customers.html?batch=${encodeURIComponent(r._key)}" class="batch-link" title="点击跳转至营销名单，并自动选中该批次">
+            <span>${displayName}</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+          </a>`
+        : displayName;
 
-    html += `<tr>
-      <td><span class="rank-badge ${rankCls}">${i + 1}</span></td>
-      <td title="${r._key}" style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${displayName}</td>
-      ${currentDim === 'member' ? `<td style="color:var(--gray-500);font-size:12px;">${memberOrg}</td>` : ''}
-      <td class="num" style="font-weight:800;color:var(--gray-900);">${r._total.toLocaleString()}</td>
-      ${activeCols.map(s => {
-        const val = r[s] || 0;
-        return `<td class="num">${val.toLocaleString()}</td>`;
-      }).join('')}
-      <td class="num">${touchRate}%</td>
-      <td class="num">${intentRate}%</td>
+      html += `<tr>
+        <td><span class="rank-badge ${rankCls}">${i + 1}</span></td>
+        <td title="${r._key}" style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${nameCellHtml}</td>
+        ${currentDim === 'member' ? `<td style="color:var(--gray-500);font-size:12px;">${memberOrg}</td>` : ''}
+        <td class="num" style="font-weight:800;color:var(--gray-900);">${r._total.toLocaleString()}</td>
+        ${activeCols.map(s => {
+          const val = r[s] || 0;
+          return `<td class="num">${val.toLocaleString()}</td>`;
+        }).join('')}
+        <td class="num">${touchRate}%</td>
+        <td class="num">${intentRate}%</td>
+      </tr>`;
+    });
+
+    // 合计行
+    const totalTouched = totals._total - (totals['待触达'] || 0);
+    const totalIntent = (totals['有意向'] || 0) + (totals['已申请'] || 0) + (totals['已授信'] || 0) + (totals['已放款'] || 0);
+    const totalTouchRate = totals._total > 0 ? ((totalTouched / totals._total) * 100).toFixed(1) : '0.0';
+    const totalIntentRate = totalTouched > 0 ? ((totalIntent / totalTouched) * 100).toFixed(1) : '0.0';
+
+    html += `<tr class="total-row">
+      <td></td>
+      <td>合计</td>
+      ${currentDim === 'member' ? '<td></td>' : ''}
+      <td class="num">${totals._total.toLocaleString()}</td>
+      ${activeCols.map(s => `<td class="num">${(totals[s] || 0).toLocaleString()}</td>`).join('')}
+      <td class="num">${totalTouchRate}%</td>
+      <td class="num">${totalIntentRate}%</td>
     </tr>`;
-  });
-
-  // 合计行
-  const totalTouched = totals._total - (totals['待触达'] || 0);
-  const totalIntent = (totals['有意向'] || 0) + (totals['已申请'] || 0) + (totals['已授信'] || 0) + (totals['已放款'] || 0);
-  const totalTouchRate = totals._total > 0 ? ((totalTouched / totals._total) * 100).toFixed(1) : '0.0';
-  const totalIntentRate = totalTouched > 0 ? ((totalIntent / totalTouched) * 100).toFixed(1) : '0.0';
-
-  html += `<tr class="total-row">
-    <td></td>
-    <td>合计</td>
-    ${currentDim === 'member' ? '<td></td>' : ''}
-    <td class="num">${totals._total.toLocaleString()}</td>
-    ${activeCols.map(s => `<td class="num">${(totals[s] || 0).toLocaleString()}</td>`).join('')}
-    <td class="num">${totalTouchRate}%</td>
-    <td class="num">${totalIntentRate}%</td>
-  </tr>`;
+  }
 
   html += '</tbody>';
   document.getElementById('dataTable').innerHTML = html;
@@ -420,12 +517,16 @@ function renderTable() {
 function switchDim(dim, el) {
   currentDim = dim;
   document.querySelectorAll('.dim-tab').forEach(e => e.classList.remove('active'));
-  el.classList.add('active');
+  if (el) {
+    el.classList.add('active');
+  } else {
+    const tabEl = document.querySelector(`.dim-tab[data-dim="${dim}"]`);
+    if (tabEl) tabEl.classList.add('active');
+  }
+  searchKeyword = '';
   renderTableFilters();
   renderTable();
 }
-
-
 
 // 全部渲染
 function renderAll() {

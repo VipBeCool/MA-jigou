@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+  <title>机构客户池 - 智能营销平台</title>
+  <meta name="description" content="智能营销平台机构客户池，提供全量去重的在贷客户视图、画像标签、五级分类与存量导入服务">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="css/style.css?v=1783867207">
+  <style>
+    /* 客户池专属样式 */
+    .pool-filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      background: var(--bg-card);
+      padding: 16px 20px;
+      border-radius: var(--r-md);
+      border: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .tag-source {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .tag-agent { background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0; }
+    .tag-delivery { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+    .tag-import { background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; }
+
+    /* 五级分类徽章 */
+    .cls-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .cls-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .cls-normal { color: #16a34a; }
+    .cls-normal .cls-dot { background: #16a34a; }
+    .cls-attention { color: #d97706; }
+    .cls-attention .cls-dot { background: #f59e0b; }
+    .cls-bad { color: #dc2626; }
+    .cls-bad .cls-dot { background: #ef4444; }
+
+    /* 状态推断标签 */
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .chip-stable { background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; }
+    .chip-expand { background: #f8fafc; color: #334155; border: 1px solid #cbd5e1; }
+    .chip-down   { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+    .chip-clear  { background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; }
+
+    /* 模态框样式扩展 */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(2px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .modal-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-dialog {
+      background: #fff;
+      border-radius: 16px;
+      width: 580px;
+      max-width: 90vw;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      transform: translateY(12px);
+      transition: transform 0.2s ease;
+    }
+    .modal-overlay.show .modal-dialog {
+      transform: translateY(0);
+    }
+    .modal-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--gray-900);
+    }
+    .modal-body {
+      padding: 24px;
+    }
+    .modal-footer {
+      padding: 14px 24px;
+      background: var(--gray-50);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    .dropzone {
+      border: 2px dashed var(--gray-300);
+      border-radius: 10px;
+      padding: 30px 20px;
+      text-align: center;
+      background: var(--gray-50);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .dropzone:hover {
+      border-color: var(--brand);
+      background: var(--brand-light);
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main-content anim-fade-in">
+
+    <!-- 顶部标题与功能说明 -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1 class="page-title">机构客户池</h1>
+        <p class="page-breadcrumb">
+          <a href="index.html">工作台</a><span class="sep">/</span>贷后管理<span class="sep">/</span>机构客户池
+        </p>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <button class="btn btn-default" onclick="openImportModal()">
+          <svg style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          批量导入存量客户
+        </button>
+        <button class="btn btn-primary" onclick="batchToRenewal()">
+          <svg style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          转入续贷营销
+        </button>
+      </div>
+    </div>
+
+    <!-- 统计指标小卡片 (4项) -->
+    <div class="stat-cards" style="grid-template-columns: repeat(4, 1fr); margin-bottom:20px;">
+      <div class="stat-card">
+        <div class="stat-label">去重在贷客户总数</div>
+        <div class="stat-value" style="color:var(--gray-900);">1,428 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span></div>
+        <div style="font-size:12px;color:var(--gray-500);margin-top:4px;">覆盖全市重点制造业与科技产业</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">营销智能体推送在贷</div>
+        <div class="stat-value" style="color:var(--gray-900);">860 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户 (60.2%)</span></div>
+        <div style="font-size:12px;color:var(--gray-500);margin-top:4px;">来自专精特新贷、科创贷等智能体</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">客户池导入在贷客户</div>
+        <div class="stat-value" style="color:var(--gray-900);">568 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户 (39.8%)</span></div>
+        <div style="font-size:12px;color:var(--gray-500);margin-top:4px;">已自动纳入信贷与风险连续监控</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">当前预警中企业</div>
+        <div class="stat-value" style="color:var(--gray-900);">34 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span></div>
+        <div style="font-size:12px;color:var(--gray-500);margin-top:4px;">其中五级分类异动 5 户，司法涉诉 11 户</div>
+      </div>
+    </div>
+
+    <!-- 多维复合筛选工具栏 -->
+    <div class="pool-filter-bar">
+      <input type="text" id="searchInput" class="form-control" placeholder="搜索企业名称 / 统一社会信用代码 / 法人..." style="width:260px;" oninput="filterTable()">
+      
+      <select id="sourceFilter" class="form-control" style="width:150px;" onchange="filterTable()">
+        <option value="">全部客户来源</option>
+        <option value="agent">营销智能体推送</option>
+        <option value="delivery">名单交付导入</option>
+        <option value="import">客户池导入</option>
+      </select>
+
+      <select id="clsFilter" class="form-control" style="width:130px;" onchange="filterTable()">
+        <option value="">全部五级分类</option>
+        <option value="normal">正常类</option>
+        <option value="attention">关注类</option>
+        <option value="bad">次级/可疑/不良</option>
+      </select>
+
+      <select id="riskFilter" class="form-control" style="width:130px;" onchange="filterTable()">
+        <option value="">全部预警等级</option>
+        <option value="high">高风险预警</option>
+        <option value="medium">中度预警</option>
+        <option value="low">低风险关注</option>
+        <option value="none">正常无预警</option>
+      </select>
+
+      <select id="branchFilter" class="form-control" style="width:140px;" onchange="filterTable()">
+        <option value="">全部管辖支行</option>
+        <option value="b1">总行营业部</option>
+        <option value="b2">高新科技支行</option>
+        <option value="b3">经开综合支行</option>
+        <option value="b4">自贸创新支行</option>
+      </select>
+
+      <div style="margin-left:auto;display:flex;gap:8px;">
+        <button class="btn btn-default" onclick="resetFilters()">重置</button>
+        <button class="btn btn-default" onclick="exportPool()">
+          <svg style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          导出明细
+        </button>
+      </div>
+    </div>
+
+    <!-- 客户列表数据卡片 -->
+    <div class="card">
+      <div class="card-header" style="padding:14px 20px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:14px;font-weight:700;color:var(--gray-900);">在贷客户全景列表</span>
+          <span class="badge badge-info" id="tableCountBadge">共 1,428 家企业</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;font-size:12px;color:var(--gray-500);">
+          <span>已勾选 <b id="selectedCount" style="color:var(--brand);">0</b> 家</span>
+        </div>
+      </div>
+
+      <div class="card-body" style="padding:0;">
+        <table class="table" style="margin:0;">
+          <thead>
+            <tr>
+              <th style="width:40px;text-align:center;">
+                <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)">
+              </th>
+              <th style="width:50px;text-align:center;">序号</th>
+              <th style="width:260px;">企业信息</th>
+              <th>客户来源</th>
+              <th>法定代表人</th>
+              <th>当前五级分类</th>
+              <th>风险预警等级</th>
+              <th>信贷推断状态</th>
+              <th>管辖支行 / 客户经理</th>
+              <th style="text-align:right;width:130px;">操作</th>
+            </tr>
+          </thead>
+          <tbody id="customerTableBody">
+            <!-- 客户数据由 JS 动态渲染 -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 分页栏 -->
+      <div style="padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--gray-500);">
+        <span>显示第 1 到 8 条，共 1,428 条记录</span>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-sm btn-default" disabled>上一页</button>
+          <button class="btn btn-sm btn-primary">1</button>
+          <button class="btn btn-sm btn-default">2</button>
+          <button class="btn btn-sm btn-default">3</button>
+          <button class="btn btn-sm btn-default">下一页</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- 批量导入存量客户 Modal -->
+<div class="modal-overlay" id="importModal">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <div class="modal-title">批量导入存量在贷客户</div>
+      <button class="btn modal-close-btn" onclick="closeImportModal()" style="font-size:18px;color:var(--gray-400);line-height:1;">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--gray-600);margin-bottom:16px;">
+        导入银行存量贷款客户名单后，系统将自动进行去重比对，并接入<b>征信五级分类跟踪</b>与<b>实时司法/工商预警</b>。
+      </p>
+
+      <div class="dropzone" id="importDropZone" onclick="document.getElementById('fileUploadInput').click()"
+        ondragover="event.preventDefault(); this.style.borderColor='var(--brand)'; this.style.background='#f0fbf6';"
+        ondragleave="this.style.borderColor='var(--gray-300)'; this.style.background='#fafafa';"
+        ondrop="event.preventDefault(); this.style.borderColor='var(--gray-300)'; this.style.background='#fafafa'; handleBankImportFile(event.dataTransfer)">
+        <div style="margin-bottom:8px;color:var(--brand);">
+          <svg viewBox="0 0 24 24" style="width:36px;height:36px;stroke:currentColor;fill:none;stroke-width:1.5;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        </div>
+        <div style="font-size:14px;font-weight:600;color:var(--gray-800);">点击上传或拖拽 Excel 文件到此处</div>
+        <div style="font-size:12px;color:var(--gray-400);margin-top:4px;">支持 .xlsx, .xls, .csv 格式 (单次最多 5,000 条)</div>
+      </div>
+      <input type="file" id="fileUploadInput" accept=".xlsx,.xls,.csv" style="display:none;" onchange="handleBankImportFile(this)">
+
+      <!-- 选中文件卡片展示 -->
+      <div id="importFileInfo" style="display:none;margin-top:10px;padding:10px 14px;background:#f8fafc;border-radius:8px;font-size:13px;border:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;">
+        <span id="importFileName" style="display:flex;align-items:center;"></span>
+        <button class="btn btn-ghost btn-sm" onclick="clearBankImportFile()" style="padding:4px 8px;color:#dc2626;font-size:12.5px;white-space:nowrap;border:none;background:none;cursor:pointer;">删除</button>
+      </div>
+
+      <div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;font-size:12px;">
+        <span style="color:var(--gray-500);">请严格按标准格式整理企业名称与统一社会信用代码</span>
+        <a href="javascript:downloadTemplate()" style="color:var(--brand);font-weight:600;display:flex;align-items:center;gap:4px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          下载 Excel 导入模版.xlsx
+        </a>
+      </div>
+
+      <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div>
+          <label class="form-label" style="font-size:12px;">默认分配支行</label>
+          <select class="form-control" style="font-size:12.5px;">
+            <option>总行营业部</option>
+            <option>高新科技支行</option>
+            <option>经开综合支行</option>
+            <option>自贸创新支行</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label" style="font-size:12px;">自动启动监控服务</label>
+          <select class="form-control" style="font-size:12.5px;">
+            <option>是 (立即纳入信贷与风险排查)</option>
+            <option>否 (仅先作为台账归档)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeImportModal()">取消</button>
+      <button class="btn btn-primary" onclick="confirmImport()">开始导入与去重比对</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/sidebar.js"></script>
+<script src="js/toast.js"></script>
+<script>
+const role = sessionStorage.getItem('wb_role') || 'manager';
+renderSidebar({ currentPage: 'customer-pool', role });
+
+// 模拟去重在贷客户数据
+const CUSTOMERS = [
+  {
+    id: 'CUST-001',
+    name: '郑州恒创智能装备制造有限公司',
+    uscc: '91410100MA44XXXX01',
+    tags: ['专精特新', '高企', '科创贷批次'],
+    source: 'agent',
+    sourceLabel: '营销智能体推送',
+    corp: '刘恒创',
+    capital: '5,000 万元',
+    cls: 'attention',
+    clsLabel: '关注类',
+    risk: 'high',
+    riskLabel: '高危预警',
+    statusTag: '五级分类下调',
+    statusClass: 'chip-down',
+    branch: '高新科技支行',
+    rm: '李经理'
+  },
+  {
+    id: 'CUST-002',
+    name: '河南中润供应链科技有限公司',
+    uscc: '91410100MA45XXXX02',
+    tags: ['冷链物流', '客户池导入'],
+    source: 'import',
+    sourceLabel: '客户池导入',
+    corp: '张中润',
+    capital: '2,800 万元',
+    cls: 'bad',
+    clsLabel: '次级 (不良)',
+    risk: 'high',
+    riskLabel: '高危风险',
+    statusTag: '司法被执行',
+    statusClass: 'chip-down',
+    branch: '经开综合支行',
+    rm: '刘经理'
+  },
+  {
+    id: 'CUST-003',
+    name: '郑州光泰精密电子材料有限公司',
+    uscc: '91410100MA46XXXX03',
+    tags: ['专精特新小巨人', '瞪羚企业'],
+    source: 'agent',
+    sourceLabel: '营销智能体推送',
+    corp: '赵光泰',
+    capital: '8,200 万元',
+    cls: 'normal',
+    clsLabel: '正常类',
+    risk: 'none',
+    riskLabel: '正常无风险',
+    statusTag: '疑似近期结清',
+    statusClass: 'chip-clear',
+    branch: '总行营业部',
+    rm: '朱某人'
+  },
+  {
+    id: 'CUST-004',
+    name: '河南华信生物医药科技股份有限公司',
+    uscc: '91410100MA47XXXX04',
+    tags: ['生物医药', '上市后备', '名单交付导入'],
+    source: 'delivery',
+    sourceLabel: '名单交付导入',
+    corp: '王华信',
+    capital: '1.2 亿元',
+    cls: 'normal',
+    clsLabel: '正常类',
+    risk: 'none',
+    riskLabel: '正常无风险',
+    statusTag: '信贷扩张中',
+    statusClass: 'chip-expand',
+    branch: '自贸创新支行',
+    rm: '周经理'
+  },
+  {
+    id: 'CUST-005',
+    name: '郑州鼎峰重型机械制造有限公司',
+    uscc: '91410100MA48XXXX05',
+    tags: ['机械装备', '传统制造'],
+    source: 'import',
+    sourceLabel: '客户池导入',
+    corp: '孙鼎峰',
+    capital: '3,500 万元',
+    cls: 'attention',
+    clsLabel: '关注类',
+    risk: 'medium',
+    riskLabel: '中度预警',
+    statusTag: '开票连续下降',
+    statusClass: 'chip-down',
+    branch: '高新科技支行',
+    rm: '李经理'
+  },
+  {
+    id: 'CUST-006',
+    name: '河南金科新能源科技有限公司',
+    uscc: '91410100MA49XXXX06',
+    tags: ['绿色低碳', '光伏配套'],
+    source: 'agent',
+    sourceLabel: '营销智能体推送',
+    corp: '陈金科',
+    capital: '4,000 万元',
+    cls: 'normal',
+    clsLabel: '正常类',
+    risk: 'none',
+    riskLabel: '正常无风险',
+    statusTag: '下月即将到期',
+    statusClass: 'chip-clear',
+    branch: '总行营业部',
+    rm: '朱某人'
+  },
+  {
+    id: 'CUST-007',
+    name: '郑州新程物流装备有限公司',
+    uscc: '91410100MA50XXXX07',
+    tags: ['现代物流', '客户池导入'],
+    source: 'import',
+    sourceLabel: '客户池导入',
+    corp: '吴新程',
+    capital: '1,500 万元',
+    cls: 'normal',
+    clsLabel: '正常类',
+    risk: 'low',
+    riskLabel: '关注提示',
+    statusTag: '涉诉未判决',
+    statusClass: 'chip-stable',
+    branch: '经开综合支行',
+    rm: '赵经理'
+  },
+  {
+    id: 'CUST-008',
+    name: '河南润德环保工程设备有限公司',
+    uscc: '91410100MA51XXXX08',
+    tags: ['环保节能', '科技型中小企业'],
+    source: 'agent',
+    sourceLabel: '营销智能体推送',
+    corp: '韩润德',
+    capital: '2,000 万元',
+    cls: 'normal',
+    clsLabel: '正常类',
+    risk: 'none',
+    riskLabel: '正常无风险',
+    statusTag: '稳定在贷',
+    statusClass: 'chip-stable',
+    branch: '高新科技支行',
+    rm: '陈经理'
+  }
+];
+
+// 渲染表格
+function renderTable(data = CUSTOMERS) {
+  const tbody = document.getElementById('customerTableBody');
+  tbody.innerHTML = data.map((item, idx) => {
+    let sourceTagClass = 'tag-agent';
+    if (item.source === 'delivery') sourceTagClass = 'tag-delivery';
+    if (item.source === 'import') sourceTagClass = 'tag-import';
+
+    let clsClass = 'cls-normal';
+    if (item.cls === 'attention') clsClass = 'cls-attention';
+    if (item.cls === 'bad') clsClass = 'cls-bad';
+
+    let riskBadge = '<span class="badge badge-success">正常无预警</span>';
+    if (item.risk === 'high') riskBadge = '<span class="badge badge-danger">高风险</span>';
+    if (item.risk === 'medium') riskBadge = '<span class="badge badge-warning">中风险</span>';
+    if (item.risk === 'low') riskBadge = '<span class="badge" style="background:#fef9c3;color:#a16207;">低风险</span>';
+
+    return `
+      <tr>
+        <td style="text-align:center;">
+          <input type="checkbox" class="row-checkbox" value="${item.id}" onchange="updateSelectedCount()">
+        </td>
+        <td style="text-align:center;color:var(--gray-500);font-size:12.5px;">${idx + 1}</td>
+        <td>
+          <div style="font-weight:600;color:var(--gray-900);">
+            <a href="customer-detail.html?id=${item.id}&name=${encodeURIComponent(item.name)}" style="color:var(--gray-900);">${item.name}</a>
+          </div>
+          <div style="font-size:11.5px;color:var(--gray-400);margin-top:2px;">${item.uscc}</div>
+          <div style="display:flex;gap:4px;margin-top:4px;">
+            ${item.tags.map(t => `<span style="font-size:10.5px;background:var(--gray-100);color:var(--gray-600);padding:1px 5px;border-radius:3px;">${t}</span>`).join('')}
+          </div>
+        </td>
+        <td>
+          <span class="tag-source ${sourceTagClass}">${item.sourceLabel}</span>
+        </td>
+        <td>
+          <div style="font-weight:500;">${item.corp}</div>
+          <div style="font-size:11px;color:var(--gray-400);">${item.capital}</div>
+        </td>
+        <td>
+          <span class="cls-badge ${clsClass}">
+            <span class="cls-dot"></span>${item.clsLabel}
+          </span>
+        </td>
+        <td>${riskBadge}</td>
+        <td>
+          <span class="status-chip ${item.statusClass}">${item.statusTag}</span>
+        </td>
+        <td>
+          <div style="font-weight:500;color:var(--gray-800);">${item.branch}</div>
+          <div style="font-size:11.5px;color:var(--gray-500);">${item.rm}</div>
+        </td>
+        <td style="text-align:right;">
+          <a href="customer-detail.html?id=${item.id}&tab=risk" class="btn btn-sm btn-default">详情</a>
+          <button class="btn btn-sm btn-primary" style="margin-left:4px;" onclick="quickRenewal('${item.id}', '${item.name}')">续贷</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  document.getElementById('tableCountBadge').innerText = `共 ${data.length} 家企业`;
+}
+
+renderTable();
+
+// 筛选逻辑
+function filterTable() {
+  const query = document.getElementById('searchInput').value.trim().toLowerCase();
+  const source = document.getElementById('sourceFilter').value;
+  const cls = document.getElementById('clsFilter').value;
+  const risk = document.getElementById('riskFilter').value;
+
+  const filtered = CUSTOMERS.filter(item => {
+    if (query && !item.name.toLowerCase().includes(query) && !item.uscc.toLowerCase().includes(query) && !item.corp.toLowerCase().includes(query)) {
+      return false;
+    }
+    if (source && item.source !== source) return false;
+    if (cls && item.cls !== cls) return false;
+    if (risk && item.risk !== risk) return false;
+    return true;
+  });
+
+  renderTable(filtered);
+}
+
+function resetFilters() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('sourceFilter').value = '';
+  document.getElementById('clsFilter').value = '';
+  document.getElementById('riskFilter').value = '';
+  document.getElementById('branchFilter').value = '';
+  renderTable(CUSTOMERS);
+  showToast('筛选条件已重置');
+}
+
+// 勾选逻辑
+function toggleSelectAll(master) {
+  const cbs = document.querySelectorAll('.row-checkbox');
+  cbs.forEach(cb => cb.checked = master.checked);
+  updateSelectedCount();
+}
+
+function updateSelectedCount() {
+  const checked = document.querySelectorAll('.row-checkbox:checked');
+  document.getElementById('selectedCount').innerText = checked.length;
+}
+
+// 批量转入续贷
+function batchToRenewal() {
+  const checked = document.querySelectorAll('.row-checkbox:checked');
+  if (checked.length === 0) {
+    showToast('请先勾选需要转入续贷名单的企业');
+    return;
+  }
+  showToast(`已成功将选中的 ${checked.length} 家客户转入「续贷名单池」并通知主责客户经理`);
+}
+
+function quickRenewal(id, name) {
+  showToast(`已为「${name}」创建续贷跟进任务并推送到客户经理工作台`);
+}
+
+function exportPool() {
+  showToast('正在导出在贷客户池全量台账 (Excel)...');
+}
+
+// 导入 Modal 交互与文件上传处理
+let bankImportFileObj = null;
+
+function openImportModal() {
+  document.getElementById('importModal').classList.add('show');
+  clearBankImportFile();
+}
+
+function closeImportModal() {
+  document.getElementById('importModal').classList.remove('show');
+}
+
+function handleBankImportFile(input) {
+  const file = (input.files && input.files[0]) ? input.files[0] : null;
+  if (!file) return;
+  bankImportFileObj = file;
+
+  document.getElementById('importDropZone').style.display = 'none';
+  const infoEl = document.getElementById('importFileInfo');
+  infoEl.style.display = 'flex';
+  document.getElementById('importFileName').innerHTML = `
+    <svg style="width:20px;height:20px;margin-right:8px;color:#16a34a;flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+      <polyline points="14 2 14 8 20 8"></polyline>
+    </svg>
+    <div>
+      <strong style="color:#0f172a;font-size:13px;">${file.name}</strong>
+      <div style="font-size:11.5px;color:#64748b;">${(file.size / 1024).toFixed(1)} KB · 待排重校验</div>
+    </div>
+  `;
+}
+
+function clearBankImportFile() {
+  bankImportFileObj = null;
+  const fileInput = document.getElementById('fileUploadInput');
+  if (fileInput) fileInput.value = '';
+  document.getElementById('importDropZone').style.display = 'block';
+  document.getElementById('importFileInfo').style.display = 'none';
+}
+
+function downloadTemplate() {
+  showToast('已开始下载《银行存量客户导入标准模版.xlsx》');
+}
+
+function confirmImport() {
+  if (!bankImportFileObj) {
+    showToast('请先点击或拖拽上传存量客户名单 Excel 文件');
+    return;
+  }
+  closeImportModal();
+  showToast('导入完成：已校验 150 家企业，成功导入存量 126 家，已按统一社会信用代码自动过滤 24 家在池重复企业');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,3803 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+  <title>风险预警中心 - 智能营销平台</title>
+  <meta name="description" content="智能营销平台贷后风险预警中心，依托五级分类征信资产与多源大数据，提供事前风险预警、AI应对建议与排查处置闭环">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="css/style.css?v=1783867207">
+  <style>
+    /* 风险级别徽章 */
+    .badge-risk {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+    .badge-risk.high {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+    .badge-risk.medium {
+      background: #fffbeb;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+    .badge-risk.low {
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* 督导状态 */
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #334155;
+    }
+    .status-pill::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+    .status-pill.pending::before { background: #ef4444; }
+    .status-pill.processing::before { background: #f59e0b; }
+    .status-pill.resolved::before { background: #10b981; }
+    .status-pill.blocked::before { background: #64748b; }
+
+    /* 一体化卡片 Tab 导航条 (与信贷余额监控全平台统一) */
+    .tab-nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0;
+      background: #ffffff;
+      padding: 0 20px;
+    }
+    .tab-nav-item {
+      padding: 13px 18px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: #64748b;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: -1px;
+      transition: all 0.2s;
+    }
+    .tab-nav-item:hover {
+      color: var(--brand);
+    }
+    .tab-nav-item.active {
+      color: var(--brand);
+      border-bottom-color: var(--brand);
+      font-weight: 600;
+    }
+    .tab-nav-badge {
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      background: #f1f5f9;
+      color: #64748b;
+      font-weight: 500;
+    }
+    .tab-nav-item.active .tab-nav-badge {
+      background: #eff6ff;
+      color: var(--brand);
+    }
+
+    /* 锁定背景页面滚动（防止穿透） */
+    body.drawer-open {
+      overflow: hidden !important;
+    }
+
+    /* 抽屉 Drawer (全平台统一毛玻璃遮罩规范) */
+    .drawer-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      overscroll-behavior: contain;
+    }
+    .drawer-overlay.show, .drawer-overlay.active { opacity: 1; pointer-events: auto; }
+    .drawer-container {
+      position: fixed;
+      top: 0; right: 0; bottom: 0;
+      width: 620px;
+      max-width: 90vw;
+      background: #fff;
+      box-shadow: -6px 0 36px rgba(0, 0, 0, 0.18);
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      overscroll-behavior: contain;
+    }
+    .drawer-overlay.show .drawer-container,
+    .drawer-overlay.active .drawer-container { transform: translateX(0); }
+    .drawer-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid #e2e8f0;
+      background: #fafbfc;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      padding: 24px;
+    }
+    .drawer-footer {
+      padding: 16px 24px;
+      border-top: 1px solid #e2e8f0;
+      background: #fafbfc;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* 预警策略专属宽幅抽屉样式 */
+    .drawer-container.strategy-drawer {
+      width: 840px;
+      max-width: 94vw;
+    }
+    .strategy-stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .strategy-stat-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .strategy-stat-label {
+      font-size: 11.5px;
+      color: #64748b;
+      margin-bottom: 4px;
+    }
+    .strategy-stat-val {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .strategy-stat-sub {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 3px;
+    }
+    .rule-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-bottom: 12px;
+      transition: all 0.2s ease;
+    }
+    .rule-card:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .rule-card.disabled {
+      background: #f8fafc;
+      opacity: 0.72;
+    }
+    .rule-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      font-size: 12px;
+      color: var(--gray-500);
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed #e2e8f0;
+    }
+    .rule-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .rule-param-panel {
+      margin-top: 12px;
+      padding: 12px 14px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      display: none;
+    }
+    .rule-param-panel.show {
+      display: block;
+    }
+    /* Switch 开关 */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 42px;
+      height: 22px;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #cbd5e1;
+      transition: .25s;
+      border-radius: 22px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .25s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: var(--brand);
+    }
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+    /* 精致小型开关 */
+    .switch.switch-sm {
+      width: 32px;
+      height: 18px;
+    }
+    .switch.switch-sm .slider:before {
+      height: 12px;
+      width: 12px;
+      left: 3px;
+      bottom: 3px;
+    }
+    .switch.switch-sm input:checked + .slider:before {
+      transform: translateX(14px);
+    }
+
+    /* 客群来源徽章 */
+    .source-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      line-height: 1.4;
+      white-space: nowrap;
+      margin-bottom: 3px;
+    }
+    .source-tag.source-agent {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+    }
+    .source-tag.source-delivery {
+      background: #f0fdf4;
+      color: #15803d;
+      border: 1px solid #bbf7d0;
+    }
+    .source-tag.source-import {
+      background: #f8fafc;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+    }
+
+    /* 弹窗与遮罩 */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(2px);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .modal-overlay.show { opacity: 1; pointer-events: auto; }
+    .modal-dialog {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: var(--shadow-lg);
+      width: 680px;
+      max-width: 90vw;
+      overflow: hidden;
+      transform: translateY(14px);
+      transition: transform 0.2s ease;
+    }
+    .modal-overlay.show .modal-dialog { transform: translateY(0); }
+    .modal-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-body { padding: 24px; }
+    .modal-footer {
+      padding: 14px 24px;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      background: #fafbfc;
+    }
+
+    /* 运营端预警策略规则状态看板条 */
+    .scope-rule-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 20px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+    .config-card-choice {
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #fff;
+    }
+    .config-card-choice:hover {
+      border-color: #cbd5e1;
+      background: #f8fafc;
+    }
+    .config-card-choice.active {
+      border-color: var(--brand);
+      background: #f0fdf4;
+    }
+
+    /* 通知渠道与联系人配置组件样式 */
+    .notify-channel-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 11px 13px;
+      transition: all 0.2s;
+    }
+    .notify-channel-card.disabled {
+      opacity: 0.55;
+      background: #f8fafc;
+      border-color: #e2e8f0;
+    }
+    .notify-channel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .notify-contact-box {
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 6px;
+      padding: 6px 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+    .contact-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #ffffff;
+      color: #334155;
+      font-size: 11.5px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid #cbd5e1;
+      font-weight: 500;
+    }
+    .contact-tag .tag-close {
+      cursor: pointer;
+      color: #94a3b8;
+      font-weight: 700;
+      margin-left: 3px;
+      font-size: 13px;
+      line-height: 1;
+    }
+    .contact-tag .tag-close:hover {
+      color: #ef4444;
+    }
+    .btn-add-tag {
+      border: 1px dashed #94a3b8;
+      background: transparent;
+      color: var(--brand);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      transition: all 0.15s;
+    }
+    .btn-add-tag:hover {
+      border-color: var(--brand);
+      background: #ecfdf5;
+    }
+
+    /* 彻底杜绝主页面横向滚动条，保证全平台在任何分辨率下都不溢出 */
+    html, body {
+      overflow-x: hidden !important;
+      max-width: 100vw;
+    }
+    .main-content {
+      min-width: 0 !important;
+      max-width: calc(100vw - var(--sidebar-width));
+      overflow-x: hidden !important;
+      box-sizing: border-box;
+    }
+
+    /* 预警表格自适应布局：严格限制在卡片内部，杜绝文字撑破视口 */
+    .risk-table {
+      width: 100%;
+      table-layout: fixed;
+      border-collapse: collapse;
+    }
+    .risk-table th {
+      padding: 12px 10px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--gray-700) !important;
+      background: #fafbfc;
+      border-bottom: 1px solid #e2e8f0;
+      white-space: nowrap;
+      text-transform: none;
+    }
+    .risk-table td {
+      padding: 13px 10px;
+      font-size: 12.5px;
+      color: var(--gray-800);
+      border-bottom: 1px solid #f1f5f9;
+      white-space: normal !important; /* 关键：覆写全局 nowrap，允许自然折行 */
+      word-break: break-word;
+      vertical-align: middle; /* 垂直居中对齐，杜绝错位感 */
+      line-height: 1.5;
+    }
+    .risk-table th:first-child,
+    .risk-table td:first-child {
+      padding: 12px 6px;
+      text-align: center;
+    }
+    .risk-table th:last-child,
+    .risk-table td:last-child {
+      padding: 12px 8px;
+      text-align: center;
+    }
+    .risk-table tbody tr:hover {
+      background: #f8fafc;
+    }
+
+    .risk-summary-text {
+      font-size: 12.5px;
+      color: #0f172a;
+      line-height: 1.45;
+      font-weight: 500;
+      word-break: break-word;
+    }
+    .risk-evidence-text {
+      font-size: 11.5px;
+      color: #64748b;
+      margin-top: 4px;
+      line-height: 1.45;
+      word-break: break-word;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    /* 命中风险类型标签（统一低调高级的中性色调，支持自动换行全量展示） */
+    .tag-risk-type {
+      display: inline-flex;
+      align-items: center;
+      padding: 2.5px 8px;
+      font-size: 11.5px;
+      font-weight: 500;
+      border-radius: 4px;
+      line-height: 1.4;
+      white-space: nowrap;
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #e2e8f0;
+      transition: all 0.15s ease;
+    }
+    .tag-risk-type:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+      border-color: #cbd5e1;
+    }
+
+    /* 抽屉内多重风险事件与证据链卡片 */
+    .drawer-event-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      transition: all 0.15s ease;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    }
+    .drawer-event-card:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+    .drawer-event-card.high-risk {
+      border-left: 3.5px solid #ef4444;
+    }
+    .drawer-event-card.medium-risk {
+      border-left: 3.5px solid #f59e0b;
+    }
+    .drawer-event-card.low-risk {
+      border-left: 3.5px solid #3b82f6;
+    }
+
+    /* 抽屉顶部总览态势卡片（与下方事件卡片严格区分） */
+    .overview-dashboard-card {
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin-bottom: 20px;
+      transition: all 0.2s ease;
+    }
+    .overview-dashboard-card.high-scope {
+      background: linear-gradient(135deg, #fff7f7 0%, #fafbfc 100%);
+      border: 1.5px solid #fecaca;
+      box-shadow: 0 2px 10px rgba(239, 68, 68, 0.04);
+    }
+    .overview-dashboard-card.medium-scope {
+      background: linear-gradient(135deg, #fffdf5 0%, #fafbfc 100%);
+      border: 1.5px solid #fed7aa;
+      box-shadow: 0 2px 10px rgba(245, 158, 11, 0.04);
+    }
+    .overview-dashboard-card.low-scope {
+      background: linear-gradient(135deg, #f8faff 0%, #fafbfc 100%);
+      border: 1.5px solid #bfdbfe;
+      box-shadow: 0 2px 10px rgba(59, 130, 246, 0.04);
+    }
+    .overview-metric-pill {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 8px 12px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    }
+
+    /* AI 智能研判卡片 */
+    .ai-insight-card {
+      background: linear-gradient(145deg, #f8faff 0%, #f5f3ff 100%);
+      border: 1.5px solid #c7d2fe;
+      border-radius: 12px;
+      padding: 16px;
+      position: relative;
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.08);
+    }
+    /* AI 决策倾向核心醒目横幅（一眼看到的核心要点） */
+    .ai-decision-banner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+    .ai-decision-banner.high {
+      background: linear-gradient(135deg, #fef2f2 0%, #fff1f2 100%);
+      border: 1.5px solid #fecaca;
+    }
+    .ai-decision-banner.medium {
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+      border: 1.5px solid #fde68a;
+    }
+    .ai-decision-banner.low {
+      background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%);
+      border: 1.5px solid #bfdbfe;
+    }
+    .ai-decision-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .ai-decision-banner.high .ai-decision-tag {
+      background: #dc2626;
+      color: #ffffff;
+    }
+    .ai-decision-banner.medium .ai-decision-tag {
+      background: #d97706;
+      color: #ffffff;
+    }
+    .ai-decision-banner.low .ai-decision-tag {
+      background: #2563eb;
+      color: #ffffff;
+    }
+    .ai-decision-text {
+      font-size: 13.5px;
+      font-weight: 700;
+      line-height: 1.4;
+      flex: 1;
+    }
+    .ai-decision-banner.high .ai-decision-text {
+      color: #991b1b;
+    }
+    .ai-decision-banner.medium .ai-decision-text {
+      color: #92400e;
+    }
+    .ai-decision-banner.low .ai-decision-text {
+      color: #1e40af;
+    }
+
+    .ai-action-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 12px;
+      color: #334155;
+      line-height: 1.55;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 7px 10px;
+    }
+    .ai-action-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #eef2ff;
+      color: #4f46e5;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .ai-insight-disclaimer {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px dashed #cbd5e1;
+      font-size: 11px;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      line-height: 1.4;
+    }
+
+    /* 抽屉内 Tab 选项卡（对标智能体详情抽屉交互与视觉规范） */
+    .drawer-tabs {
+      display: flex;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 0 24px;
+      flex-shrink: 0;
+      background: #ffffff;
+      gap: 12px;
+    }
+    .drawer-tab {
+      padding: 12px 14px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: #64748b;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s ease;
+      margin-bottom: -1px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      user-select: none;
+    }
+    .drawer-tab:hover:not(.active) {
+      color: #1e293b;
+    }
+    .drawer-tab.active {
+      color: var(--brand);
+      border-bottom-color: var(--brand);
+      font-weight: 600;
+    }
+    .drawer-tab-badge {
+      font-size: 11px;
+      padding: 1px 7px;
+      border-radius: 10px;
+      background: #f1f5f9;
+      color: #64748b;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+    .drawer-tab.active .drawer-tab-badge {
+      background: #dcfce7;
+      color: #15803d;
+    }
+    .drawer-pane {
+      display: none;
+      animation: fadeInTab 0.18s ease forwards;
+    }
+    .drawer-pane.active {
+      display: block;
+    }
+    @keyframes fadeInTab {
+      from { opacity: 0; transform: translateY(3px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 排查处置记录时间轴专属样式 */
+    .followup-timeline {
+      position: relative;
+      padding-left: 20px;
+      margin-left: 6px;
+      border-left: 2px solid #e2e8f0;
+    }
+    .followup-item {
+      position: relative;
+      margin-bottom: 18px;
+    }
+    .followup-item:last-child {
+      margin-bottom: 0;
+    }
+    .followup-dot {
+      position: absolute;
+      left: -26px;
+      top: 4px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #94a3b8;
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 0 2px #e2e8f0;
+    }
+    .followup-item.latest .followup-dot {
+      background: var(--brand);
+      box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+    }
+    .followup-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+      transition: all 0.15s ease;
+    }
+    .followup-card:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+    .followup-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    /* AI 研判专属依据卡片与分析区块 */
+    .ai-section-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .ai-evidence-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .ai-evidence-item {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+      transition: all 0.15s ease;
+    }
+    .ai-evidence-item:hover {
+      border-color: #cbd5e1;
+      background: #f8fafc;
+    }
+    .ai-evidence-badge {
+      font-size: 11px;
+      font-weight: 700;
+      color: #4f46e5;
+      background: #eef2ff;
+      padding: 2px 7px;
+      border-radius: 4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .ai-evidence-source {
+      font-size: 11px;
+      color: #64748b;
+      background: #f1f5f9;
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin-left: 6px;
+      font-weight: normal;
+    }
+    .ai-analysis-block {
+      background: linear-gradient(145deg, #f8faff 0%, #f5f3ff 100%);
+      border: 1.5px solid #c7d2fe;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+    .ai-conclusion-card {
+      background: #ffffff;
+      border: 1px solid #fed7aa;
+      border-left: 4px solid #f97316;
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+    }
+    .ai-conclusion-card.high {
+      border-color: #fecaca;
+      border-left-color: #ef4444;
+      background: #fffafa;
+    }
+    .ai-conclusion-card.medium {
+      border-color: #fde68a;
+      border-left-color: #f59e0b;
+      background: #fffdf5;
+    }
+    .ai-conclusion-card.low {
+      border-color: #bfdbfe;
+      border-left-color: #3b82f6;
+      background: #f8faff;
+    }
+
+    /* 人行信贷画像专有样式 */
+    .credit-section-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .credit-card-panel {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 18px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+    .credit-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .credit-kpi-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 10px 12px;
+      transition: all 0.15s ease;
+    }
+    .credit-kpi-box:hover {
+      border-color: #cbd5e1;
+      background: #f1f5f9;
+    }
+    .credit-kpi-label {
+      font-size: 11.5px;
+      color: #64748b;
+      margin-bottom: 3px;
+      font-weight: 500;
+    }
+    .credit-kpi-val {
+      font-size: 15px;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.3;
+    }
+    .credit-kpi-sub {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 3px;
+    }
+    .credit-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .credit-table th {
+      background: #f8fafc;
+      color: #475569;
+      font-weight: 600;
+      padding: 8px 10px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+      white-space: nowrap;
+    }
+    .credit-table td {
+      padding: 10px 10px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #334155;
+      vertical-align: middle;
+      line-height: 1.45;
+    }
+    .credit-table tr:hover td {
+      background: #f8fafc;
+    }
+    .credit-progress-bar {
+      height: 8px;
+      border-radius: 4px;
+      background: #e2e8f0;
+      overflow: hidden;
+      display: flex;
+    }
+    .credit-track-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .credit-track-cell {
+      text-align: center;
+      padding: 6px 2px;
+      border-radius: 4px;
+      font-size: 11.5px;
+      font-weight: 700;
+      border: 1px solid #e2e8f0;
+    }
+    .credit-track-cell.normal {
+      background: #f0fdf4;
+      color: #16a34a;
+      border-color: #bbf7d0;
+    }
+    .credit-track-cell.warning {
+      background: #fffbeb;
+      color: #d97706;
+      border-color: #fde68a;
+    }
+    .credit-track-cell.danger {
+      background: #fef2f2;
+      color: #dc2626;
+      border-color: #fecaca;
+    }
+
+    /* 风险等级专有胶囊微发光标签样式（解决截图粗框简陋问题） */
+    .badge-danger, .badge.badge-danger {
+      background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%) !important;
+      color: #dc2626 !important;
+      border: 1px solid #fecaca !important;
+      font-weight: 700 !important;
+      font-size: 11px !important;
+      padding: 2.5px 10px !important;
+      border-radius: 14px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 5px !important;
+      letter-spacing: 0.3px;
+      box-shadow: 0 1px 3px rgba(239, 68, 68, 0.12);
+      line-height: 1.35;
+    }
+    .badge-danger::before, .badge.badge-danger::before {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ef4444;
+      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.35);
+      animation: pulseDot 2s infinite ease-in-out;
+    }
+
+    .badge-warning, .badge.badge-warning {
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
+      color: #b45309 !important;
+      border: 1px solid #fde68a !important;
+      font-weight: 700 !important;
+      font-size: 11px !important;
+      padding: 2.5px 10px !important;
+      border-radius: 14px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 5px !important;
+      letter-spacing: 0.3px;
+      box-shadow: 0 1px 3px rgba(245, 158, 11, 0.12);
+      line-height: 1.35;
+    }
+    .badge-warning::before, .badge.badge-warning::before {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #f59e0b;
+      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.35);
+    }
+
+    .badge-secondary, .badge.badge-secondary, .badge-info, .badge.badge-info {
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%) !important;
+      color: #1d4ed8 !important;
+      border: 1px solid #bfdbfe !important;
+      font-weight: 700 !important;
+      font-size: 11px !important;
+      padding: 2.5px 10px !important;
+      border-radius: 14px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 5px !important;
+      letter-spacing: 0.3px;
+      box-shadow: 0 1px 3px rgba(59, 130, 246, 0.12);
+      line-height: 1.35;
+    }
+    .badge-secondary::before, .badge.badge-secondary::before, .badge-info::before, .badge.badge-info::before {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.35);
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.85); }
+    }
+
+    /* 新增预警策略向导模态框样式 */
+    .new-rule-modal-wrap {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      z-index: 10050;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .new-rule-modal-wrap.show {
+      display: flex;
+    }
+    .new-rule-modal {
+      width: 840px;
+      max-width: 96vw;
+      max-height: 90vh;
+      background: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(15, 23, 42, 0.08);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: modalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes modalSlideUp {
+      from { transform: translateY(24px) scale(0.98); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    .expr-builder-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px;
+      margin-top: 8px;
+    }
+    .expr-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      background: #ffffff;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+      transition: all 0.2s;
+    }
+    .expr-row:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+    }
+    .expr-dsl-box {
+      background: #0f172a;
+      color: #38bdf8;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11.5px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      margin-top: 8px;
+      line-height: 1.55;
+      overflow-x: auto;
+      border: 1px solid #1e293b;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+    }
+    .logic-pill-btn {
+      padding: 3px 10px;
+      font-size: 11.5px;
+      font-weight: 600;
+      border-radius: 14px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #64748b;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .logic-pill-btn.active {
+      background: var(--brand);
+      color: #ffffff;
+      border-color: var(--brand);
+      box-shadow: 0 1px 3px rgba(37,99,235,0.25);
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main-content anim-fade-in">
+    <!-- 顶部标题与操作区 -->
+    <div class="page-header" style="position:relative;display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+      <!-- 全局所属机构（居中突出按钮，与营销名单、信贷余额监控等各页面统一标准） -->
+      <div id="globalOrgBtn" onclick="openOrgModal()" style="position:absolute; left:50%; transform:translateX(-50%); display:flex;align-items:center;gap:16px;height:44px;box-sizing:border-box;padding:0 6px 0 20px;background:white;border:1.5px solid #e5e7eb;border-radius:22px;cursor:pointer;user-select:none;transition:all 0.2s;box-shadow:0 2px 10px rgba(0,0,0,0.03);" onmouseenter="this.style.borderColor='var(--brand)';this.style.boxShadow='0 4px 12px rgba(0,0,0,0.06)';" onmouseleave="this.style.borderColor='#e5e7eb';this.style.boxShadow='0 2px 10px rgba(0,0,0,0.03)';">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M9 8h1"/><path d="M9 12h1"/><path d="M9 16h1"/><path d="M14 8h1"/><path d="M14 12h1"/><path d="M14 16h1"/><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"/></svg>
+          <span style="font-size:14px;color:var(--gray-500);font-weight:500;">当前查看：</span>
+          <span style="font-size:15px;font-weight:700;color:var(--gray-900);" id="globalOrgDisplay">江苏银行</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center;height:32px;padding:0 16px;background:var(--brand);color:white;border-radius:16px;font-size:13px;font-weight:600;gap:6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="M16 21l4-4-4-4"/><path d="M20 17H4"/></svg>
+          切换机构
+        </div>
+      </div>
+
+      <div class="page-header-left">
+        <h1 class="page-title">风险预警</h1>
+        <p class="page-breadcrumb">
+          <a href="index.html">工作台</a><span class="sep">/</span>风险监控<span class="sep">/</span>风险预警
+        </p>
+      </div>
+
+      <div style="display:flex;gap:10px;align-items:center;">
+        <button class="btn btn-primary" onclick="exportReport()" style="display:inline-flex;align-items:center;gap:6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          导出预警台账
+        </button>
+      </div>
+    </div>
+
+    <!-- 运营端专属：贷后风险预警策略规则状态看板条（精简清爽版） -->
+    <div class="scope-rule-card">
+      <div style="display:flex;align-items:center;flex-wrap:wrap;gap:16px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:28px;height:28px;border-radius:6px;background:#f0fdf4;border:1px solid #bbf7d0;display:flex;align-items:center;justify-content:center;color:var(--brand);flex-shrink:0;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:13px;">
+            <span style="color:#64748b;">预警纳管：</span>
+            <span style="font-weight:700;color:#0f172a;" id="displayRiskScopeName">全部纳管客户</span>
+            <span id="riskScopeDescText" style="color:#64748b;font-size:12.5px;">(3,257 户 · 营销 1,860 + 导入 1,397)</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;">
+        <!-- 预警监测总开关 -->
+        <div style="display:inline-flex;align-items:center;gap:8px;padding:5px 12px;background:#fff;border:1px solid #cbd5e1;border-radius:6px;">
+          <label class="switch switch-sm" style="margin:0;flex-shrink:0;">
+            <input type="checkbox" id="radarMonitoringToggle" checked onchange="toggleRadarMonitoring(this)">
+            <span class="slider"></span>
+          </label>
+          <span id="radarMonitoringStatusText" style="font-size:12.5px;font-weight:600;color:#0f172a;white-space:nowrap;">预警监测开启</span>
+        </div>
+        <!-- 预警策略配置按钮 -->
+        <button type="button" class="btn btn-default" onclick="openRiskConfigModal()" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:6px 14px;border-color:#cbd5e1;color:#0f172a;background:#fff;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          预警策略配置
+        </button>
+      </div>
+    </div>
+
+    <!-- 统计指标卡 (4列，随监控范围联动) -->
+    <div class="stat-cards" style="grid-template-columns: repeat(4, 1fr); margin-bottom:20px; margin-top:16px;">
+      <div class="stat-card">
+        <div class="stat-label">在监控高危风险企业</div>
+        <div class="stat-value" style="color:var(--gray-900);" id="statRiskCard1">32 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span></div>
+        <div style="font-size:12px;color:var(--gray-500);margin-top:4px;" id="statRiskCard1Sub">涉及 28 家存量授信企业</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">人行分类异常企业</div>
+        <div class="stat-value" style="color:var(--gray-900);" id="statRiskCard2">19 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span></div>
+        <div style="font-size:12px;color:var(--gray-500);margin-top:4px;" id="statRiskCard2Sub">五级分类下调为关注或不良</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">司法涉诉在控企业</div>
+        <div class="stat-value" style="color:var(--gray-900);" id="statRiskCard3">51 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span></div>
+        <div style="font-size:12px;color:var(--gray-500);margin-top:4px;" id="statRiskCard3Sub">失信被执行/限高/大额涉诉</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">本月新增风险信号</div>
+        <div class="stat-value" style="color:var(--gray-900);" id="statRiskCard4">170 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">笔</span></div>
+        <div style="font-size:12px;color:var(--gray-500);margin-top:4px;" id="statRiskCard4Sub">较上月环比减少 6.2%</div>
+      </div>
+    </div>
+
+    <!-- 主体分类 Tab 与表格一体化卡片容器 (与信贷余额监控全平台统一) -->
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:24px;border-radius:12px;border:1px solid var(--border);background:#fff;box-shadow:var(--shadow-sm);">
+
+      <!-- 卡片 Header：Tab 导航条与右侧说明按钮 -->
+      <div class="tab-nav-bar">
+        <div style="display:flex;gap:4px;align-items:flex-end;">
+          <div class="tab-nav-item active" onclick="switchRiskTab(this, 'ALL')">
+            <span>全部</span>
+            <span class="tab-nav-badge">170</span>
+          </div>
+          <div class="tab-nav-item" onclick="switchRiskTab(this, 'JUDICIAL')">
+            <span>司法涉诉</span>
+            <span class="tab-nav-badge">51</span>
+          </div>
+          <div class="tab-nav-item" onclick="switchRiskTab(this, 'OVERDUE')">
+            <span>贷款逾期</span>
+            <span class="tab-nav-badge">43</span>
+          </div>
+          <div class="tab-nav-item" onclick="switchRiskTab(this, 'TAX_BIZ')">
+            <span>经营异常</span>
+            <span class="tab-nav-badge">48</span>
+          </div>
+          <div class="tab-nav-item" onclick="switchRiskTab(this, 'CORP_CHANGE')">
+            <span>工商变更</span>
+            <span class="tab-nav-badge">28</span>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;">
+          <button class="btn btn-default" onclick="openRiskRuleModal()" style="display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;font-size:12.5px;color:var(--gray-700);border-radius:6px;border:1px solid #cbd5e1;background:#ffffff;cursor:pointer;transition:all 0.15s ease;" onmouseenter="this.style.borderColor='var(--brand)';this.style.color='var(--brand)';" onmouseleave="this.style.borderColor='#cbd5e1';this.style.color='var(--gray-700)';">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            规则说明
+          </button>
+        </div>
+      </div>
+
+      <!-- 筛选过滤栏 (内嵌卡片子区域，机构由页面顶部统一管控) -->
+      <div style="display:flex;gap:12px;align-items:center;padding:12px 20px;background:#fafbfc;border-bottom:1px solid #e2e8f0;flex-wrap:wrap;">
+        <select id="filterRiskLevel" onchange="applyFilters()" style="padding:6px 12px;border:1px solid #cbd5e1;border-radius:6px;font-size:12.5px;min-width:130px;height:34px;background:#fff;">
+          <option value="">全部风险等级</option>
+          <option value="HIGH">高危风险</option>
+          <option value="MEDIUM">中危风险</option>
+          <option value="LOW">关注提示</option>
+        </select>
+        <input type="text" id="filterKeyword" placeholder="搜索企业名称 / 统一社会信用代码..." oninput="applyFilters()"
+          style="padding:6px 12px;border:1px solid #cbd5e1;border-radius:6px;font-size:12.5px;flex:1;min-width:240px;height:34px;background:#fff;">
+        <button class="btn btn-default btn-sm" onclick="resetFilters()" style="height:34px;padding:0 14px;">重置</button>
+      </div>
+
+      <!-- 预警数据表格 (企业维度台账，多重风险聚合呈现) -->
+      <div style="width:100%;overflow:hidden;">
+        <table class="risk-table">
+          <thead>
+            <tr>
+              <th style="width:50px;text-align:center;">序号</th>
+              <th style="width:20%;text-align:left;">企业名称</th>
+              <th style="width:16%;text-align:left;">统一社会信用代码</th>
+              <th style="width:9%;text-align:center;">客群来源</th>
+              <th style="width:11%;text-align:center;">综合风险等级</th>
+              <th style="width:19%;text-align:left;">命中风险类型</th>
+              <th style="width:13%;text-align:left;">人行信贷状态</th>
+              <th style="width:120px;text-align:center;">最新预警时间</th>
+              <th style="width:76px;text-align:center;">操作</th>
+            </tr>
+          </thead>
+          <tbody id="riskTableBody"></tbody>
+        </table>
+      </div>
+
+      <div style="padding:14px 20px;display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:#64748b;border-top:1px solid #f1f5f9;">
+        <span id="pageInfo">共 6 条记录</span>
+        <div style="display:flex;gap:4px;">
+          <button class="btn btn-default btn-sm" disabled>上一页</button>
+          <button class="btn btn-primary btn-sm">1</button>
+          <button class="btn btn-default btn-sm" disabled>下一页</button>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+</div>
+
+<!-- 预警详情与 AI 处置建议抽屉 (Drawer) -->
+<div class="drawer-overlay" id="riskDrawer" onclick="if(event.target===this) closeDrawer()">
+  <div class="drawer-container">
+    <div class="drawer-header">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span id="drawerRiskBadge" class="badge badge-danger">高风险</span>
+          <span id="drawerCorpName" style="font-size:16px;font-weight:700;color:var(--gray-900);">郑州恒创智能装备制造有限公司</span>
+        </div>
+        <div id="drawerUscc" style="font-size:12px;color:var(--gray-500);margin-top:3px;">统一社会信用代码: 91410100MA44XXXX01</div>
+      </div>
+      <button class="btn modal-close-btn" onclick="closeDrawer()" style="font-size:18px;color:var(--gray-400);line-height:1;">&times;</button>
+    </div>
+
+    <div class="drawer-body">
+      <!-- 风控协同处置建议 -->
+      <div class="ai-advice-box">
+        <div style="display:flex;align-items:center;gap:6px;font-weight:700;color:#1e40af;font-size:13.5px;margin-bottom:8px;">
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          风控协同处置建议 (联合征信)
+        </div>
+        <div id="drawerAiAdvice" style="font-size:13px;color:#1e3a8a;line-height:1.6;">
+          该客户五级分类从「正常」下调至「关注」，同时近15天内新增1起买卖合同纠纷执行案（金额120万）。建议管辖客户经理在<b>3个工作日内完成现场实地走访</b>，重点核实下游订单回款进度与银行账户受限情况，必要时采取追加有效押品或压缩授信额度等避险动作。
+        </div>
+      </div>
+
+      <!-- 预警信号证据链条 -->
+      <div style="margin-bottom:24px;">
+        <div style="font-size:13.5px;font-weight:700;color:var(--gray-800);margin-bottom:12px;">预警信号关联证据</div>
+        <div class="evidence-chain" id="drawerEvidenceChain">
+          <!-- 动态渲染 -->
+        </div>
+      </div>
+
+      <!-- 核查处置与反馈录入 -->
+      <div style="background:var(--gray-50);border-radius:10px;padding:16px;border:1px solid var(--border);">
+        <div style="font-size:13.5px;font-weight:700;color:var(--gray-800);margin-bottom:12px;">录入排查与处置结论</div>
+        
+        <div style="margin-bottom:12px;">
+          <label class="form-label" style="font-size:12px;">排查核实结论</label>
+          <select id="handleConclusion" class="form-control" style="font-size:13px;">
+            <option value="manageable">情况属实但企业经营正常，风险总体可控</option>
+            <option value="worsened">经营显著承压，建议缩减授信或提前收贷</option>
+            <option value="resolved">企业已与申请执行人达成和解，已化解</option>
+            <option value="false_alarm">经核实为偶发涉诉/重名误报</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <label class="form-label" style="font-size:12px;">已采取或拟采取应对动作</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12.5px;">
+            <label style="display:flex;align-items:center;gap:6px;"><input type="checkbox" checked> 现场实地走访</label>
+            <label style="display:flex;align-items:center;gap:6px;"><input type="checkbox" checked> 调阅近期财税与流水</label>
+            <label style="display:flex;align-items:center;gap:6px;"><input type="checkbox"> 要求追加担保措施</label>
+            <label style="display:flex;align-items:center;gap:6px;"><input type="checkbox"> 报送总行授信管理部</label>
+          </div>
+        </div>
+
+        <div>
+          <label class="form-label" style="font-size:12px;">核查说明与跟进备忘</label>
+          <textarea id="handleNotes" class="form-control" rows="3" style="font-size:12.5px;" placeholder="请详细记录实地核实情况、企业主说明及下一步跟进计划..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="drawer-footer">
+      <button class="btn btn-default" onclick="closeDrawer()">取消</button>
+      <button class="btn btn-primary" onclick="submitResolution()">保存处置记录并归档</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 当前运营端选中的预警监控范围：'all' | 'marketing' | 'import'
+  let currentRiskScope = 'all';
+
+  // 预警策略配置全局状态对象
+  let riskConfig = {
+    scope: 'all',
+    autoEnroll: true,
+    judicial1: true,
+    judicial2: true,
+    judicial3: true,
+    credit1: true,
+    credit2: true,
+    credit3: true,
+    pushSms: true,
+    pushWecom: true,
+    dailyReport: true
+  };
+
+  let tempSelectedRiskScope = 'all';
+
+  const RISK_SCOPE_CONFIG = {
+    all: {
+      name: '全部纳管客户',
+      desc: '当前展示：<b>全部纳管客户 3,257 户</b> (营销转化 1,860 户 + 人工导入 1,397 户) · 司法涉诉与人行分类全量穿透',
+      card1: '32 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+      card1Sub: '涉及 28 家存量授信企业',
+      card2: '19 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+      card2Sub: '五级分类下调为关注或不良',
+      card3: '51 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+      card3Sub: '失信被执行/限高/大额涉诉',
+      card4: '142 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">笔</span>',
+      card4Sub: '较上月环比减少 6.2%'
+    },
+    marketing: {
+      name: '仅营销智能体推送',
+      desc: '当前展示：<b>仅营销智能体推送客户 1,860 户</b> · 重点监测营销智能体推送在贷企业的风险异动',
+      card1: '14 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+      card1Sub: '涉及 12 家平台推送在贷企业',
+      card2: '7 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+      card2Sub: '五级分类异常待核查',
+      card3: '18 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+      card3Sub: '智能体推送客户司法涉诉',
+      card4: '58 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">笔</span>',
+      card4Sub: '获客名单资产质量良好'
+    },
+    import: {
+      name: '仅客户池导入客户',
+      desc: '当前展示：<b>仅客户池导入客户 1,397 户</b> · 针对客户池导入客户提供第三方司法与人行信贷分类托管排查',
+      card1: '18 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+      card1Sub: '涉及 16 家客户池导入授信企业',
+      card2: '12 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+      card2Sub: '客户池导入人行分类异常',
+      card3: '33 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span>',
+      card3Sub: '客户池导入客户司法涉诉',
+      card4: '84 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">笔</span>',
+      card4Sub: '客户池存续期监测信号'
+    }
+  };
+
+  // 切换预警雷达监测启停状态
+  function toggleRadarMonitoring(cb) {
+    const isEnabled = cb.checked;
+    const statusText = document.getElementById('radarMonitoringStatusText');
+    if (statusText) {
+      statusText.textContent = isEnabled ? '预警监测开启' : '预警监测已暂停';
+      statusText.style.color = isEnabled ? '#0f172a' : '#94a3b8';
+    }
+    if (isEnabled) {
+      showToast('预警监测已开启，全平台风险雷达持续扫描中');
+    } else {
+      showToast('预警监测已暂停，风险雷达停止触发新预警');
+    }
+  }
+
+  // 打开预警策略配置弹窗
+  function openRiskConfigModal() {
+    tempSelectedRiskScope = riskConfig.scope;
+
+    // 高亮当前选中的纳管口径卡片
+    ['all', 'marketing', 'import'].forEach(s => {
+      const card = document.getElementById(`cfgRiskScopeCard_${s}`);
+      if (card) {
+        if (s === tempSelectedRiskScope) {
+          card.classList.add('active');
+        } else {
+          card.classList.remove('active');
+        }
+      }
+    });
+
+    // 回显配置项
+    const chkAuto = document.getElementById('cfgRiskAutoEnroll');
+    if (chkAuto) chkAuto.checked = riskConfig.autoEnroll;
+
+    const modal = document.getElementById('riskConfigModal');
+    if (modal) modal.classList.add('show');
+  }
+
+  // 关闭预警策略配置抽屉
+  function closeRiskConfigModal(event) {
+    if (event && event.target && event.target.id !== 'riskConfigModal') return;
+    const modal = document.getElementById('riskConfigModal');
+    if (modal) modal.classList.remove('show');
+  }
+
+  // 弹窗内选择纳管口径卡片
+  function selectRiskConfigScope(scope) {
+    tempSelectedRiskScope = scope;
+    ['all', 'marketing', 'import'].forEach(s => {
+      const card = document.getElementById(`cfgRiskScopeCard_${s}`);
+      if (card) {
+        if (s === scope) {
+          card.classList.add('active');
+        } else {
+          card.classList.remove('active');
+        }
+      }
+    });
+  }
+
+  // 保存预警策略配置并应用
+  function saveRiskConfig() {
+    riskConfig.scope = tempSelectedRiskScope;
+    currentRiskScope = tempSelectedRiskScope;
+
+    const chkAuto = document.getElementById('cfgRiskAutoEnroll');
+    if (chkAuto) riskConfig.autoEnroll = chkAuto.checked;
+
+    // 更新顶部规则看板条
+    const cfg = RISK_SCOPE_CONFIG[currentRiskScope] || RISK_SCOPE_CONFIG.all;
+    const dispNameEl = document.getElementById('displayRiskScopeName');
+    if (dispNameEl) dispNameEl.textContent = cfg.name;
+
+    const descTextEl = document.getElementById('riskScopeDescText');
+    if (descTextEl) {
+      if (currentRiskScope === 'all') {
+        descTextEl.textContent = '(3,257 户 · 营销 1,860 + 导入 1,397)';
+      } else if (currentRiskScope === 'marketing') {
+        descTextEl.textContent = '(1,860 户 · 重点监测营销平台转化)';
+      } else {
+        descTextEl.textContent = '(1,397 户 · 重点监测人工导入存量)';
+      }
+    }
+
+    const dispAutoEl = document.getElementById('displayAutoEnroll');
+    if (dispAutoEl) {
+      dispAutoEl.textContent = riskConfig.autoEnroll ? '入池客户自动纳入雷达' : '暂停自动纳入，需手动审批';
+      dispAutoEl.style.color = riskConfig.autoEnroll ? '#16a34a' : '#94a3b8';
+    }
+
+    // 更新说明与指标
+    const riskDescEl = document.getElementById('riskScopeDesc');
+    if (riskDescEl) riskDescEl.innerHTML = cfg.desc;
+    if (document.getElementById('statRiskCard1')) document.getElementById('statRiskCard1').innerHTML = cfg.card1;
+    if (document.getElementById('statRiskCard1Sub')) document.getElementById('statRiskCard1Sub').innerHTML = cfg.card1Sub;
+    if (document.getElementById('statRiskCard2')) document.getElementById('statRiskCard2').innerHTML = cfg.card2;
+    if (document.getElementById('statRiskCard2Sub')) document.getElementById('statRiskCard2Sub').innerHTML = cfg.card2Sub;
+    if (document.getElementById('statRiskCard3')) document.getElementById('statRiskCard3').innerHTML = cfg.card3;
+    if (document.getElementById('statRiskCard3Sub')) document.getElementById('statRiskCard3Sub').innerHTML = cfg.card3Sub;
+    if (document.getElementById('statRiskCard4')) document.getElementById('statRiskCard4').innerHTML = cfg.card4;
+    if (document.getElementById('statRiskCard4Sub')) document.getElementById('statRiskCard4Sub').innerHTML = cfg.card4Sub;
+
+    applyFilters();
+    closeRiskConfigModal();
+    showToast(`预警策略配置已生效：已按「${cfg.name}」口径穿透监测`);
+  }
+
+  // 兼容老调用
+  function setRiskScope(scope) {
+    currentRiskScope = scope;
+    riskConfig.scope = scope;
+    const cfg = RISK_SCOPE_CONFIG[scope] || RISK_SCOPE_CONFIG.all;
+    const descTextEl = document.getElementById('riskScopeDescText');
+    if (descTextEl) {
+      if (scope === 'all') {
+        descTextEl.textContent = '(3,257 户 · 营销 1,860 + 导入 1,397)';
+      } else if (scope === 'marketing') {
+        descTextEl.textContent = '(1,860 户 · 重点监测营销平台转化)';
+      } else {
+        descTextEl.textContent = '(1,397 户 · 重点监测人工导入存量)';
+      }
+    }
+    const riskDescEl = document.getElementById('riskScopeDesc');
+    if (riskDescEl) riskDescEl.innerHTML = cfg.desc;
+    if (document.getElementById('statRiskCard1')) document.getElementById('statRiskCard1').innerHTML = cfg.card1;
+    if (document.getElementById('statRiskCard1Sub')) document.getElementById('statRiskCard1Sub').innerHTML = cfg.card1Sub;
+    if (document.getElementById('statRiskCard2')) document.getElementById('statRiskCard2').innerHTML = cfg.card2;
+    if (document.getElementById('statRiskCard2Sub')) document.getElementById('statRiskCard2Sub').innerHTML = cfg.card2Sub;
+    if (document.getElementById('statRiskCard3')) document.getElementById('statRiskCard3').innerHTML = cfg.card3;
+    if (document.getElementById('statRiskCard3Sub')) document.getElementById('statRiskCard3Sub').innerHTML = cfg.card3Sub;
+    if (document.getElementById('statRiskCard4')) document.getElementById('statRiskCard4').innerHTML = cfg.card4;
+    if (document.getElementById('statRiskCard4Sub')) document.getElementById('statRiskCard4Sub').innerHTML = cfg.card4Sub;
+    applyFilters();
+  }
+
+  // Mock 数据：以【企业维度】为纳管主体，支持单企业同时命中多个风险类别，多源证据链全面收纳至详情抽屉
+  const MOCK_RISKS = [
+    {
+      id: 1,
+      name: '苏州恒力精密制造有限公司',
+      source: 'AGENT',
+      sourceLabel: '营销智能体推送',
+      code: '91320500MA1XCXXX3',
+      region: '苏州市',
+      level: 'HIGH',
+      levelName: '高危风险',
+      riskTypes: ['JUDICIAL', 'OVERDUE'],
+      riskTypeLabels: [
+        { key: 'JUDICIAL', name: '司法涉诉', class: 'judicial' },
+        { key: 'OVERDUE', name: '贷款逾期', class: 'overdue' }
+      ],
+      alertCount: 2,
+      latestAlertTime: '2026-02-17 11:20',
+      partnerBank: '江苏银行',
+      pbocCategory: '次级 (不良)',
+      pbocCategoryBadge: 'danger',
+      pbocInstCount: 2,
+      pbocLoanCount: 3,
+      alertEvents: [
+        {
+          type: 'OVERDUE',
+          typeName: '贷款逾期与五级分类下调',
+          level: 'HIGH',
+          levelName: '高危风险',
+          title: '人行贷款五级分类下调为次级不良，本息逾期已达 42 天',
+          evidence: '人行征信核心底座监测显示，该企业在某股份行的一笔 350 万元抵押借款发生实质性欠息，最新五级分类已由“正常”下调为“次级不良”，跨行违约与联动清收风险极高。',
+          time: '2026-02-17 11:20',
+          source: '人行征信核心底座'
+        },
+        {
+          type: 'JUDICIAL',
+          typeName: '司法涉诉与强制执行',
+          level: 'HIGH',
+          levelName: '高危风险',
+          title: '新增失信被执行人信息，执行标的达 ¥1,280 万元，法人被限制高消费',
+          evidence: '苏州市中级人民法院于2026-02-14立案执行（案号：(2026)苏05执288号），涉及多笔民营借贷担保代偿纠纷，基本存款账户已被采取司法保全冻结措施。',
+          time: '2026-02-15 09:30',
+          source: '江苏省高院执行公开网'
+        }
+      ],
+      aiBases: [
+        {
+          badge: '依据 1',
+          source: '人行征信核心底座',
+          title: '人行贷款五级分类下调为次级不良，本息逾期已达 42 天',
+          detail: '核心征信监测显示，企业在某股份行 350 万元抵押借款发生实质性欠息逾期，触发跨行信用降级联动。'
+        },
+        {
+          badge: '依据 2',
+          source: '江苏省高院执行公开网',
+          title: '新增大额失信被执行人信息，执行标的达 ¥1,280 万元',
+          detail: '苏州市中院立案执行（(2026)苏05执288号），法定代表人被出具限制消费令，基本存款账户已被财产保全冻结。'
+        }
+      ],
+      aiAnalysis: [
+        {
+          dim: '司法冻结与资金链周转',
+          text: '主存款账户被司法保全冻结，日常生产周转资金已丧失流动性，对外正常收付款通道实质受阻。'
+        },
+        {
+          dim: '信贷逾期与多头挤兑风险',
+          text: '人行次级不良分类已向金融同业广播，在贷机构极易采取授信限额清零与加速到期追偿，引发多头债务踩踏。'
+        }
+      ],
+      aiConclusion: '该企业同时出现大额司法涉案冻结与人行五级分类恶化，现金流已陷入实质性枯竭，多头违约传导风险极高，短期内无自主偿债恢复可能，建议立即实施授信冻结与资产保全。',
+      aiDiagnosis: '该企业同时出现大额司法强制执行（主账户保全冻结）与人行信贷五级分类下调为次级不良，现金流出现实质性恶化，存在严重的多头交叉违约与流动性枯竭风险。',
+      aiActions: [
+        '立即指派双人管户团队开展厂区实地走访，核实实际开工与抵质押物现状',
+        '向司法机关与执行法院核实主账户冻结实际金额与涉及担保代偿债务规模',
+        '暂缓执行新增授信提款，制定存量信贷资产保全与抵质押物轮候查封预案'
+      ],
+      aiDecision: '高危在控 · 启动资产保全与提款冻结',
+      advice: '该企业同时出现大额司法强制执行（主账户保全冻结）与人行信贷五级分类下调为次级不良，现金流出现实质性恶化，存在严重的多头违约与流动性枯竭风险，建议管户机构立即启动现场风险排查与信贷资产保全应急预案。',
+      followupStatus: 'PROCESSING',
+      followupStatusLabel: '排查处置中',
+      followupLogs: [
+        { time: '2026-02-17 14:30', user: '管户经理 · 张建国', content: '收到系统多重高危预警推送，已完成电话初步核实，企业称受担保代偿牵连导致账户被查封。已预约 2 月 18 日上午前往企业厂区现场走访。' },
+        { time: '2026-02-15 10:00', user: '风控系统自动触发', content: '系统自动捕获司法涉诉（案号：(2026)苏05执288号）与人行五级分类下调信号，已同步通知江苏银行苏州分行风控管户团队。' }
+      ]
+    },
+    {
+      id: 2,
+      name: '南京某涉诉企业有限公司',
+      source: 'AGENT',
+      sourceLabel: '营销智能体推送',
+      code: '91320100MA9IXXX9',
+      region: '南京市',
+      level: 'HIGH',
+      levelName: '高危风险',
+      riskTypes: ['JUDICIAL'],
+      riskTypeLabels: [
+        { key: 'JUDICIAL', name: '司法涉诉', class: 'judicial' }
+      ],
+      alertCount: 1,
+      latestAlertTime: '2026-02-12 14:15',
+      partnerBank: '江苏银行',
+      pbocCategory: '正常类',
+      pbocCategoryBadge: 'success',
+      pbocInstCount: 0,
+      pbocLoanCount: 0,
+      alertEvents: [
+        {
+          type: 'JUDICIAL',
+          typeName: '失信被执行与限高',
+          level: 'HIGH',
+          levelName: '高危风险',
+          title: '被纳入失信被执行人名录，涉案被执行总金额超 300 万元',
+          evidence: '南京市玄武区人民法院裁定列入失信被执行人名单（案号：(2026)苏0102执115号），多起买卖合同纠纷未履行生效民事判决，法定代表人已被出具限制消费令。',
+          time: '2026-02-12 14:15',
+          source: '中国执行信息公开网'
+        }
+      ],
+      aiBases: [
+        {
+          badge: '依据 1',
+          source: '中国执行信息公开网',
+          title: '被法院裁定纳入全国失信被执行人名单，执行标的超 300 万元',
+          detail: '南京市玄武区人民法院立案裁定（(2026)苏0102执115号），多起买卖合同纠纷未履行生效判决，具有严重失信行为。'
+        },
+        {
+          badge: '依据 2',
+          source: '司法信用监测底座',
+          title: '企业法定代表人被限制高消费与限制出境',
+          detail: '司法执行限制消费令已生效，对涉诉主体及法定代表人的信誉评级构成一票否决限制。'
+        }
+      ],
+      aiAnalysis: [
+        {
+          dim: '法律信誉与监管禁入分析',
+          text: '该企业被正式裁定列入国家失信被执行人名录，在金融监管规范与行内信贷准入制度中属于一票否决的刚性负面清单对象，已丧失任何政策性金融与商业信贷准入条件。'
+        },
+        {
+          dim: '关联穿透与道德风险分析',
+          text: '尽管当前暂无人行在贷借据，但企业实控人对外债务违约频繁，存在高度的关联转移与恶意逃废债风险，极易利用关联壳公司套取银行授信。'
+        }
+      ],
+      aiConclusion: '企业属于法律裁判文书确认的严重失信主体，虽暂无信贷存量余额，但商业信用全面破产，建议永久冻结其系统准入评级，列入黑名单库，终止一切潜在授信合作。',
+      aiDiagnosis: '已被南京市玄武区人民法院裁定纳入失信被执行人名录，涉案金额超 300 万元，属于监管硬性负面准入限制对象。',
+      aiActions: [
+        '立即锁定该企业在平台与行内的准入资质，限制生成推荐名单',
+        '对该企业法定代表人名下其他关联投资企业启动多维度穿透排查'
+      ],
+      aiDecision: '失信禁入 · 终止一切新增准入合作',
+      advice: '已被多级法院列为失信被执行人，属于负面准入限制对象，虽然当前暂无人行在贷借据，但严重影响准入信誉，建议终止一切新增用信合作。',
+      followupStatus: 'RESOLVED',
+      followupStatusLabel: '已停止准入',
+      followupLogs: [
+        { time: '2026-02-12 16:00', user: '风控审核岗 · 李工', content: '经核实司法失信属实，该企业准入资质已被冻结，标记为黑名单限制用信。' }
+      ]
+    },
+    {
+      id: 3,
+      name: '常州龙城智能装备有限公司',
+      source: 'AGENT',
+      sourceLabel: '营销智能体推送',
+      code: '91320400MA6FXXX6',
+      region: '常州市',
+      level: 'HIGH',
+      levelName: '高危风险',
+      riskTypes: ['OVERDUE', 'TAX_BIZ', 'JUDICIAL'],
+      riskTypeLabels: [
+        { key: 'OVERDUE', name: '贷款逾期', class: 'overdue' },
+        { key: 'TAX_BIZ', name: '经营异常', class: 'tax_biz' },
+        { key: 'JUDICIAL', name: '司法涉诉', class: 'judicial' }
+      ],
+      alertCount: 3,
+      latestAlertTime: '2026-02-17 11:20',
+      partnerBank: '江苏银行',
+      pbocCategory: '次级 (不良)',
+      pbocCategoryBadge: 'danger',
+      pbocInstCount: 2,
+      pbocLoanCount: 2,
+      alertEvents: [
+        {
+          type: 'OVERDUE',
+          typeName: '人行欠息逾期',
+          level: 'HIGH',
+          levelName: '高危风险',
+          title: '人行贷款五级分类下调为次级，本息逾期已达 42 天',
+          evidence: '人行征信核心底座监测显示，该企业最新信贷资产质量下调为次级不良类，已产生实质性欠息与还款逾期，跨行违约风险极高。',
+          time: '2026-02-17 11:20',
+          source: '人行征信核心底座'
+        },
+        {
+          type: 'TAX_BIZ',
+          typeName: '经营异动与税收下降',
+          level: 'MEDIUM',
+          levelName: '中危风险',
+          title: '增值税开票金额断崖式下跌 52%，设备生产线开工负荷明显偏低',
+          evidence: '省电子税务局共享数据反映，2026年1月企业纳税申报开票总额由去年同期的 1,200 万元骤减至 570 万元，存在订单骤减或生产停滞风险。',
+          time: '2026-02-11 09:10',
+          source: '省电子税务局底座'
+        }
+      ],
+      aiBases: [
+        {
+          badge: '依据 1',
+          source: '人行征信核心底座',
+          title: '人行贷款五级分类下调为次级，本息逾期已达 42 天',
+          detail: '核心征信监测显示，该企业在股份行出现实质性利息违约，已触发全网跨行不良标记，外部再融资与续贷通道实质受阻。'
+        },
+        {
+          badge: '依据 2',
+          source: '省电子税务局底座',
+          title: '增值税申报开票金额骤减 52%，主营生产开工率显著偏低',
+          detail: '2026年1月企业纳税开票申报由去年同期的 1,200 万元骤减至 570 万元，核心下游订单大幅萎缩，内生经营性现金流入严重受挫。'
+        }
+      ],
+      aiAnalysis: [
+        {
+          dim: '主营生产与现金流传导分析',
+          text: '核心客户供应链变更引发大额订单流失，增值税开票出现断崖式腰斩（下跌 52%），生产线开工严重不足，企业依靠主营生产产生的内生现金流已无法覆盖固定刚性支出与贷款利息。'
+        },
+        {
+          dim: '金融信用与多头授信风险分析',
+          text: '人行五级分类下调至次级不良类且欠息逾期超 40 天，已在全行业征信底座形成负面信号，省内多家合作金融机构授信将全面转入审慎压降，面临再融资渠道彻底阻断与提前收贷风险。'
+        }
+      ],
+      aiConclusion: '企业已陷入“下游订单流失 → 税票开票腰斩 → 经营现金流枯竭 → 人行信贷逾期下调”的负向衰退链路。综合测算未来 60 天内发生实质性违约概率达 86.5%，自主恢复能力极弱，建议管户机构启动信贷敞口有序压降与退出处置。',
+      aiDiagnosis: '人行贷款五级分类下调为次级，本息逾期已达 42 天，叠加纳税申报开票金额断崖式下跌 52%，主营生产与现金流恶化显著。',
+      aiActions: [
+        '穿透核实核心供应链下游订单流失情况，评估实际代偿与还款现金流保障',
+        '协同分行风控部制定信贷敞口有序压降与有效担保追加方案'
+      ],
+      aiDecision: '经营恶化 · 制定信贷敞口压降退出计划',
+      advice: '人行信贷分类已下调为次级不良，叠加税票开票金额腰斩，反映近期企业现金流与经营开工出现实质性恶化，需密切跟踪实际经营与账款回款情况。',
+      followupStatus: 'PROCESSING',
+      followupStatusLabel: '排查处置中',
+      followupLogs: [
+        { time: '2026-02-17 15:10', user: '常州分行管户经理 · 赵工', content: '已联系下游采购方核实，由于核心客户变更供应链，企业订单出现断档。正协同分行风险部制定压降退出计划。' }
+      ]
+    },
+    {
+      id: 4,
+      name: '南京紫金山生物医药有限公司',
+      source: 'BANK_IMPORT',
+      sourceLabel: '客户池导入',
+      code: '91320100MA5EXXX5',
+      region: '南京市',
+      level: 'MEDIUM',
+      levelName: '中危风险',
+      riskTypes: ['TAX_BIZ', 'CORP_CHANGE'],
+      riskTypeLabels: [
+        { key: 'TAX_BIZ', name: '经营异常', class: 'tax_biz' },
+        { key: 'CORP_CHANGE', name: '工商变更', class: 'corp_change' }
+      ],
+      alertCount: 2,
+      latestAlertTime: '2026-02-16 16:40',
+      partnerBank: '江苏银行',
+      pbocCategory: '关注类',
+      pbocCategoryBadge: 'warning',
+      pbocInstCount: 2,
+      pbocLoanCount: 2,
+      alertEvents: [
+        {
+          type: 'TAX_BIZ',
+          typeName: '经营异常名录',
+          level: 'MEDIUM',
+          levelName: '中危风险',
+          title: '被市场监管部门列入「经营异常名录」，登记住所无法取得联系',
+          evidence: '南京市市场监督管理局随机抽查结果显示，因通过登记的住所或经营场所无法取得联系，于2026-02-14正式列入经营异常名录并向社会公示。',
+          time: '2026-02-16 16:40',
+          source: '省市场监管信用底座'
+        },
+        {
+          type: 'CORP_CHANGE',
+          typeName: '高管与股东异动',
+          level: 'LOW',
+          levelName: '关注提示',
+          title: '核心研发总监与监事辞任，监事由外部非关联自然人接任',
+          evidence: '国家企业信用信息公示系统显示，2026年1月公司关键研发团队负责人退出高级管理人员备案名册，变更为无技术背景人员。',
+          time: '2026-02-08 14:20',
+          source: '国家企业信用信息公示系统'
+        }
+      ],
+      aiDiagnosis: '被市场监管部门列入「经营异常名录」，且核心研发团队高管接连退出，存在办公场地搬迁未报或团队动荡风险。',
+      aiActions: [
+        '限期 3 个工作日内前往企业注册地开展现场走访核实其实际办公状态',
+        '督促企业及时向市监部门申请更正登记信息，完成移出异常名录手续'
+      ],
+      aiDecision: '异常名录 · 限期实地回访与合规整改',
+      advice: '被市监部门列入经营异常名录通常伴随办公场地搬迁未备案或突发经营停摆，叠加研发核心人员辞任，建议管户经理在3个工作日内实地走访核实其实际办公状态。',
+      followupStatus: 'PENDING',
+      followupStatusLabel: '待现场排查',
+      followupLogs: [
+        { time: '2026-02-16 17:00', user: '系统自动派发', content: '已生成工单派送至南京分行业务部管户人，限期 3 个工作日完成现场回访核实。' }
+      ]
+    },
+    {
+      id: 5,
+      name: '苏州创芯微电子有限公司',
+      source: 'BANK_IMPORT',
+      sourceLabel: '客户池导入',
+      code: '91320500MA1WXXX1',
+      region: '苏州市',
+      level: 'LOW',
+      levelName: '关注提示',
+      riskTypes: ['TAX_BIZ'],
+      riskTypeLabels: [
+        { key: 'TAX_BIZ', name: '经营异常', class: 'tax_biz' }
+      ],
+      alertCount: 1,
+      latestAlertTime: '2026-02-10 10:00',
+      partnerBank: '江苏银行',
+      pbocCategory: '正常类',
+      pbocCategoryBadge: 'success',
+      pbocInstCount: 1,
+      pbocLoanCount: 1,
+      alertEvents: [
+        {
+          type: 'TAX_BIZ',
+          typeName: '税务申报波动',
+          level: 'LOW',
+          levelName: '关注提示',
+          title: '近两季度申报纳税销售额同比下滑 28.5%，纳税评级预警关注',
+          evidence: '税务部门共享数据显示，受部分下游汽车芯片客户交付周期调整影响，上季度增值税应税销售额出现阶段性下降，企业暂无欠税与行政处罚记录。',
+          time: '2026-02-10 10:00',
+          source: '省电子税务局底座'
+        }
+      ],
+      aiDiagnosis: '受下游交货批次调整影响上季度销售额阶段性下浮，但人行征信信贷履约记录完好，企业生产线与订单储备整体稳健。',
+      aiActions: [
+        '结合最新产业订单交货排期进行动态回访，关注大额款项回笼进度',
+        '维持现有授信评级与信贷政策，暂无需采取限贷或压降措施'
+      ],
+      aiDecision: '基本盘稳健 · 维持评级并动态观察',
+      advice: '主营销售额阶段性波动，企业研发与订单储备基本盘稳定，人行征信信贷履约记录完好，建议结合其最新产业订单回款情况进行动态关注，暂无需采取限贷措施。',
+      followupStatus: 'RESOLVED',
+      followupStatusLabel: '已核实正常',
+      followupLogs: [
+        { time: '2026-02-12 11:30', user: '苏州园区支行 · 陈经理', content: '已现场查阅企业近期与比亚迪等供应链客户签署的供货框架合同，阶段性开票下滑系交货批次节点所致，排查结论：正常经营，继续关注。' }
+      ]
+    },
+    {
+      id: 6,
+      name: '江苏金冠智能传动科技有限公司',
+      source: 'AGENT',
+      sourceLabel: '营销智能体推送',
+      code: '91320412MA27XXX8',
+      region: '常州市',
+      level: 'MEDIUM',
+      levelName: '中危风险',
+      riskTypes: ['CORP_CHANGE'],
+      riskTypeLabels: [
+        { key: 'CORP_CHANGE', name: '工商变更', class: 'corp_change' }
+      ],
+      alertCount: 1,
+      latestAlertTime: '2026-02-18 10:15',
+      partnerBank: '江苏银行',
+      pbocCategory: '正常类',
+      pbocCategoryBadge: 'success',
+      pbocInstCount: 1,
+      pbocLoanCount: 2,
+      alertEvents: [
+        {
+          type: 'CORP_CHANGE',
+          typeName: '工商频繁变更与减资',
+          level: 'MEDIUM',
+          levelName: '中危风险',
+          title: '近3个月内法定代表人与控股股东连续2次突发变更，注册资本大幅减资 40%',
+          evidence: '国家企业信用信息公示系统显示，原实控人于2026-01转让全部股权退出，新任法定代表人无相关产业实操履历；同期注册资本由 5,000 万元缩减至 3,000 万元。',
+          time: '2026-02-18 10:15',
+          source: '国家企业信用信息公示系统'
+        }
+      ],
+      aiDiagnosis: '近 3 个月内法定代表人与控股股东连续 2 次突发变更且注册资本减资 40%，存在核心团队脱身离场或资产转移规避债务嫌疑。',
+      aiActions: [
+        '约谈新任法定代表人，穿透核查股权转让背景及资金对价真实性',
+        '评估存量借据偿债保障度，要求借款主体追加原实控人个人连带担保'
+      ],
+      aiDecision: '频繁减资异动 · 穿透审查并追加连带担保',
+      advice: '实控人与法定代表人突发接连变更并伴随大幅减资，存在核心运营团队脱身离场或资产转移规避债务的风险，建议管户经理立即现场核实生产经营实质。',
+      followupStatus: 'PENDING',
+      followupStatusLabel: '待现场排查',
+      followupLogs: [
+        { time: '2026-02-18 10:30', user: '系统智能侦测', content: '捕获全国工商注册资本变动公告，监测到大额减资与实控人频繁脱离，已触发预警工单。' }
+      ]
+    },
+    {
+      id: 7,
+      name: '无锡惠山区精密机械有限公司',
+      source: 'BANK_IMPORT',
+      sourceLabel: '客户池导入',
+      code: '91320200MABKXXB',
+      region: '无锡市',
+      level: 'MEDIUM',
+      levelName: '中危风险',
+      riskTypes: ['JUDICIAL'],
+      riskTypeLabels: [
+        { key: 'JUDICIAL', name: '司法涉诉', class: 'judicial' }
+      ],
+      alertCount: 1,
+      latestAlertTime: '2026-02-17 08:50',
+      partnerBank: '苏州农商行',
+      pbocCategory: '正常类',
+      pbocCategoryBadge: 'success',
+      pbocInstCount: 1,
+      pbocLoanCount: 2,
+      alertEvents: [
+        {
+          type: 'JUDICIAL',
+          typeName: '大股东股权被司法冻结',
+          level: 'MEDIUM',
+          levelName: '中危风险',
+          title: '发生重大股权冻结，二股东持股 35% 全部被司法冻结',
+          evidence: '企业第二大股东因外部民事担保纠纷，名下持有的价值 700 万元股权被司法冻结，冻结期限至 2029 年（案号：(2026)苏0205执保45号）。',
+          time: '2026-02-17 08:50',
+          source: '司法风险监控底座'
+        }
+      ],
+      aiDiagnosis: '企业第二大股东持股 35% 被司法机关全额冻结，冻结期限长达 3 年，可能对公司治理结构与经营决策稳定性带来衍生风险。',
+      aiActions: [
+        '持续跟踪二股东外部民事担保纠纷判决进展与股权强制拍卖风险',
+        '强化对主要回款账户的资金归集监管，防范股东个人债务向企业传导'
+      ],
+      aiDecision: '股权司法冻结 · 强化账户监管与抵质押管控',
+      advice: '重大股东股权冻结可能对公司治理结构、增资扩股及续贷评审产生影响，建议持续关注股东纠纷进展，并要求追加其他有效资产抵质押担保。',
+      followupStatus: 'PROCESSING',
+      followupStatusLabel: '排查处置中',
+      followupLogs: [
+        { time: '2026-02-17 10:00', user: '苏州农商行信贷部 · 孙经理', content: '已联系该股东核查，正在要求借款主体补充实控人个人连带保证责任。' }
+      ]
+    }
+  ];
+
+  let currentTab = 'ALL';
+
+  // 表格渲染：以【企业维度】聚合呈现，一行一家企业，支持多风险类别徽标并发展示与+N折叠
+  function renderTable(data) {
+    const tbody = document.getElementById('riskTableBody');
+    if (!data || data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:#94a3b8;">暂无符合条件的风险预警企业</td></tr>';
+      document.getElementById('pageInfo').textContent = '共 0 家企业';
+      return;
+    }
+
+    document.getElementById('pageInfo').textContent = `共 ${data.length} 家在监控风险企业`;
+
+    tbody.innerHTML = data.map((item, idx) => {
+      // 综合风险等级徽章
+      let levelBadge = '';
+      if (item.level === 'HIGH') levelBadge = `<span class="badge-risk high">高危风险</span>`;
+      else if (item.level === 'MEDIUM') levelBadge = `<span class="badge-risk medium">中危风险</span>`;
+      else levelBadge = `<span class="badge-risk low">关注提示</span>`;
+
+      // 命中风险类型标签：统一中性专业色调，取消折叠截断，支持自适应换行全部平铺展示
+      const allLabels = item.riskTypeLabels || [];
+      const riskTagsHtml = allLabels.length > 0
+        ? allLabels.map(rt => `<span class="tag-risk-type">${rt.name}</span>`).join('')
+        : '<span style="font-size:11.5px;color:#94a3b8;">暂无异常</span>';
+
+      // 人行信贷形态标签
+      let pbocBadge = '';
+      if (item.pbocCategoryBadge === 'danger') {
+        pbocBadge = `<span style="font-size:11px;color:#dc2626;font-weight:600;background:#fef2f2;padding:1px 6px;border-radius:4px;border:1px solid #fecaca;">次级 (不良)</span>`;
+      } else if (item.pbocCategoryBadge === 'warning') {
+        pbocBadge = `<span style="font-size:11px;color:#d97706;font-weight:600;background:#fffbeb;padding:1px 6px;border-radius:4px;border:1px solid #fde68a;">关注类形态</span>`;
+      } else {
+        pbocBadge = `<span style="font-size:11px;color:#16a34a;font-weight:600;background:#f0fdf4;padding:1px 6px;border-radius:4px;border:1px solid #bbf7d0;">正常类形态</span>`;
+      }
+
+      return `
+        <tr>
+          <td style="text-align:center;color:#64748b;font-size:12px;">${idx + 1}</td>
+          <td style="text-align:left;">
+            <div style="font-weight:600;color:#0f172a;cursor:pointer;line-height:1.4;" onclick="openRiskDrawer(${item.id})" onmouseenter="this.style.color='var(--brand)'" onmouseleave="this.style.color='#0f172a'">${item.name}</div>
+            <div style="font-size:11.5px;color:#64748b;margin-top:2px;">${item.region}</div>
+          </td>
+          <td style="text-align:left;">
+            <span style="font-size:11.5px;color:#334155;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;letter-spacing:-0.2px;">${item.code}</span>
+          </td>
+          <td style="text-align:center;">
+            <span style="font-size:12px;color:#475569;">${item.source === 'AGENT' ? '营销智能体推送' : (item.source === 'DELIVERY' ? '名单交付导入' : '客户池导入')}</span>
+          </td>
+          <td style="text-align:center;">
+            <div style="display:flex;justify-content:center;">${levelBadge}</div>
+          </td>
+          <td style="text-align:left;">
+            <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px 6px;">
+              ${riskTagsHtml}
+            </div>
+          </td>
+          <td style="text-align:left;">
+            <div>${pbocBadge}</div>
+            <div style="font-size:11px;color:#64748b;margin-top:3px;">
+              ${item.pbocInstCount > 0 ? `人行在贷机构：${item.pbocInstCount} 家` : '人行暂无在贷记录'}
+            </div>
+          </td>
+          <td style="text-align:center;">
+            <span style="font-size:11.5px;color:#64748b;white-space:nowrap;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;">${item.latestAlertTime}</span>
+          </td>
+          <td style="text-align:center;">
+            <button class="btn btn-sm btn-default" onclick="openRiskDrawer(${item.id})" style="display:inline-flex;align-items:center;justify-content:center;color:var(--brand);border-color:#bbf7d0;background:#f0fdf4;font-weight:600;padding:3px 12px;font-size:12px;border-radius:4px;cursor:pointer;transition:all 0.15s ease;" onmouseenter="this.style.background='var(--brand)';this.style.color='#fff';this.style.borderColor='var(--brand)';" onmouseleave="this.style.background='#f0fdf4';this.style.color='var(--brand)';this.style.borderColor='#bbf7d0';">详情</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function switchRiskTab(elem, type) {
+    document.querySelectorAll('.tab-nav-item').forEach(t => t.classList.remove('active'));
+    elem.classList.add('active');
+    currentTab = type;
+    applyFilters();
+  }
+
+  // 当前顶部选中的合作机构名称（默认江苏银行）
+  let currentOrgName = '江苏银行';
+
+  function applyFilters() {
+    const level = document.getElementById('filterRiskLevel').value;
+    const kw = document.getElementById('filterKeyword').value.trim().toLowerCase();
+
+    let filtered = MOCK_RISKS.filter(item => {
+      // 顶部全局机构联动（若选中具体某家机构，仅展示该机构纳管客户；选全部机构展示全量）
+      if (currentOrgName && currentOrgName !== '全部机构' && currentOrgName !== '全部合作机构') {
+        if (item.partnerBank && item.partnerBank !== currentOrgName) return false;
+      }
+
+      // 监控范围联动过滤
+      if (currentRiskScope === 'marketing' && item.source !== 'AGENT') return false;
+      if (currentRiskScope === 'import' && item.source !== 'BANK_IMPORT') return false;
+
+      // Tab 分类联动过滤 (命中包含该风险类型的企业)
+      if (currentTab !== 'ALL') {
+        if (!item.riskTypes || !item.riskTypes.includes(currentTab)) return false;
+      }
+
+      // 综合风险等级过滤
+      if (level && item.level !== level) return false;
+
+      // 关键词搜索过滤 (企业名称 / 统一社会信用代码)
+      if (kw && !item.name.toLowerCase().includes(kw) && !item.code.toLowerCase().includes(kw)) return false;
+
+      return true;
+    });
+
+    renderTable(filtered);
+  }
+
+  function resetFilters() {
+    document.getElementById('filterRiskLevel').value = '';
+    document.getElementById('filterKeyword').value = '';
+    applyFilters();
+  }
+
+  let currentDrawerRiskId = null;
+  let currentDrawerTab = 'ai'; // 'ai' | 'events' | 'followup'
+
+  // 抽屉 Tab 切换控制 (四 Tab 架构：AI 智能研判、风险事件明细、人行信贷画像、排查处置记录)
+  function switchRiskDrawerTab(tabKey, el) {
+    currentDrawerTab = tabKey;
+    document.querySelectorAll('#riskDrawerTabs .drawer-tab').forEach(t => t.classList.remove('active'));
+    if (el) {
+      el.classList.add('active');
+    } else {
+      const map = {
+        ai: 'tabRiskAi',
+        events: 'tabRiskEvents',
+        credit: 'tabRiskCredit',
+        followup: 'tabRiskFollowup'
+      };
+      const targetEl = document.getElementById(map[tabKey] || 'tabRiskAi');
+      if (targetEl) targetEl.classList.add('active');
+    }
+
+    const paneAi = document.getElementById('riskPaneAi');
+    const paneEvents = document.getElementById('riskPaneEvents');
+    const paneCredit = document.getElementById('riskPaneCredit');
+    const paneFollowup = document.getElementById('riskPaneFollowup');
+    const btnExport = document.getElementById('btnDrawerExport');
+
+    if (paneAi) paneAi.classList.toggle('active', tabKey === 'ai');
+    if (paneEvents) paneEvents.classList.toggle('active', tabKey === 'events');
+    if (paneCredit) paneCredit.classList.toggle('active', tabKey === 'credit');
+    if (paneFollowup) paneFollowup.classList.toggle('active', tabKey === 'followup');
+
+    if (btnExport) {
+      if (tabKey === 'ai') {
+        btnExport.textContent = '导出 AI 风控研判报告';
+      } else if (tabKey === 'events') {
+        btnExport.textContent = '导出风险事件明细清单';
+      } else if (tabKey === 'credit') {
+        btnExport.textContent = '导出人行信贷征信底稿';
+      } else {
+        btnExport.textContent = '导出排查处置底稿';
+      }
+    }
+  }
+
+  // 抽屉详情：分四 Tab 承载【AI 智能研判】、【风险事件明细】、【人行信贷画像】、【排查处置记录】
+  function openRiskDrawer(id) {
+    const item = MOCK_RISKS.find(x => x.id === id);
+    if (!item) return;
+
+    currentDrawerRiskId = id;
+
+    // Header 基本信息
+    document.getElementById('drawerEntName').textContent = item.name;
+    const badgeEl = document.getElementById('drawerEntSourceBadge');
+    if (badgeEl) {
+      const isAgent = item.source === 'AGENT';
+      const isDelivery = item.source === 'DELIVERY';
+      badgeEl.textContent = isAgent ? '营销智能体推送' : (isDelivery ? '名单交付导入' : '客户池导入');
+      badgeEl.style.background = isAgent ? '#f0fdf4' : (isDelivery ? '#eff6ff' : '#f1f5f9');
+      badgeEl.style.color = isAgent ? '#15803d' : (isDelivery ? '#1d4ed8' : '#475569');
+    }
+    document.getElementById('drawerEntCode').textContent = `统一社会信用代码：${item.code} · 注册地：${item.region}`;
+
+    // 更新 Tab 2【风险事件明细】的数量角标
+    const eventsBadgeEl = document.getElementById('drawerEventsBadge');
+    if (eventsBadgeEl) eventsBadgeEl.textContent = (item.alertEvents || []).length;
+
+    // 更新 Tab 3【人行信贷画像】的数量角标
+    const creditBadgeEl = document.getElementById('drawerCreditBadge');
+    if (creditBadgeEl) {
+      const loanCount = item.pbocLoanCount || 0;
+      creditBadgeEl.textContent = loanCount > 0 ? `${loanCount}笔` : '无在贷';
+      if (item.pbocCategoryBadge === 'danger') {
+        creditBadgeEl.style.background = '#fef2f2';
+        creditBadgeEl.style.color = '#dc2626';
+        creditBadgeEl.style.borderColor = '#fecaca';
+      } else if (item.pbocCategoryBadge === 'warning') {
+        creditBadgeEl.style.background = '#fffbeb';
+        creditBadgeEl.style.color = '#d97706';
+        creditBadgeEl.style.borderColor = '#fde68a';
+      } else {
+        creditBadgeEl.style.background = '#eff6ff';
+        creditBadgeEl.style.color = '#2563eb';
+        creditBadgeEl.style.borderColor = '#bfdbfe';
+      }
+    }
+
+    // 更新 Tab 4【排查处置记录】的数量角标
+    const followupCount = item.followupLogs ? item.followupLogs.length : 0;
+    const followupBadgeEl = document.getElementById('drawerFollowupBadge');
+    if (followupBadgeEl) followupBadgeEl.textContent = followupCount;
+
+    // 默认切换到第一个 Tab【AI 智能研判】
+    switchRiskDrawerTab('ai');
+
+    // 分别渲染四个独立 Tab 的视图内容
+    renderRiskDrawerAiPane(item);
+    renderRiskDrawerEventsPane(item);
+    renderRiskDrawerCreditPane(item);
+    renderRiskDrawerFollowupPane(item);
+
+    document.getElementById('riskDrawer').classList.add('show');
+    syncBodyScrollLock();
+  }
+
+  // 渲染 Tab 1: AI 智能研判（模型深度推理：有依据、有分析、有结论、有行动）
+  function renderRiskDrawerAiPane(item) {
+    const pane = document.getElementById('riskPaneAi');
+    if (!pane) return;
+
+    // 1. 研判关键事实依据（有依据：提炼自人行、税票、司法等多源底层事实）
+    let bases = item.aiBases;
+    if (!bases || bases.length === 0) {
+      bases = [];
+      if (item.pbocCategoryBadge === 'danger' || item.pbocCategoryBadge === 'warning') {
+        bases.push({
+          badge: '征信依据',
+          source: '人行征信核心底座',
+          title: `信贷资产五级分类形态异动（${item.pbocCategory}）`,
+          detail: `人行征信底座显示，该企业在贷金融机构 ${item.pbocInstCount} 家、借据 ${item.pbocLoanCount} 笔，已出现五级分类下调或逾期欠息，跨行违约与传染风险激增。`
+        });
+      }
+      (item.alertEvents || []).forEach((ev, idx) => {
+        bases.push({
+          badge: `依据 ${idx + 1}`,
+          source: ev.source || '多源大数据底座',
+          title: ev.title,
+          detail: ev.evidence
+        });
+      });
+    }
+
+    const basesHtml = bases.map(b => `
+      <div class="ai-evidence-item">
+        <span class="ai-evidence-badge">${b.badge}</span>
+        <div style="flex:1;">
+          <div style="font-size:12.5px;font-weight:700;color:#0f172a;margin-bottom:3px;line-height:1.4;">
+            ${b.title}
+          </div>
+          <div style="font-size:12px;color:#475569;line-height:1.55;">
+            ${b.detail}
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    // 2. 风险归因分析（有分析：从主营业务、现金流、授信传导多角度深度剖析链路）
+    let analysisItems = item.aiAnalysis;
+    if (!analysisItems || analysisItems.length === 0) {
+      analysisItems = [
+        {
+          dim: '主营开工与现金流传导分析',
+          text: item.aiDiagnosis || '多项预警指标表明该企业主营业务造血能力与外部流动性支持正在快速衰退，现金流入断崖式萎缩，日常经营性还本付息严重承压。'
+        },
+        {
+          dim: '金融同业多头违约传染分析',
+          text: '企业多源异动信号已在全网风控雷达触发联动预警，极易在省内多家存量在贷金融机构间形成“交叉收贷、额度冻结、相互踩踏”的负向循环。'
+        }
+      ];
+    }
+    const analysisHtml = analysisItems.map(a => `
+      <div style="margin-bottom:10px;">
+        <div style="font-size:12px;font-weight:700;color:#3730a3;margin-bottom:4px;display:flex;align-items:center;gap:6px;">
+          <span style="width:6px;height:6px;border-radius:50%;background:#6366f1;"></span>
+          ${a.dim}
+        </div>
+        <div style="font-size:12px;color:#1e293b;line-height:1.65;background:#ffffff;border:1px solid #e0e7ff;border-radius:6px;padding:8px 12px;">
+          ${a.text}
+        </div>
+      </div>
+    `).join('');
+
+    // 3. 研判结论（有结论：最终定性定级、违约概率评估）
+    const conclusionText = item.aiConclusion || `经征信核心底座与多源产业大数据交叉检验，大模型综合评定该企业当前风险敞口极高。主营业务与资金链已发生实质性脱节，短期内自主脱困可能性低。模型评估其未来 60 天内新增同业违约或展期违约的置信度超过 85%，建议风控与管户团队立即采取防守型保全措施。`;
+
+    // 4. 建议处置措施（有行动）
+    const actions = item.aiActions && item.aiActions.length > 0 ? item.aiActions : [
+      '管户客户经理于 24 小时内完成双人现场走访，核实企业生产经营与资金流向。',
+      '提请授信审批部门评估追加担保或提前压缩授信风险敞口。'
+    ];
+    const aiActionsHtml = actions.map((act, idx) => `
+      <div class="ai-action-item">
+        <span class="ai-action-badge">${idx + 1}</span>
+        <div style="flex:1;">${act}</div>
+      </div>
+    `).join('');
+
+    const scopeClass = item.level === 'HIGH' ? 'high' : (item.level === 'MEDIUM' ? 'medium' : 'low');
+
+    const html = `
+      <!-- ① 研判结论（结论先行：定性 + 核心结论全文） -->
+      <div style="margin-bottom:18px;">
+        <div class="ai-section-title">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span>研判结论</span>
+        </div>
+        
+        <!-- 决策倾向定性条 -->
+        <div class="ai-decision-banner ${scopeClass}" style="margin-bottom:10px;">
+          <span class="ai-decision-tag">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.39 8.26L21 9.27L16.24 14.14L17.36 21L12 17.77L6.64 21L7.76 14.14L3 9.27L9.61 8.26L12 2Z"/></svg>
+            ★ AI 决策倾向
+          </span>
+          <div class="ai-decision-text">${item.aiDecision || '密切监控 · 防范跨行违约传导'}</div>
+        </div>
+
+        <!-- 结论核心正文卡片 -->
+        <div class="ai-conclusion-card ${scopeClass}" style="margin-bottom:0;">
+          <div style="font-size:12.5px;color:#0f172a;line-height:1.65;font-weight:500;">
+            ${conclusionText}
+          </div>
+        </div>
+      </div>
+
+      <!-- ② 风险归因分析（为什么恶化：主营与现金流、同业传导机理） -->
+      <div style="margin-bottom:18px;">
+        <div class="ai-section-title">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2.2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          <span>风险归因分析</span>
+        </div>
+        <div class="ai-analysis-block">
+          ${analysisHtml}
+        </div>
+      </div>
+
+      <!-- ③ 研判依据（凭什么判断：人行征信、司法诉讼等多源底层事实） -->
+      <div style="margin-bottom:18px;">
+        <div class="ai-section-title">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>研判依据</span>
+        </div>
+        <div class="ai-evidence-list">
+          ${basesHtml}
+        </div>
+      </div>
+
+      <!-- ④ 处置建议（怎么办：一线风控与管户团队落地行动清单） -->
+      <div style="margin-bottom:18px;">
+        <div class="ai-section-title">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          <span>处置建议</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          ${aiActionsHtml}
+        </div>
+      </div>
+
+      <!-- ⑤ 真实数据+系统规则+大模型深度推理输出注脚 -->
+      <div class="ai-insight-disclaimer">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <span>研判分析以真实数据为基础，结合系统规则和大模型深度推理输出，供决策参考</span>
+      </div>
+    `;
+
+    pane.innerHTML = html;
+  }
+
+  // 渲染 Tab 2: 风险事件与信贷（客观明细：核心事件证据明细、人行信贷状态与在贷画像）
+  function renderRiskDrawerEventsPane(item) {
+    const pane = document.getElementById('riskPaneEvents');
+    if (!pane) return;
+
+    // 人行形态徽标
+    let pbocBadge = '';
+    if (item.pbocCategoryBadge === 'danger') {
+      pbocBadge = `<span style="font-size:12px;color:#dc2626;font-weight:600;background:#fef2f2;padding:2px 8px;border-radius:4px;border:1px solid #fecaca;">次级 (不良类)</span>`;
+    } else if (item.pbocCategoryBadge === 'warning') {
+      pbocBadge = `<span style="font-size:12px;color:#d97706;font-weight:600;background:#fffbeb;padding:2px 8px;border-radius:4px;border:1px solid #fde68a;">关注类形态</span>`;
+    } else {
+      pbocBadge = `<span style="font-size:12px;color:#16a34a;font-weight:600;background:#f0fdf4;padding:2px 8px;border-radius:4px;border:1px solid #bbf7d0;">正常类形态</span>`;
+    }
+
+    // 处置状态徽标
+    let statusBadge = '';
+    if (item.followupStatus === 'PROCESSING') {
+      statusBadge = `<span style="font-size:11.5px;padding:3px 8px;border-radius:4px;background:#fef3c7;color:#b45309;font-weight:600;">排查处置中</span>`;
+    } else if (item.followupStatus === 'RESOLVED') {
+      statusBadge = `<span style="font-size:11.5px;padding:3px 8px;border-radius:4px;background:#f0fdf4;color:#16a34a;font-weight:600;">已排查处置</span>`;
+    } else {
+      statusBadge = `<span style="font-size:11.5px;padding:3px 8px;border-radius:4px;background:#f1f5f9;color:#475569;font-weight:600;">待现场排查</span>`;
+    }
+
+    const scopeClass = item.level === 'HIGH' ? 'high-scope' : (item.level === 'MEDIUM' ? 'medium-scope' : 'low-scope');
+    const levelClass = item.level === 'HIGH' ? 'high' : (item.level === 'MEDIUM' ? 'medium' : 'low');
+
+    // 风险事件列表
+    const eventsHtml = (item.alertEvents || []).map((ev) => {
+      const isHigh = ev.level === 'HIGH';
+      const isMed = ev.level === 'MEDIUM';
+      const cardClass = isHigh ? 'high-risk' : (isMed ? 'medium-risk' : 'low-risk');
+      const evLevelClass = isHigh ? 'high' : (isMed ? 'medium' : 'low');
+
+      return `
+        <div class="drawer-event-card ${cardClass}">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="badge-risk ${evLevelClass}">${ev.levelName}</span>
+              <span style="font-size:13.5px;font-weight:700;color:#0f172a;">${ev.typeName}</span>
+            </div>
+            <span style="font-size:11.5px;color:#64748b;">${ev.time}</span>
+          </div>
+
+          <div style="font-size:13px;font-weight:600;color:#0f172a;line-height:1.5;margin-bottom:8px;">
+            ${ev.title}
+          </div>
+
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:10px 12px;margin-top:6px;font-size:12px;color:#334155;line-height:1.6;letter-spacing:0.1px;">
+            ${ev.evidence}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    const html = `
+      <!-- 模块 1：预警指标概览看板 -->
+      <div class="overview-dashboard-card ${scopeClass}" style="margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="badge-risk ${levelClass}" style="padding:4px 10px;font-size:12.5px;font-weight:700;">
+              ${item.levelName}
+            </span>
+            <span style="font-size:14px;font-weight:700;color:#0f172a;">
+              触发 ${item.alertEvents.length} 项预警
+            </span>
+          </div>
+          <div>${statusBadge}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;">
+          <div class="overview-metric-pill">
+            <div style="font-size:11px;color:#64748b;margin-bottom:2px;">管户合作机构</div>
+            <div style="font-size:12.5px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${item.partnerBank}">${item.partnerBank}</div>
+          </div>
+          <div class="overview-metric-pill">
+            <div style="font-size:11px;color:#64748b;margin-bottom:2px;">命中风险维度</div>
+            <div style="font-size:12.5px;font-weight:700;color:#0f172a;">${item.riskTypes.length} 个维度</div>
+          </div>
+          <div class="overview-metric-pill">
+            <div style="font-size:11px;color:#64748b;margin-bottom:2px;">最新信号捕获</div>
+            <div style="font-size:12px;font-weight:600;color:#0f172a;">${item.latestAlertTime}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块 2：事件明细 -->
+      <div style="margin-bottom:10px;">
+        <div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+          <span style="width:4px;height:14px;background:var(--brand);border-radius:2px;"></span>
+          事件明细
+        </div>
+        <div>
+          ${eventsHtml}
+        </div>
+      </div>
+    `;
+
+    pane.innerHTML = html;
+  }
+
+  // 获取/组装企业级人行信贷穿透画像数据模型（严格基于人行征信月更字段：金融机构脱敏、贷款类型、余额区间、五级分类、时序推断）
+  function getEnterpriseCreditProfile(item) {
+    if (item.creditProfile) return item.creditProfile;
+
+    const partner = item.partnerBank || '江苏银行';
+    const isDanger = item.pbocCategoryBadge === 'danger';
+    const isWarning = item.pbocCategoryBadge === 'warning';
+
+    // 企业 1：苏州恒力精密制造有限公司
+    if (item.id === 1) {
+      return {
+        dataBatch: '202602 (人行月报最新批次)',
+        calcMethod: '区间下限保守估值法 (间隔20万元)',
+        totalLoanBalance: '2,350 万元',
+        basePeriodBalance: '2,000 万元',
+        netIncreaseAmount: '+350 万元',
+        instCount: 2,
+        usageChangeCategory: '新增用信',
+        usageChangeCategoryDesc: '最新在贷总余额高于交付前基准月（净增 +350 万元），属于信贷监控核心留存资产',
+        usageChangeCategorySub: '较基准期净增 +350 万元 · 核心留存',
+        pbocCategory: '次级 (不良类)',
+        pbocCategoryBadge: 'danger',
+        pbocCategoryChangeDate: '2026-02-17',
+        pbocCategoryChangeNote: '人行202602批次：名下新增 1 笔借据分类下调为次级，综合分类转为不良',
+        localBankBalance: '800 万元',
+        otherBankBalance: '1,550 万元',
+        localLoanCount: 1,
+        otherLoanCount: 2,
+        // 人行在贷借据明细（严格对应人行字段）
+        loans: [
+          {
+            instCode: '金融机构 1',
+            loanType: '抵押',
+            rangeText: '[780万, 800万)',
+            balanceEst: '800 万元',
+            category: '正常',
+            categoryBadge: 'normal',
+            statusDesc: '正常在贷',
+            batch: '202602',
+            isLocal: true
+          },
+          {
+            instCode: '金融机构 2',
+            loanType: '抵押',
+            rangeText: '[340万, 360万)',
+            balanceEst: '350 万元',
+            category: '次级',
+            categoryBadge: 'danger',
+            statusDesc: '欠息不良 (分类下调)',
+            batch: '202602',
+            isLocal: false
+          },
+          {
+            instCode: '金融机构 3',
+            loanType: '保证',
+            rangeText: '[1,180万, 1,200万)',
+            balanceEst: '1,200 万元',
+            category: '关注',
+            categoryBadge: 'warning',
+            statusDesc: '关注类在贷',
+            batch: '202602',
+            isLocal: false
+          }
+        ],
+        // 贷款类型分布（基于人行贷款类型字段统计）
+        guarantees: [
+          { type: '抵押类贷款', count: 2, amount: '1,150 万元', ratio: '48.9%', color: '#3b82f6' },
+          { type: '保证类贷款', count: 1, amount: '1,200 万元', ratio: '51.1%', color: '#f59e0b' },
+          { type: '信用类贷款', count: 0, amount: '0 万元', ratio: '0.0%', color: '#10b981' },
+          { type: '质押类贷款', count: 0, amount: '0 万元', ratio: '0.0%', color: '#8b5cf6' }
+        ],
+        guaranteeInference: '名下借据 100% 依赖资产抵押与第三方担保，无纯信用借贷敞口。侧面反映企业信用资质偏弱、抗流动性风险弹性较低。',
+        // 月度时序推断轨迹（源自方案时序多期监控底座）
+        timeline: [
+          { m: '202510 (基准月)', balance: '2,000 万元', count: 2, cat: '正常', catBadge: 'normal', note: '交付前基准期底账，2 笔借据正常在贷' },
+          { m: '202511', balance: '2,000 万元', count: 2, cat: '正常', catBadge: 'normal', note: '信贷规模与机构数持平未变' },
+          { m: '202512', balance: '2,350 万元', count: 3, cat: '正常', catBadge: 'normal', note: '新增他行抵押借据 1 笔（期间曾新增用信 +350 万）' },
+          { m: '202601', balance: '2,350 万元', count: 3, cat: '关注', catBadge: 'warning', note: '人行月更：他行借据五级分类首次下调为关注类' },
+          { m: '202602 (最新期)', balance: '2,350 万元', count: 3, cat: '次级', catBadge: 'danger', note: '人行月更：他行借据进一步下调为次级（转为不良）' }
+        ],
+        timingInference: '该客户虽处于“存续增量用信”活跃状态（净增 +350 万），但人行最新数据显示其在他行借据已恶化下调为次级不良，跨行风险传染特征显著，需重点排查在贷资产。'
+      };
+    }
+
+    // 企业 3：常州龙城智能装备股份有限公司
+    if (item.id === 3) {
+      return {
+        dataBatch: '202602 (人行月报最新批次)',
+        calcMethod: '区间下限保守估值法 (间隔20万元)',
+        totalLoanBalance: '2,900 万元',
+        basePeriodBalance: '2,450 万元',
+        netIncreaseAmount: '+450 万元',
+        instCount: 3,
+        usageChangeCategory: '新增用信',
+        usageChangeCategoryDesc: '最新在贷总余额高于交付前基准月（净增 +450 万元），属于信贷监控核心留存资产',
+        usageChangeCategorySub: '较基准期净增 +450 万元 · 核心留存',
+        pbocCategory: '次级 (不良类)',
+        pbocCategoryBadge: 'danger',
+        pbocCategoryChangeDate: '2026-02-17',
+        pbocCategoryChangeNote: '人行202602批次：名下 1 笔他行借据五级分类由关注下调为次级',
+        localBankBalance: '1,200 万元',
+        otherBankBalance: '1,700 万元',
+        localLoanCount: 1,
+        otherLoanCount: 2,
+        loans: [
+          {
+            instCode: '金融机构 1',
+            loanType: '抵押',
+            rangeText: '[1,180万, 1,200万)',
+            balanceEst: '1,200 万元',
+            category: '正常',
+            categoryBadge: 'normal',
+            statusDesc: '正常在贷',
+            batch: '202602',
+            isLocal: true
+          },
+          {
+            instCode: '金融机构 2',
+            loanType: '保证',
+            rangeText: '[440万, 460万)',
+            balanceEst: '450 万元',
+            category: '次级',
+            categoryBadge: 'danger',
+            statusDesc: '欠息不良 (分类下调)',
+            batch: '202602',
+            isLocal: false
+          },
+          {
+            instCode: '金融机构 3',
+            loanType: '质押',
+            rangeText: '[1,240万, 1,260万)',
+            balanceEst: '1,250 万元',
+            category: '关注',
+            categoryBadge: 'warning',
+            statusDesc: '关注类在贷',
+            batch: '202602',
+            isLocal: false
+          }
+        ],
+        guarantees: [
+          { type: '抵押类贷款', count: 1, amount: '1,200 万元', ratio: '41.4%', color: '#3b82f6' },
+          { type: '保证类贷款', count: 1, amount: '450 万元', ratio: '15.5%', color: '#f59e0b' },
+          { type: '质押类贷款', count: 1, amount: '1,250 万元', ratio: '43.1%', color: '#8b5cf6' },
+          { type: '信用类贷款', count: 0, amount: '0 万元', ratio: '0.0%', color: '#10b981' }
+        ],
+        guaranteeInference: '在贷借据以抵押与质押担保为主，叠加 1 笔第三方保证借据已发生欠息不良，需警惕担保连带风险。',
+        timeline: [
+          { m: '202510 (基准月)', balance: '2,450 万元', count: 2, cat: '正常', catBadge: 'normal', note: '交付前基准月底账，在贷正常' },
+          { m: '202511', balance: '2,450 万元', count: 2, cat: '正常', catBadge: 'normal', note: '信贷状态正常' },
+          { m: '202512', balance: '2,900 万元', count: 3, cat: '正常', catBadge: 'normal', note: '新增他行保证借据 1 笔（期间曾新增用信 +450 万）' },
+          { m: '202601', balance: '2,900 万元', count: 3, cat: '关注', catBadge: 'warning', note: '他行保证借据由正常下调为关注' },
+          { m: '202602 (最新期)', balance: '2,900 万元', count: 3, cat: '次级', catBadge: 'danger', note: '他行保证借据进一步下调为次级不良' }
+        ],
+        timingInference: '存续增量用信客群，但受下游回款及税票减半冲击，他行授信已出现不良下调，防范存续抵押借据受连带影响。'
+      };
+    }
+
+    // 通用默认生成器（适配其他真实名单企业）
+    const loanCount = item.pbocLoanCount || 2;
+    const instCount = item.pbocInstCount || 2;
+    const totalEst = isDanger ? 1600 : (isWarning ? 1200 : 800);
+    const localEst = Math.round(totalEst * 0.45);
+    const otherEst = totalEst - localEst;
+    const cat = isDanger ? '次级' : (isWarning ? '关注' : '正常');
+    const catBadge = isDanger ? 'danger' : (isWarning ? 'warning' : 'success');
+
+    return {
+      dataBatch: '202602 (人行月报最新批次)',
+      calcMethod: '区间下限保守估值法 (间隔20万元)',
+      totalLoanBalance: `${totalEst} 万元`,
+      basePeriodBalance: `${Math.round(totalEst * 0.8)} 万元`,
+      netIncreaseAmount: `+${totalEst - Math.round(totalEst * 0.8)} 万元`,
+      instCount: instCount,
+      usageChangeCategory: '新增用信',
+      usageChangeCategoryDesc: '最新期末在贷规模高于基准期，属于信贷监控核心留存资产',
+      usageChangeCategorySub: '较基准期净增 · 核心留存',
+      pbocCategory: isDanger ? '次级 (不良类)' : (isWarning ? '关注类' : '正常类'),
+      pbocCategoryBadge: catBadge,
+      pbocCategoryChangeDate: isDanger ? '2026-02-17' : (isWarning ? '2026-01-20' : '2025-11-10'),
+      pbocCategoryChangeNote: isDanger ? '名下借据发生下调，企业综合分类转为不良' : (isWarning ? '因监测指标异动归入关注类' : '五级分类正常稳健'),
+      localBankBalance: `${localEst} 万元`,
+      otherBankBalance: `${otherEst} 万元`,
+      localLoanCount: 1,
+      otherLoanCount: Math.max(loanCount - 1, 1),
+      loans: Array.from({ length: loanCount }).map((_, idx) => {
+        if (idx === 0) {
+          return {
+            instCode: '金融机构 1',
+            loanType: '抵押',
+            rangeText: `[${localEst - 20}万, ${localEst}万)`,
+            balanceEst: `${localEst} 万元`,
+            category: '正常',
+            categoryBadge: 'normal',
+            statusDesc: '正常在贷',
+            batch: '202602',
+            isLocal: true
+          };
+        } else {
+          return {
+            instCode: `金融机构 ${idx + 1}`,
+            loanType: idx === 1 ? (isDanger ? '保证' : '抵押') : '信用',
+            rangeText: `[${Math.round(otherEst / (loanCount - 1)) - 20}万, ${Math.round(otherEst / (loanCount - 1))}万)`,
+            balanceEst: `${Math.round(otherEst / (loanCount - 1))} 万元`,
+            category: isDanger && idx === 1 ? '次级' : (isWarning ? '关注' : '正常'),
+            categoryBadge: isDanger && idx === 1 ? 'danger' : (isWarning ? 'warning' : 'normal'),
+            statusDesc: isDanger && idx === 1 ? '欠息不良 (分类下调)' : (isWarning ? '关注类在贷' : '正常在贷'),
+            batch: '202602',
+            isLocal: false
+          };
+        }
+      }),
+      guarantees: [
+        { type: '抵押类贷款', count: Math.ceil(loanCount * 0.5), amount: `${localEst} 万元`, ratio: `${((localEst / totalEst) * 100).toFixed(1)}%`, color: '#3b82f6' },
+        { type: '保证类贷款', count: Math.floor(loanCount * 0.5), amount: `${otherEst} 万元`, ratio: `${((otherEst / totalEst) * 100).toFixed(1)}%`, color: '#f59e0b' }
+      ],
+      guaranteeInference: '基于人行信贷底座贷款类型统计，资产主要以抵质押及保证担保为主。',
+      timeline: [
+        { m: '202510 (基准月)', balance: `${Math.round(totalEst * 0.8)} 万元`, count: Math.max(loanCount - 1, 1), cat: '正常', catBadge: 'normal', note: '交付前基准月底账' },
+        { m: '202512', balance: `${totalEst} 万元`, count: loanCount, cat: '正常', catBadge: 'normal', note: '新增借据，发生用信增额' },
+        { m: '202602 (最新期)', balance: `${totalEst} 万元`, count: loanCount, cat: cat, catBadge: catBadge, note: isDanger ? '人行月更：名下借据分类下调为不良' : '人行月更：状态正常' }
+      ],
+      timingInference: isDanger ? '监测到跨机构资产分类下调，需密切跟踪企业履约现金流。' : '人行信贷时序表现正常，资产质量稳定。'
+    };
+  }
+
+  // 渲染 Tab 3: 人行信贷画像（严格基于人行征信底层数据与时序推断模型）
+  function renderRiskDrawerCreditPane(item) {
+    const pane = document.getElementById('riskPaneCredit');
+    if (!pane) return;
+
+    const profile = getEnterpriseCreditProfile(item);
+
+    // 综合五级分类徽章
+    let categoryBadgeHtml = '';
+    if (profile.pbocCategoryBadge === 'danger') {
+      categoryBadgeHtml = `<span style="font-size:12px;color:#dc2626;font-weight:700;background:#fef2f2;padding:2px 8px;border-radius:4px;border:1px solid #fecaca;">${profile.pbocCategory}</span>`;
+    } else if (profile.pbocCategoryBadge === 'warning') {
+      categoryBadgeHtml = `<span style="font-size:12px;color:#d97706;font-weight:700;background:#fffbeb;padding:2px 8px;border-radius:4px;border:1px solid #fde68a;">${profile.pbocCategory}</span>`;
+    } else {
+      categoryBadgeHtml = `<span style="font-size:12px;color:#16a34a;font-weight:700;background:#f0fdf4;padding:2px 8px;border-radius:4px;border:1px solid #bbf7d0;">${profile.pbocCategory}</span>`;
+    }
+
+    // 在贷借据表格行（严格对应人行字段）
+    const loansTrs = profile.loans.map((l) => {
+      let catBadge = '';
+      if (l.categoryBadge === 'danger') {
+        catBadge = `<span style="font-size:11px;color:#dc2626;background:#fef2f2;border:1px solid #fecaca;padding:1px 6px;border-radius:3px;font-weight:600;">${l.category}</span>`;
+      } else if (l.categoryBadge === 'warning') {
+        catBadge = `<span style="font-size:11px;color:#d97706;background:#fffbeb;border:1px solid #fde68a;padding:1px 6px;border-radius:3px;font-weight:600;">${l.category}</span>`;
+      } else {
+        catBadge = `<span style="font-size:11px;color:#16a34a;background:#f0fdf4;border:1px solid #bbf7d0;padding:1px 6px;border-radius:3px;font-weight:600;">${l.category}</span>`;
+      }
+
+      let typeTag = '';
+      if (l.loanType === '抵押') {
+        typeTag = `<span style="font-size:11px;color:#2563eb;background:#eff6ff;padding:1px 6px;border-radius:3px;font-weight:600;">抵押</span>`;
+      } else if (l.loanType === '保证') {
+        typeTag = `<span style="font-size:11px;color:#d97706;background:#fffbeb;padding:1px 6px;border-radius:3px;font-weight:600;">保证</span>`;
+      } else if (l.loanType === '质押') {
+        typeTag = `<span style="font-size:11px;color:#7c3aed;background:#f5f3ff;padding:1px 6px;border-radius:3px;font-weight:600;">质押</span>`;
+      } else {
+        typeTag = `<span style="font-size:11px;color:#059669;background:#ecfdf5;padding:1px 6px;border-radius:3px;font-weight:600;">信用</span>`;
+      }
+
+      return `
+        <tr>
+          <td style="font-weight:600;color:#0f172a;">
+            ${l.instCode}
+          </td>
+          <td>${typeTag}</td>
+          <td style="font-family:ui-monospace,monospace;font-size:11.5px;color:#475569;">${l.rangeText}</td>
+          <td>${catBadge}</td>
+          <td style="font-size:11px;color:#64748b;font-family:ui-monospace,monospace;">${l.batch}</td>
+        </tr>
+      `;
+    }).join('');
+
+    // 担保类型构成条
+    const guaranteeBars = profile.guarantees.map(g => `
+      <div style="display:flex;align-items:center;justify-content:space-between;font-size:11.5px;margin-bottom:6px;">
+        <span style="color:#475569;display:flex;align-items:center;gap:6px;">
+          <span style="width:8px;height:8px;border-radius:2px;background:${g.color};"></span>
+          ${g.type} (${g.count} 笔)
+        </span>
+        <span style="font-weight:600;color:#0f172a;">${g.amount} (${g.ratio})</span>
+      </div>
+    `).join('');
+
+    // 月度时序推断轨迹卡片
+    const timelineItems = profile.timeline.map((t, idx) => {
+      let badgeStyle = 'background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;';
+      if (t.catBadge === 'danger') badgeStyle = 'background:#fef2f2;color:#dc2626;border:1px solid #fecaca;';
+      else if (t.catBadge === 'warning') badgeStyle = 'background:#fffbeb;color:#d97706;border:1px solid #fde68a;';
+
+      return `
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:8px 0;${idx !== profile.timeline.length - 1 ? 'border-bottom:1px dashed #e2e8f0;' : ''}">
+          <div style="width:110px;flex-shrink:0;font-family:ui-monospace,monospace;font-size:11.5px;color:#475569;font-weight:600;">
+            ${t.m}
+          </div>
+          <div style="width:90px;flex-shrink:0;font-weight:700;color:#0f172a;font-size:12px;">
+            ${t.balance}
+          </div>
+          <div style="width:70px;flex-shrink:0;">
+            <span style="font-size:11px;font-weight:600;padding:1px 6px;border-radius:3px;${badgeStyle}">
+              ${t.cat}
+            </span>
+          </div>
+          <div style="flex:1;font-size:11.5px;color:#475569;line-height:1.45;">
+            ${t.note}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    const html = `
+      <!-- 模块 1：人行在贷敞口总览（真实推断） -->
+      <div class="credit-card-panel">
+        <div class="credit-section-title">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2.2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          <span>信贷总览</span>
+        </div>
+
+        <div class="credit-kpi-grid">
+          <div class="credit-kpi-box">
+            <div class="credit-kpi-label">在贷借据总余额 (人行区间估算)</div>
+            <div class="credit-kpi-val">${profile.totalLoanBalance}</div>
+            <div class="credit-kpi-sub">基准期 ${profile.basePeriodBalance} · 净增 ${profile.netIncreaseAmount}</div>
+          </div>
+          <div class="credit-kpi-box">
+            <div class="credit-kpi-label">在贷机构 / 借据</div>
+            <div class="credit-kpi-val">${profile.instCount} 家 <span style="font-size:13px;font-weight:normal;color:#64748b;">/ ${profile.loanCount} 笔</span></div>
+            <div class="credit-kpi-sub">机构 1: 1 笔 · 其他: 2 笔</div>
+          </div>
+          <div class="credit-kpi-box">
+            <div class="credit-kpi-label">企业综合五级分类</div>
+            <div style="margin-top:2px;margin-bottom:2px;">${categoryBadgeHtml}</div>
+            <div class="credit-kpi-sub" style="color:#dc2626;">${profile.pbocCategoryChangeDate} 下调</div>
+          </div>
+          <div class="credit-kpi-box" style="background:#f0fdf4;border-color:#bbf7d0;">
+            <div class="credit-kpi-label" style="color:#166534;">用信变动分类</div>
+            <div style="margin-top:2px;margin-bottom:2px;">
+              <span style="font-size:12px;font-weight:700;color:#166534;background:#ffffff;padding:2px 8px;border-radius:4px;border:1px solid #bbf7d0;display:inline-block;">
+                ${profile.usageChangeCategory}
+              </span>
+            </div>
+            <div class="credit-kpi-sub" style="color:#15803d;font-size:10.5px;">${profile.usageChangeCategorySub || '较基准期净增 · 核心留存'}</div>
+          </div>
+        </div>
+
+        <!-- 机构 1 vs 其他机构 余额对比条 -->
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:10px 12px;">
+          <div style="display:flex;justify-content:space-between;font-size:11.5px;color:#475569;margin-bottom:6px;">
+            <span>机构 1 余额：<strong style="color:#0f172a;">${profile.localBankBalance}</strong> (抵押 1 笔)</span>
+            <span>其他机构余额：<strong style="color:#0f172a;">${profile.otherBankBalance}</strong> (抵押 1 笔 + 保证 1 笔)</span>
+          </div>
+          <div class="credit-progress-bar">
+            <div style="width:34%;background:var(--brand);" title="机构 1 占比约 34%"></div>
+            <div style="width:66%;background:#94a3b8;" title="其他机构占比约 66%"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:10.5px;color:#94a3b8;margin-top:4px;">
+            <span>机构 1 金额占比约 34%</span>
+            <span>其他在贷机构：${Math.max(profile.instCount - 1, 1)} 家</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块 2：在贷借据明细（严格对应人行字段） -->
+      <div class="credit-card-panel">
+        <div class="credit-section-title">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <span>在贷借据明细</span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="credit-table">
+            <thead>
+              <tr>
+                <th>金融机构</th>
+                <th>贷款类型</th>
+                <th>人行贷款余额区间</th>
+                <th>五级分类</th>
+                <th>更新批次</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${loansTrs}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 模块 3：贷款类型分布（担保方式构成，人行真实结构统计） -->
+      <div class="credit-card-panel">
+        <div class="credit-section-title" style="margin-bottom:8px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>贷款类型分布</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:10px;">
+          <div>
+            ${guaranteeBars}
+          </div>
+          <div style="font-size:11.5px;color:#334155;background:#f8fafc;border:1px solid #e2e8f0;padding:10px 12px;border-radius:6px;line-height:1.6;">
+            <div style="font-weight:700;color:#0f172a;margin-bottom:4px;">📊 结构侧面推断：</div>
+            ${profile.guaranteeInference}
+          </div>
+        </div>
+      </div>
+
+      <!-- 模块 4：月度时序推断与用信变化轨迹（源自方案核心） -->
+      <div class="credit-card-panel" style="margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div class="credit-section-title" style="margin-bottom:0;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span>用信变化轨迹</span>
+          </div>
+          <div style="font-size:11px;color:#64748b;">
+            <span>跨期监控跨度：202510 ～ 202602 (共 5 期)</span>
+          </div>
+        </div>
+
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;margin-bottom:10px;">
+          ${timelineItems}
+        </div>
+
+        <!-- 方案标准判定与推断结论 -->
+        <div style="display:grid;grid-template-columns: repeat(3, 1fr);gap:10px;margin-bottom:10px;">
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:8px 10px;font-size:11.5px;">
+            <div style="color:#64748b;">期间是否曾新增 (过程转化)</div>
+            <div style="font-size:13px;font-weight:700;color:#dc2626;margin-top:2px;">是 (增额 +350 万元)</div>
+          </div>
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:8px 10px;font-size:11.5px;">
+            <div style="color:#64748b;">最新是否仍净增 (时点留存)</div>
+            <div style="font-size:13px;font-weight:700;color:#dc2626;margin-top:2px;">是 (净留存 +350 万元)</div>
+          </div>
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:8px 10px;font-size:11.5px;">
+            <div style="color:#64748b;">五级分类演进</div>
+            <div style="font-size:13px;font-weight:700;color:#d97706;margin-top:2px;">正常 → 关注 → 次级不良</div>
+          </div>
+        </div>
+
+        <div style="font-size:11.5px;color:#b91c1c;background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:8px 10px;line-height:1.5;">
+          <strong>⚠️ 贷后风险侧面推断：</strong>${profile.timingInference}
+        </div>
+      </div>
+    `;
+
+    pane.innerHTML = html;
+  }
+
+  // 渲染 Tab 2: 排查处置记录（专属闭环工作台：当前状态、快速登记、时间轴流水）
+  function renderRiskDrawerFollowupPane(item) {
+    const pane = document.getElementById('riskPaneFollowup');
+    if (!pane) return;
+
+    let statusBadge = '';
+    let statusText = '待现场排查';
+    if (item.followupStatus === 'PROCESSING') {
+      statusBadge = `<span style="font-size:12px;padding:3px 10px;border-radius:4px;background:#fef3c7;color:#b45309;font-weight:600;border:1px solid #fde68a;">排查处置中</span>`;
+      statusText = '排查处置中';
+    } else if (item.followupStatus === 'RESOLVED') {
+      statusBadge = `<span style="font-size:12px;padding:3px 10px;border-radius:4px;background:#f0fdf4;color:#16a34a;font-weight:600;border:1px solid #bbf7d0;">已排查处置</span>`;
+      statusText = '已排查处置';
+    } else {
+      statusBadge = `<span style="font-size:12px;padding:3px 10px;border-radius:4px;background:#f1f5f9;color:#475569;font-weight:600;border:1px solid #e2e8f0;">待现场排查</span>`;
+      statusText = '待现场排查';
+    }
+
+    const logs = item.followupLogs || [];
+    const latestTime = logs.length > 0 ? logs[0].time : '暂无跟进';
+
+    // 构造时间轴流水
+    let timelineHtml = '';
+    if (logs.length === 0) {
+      timelineHtml = `
+        <div style="background:#ffffff;border:1px dashed #cbd5e1;border-radius:10px;padding:36px 20px;text-align:center;margin-top:10px;">
+          <div style="width:44px;height:44px;border-radius:50%;background:#f1f5f9;color:#94a3b8;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M9 16l2 2 4-4"/></svg>
+          </div>
+          <div style="font-size:13.5px;font-weight:600;color:#334155;margin-bottom:4px;">暂无排查处置跟进记录</div>
+          <div style="font-size:12px;color:#64748b;margin-bottom:14px;">当前企业已纳管，可点击上方“+ 登记排查记录”记录首次走访核实进展</div>
+          <button class="btn btn-primary btn-sm" onclick="toggleFollowupForm(true)">立即登记首次排查</button>
+        </div>
+      `;
+    } else {
+      const itemsHtml = logs.map((log, idx) => {
+        const isLatest = idx === 0;
+        return `
+          <div class="followup-item ${isLatest ? 'latest' : ''}">
+            <span class="followup-dot"></span>
+            <div class="followup-card">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <span style="font-size:13px;font-weight:700;color:#0f172a;">${log.user}</span>
+                  ${isLatest ? '<span style="font-size:10.5px;background:#dcfce7;color:#15803d;padding:1px 6px;border-radius:4px;font-weight:600;">最新进展</span>' : ''}
+                </div>
+                <span style="font-size:11.5px;color:#94a3b8;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;">${log.time}</span>
+              </div>
+              <div style="font-size:12.5px;color:#334155;line-height:1.6;letter-spacing:0.1px;">
+                ${log.content}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      timelineHtml = `
+        <div class="followup-timeline">
+          ${itemsHtml}
+        </div>
+      `;
+    }
+
+    const html = `
+      <!-- ① 处置状态看板 -->
+      <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,0.02);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="font-size:14px;font-weight:700;color:#0f172a;">处置状态</div>
+            <div>${statusBadge}</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="toggleFollowupForm()" style="display:inline-flex;align-items:center;gap:5px;font-size:12.5px;padding:5px 12px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            登记排查记录
+          </button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;padding-top:12px;border-top:1px solid #f1f5f9;">
+          <div style="background:#f8fafc;padding:8px 10px;border-radius:6px;border:1px solid #f1f5f9;">
+            <div style="font-size:11px;color:#64748b;">管户机构</div>
+            <div style="font-size:12.5px;font-weight:700;color:#0f172a;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.partnerBank}</div>
+          </div>
+          <div style="background:#f8fafc;padding:8px 10px;border-radius:6px;border:1px solid #f1f5f9;">
+            <div style="font-size:11px;color:#64748b;">排查次数</div>
+            <div style="font-size:12.5px;font-weight:700;color:#0f172a;margin-top:2px;">${logs.length} 次</div>
+          </div>
+          <div style="background:#f8fafc;padding:8px 10px;border-radius:6px;border:1px solid #f1f5f9;">
+            <div style="font-size:11px;color:#64748b;">最新时间</div>
+            <div style="font-size:12px;font-weight:600;color:#0f172a;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${latestTime}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ② 登记排查面板 -->
+      <div id="inlineFollowupForm" style="display:none;background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:16px;margin-bottom:18px;animation:fadeInTab 0.2s ease;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div style="display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700;color:#15803d;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            登记排查记录
+          </div>
+          <button type="button" onclick="toggleFollowupForm(false)" style="border:none;background:none;color:#94a3b8;font-size:18px;cursor:pointer;line-height:1;">&times;</button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;">
+          <div>
+            <label style="display:block;font-size:11.5px;font-weight:600;color:#334155;margin-bottom:4px;">排查方式</label>
+            <select id="followupInputType" class="form-control" style="font-size:12.5px;background:#fff;">
+              <option value="现场实地走访">现场实地走访</option>
+              <option value="电话排查">电话排查</option>
+              <option value="调卷核查">调卷核查</option>
+              <option value="企业面谈">企业面谈</option>
+              <option value="方案审定">方案审定</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block;font-size:11.5px;font-weight:600;color:#334155;margin-bottom:4px;">流转状态</label>
+            <select id="followupInputStatus" class="form-control" style="font-size:12.5px;background:#fff;">
+              <option value="PROCESSING" ${item.followupStatus === 'PROCESSING' ? 'selected' : ''}>保持排查中</option>
+              <option value="RESOLVED" ${item.followupStatus === 'RESOLVED' ? 'selected' : ''}>已处置结项</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-bottom:10px;">
+          <label style="display:block;font-size:11.5px;font-weight:600;color:#334155;margin-bottom:4px;">经办人</label>
+          <input type="text" id="followupInputUser" class="form-control" value="管户经理 · 张建国" placeholder="例：管户经理 · 张建国" style="font-size:12.5px;background:#fff;">
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <label style="display:block;font-size:11.5px;font-weight:600;color:#334155;margin-bottom:4px;">排查情况说明 <span style="color:#ef4444;">*</span></label>
+          <textarea id="followupInputContent" class="form-control" rows="3" placeholder="请记录实地走访情况、企业还款意愿、资金链现状与保全措施..." style="font-size:12.5px;background:#fff;line-height:1.5;"></textarea>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:8px;">
+          <button type="button" class="btn btn-default btn-sm" onclick="toggleFollowupForm(false)">取消</button>
+          <button type="button" class="btn btn-primary btn-sm" onclick="submitFollowupRecord()">保存记录</button>
+        </div>
+      </div>
+
+      <!-- ③ 排查记录时间轴 -->
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:14px;display:flex;align-items:center;gap:6px;">
+          <span style="width:4px;height:14px;background:var(--brand);border-radius:2px;"></span>
+          排查记录
+        </div>
+        ${timelineHtml}
+      </div>
+    `;
+
+    pane.innerHTML = html;
+  }
+
+  // 展开/折叠快捷登记排查面板
+  function toggleFollowupForm(show) {
+    const form = document.getElementById('inlineFollowupForm');
+    if (!form) return;
+    if (show !== undefined) {
+      form.style.display = show ? 'block' : 'none';
+    } else {
+      form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+  }
+
+  // 提交并持久化新增排查记录
+  function submitFollowupRecord() {
+    if (!currentDrawerRiskId) return;
+    const item = MOCK_RISKS.find(x => x.id === currentDrawerRiskId);
+    if (!item) return;
+
+    const typeEl = document.getElementById('followupInputType');
+    const userEl = document.getElementById('followupInputUser');
+    const statusEl = document.getElementById('followupInputStatus');
+    const contentEl = document.getElementById('followupInputContent');
+
+    const type = typeEl ? typeEl.value : '现场实地走访';
+    const user = userEl && userEl.value.trim() ? userEl.value.trim() : '管户经理 · 张建国';
+    const nextStatus = statusEl ? statusEl.value : 'PROCESSING';
+    const content = contentEl && contentEl.value.trim() ? contentEl.value.trim() : '';
+
+    if (!content) {
+      showToast('请输入本次排查核实的主要情况或处置举措');
+      if (contentEl) contentEl.focus();
+      return;
+    }
+
+    const now = new Date();
+    const timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+    if (!item.followupLogs) item.followupLogs = [];
+    item.followupLogs.unshift({
+      time: timeStr,
+      user: `${user} (${type})`,
+      content: content
+    });
+
+    item.followupStatus = nextStatus;
+    item.followupStatusLabel = nextStatus === 'RESOLVED' ? '已排查处置' : '排查处置中';
+
+    // 重新渲染 Tab 2，并刷新列表状态与角标
+    renderRiskDrawerFollowupPane(item);
+    const tabBadgeEl = document.getElementById('drawerFollowupBadge');
+    if (tabBadgeEl) tabBadgeEl.textContent = item.followupLogs.length;
+
+    applyFilters(); // 同步刷新表格中的状态徽标
+    showToast('排查处置记录登记成功');
+  }
+
+  function closeRiskDrawer() {
+    document.getElementById('riskDrawer').classList.remove('show');
+    syncBodyScrollLock();
+  }
+
+  function exportReport() {
+    showToast('正在导出全平台风险预警台账 (Excel)...');
+  }
+
+  function exportSingleReport() {
+    const item = currentDrawerRiskId ? MOCK_RISKS.find(x => x.id === currentDrawerRiskId) : null;
+    const name = item ? item.name : '该企业';
+    if (currentDrawerTab === 'ai') {
+      showToast(`正在导出 [${name}] 的 AI 深度风控研判报告 (PDF)...`);
+    } else if (currentDrawerTab === 'events') {
+      showToast(`正在导出 [${name}] 的核心风险事件与司法涉诉清单 (PDF)...`);
+    } else if (currentDrawerTab === 'credit') {
+      showToast(`正在导出 [${name}] 的人行信贷资产质量征信底稿 (PDF)...`);
+    } else {
+      showToast(`正在导出 [${name}] 的风险排查与现场处置底稿 (PDF)...`);
+    }
+  }
+
+  // 同步页面背景滚动锁定状态（彻底防止抽屉滚动穿透）
+  function syncBodyScrollLock() {
+    const isAnyDrawerOpen = document.querySelectorAll('.drawer-overlay.show').length > 0;
+    if (isAnyDrawerOpen) {
+      document.body.classList.add('drawer-open');
+    } else {
+      document.body.classList.remove('drawer-open');
+    }
+  }
+
+  // 预警策略配置专属抽屉控制
+  function openStrategyDrawer() {
+    document.getElementById('strategyDrawer').classList.add('show');
+    syncBodyScrollLock();
+  }
+
+  // 从纳管与通知配置抽屉跳转至完整规则配置大抽屉
+  function openStrategyFromConfig() {
+    const riskModal = document.getElementById('riskConfigModal');
+    if (riskModal) riskModal.classList.remove('show');
+    const stratDrawer = document.getElementById('strategyDrawer');
+    if (stratDrawer) stratDrawer.classList.add('show');
+    syncBodyScrollLock();
+  }
+
+  // 从完整规则配置大抽屉返回纳管与通知配置抽屉
+  function backToRiskConfigModal() {
+    const stratDrawer = document.getElementById('strategyDrawer');
+    if (stratDrawer) stratDrawer.classList.remove('show');
+    const riskModal = document.getElementById('riskConfigModal');
+    if (riskModal) riskModal.classList.add('show');
+    syncBodyScrollLock();
+  }
+
+  function closeStrategyDrawer(e) {
+    if (e && e.target && e.target.id !== 'strategyDrawer') return;
+    document.getElementById('strategyDrawer').classList.remove('show');
+    syncBodyScrollLock();
+  }
+
+  // 切换通知渠道启用/禁用视觉状态
+  function toggleChannelCard(type, isChecked) {
+    const cardMap = {
+      sms: 'cardSmsNotify',
+      wecom: 'cardWecomNotify',
+      email: 'cardEmailNotify',
+      daily: 'dailyConfigDetail'
+    };
+    const el = document.getElementById(cardMap[type]);
+    if (el) {
+      if (isChecked) {
+        el.classList.remove('disabled');
+      } else {
+        el.classList.add('disabled');
+      }
+    }
+  }
+
+  // 删除联系人 Tag
+  function removeContactTag(closeEl) {
+    const tag = closeEl.closest('.contact-tag');
+    if (tag) {
+      const text = tag.textContent.replace('×', '').trim();
+      tag.remove();
+      showToast(`已移除通知接收联系方式：${text}`);
+    }
+  }
+
+  // 添加联系方式 (手机号或邮箱)
+  function promptAddContact(type) {
+    let title = '请输入要添加的联系方式：';
+    let defaultVal = '';
+    let targetContainerId = 'smsTagsContainer';
+
+    if (type === 'sms') {
+      title = '请输入短信接收人手机号（可加备注）：';
+      defaultVal = '13600000000 (风控专员)';
+      targetContainerId = 'smsTagsContainer';
+    } else if (type === 'email') {
+      title = '请输入高危预警即时接收邮箱：';
+      defaultVal = 'duty-officer@bank.com';
+      targetContainerId = 'emailTagsContainer';
+    } else if (type === 'dailyEmail') {
+      title = '请输入常态化早报订阅邮箱：';
+      defaultVal = 'audit-team@cz-credit.com';
+      targetContainerId = 'dailyEmailTagsContainer';
+    } else if (type === 'wecom') {
+      title = '请输入企业微信告警群名称或 Webhook：';
+      defaultVal = '贷后风险预警协同群';
+      targetContainerId = 'wecomTagsContainer';
+    }
+
+    const val = prompt(title, defaultVal);
+    if (!val || !val.trim()) return;
+    const cleanVal = val.trim();
+
+    const container = document.getElementById(targetContainerId);
+    if (!container) return;
+
+    const btn = container.querySelector('.btn-add-tag');
+    const newTag = document.createElement('span');
+    newTag.className = 'contact-tag';
+    newTag.innerHTML = `${cleanVal}<span class="tag-close" onclick="removeContactTag(this)">&times;</span>`;
+
+    if (btn) {
+      container.insertBefore(newTag, btn);
+    } else {
+      container.appendChild(newTag);
+    }
+    showToast(`已成功添加：${cleanVal}`);
+  }
+
+  // 更换企业微信告警群 / Webhook
+  function editWecomWebhook() {
+    const currentUrl = 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=89201-alert-xxxx';
+    const newUrl = prompt('请输入企业微信告警群机器人 Webhook 地址：', currentUrl);
+    if (newUrl && newUrl.trim()) {
+      showToast('企业微信群机器人 Webhook 已更新并联通测试成功');
+    }
+  }
+
+  function toggleStrategyRule(cb, cardId, ruleName) {
+    const card = document.getElementById(cardId);
+    if (cb.checked) {
+      if (card) card.classList.remove('disabled');
+      showToast(`策略规则「${ruleName}」已启用，全平台监控实时生效`);
+    } else {
+      if (card) card.classList.add('disabled');
+      showToast(`策略规则「${ruleName}」已暂停，相关信号暂停触发`);
+    }
+  }
+
+  function toggleParamPanel(panelId) {
+    const panel = document.getElementById(panelId);
+    if (panel) {
+      panel.classList.toggle('show');
+    }
+  }
+
+  function saveStrategySettings() {
+    showToast('预警策略配置已成功保存并下发全平台生效');
+    const drawer = document.getElementById('strategyDrawer');
+    if (drawer) drawer.classList.remove('show');
+    syncBodyScrollLock();
+  }
+
+  // ===== 全局统一机构切换弹窗交互函数（与营销名单 customers.html / credit-monitoring.html 统一）=====
+  function openOrgModal() {
+    const modal = document.getElementById('globalOrgModal');
+    if (modal) modal.style.display = 'flex';
+  }
+  function closeOrgModal() {
+    const modal = document.getElementById('globalOrgModal');
+    if (modal) modal.style.display = 'none';
+  }
+  function selectOrg(el, instCode, name) {
+    document.querySelectorAll('.org-choice').forEach(function(c) {
+      c.style.borderColor = '#e5e7eb';
+      c.style.background = 'white';
+      const nameEl = c.querySelector('.org-name');
+      if (nameEl) nameEl.style.color = '#1f2937';
+      const subEl = c.querySelector('.org-sub');
+      if (subEl) subEl.style.color = '#6b7280';
+    });
+    if (el) {
+      el.style.borderColor = 'var(--brand)';
+      el.style.background = '#f0fdf4';
+      const nameEl = el.querySelector('.org-name');
+      if (nameEl) nameEl.style.color = 'var(--brand)';
+      const subEl = el.querySelector('.org-sub');
+      if (subEl) subEl.style.color = '#15803d';
+    }
+    document.querySelectorAll('#globalOrgDisplay').forEach(function(e) {
+      e.innerText = name;
+    });
+    setTimeout(function() {
+      closeOrgModal();
+      currentOrgName = name;
+      applyFilters();
+      showToast(`已切换查看「${name}」预警台账`);
+    }, 200);
+  }
+  function filterOrgs(val) {
+    const kw = (val || '').trim().toLowerCase();
+    document.querySelectorAll('.org-choice').forEach(function(c) {
+      c.style.display = c.innerText.toLowerCase().includes(kw) ? '' : 'none';
+    });
+  }
+
+  // 预警规则与口径说明弹窗
+  function openRiskRuleModal() {
+    const modal = document.getElementById('riskRulesModal');
+    if (modal) modal.classList.add('show');
+  }
+  function closeRiskRuleModal() {
+    const modal = document.getElementById('riskRulesModal');
+    if (modal) modal.classList.remove('show');
+  }
+
+  // ==========================================
+  // 新增预警策略向导与规则表达式构建器逻辑
+  // ==========================================
+  let ruleExprLogicOp = 'AND'; // 'AND' | 'OR'
+  let ruleConditions = [
+    {
+      id: 1,
+      field: 'pboc_loan_category',
+      fieldName: '[人行征信] 最新贷款五级分类',
+      operator: 'IN',
+      value: '关注类, 次级类, 可疑类, 损失类',
+      valType: 'multi'
+    },
+    {
+      id: 2,
+      field: 'pboc_total_balance',
+      fieldName: '[人行征信] 在贷总余额/授信敞口',
+      operator: '>=',
+      value: '500',
+      unit: '万元',
+      valType: 'number'
+    }
+  ];
+
+  // 候选指标字段字典（严格依托真实人行、税务、司法与工商底座）
+  const AVAILABLE_RULE_FIELDS = [
+    { key: 'pboc_loan_category', name: '[人行征信] 最新贷款五级分类 (pboc_loan_category)', type: 'multi', defaultVal: '关注类, 次级类, 可疑类, 损失类', options: ['正常类', '关注类', '次级类', '可疑类', '损失类'] },
+    { key: 'pboc_total_balance', name: '[人行征信] 在贷总余额/授信敞口 (pboc_total_balance)', type: 'number', unit: '万元', defaultVal: '500' },
+    { key: 'pboc_org_net_increase', name: '[人行征信] 在贷金融机构单月净增数 (pboc_org_net_increase)', type: 'number', unit: '家', defaultVal: '2' },
+    { key: 'pboc_loan_count_increase', name: '[人行征信] 在贷借据总笔数单月净增 (pboc_loan_count_increase)', type: 'number', unit: '笔', defaultVal: '3' },
+    { key: 'jud_exec_amount', name: '[司法涉诉] 新增被执行标的金额 (jud_exec_amount)', type: 'number', unit: '万元', defaultVal: '100' },
+    { key: 'jud_is_dishonest', name: '[司法涉诉] 是否列入失信被执行/限高 (jud_is_dishonest)', type: 'boolean', defaultVal: '是 (TRUE)' },
+    { key: 'tax_sales_drop_rate', name: '[税务发票] 销项发票连续同比下滑幅度 (tax_sales_drop_rate)', type: 'number', unit: '%', defaultVal: '35' },
+    { key: 'tax_zero_invoice_days', name: '[税务发票] 连续无有效发票开具天数 (tax_zero_invoice_days)', type: 'number', unit: '天', defaultVal: '45' },
+    { key: 'graph_affiliate_share_pct', name: '[关联图谱] 关联企业重大涉诉穿透持股比 (graph_affiliate_share_pct)', type: 'number', unit: '%', defaultVal: '30' },
+    { key: 'ic_equity_freeze_amount', name: '[市监工商] 股权司法冻结标的金额 (ic_equity_freeze_amount)', type: 'number', unit: '万元', defaultVal: '300' },
+    { key: 'ic_legal_rep_changes', name: '[市监工商] 近6个月法定代表人变更频次 (ic_legal_rep_changes)', type: 'number', unit: '次', defaultVal: '2' }
+  ];
+
+  function openNewRuleModal() {
+    const modal = document.getElementById('newRuleModal');
+    if (modal) {
+      modal.classList.add('show');
+      renderRuleConditions();
+      updateRuleDslPreview();
+      // 隐藏回测结果
+      const box = document.getElementById('backtestResultBox');
+      if (box) box.style.display = 'none';
+    }
+  }
+
+  function closeNewRuleModal() {
+    const modal = document.getElementById('newRuleModal');
+    if (modal) modal.classList.remove('show');
+  }
+
+  function setLogicOperator(op) {
+    ruleExprLogicOp = op;
+    const andBtn = document.getElementById('logicAndBtn');
+    const orBtn = document.getElementById('logicOrBtn');
+    if (op === 'AND') {
+      if (andBtn) andBtn.classList.add('active');
+      if (orBtn) orBtn.classList.remove('active');
+    } else {
+      if (andBtn) andBtn.classList.remove('active');
+      if (orBtn) orBtn.classList.add('active');
+    }
+    updateRuleDslPreview();
+  }
+
+  function renderRuleConditions() {
+    const container = document.getElementById('exprConditionsContainer');
+    if (!container) return;
+
+    container.innerHTML = ruleConditions.map((cond, index) => {
+      const fieldDef = AVAILABLE_RULE_FIELDS.find(f => f.key === cond.field) || AVAILABLE_RULE_FIELDS[0];
+      const optHtml = AVAILABLE_RULE_FIELDS.map(f => 
+        `<option value="${f.key}" ${f.key === cond.field ? 'selected' : ''}>${f.name}</option>`
+      ).join('');
+
+      let operatorHtml = '';
+      if (fieldDef.type === 'multi') {
+        operatorHtml = `
+          <select class="form-select" style="font-size:12px;padding:4px 6px;width:95px;" onchange="updateConditionOperator(${cond.id}, this.value)">
+            <option value="IN" ${cond.operator === 'IN' ? 'selected' : ''}>属于 (IN)</option>
+            <option value="NOT_IN" ${cond.operator === 'NOT_IN' ? 'selected' : ''}>不属于</option>
+          </select>
+        `;
+      } else if (fieldDef.type === 'boolean') {
+        operatorHtml = `
+          <select class="form-select" style="font-size:12px;padding:4px 6px;width:95px;" onchange="updateConditionOperator(${cond.id}, this.value)">
+            <option value="=" selected>等于 (=)</option>
+          </select>
+        `;
+      } else {
+        operatorHtml = `
+          <select class="form-select" style="font-size:12px;padding:4px 6px;width:95px;" onchange="updateConditionOperator(${cond.id}, this.value)">
+            <option value=">=" ${cond.operator === '>=' ? 'selected' : ''}>&ge; 大于等于</option>
+            <option value=">" ${cond.operator === '>' ? 'selected' : ''}>&gt; 大于</option>
+            <option value="<=" ${cond.operator === '<=' ? 'selected' : ''}>&le; 小于等于</option>
+            <option value="=" ${cond.operator === '=' ? 'selected' : ''}>= 等于</option>
+          </select>
+        `;
+      }
+
+      let valInputHtml = '';
+      if (fieldDef.type === 'multi') {
+        valInputHtml = `
+          <input type="text" value="${cond.value}" class="form-control" style="flex:1;font-size:12px;padding:4px 8px;border:1px solid #cbd5e1;border-radius:4px;" oninput="updateConditionValue(${cond.id}, this.value)" placeholder="如: 关注类, 次级类, 可疑类">
+        `;
+      } else if (fieldDef.type === 'boolean') {
+        valInputHtml = `
+          <select class="form-select" style="flex:1;font-size:12px;padding:4px 8px;" onchange="updateConditionValue(${cond.id}, this.value)">
+            <option value="TRUE" ${cond.value.includes('是') || cond.value === 'TRUE' ? 'selected' : ''}>是 (TRUE - 触发)</option>
+            <option value="FALSE" ${cond.value.includes('否') || cond.value === 'FALSE' ? 'selected' : ''}>否 (FALSE)</option>
+          </select>
+        `;
+      } else {
+        valInputHtml = `
+          <div style="display:flex;align-items:center;gap:4px;flex:1;">
+            <input type="number" value="${cond.value}" class="form-control" style="width:100%;font-size:12px;padding:4px 8px;border:1px solid #cbd5e1;border-radius:4px;" oninput="updateConditionValue(${cond.id}, this.value)">
+            <span style="font-size:11.5px;color:#64748b;white-space:nowrap;">${fieldDef.unit || ''}</span>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="expr-row" id="exprRow_${cond.id}">
+          <span style="font-size:11px;font-weight:700;color:var(--brand);background:#eff6ff;padding:2px 6px;border-radius:4px;flex-shrink:0;">
+            条件 ${index + 1}
+          </span>
+          <select class="form-select" style="font-size:12px;padding:4px 6px;flex:2;min-width:210px;" onchange="updateConditionField(${cond.id}, this.value)">
+            ${optHtml}
+          </select>
+          ${operatorHtml}
+          ${valInputHtml}
+          <button type="button" class="btn btn-text" onclick="removeExpressionRow(${cond.id})" style="color:#ef4444;padding:2px 6px;font-size:14px;" title="删除条件">&times;</button>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function addExpressionRow() {
+    const newId = Date.now();
+    const defaultField = AVAILABLE_RULE_FIELDS[1]; // 默认取第2个字段
+    ruleConditions.push({
+      id: newId,
+      field: defaultField.key,
+      fieldName: defaultField.name,
+      operator: '>=',
+      value: defaultField.defaultVal,
+      unit: defaultField.unit || '',
+      valType: defaultField.type
+    });
+    renderRuleConditions();
+    updateRuleDslPreview();
+  }
+
+  function removeExpressionRow(id) {
+    if (ruleConditions.length <= 1) {
+      showToast('规则至少需要保留一个判定条件');
+      return;
+    }
+    ruleConditions = ruleConditions.filter(c => c.id !== id);
+    renderRuleConditions();
+    updateRuleDslPreview();
+  }
+
+  function updateConditionField(id, newFieldKey) {
+    const item = ruleConditions.find(c => c.id === id);
+    if (!item) return;
+    const def = AVAILABLE_RULE_FIELDS.find(f => f.key === newFieldKey) || AVAILABLE_RULE_FIELDS[0];
+    item.field = def.key;
+    item.fieldName = def.name;
+    item.valType = def.type;
+    item.unit = def.unit || '';
+    item.value = def.defaultVal;
+    item.operator = def.type === 'multi' ? 'IN' : (def.type === 'boolean' ? '=' : '>=');
+    renderRuleConditions();
+    updateRuleDslPreview();
+  }
+
+  function updateConditionOperator(id, op) {
+    const item = ruleConditions.find(c => c.id === id);
+    if (!item) return;
+    item.operator = op;
+    updateRuleDslPreview();
+  }
+
+  function updateConditionValue(id, val) {
+    const item = ruleConditions.find(c => c.id === id);
+    if (!item) return;
+    item.value = val;
+    updateRuleDslPreview();
+  }
+
+  // 实时编译底层 Rule-Engine DSL / SQL AST 表达式
+  function updateRuleDslPreview() {
+    const previewEl = document.getElementById('exprDslPreview');
+    if (!previewEl) return;
+
+    const name = document.getElementById('newRuleName')?.value || '未命名预警规则';
+    const category = document.getElementById('newRuleCategory')?.value || 'CREDIT';
+    const level = document.getElementById('newRuleLevel')?.value || 'HIGH';
+    const freq = document.getElementById('newRuleFreq')?.value || 'M+1';
+
+    const condStrings = ruleConditions.map(c => {
+      if (c.valType === 'multi') {
+        const items = c.value.split(/[,，]/).map(s => `'${s.trim()}'`).filter(s => s !== "''").join(', ');
+        return `(${c.field} ${c.operator} [${items}])`;
+      } else if (c.valType === 'boolean') {
+        return `(${c.field} == TRUE)`;
+      } else {
+        const numVal = parseFloat(c.value) || 0;
+        const multiplier = (c.unit === '万元') ? ' * 10000.00' : '';
+        return `(${c.field} ${c.operator} ${numVal}${multiplier} /* ${c.unit || ''} */)`;
+      }
+    });
+
+    const joiner = `\n    ${ruleExprLogicOp} `;
+    const whenClause = condStrings.length ? condStrings.join(joiner) : '(TRUE)';
+
+    const dslText = `-- 联合征信预警引擎 AST 编译产物 [RULE_ID: USR_DEF_${Date.now().toString().slice(-4)}]
+RULE "${name}" [CLASS: ${category}, LEVEL: ${level}, FREQ: ${freq}]
+WHEN
+    ${whenClause}
+THEN
+    TRIGGER_ALERT(
+        level = '${level}',
+        route = 'SUPERVISION_DISPATCH',
+        sla = 'DISPATCH_IMMEDIATELY'
+    );`;
+
+    previewEl.textContent = dslText;
+  }
+
+  // 一键模拟回测 (Backtest)
+  function runRuleBacktest() {
+    const btn = document.getElementById('btnRunBacktest');
+    const resultBox = document.getElementById('backtestResultBox');
+    if (!btn || !resultBox) return;
+
+    btn.disabled = true;
+    btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> 测算中...`;
+
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg> <span id="btnRunBacktestText">重新测算</span>`;
+
+      // 依据当前条件随机生成合理测算命中数 (15-32 户)
+      const hitCount = Math.floor(Math.random() * 18) + 15;
+      const hitRate = ((hitCount / 8650) * 100).toFixed(2);
+
+      const hitEl = document.getElementById('backtestHitCount');
+      const rateEl = document.getElementById('backtestHitRate');
+      if (hitEl) hitEl.textContent = `${hitCount} 户`;
+      if (rateEl) rateEl.textContent = `${hitRate}%`;
+
+      resultBox.style.display = 'block';
+      showToast(`测算完成！在全平台 8,650 户在贷客户中近30天命中 ${hitCount} 户 (${hitRate}%)`);
+    }, 1500);
+  }
+
+  // 保存新增策略并立即生效加入抽屉列表
+  function saveNewRule() {
+    const nameInput = document.getElementById('newRuleName');
+    const name = nameInput ? nameInput.value.trim() : '';
+    if (!name) {
+      showToast('请输入预警策略规则名称');
+      if (nameInput) nameInput.focus();
+      return;
+    }
+
+    const categorySelect = document.getElementById('newRuleCategory');
+    const levelSelect = document.getElementById('newRuleLevel');
+    const dsSelect = document.getElementById('newRuleDataSource');
+    const freqSelect = document.getElementById('newRuleFreq');
+    const bankScopeSelect = document.getElementById('newRuleBankScope');
+    const slaSelect = document.getElementById('newRuleSla');
+
+    const categoryText = categorySelect ? categorySelect.options[categorySelect.selectedIndex].text.split(' ')[0] : '金融信贷风险';
+    const level = levelSelect ? levelSelect.value : 'HIGH';
+    const dsText = dsSelect ? dsSelect.value : '联合征信-人行征信13项指标时序底座';
+    const freqText = freqSelect ? freqSelect.options[freqSelect.selectedIndex].text.split(' ')[0] : '月度跑批比对';
+    const bankScopeText = bankScopeSelect ? bankScopeSelect.options[bankScopeSelect.selectedIndex].text.split(' ')[0] : '全平台合作银行';
+    const slaText = slaSelect ? slaSelect.value : '24小时内核实回传并走访';
+
+    let levelBadgeHtml = '';
+    if (level === 'HIGH') {
+      levelBadgeHtml = '<span class="badge badge-danger">高危风险</span>';
+    } else if (level === 'MEDIUM') {
+      levelBadgeHtml = '<span class="badge badge-warning">中度预警</span>';
+    } else {
+      levelBadgeHtml = '<span class="badge badge-secondary">关注提示</span>';
+    }
+
+    // 生成触发逻辑文字摘要
+    const logicSummary = ruleConditions.map(c => {
+      return `【${c.fieldName.split(' ')[0]}】${c.operator} ${c.value} ${c.unit || ''}`;
+    }).join(` <b>${ruleExprLogicOp === 'AND' ? '且' : '或'}</b> `);
+
+    const newCardId = `ruleCard_custom_${Date.now()}`;
+    const newPanelId = `paramPanel_custom_${Date.now()}`;
+
+    // 组装新规则卡片 HTML
+    const newCardHtml = `
+      <div class="rule-card" id="${newCardId}" style="border: 1.5px solid var(--brand); box-shadow: 0 4px 12px rgba(37,99,235,0.08); background: #ffffff; animation: modalSlideUp 0.3s ease-out;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div style="flex:1;padding-right:16px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              ${levelBadgeHtml}
+              <span style="font-size:14px;font-weight:700;color:#0f172a;">${name}</span>
+              <span class="badge" style="background:#eff6ff;color:var(--brand);font-size:11px;">自定义策略</span>
+              <span class="badge" style="background:#f1f5f9;color:#475569;font-size:11px;">${categoryText}</span>
+            </div>
+            <div style="font-size:12.5px;color:#475569;margin-top:6px;line-height:1.5;">
+              <b>触发逻辑</b>：${logicSummary}。命中后自动生成预警工单，要求「${slaText}」。
+            </div>
+            <div class="rule-meta">
+              <div class="rule-meta-item"><span>数据源：</span> <b>${dsText}</b></div>
+              <div class="rule-meta-item"><span>比对频次：</span> <b>${freqText}</b></div>
+              <div class="rule-meta-item"><span>生效范围：</span> <b>${bankScopeText}</b></div>
+              <div class="rule-meta-item"><span>近30天测算命中：</span> <b style="color:#ef4444;">23 次 (回测预估)</b></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
+            <label class="switch">
+              <input type="checkbox" checked onchange="toggleStrategyRule(this, '${newCardId}', '${name}')">
+              <span class="slider"></span>
+            </label>
+            <button class="btn btn-sm btn-default" onclick="toggleParamPanel('${newPanelId}')" style="font-size:12px;padding:3px 8px;">
+              配置参数
+            </button>
+          </div>
+        </div>
+        <div class="rule-param-panel" id="${newPanelId}">
+          <div style="font-size:12px;color:#64748b;margin-bottom:8px;">当前规则为自定义编排规则，支持直接在判定表达式构建器中调整参数或修改阈值。</div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-sm btn-default" style="font-size:11.5px;" onclick="openNewRuleModal()">编辑表达式与阈值</button>
+            <button class="btn btn-sm btn-text" style="font-size:11.5px;color:#ef4444;" onclick="document.getElementById('${newCardId}').remove(); showToast('已移除该自定义策略');">删除此策略</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const list = document.getElementById('strategyRulesList');
+    if (list) {
+      list.insertAdjacentHTML('afterbegin', newCardHtml);
+    }
+
+    // 更新抽屉顶部的“8 套运行中规则”为“9 套运行中规则”
+    const statRunningBadge = document.querySelector('.strategy-drawer-header .badge');
+    if (statRunningBadge && statRunningBadge.textContent.includes('运行中规则')) {
+      statRunningBadge.textContent = '9 套运行中规则';
+    }
+    const statItemVal = document.querySelector('.strategy-stat-val');
+    if (statItemVal && statItemVal.textContent.includes('8')) {
+      statItemVal.innerHTML = '9 <span style="font-size:12px;font-weight:400;color:#64748b;">套</span>';
+    }
+
+    closeNewRuleModal();
+    showToast(`新增预警策略「${name}」已成功编排并上线运行！`);
+
+    // 聚焦新卡片
+    setTimeout(() => {
+      const newCard = document.getElementById(newCardId);
+      if (newCard) {
+        newCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 200);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    applyFilters();
+
+    // 检查URL是否携带打开策略配置参数（兼容旧链接跳转）
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('openRules') === 'true' || urlParams.get('tab') === 'rules') {
+      openStrategyDrawer();
+    }
+  });
+</script>
+
+
+<script src="js/sidebar.js"></script>
+<script src="js/toast.js"></script>
+<script>
+  renderSidebar({ currentPage: 'risk-warning' });
+</script>
+<script src="js/toast.js"></script>
+</body>
+</html>

@@ -248,17 +248,11 @@
       box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
     }
 
-    .prog-content {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
     .prog-name {
       font-size: 13px;
       font-weight: 600;
       color: var(--gray-400);
-      margin-bottom: 2px;
+      line-height: 1;
     }
 
     .prog-step.active .prog-name {
@@ -268,12 +262,6 @@
 
     .prog-step.done .prog-name {
       color: var(--gray-700);
-    }
-
-    .prog-desc {
-      font-size: 11px;
-      color: var(--gray-400);
-      line-height: 1.2;
     }
 
     /* ── 模式切换 ── */
@@ -801,6 +789,46 @@
   </div>
 </div>
 
+  <!-- 导入营销名单弹窗 -->
+  <div id="importModal"
+    style="display:none;align-items:center;justify-content:center;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:9999;">
+    <div style="width:480px;background:#fff;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,0.18);overflow:hidden;">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--gray-100);display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:15px;font-weight:700;">导入营销名单（Excel）</span>
+        <button onclick="closeImportModal()" style="background:none;border:none;cursor:pointer;color:var(--gray-400);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div style="padding:20px;">
+        <div style="margin-bottom:16px;">
+          <label style="display:block;font-size:13px;font-weight:600;color:var(--gray-700);margin-bottom:6px;">目标批次</label>
+          <select id="importTargetBatch" style="width:100%;height:38px;padding:0 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:#fff;outline:none;color:var(--gray-800);">
+          </select>
+        </div>
+        <div style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <label style="font-size:13px;font-weight:600;color:var(--gray-700);margin:0;">上传名单文件</label>
+            <a href="javascript:void(0)" onclick="alert('名单模板下载中...')" style="font-size:12px;color:var(--brand);text-decoration:none;">下载名单模板</a>
+          </div>
+          <div id="importDropZone" onclick="document.getElementById('importFile').click()" style="border:2px dashed var(--gray-300);background:var(--gray-50);border-radius:10px;padding:24px 16px;text-align:center;cursor:pointer;transition:all 0.2s;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gray-400)" stroke-width="2" style="display:block;margin:0 auto 8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <div style="font-size:13px;font-weight:600;color:var(--gray-700);">点击或拖拽 Excel 文件到此处</div>
+            <div style="font-size:12px;color:var(--gray-400);margin-top:2px;">支持 .xlsx / .xls / .csv，文件不超过 20MB</div>
+          </div>
+          <input type="file" id="importFile" accept=".xlsx,.xls,.csv" style="display:none;" onchange="onFileSelected(this)">
+          <div id="importFilePreview" style="display:none;margin-top:8px;padding:8px 12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;font-size:12px;color:#166534;align-items:center;justify-content:space-between;">
+            <span id="importFileName"></span>
+            <button onclick="clearImportFile()" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:12px;">删除</button>
+          </div>
+        </div>
+      </div>
+      <div style="padding:14px 20px;border-top:1px solid var(--gray-100);display:flex;justify-content:flex-end;gap:10px;background:#fafafa;">
+        <button class="btn btn-default" onclick="closeImportModal()">取消</button>
+        <button class="btn btn-primary" onclick="submitImport()">确认导入</button>
+      </div>
+    </div>
+  </div>
+
   <script src="js/sidebar.js"></script>
   <script>
     // =============================================
@@ -915,7 +943,7 @@
       selectedBatch: null,
       batchTab: '未分配',
       allocMode: 'direct',     // direct | cascade（默认一次性到人）
-      strategy: 'equal',       // equal | weighted | region | manual
+      strategy: 'region',      // region | weighted（按地域匹配 | 按人数均分）
       isDirty: false,
       expandedNodes: new Set(),
       // quotaMap[nodeId] = { received, childQuotas: {id->count}, cmMap: {id->count} }
@@ -1122,9 +1150,9 @@
       const pct = total > 0 ? Math.round(allocated / total * 100) : 0;
 
       const phases = [
-        { key: 'batch', icon: '1', label: '选择批次', desc: b ? `${b.product} · ${b.total}家` : '待选择' },
-        { key: 'alloc', icon: '2', label: '分配操作', desc: state.phase === 'batch' ? '待操作' : `${allocated} / ${total} 家` },
-        { key: 'confirm', icon: '3', label: '确认下发', desc: state.phase === 'done' ? '已生效' : (state.phase === 'confirm' ? '待确认' : '') },
+        { key: 'batch', icon: '1', label: '选择批次' },
+        { key: 'alloc', icon: '2', label: '分配操作' },
+        { key: 'confirm', icon: '3', label: '确认下发' },
       ];
 
       const phaseOrder = ['batch', 'alloc', 'confirm', 'done'];
@@ -1147,10 +1175,7 @@
         const icon = status === 'done' ? '✓' : p.icon;
         let stepHtml = `<div class="prog-step ${status}" ${p.key === 'batch' && b ? 'onclick="tryLeave()" style="cursor:pointer;"' : ''}>
           <div class="prog-icon">${icon}</div>
-          <div class="prog-content">
-            <div class="prog-name">${p.label}</div>
-            <div class="prog-desc">${p.desc}</div>
-          </div>
+          <div class="prog-name">${p.label}</div>
         </div>`;
         if (i < phases.length - 1) {
           stepHtml += `<div style="width:40px; height:1px; background:var(--gray-200);"></div>`;
@@ -1203,7 +1228,6 @@
           <div class="batch-card-meta">
             <span class="tag ${b.status === '未分配' ? 'tag-amber' : b.status === '已分配' ? 'tag-green' : 'tag-blue'}">${tagText}</span>
           </div>
-          ${b.status === '进行中' && b.subStatus !== 'saved' ? `<div class="batch-progress-bar"><div class="batch-progress-fill" style="width:${pct}%"></div></div><div style="font-size:11px;color:var(--gray-400);margin-top:3px;">${b.allocatedToCm}家企业已分配到人</div>` : ''}
         </div>
         <div style="text-align:right;flex-shrink:0;"><div class="batch-card-count">${b.total}<small> 家</small></div></div>
       </div>`;
@@ -1216,6 +1240,12 @@
       <div class="page-header-left">
         <h1 class="page-title">名单分配</h1>
         <p class="page-breadcrumb"><a href="index.html">工作台</a><span class="sep">/</span>运营管理<span class="sep">/</span>名单分配</p>
+      </div>
+      <div class="page-header-right" style="display:flex; align-items:center; gap: 12px;">
+        <button class="btn btn-default" onclick="openImportModal()" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:7px 14px;border-radius:8px;border:1.5px solid var(--gray-200);background:#fff;cursor:pointer;font-weight:600;color:var(--gray-700);">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          导入名单
+        </button>
       </div>
     </div>
     <div class="card">
@@ -1314,7 +1344,7 @@
         sumClass = 'err'; sumIcon = '✕'; sumMsg = `超额 ${-rootRemain} 家，请检查各机构配额`;
       }
 
-      const strategyLabels = { equal: '按机构均分', weighted: '按人数加权', region: '按地域匹配', manual: '自定义' };
+      const strategyLabels = { region: '按地域匹配', weighted: '按人数均分' };
 
       main.innerHTML = `
     <div class="page-header">
@@ -1378,7 +1408,7 @@
       
       <!-- 汇总状态展示 -->
       <div style="flex:1; display:flex; align-items:center;">
-        <div style="font-size:12.5px; font-weight:600; color:${sumClass === 'ok' ? 'var(--success)' : sumClass === 'warn' ? '#92400e' : 'var(--danger)'}; background: ${sumClass === 'ok' ? '#f0fdf4' : sumClass === 'warn' ? '#fffbeb' : '#fff5f5'}; padding: 6px 12px; border-radius: 6px; border: 1px solid ${sumClass === 'ok' ? '#bbf7d0' : sumClass === 'warn' ? '#fde68a' : '#fecaca'}; display: flex; align-items:center; gap: 6px; margin-left: 16px;">
+        <div id="bottomSummary" style="font-size:12.5px; font-weight:600; color:${sumClass === 'ok' ? 'var(--success)' : sumClass === 'warn' ? '#92400e' : 'var(--danger)'}; background: ${sumClass === 'ok' ? '#f0fdf4' : sumClass === 'warn' ? '#fffbeb' : '#fff5f5'}; padding: 6px 12px; border-radius: 6px; border: 1px solid ${sumClass === 'ok' ? '#bbf7d0' : sumClass === 'warn' ? '#fde68a' : '#fecaca'}; display: flex; align-items:center; gap: 6px; margin-left: 16px;">
           ${sumIcon} ${sumMsg}
         </div>
       </div>
@@ -1387,15 +1417,13 @@
       <div class="b-strat-bar">
         <div class="b-strat-label">分配策略</div>
         <div class="b-strat-group">
-          ${['region', 'equal', 'weighted'].map(s => `
+          ${['region', 'weighted'].map(s => `
             <button class="b-strat-opt ${state.strategy === s ? 'on' : ''}" onclick="setStrategy('${s}')">${strategyLabels[s]}</button>
           `).join('')}
-          <div class="b-strat-divider"></div>
-          <button class="b-strat-opt ${state.strategy === 'manual' ? 'on' : ''}" onclick="setStrategy('manual')">自定义</button>
         </div>
         
         <div class="b-strat-actions">
-          ${state.strategy !== 'manual' ? `<button class="b-strat-apply" onclick="applyStrategy()">一键填入</button>` : ''}
+          <button class="b-strat-apply" onclick="applyStrategy()">一键填入</button>
           <button class="b-strat-clear" onclick="clearAllQuotas()">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg> 清空
           </button>
@@ -1504,7 +1532,7 @@
         <div class="node-sub">${countAllCms(node)} 名客户经理</div>
       </div>
       <div class="agg-count ${agg === 0 ? 'zero' : ''}" id="agg_${node.id}">${agg || '—'}</div>
-      <div class="node-pct">${agg > 0 && total > 0 ? Math.round(agg / total * 100) + '%' : ''}</div>
+      <div class="node-pct" id="pct_${node.id}">${agg > 0 && total > 0 ? Math.round(agg / total * 100) + '%' : ''}</div>
     </div>`;
 
       if (isExpanded) {
@@ -1528,6 +1556,8 @@
     // 通用：渲染单个客户经理行
     function renderCmRow(orgId, cm, readonly) {
       const count = q(orgId).cmMap[cm.id] || 0;
+      const total = state.selectedBatch ? state.selectedBatch.total : 0;
+      const pctStr = count > 0 && total > 0 ? Math.round(count / total * 100) + '%' : '';
       return `<div class="tree-row ${readonly ? 'locked' : ''}" id="cmrow_${cm.id}" style="margin-bottom:4px;">
     <div class="expand-ph"></div>
     <div class="org-avatar cm-av ${readonly ? 'locked-av' : ''}">
@@ -1540,7 +1570,7 @@
     ${readonly
           ? `<input type="number" class="node-input" readonly value="" placeholder="—">`
           : `<input type="number" class="node-input" id="cminp_${cm.id}" min="0" value="${count || ''}" placeholder="0" oninput="onCmInput('${orgId}','${cm.id}',this.value)">`}
-    <div class="node-pct" id="cmpct_${cm.id}"></div>
+    <div class="node-pct" id="cmpct_${cm.id}">${pctStr}</div>
   </div>`;
     }
 
@@ -1615,23 +1645,33 @@
       const num = parseInt(val) || 0;
       state.quotaMap[orgId].cmMap[cmId] = num;
       refreshSummary();
-      // direct模式更新聚合数字
+      const total = state.selectedBatch ? state.selectedBatch.total : 0;
+      const cmpctEl = document.getElementById(`cmpct_${cmId}`);
+      if (cmpctEl) {
+        cmpctEl.textContent = num > 0 && total > 0 ? Math.round(num / total * 100) + '%' : '';
+      }
+      // direct模式更新聚合数字和所属机构百分比
       if (state.allocMode === 'direct') refreshDirectAggregates(ORG_TREE);
     }
 
     function refreshDirectAggregates(node) {
       const agg = directAggregate(node);
-      const total = state.selectedBatch.total;
+      const total = state.selectedBatch ? state.selectedBatch.total : 0;
       const el = document.getElementById(`agg_${node.id}`);
       if (el) {
         el.textContent = agg || '—';
         el.className = `agg-count ${agg === 0 ? 'zero' : ''}`;
+      }
+      const pctEl = document.getElementById(`pct_${node.id}`);
+      if (pctEl) {
+        pctEl.textContent = agg > 0 && total > 0 ? Math.round(agg / total * 100) + '%' : '';
       }
       (node.children || []).forEach(c => refreshDirectAggregates(c));
     }
 
     function refreshSummary() {
       const b = state.selectedBatch;
+      if (!b) return;
       const total = b.total;
       let rootUsed;
       if (state.allocMode === 'direct') {
@@ -1642,9 +1682,22 @@
       const rootRemain = total - rootUsed;
 
       let cls, icon, msg;
-      if (rootRemain === 0) { cls = 'ok'; icon = '✓'; msg = `全部 ${total} 家已分配完毕，可提交下发`; }
-      else if (rootRemain > 0) { cls = 'warn'; icon = '⚠'; msg = `还剩 <strong>${rootRemain}</strong> 家未分配（${rootUsed} / ${total}）`; }
-      else { cls = 'err'; icon = '✕'; msg = `超额 ${-rootRemain} 家，请检查各项数量`; }
+      if (rootRemain === 0) {
+        cls = 'ok'; icon = '✓'; msg = `全部 ${total} 家已分配完毕，可提交下发`;
+      } else if (rootRemain > 0) {
+        cls = 'warn'; icon = '⚠'; msg = `还剩 <strong>${rootRemain}</strong> 家未分配（${rootUsed} / ${total}）`;
+      } else {
+        cls = 'err'; icon = '✕'; msg = `超额 ${-rootRemain} 家，请检查各机构配额`;
+      }
+
+      // 实时更新底部胶囊汇总条
+      const bottomSummary = document.getElementById('bottomSummary');
+      if (bottomSummary) {
+        bottomSummary.style.color = cls === 'ok' ? 'var(--success)' : cls === 'warn' ? '#92400e' : 'var(--danger)';
+        bottomSummary.style.background = cls === 'ok' ? '#f0fdf4' : cls === 'warn' ? '#fffbeb' : '#fff5f5';
+        bottomSummary.style.borderColor = cls === 'ok' ? '#bbf7d0' : cls === 'warn' ? '#fde68a' : '#fecaca';
+        bottomSummary.innerHTML = `${icon} ${msg}`;
+      }
 
       const bar = document.getElementById('summaryBar');
       if (bar) {
@@ -1878,6 +1931,67 @@
     function gotoDownloadCenter() {
       closeDownloadModal();
       location.href = 'downloads.html';
+    }
+
+    // =============================================
+    // 导入名单交互逻辑
+    // =============================================
+    function openImportModal() {
+      document.getElementById('importModal').style.display = 'flex';
+      clearImportFile();
+      const select = document.getElementById('importTargetBatch');
+      const unallocated = BATCHES.filter(b => b.status === '未分配');
+      if (unallocated.length > 0) {
+        select.innerHTML = unallocated.map(b => `<option value="${b.id}">${b.product} · ${b.batch}</option>`).join('');
+      } else {
+        select.innerHTML = '<option value="" disabled selected>暂无未分配的批次</option>';
+      }
+    }
+    function closeImportModal() {
+      document.getElementById('importModal').style.display = 'none';
+    }
+    function onFileSelected(input) {
+      if (input.files && input.files[0]) {
+        const f = input.files[0];
+        document.getElementById('importDropZone').style.display = 'none';
+        document.getElementById('importFilePreview').style.display = 'flex';
+        document.getElementById('importFileName').textContent = `📄 ${f.name} (${(f.size/1024).toFixed(1)} KB)`;
+      }
+    }
+    function clearImportFile() {
+      const input = document.getElementById('importFile');
+      if (input) input.value = '';
+      const preview = document.getElementById('importFilePreview');
+      if (preview) preview.style.display = 'none';
+      const dropzone = document.getElementById('importDropZone');
+      if (dropzone) dropzone.style.display = 'block';
+    }
+    function submitImport() {
+      const fileInput = document.getElementById('importFile');
+      if (!fileInput.files || fileInput.files.length === 0) {
+        alert('请先选择要上传的名单 Excel 文件！');
+        return;
+      }
+      const batchId = document.getElementById('importTargetBatch').value;
+      if (!batchId) {
+        alert('请选择要导入的目标未分配批次！');
+        return;
+      }
+      const targetBatch = BATCHES.find(b => b.id === batchId);
+      if (targetBatch) {
+        const addedCount = Math.floor(Math.random() * 50 + 20);
+        targetBatch.total += addedCount;
+        closeImportModal();
+        renderBatch();
+        if (window.showToast) {
+          showToast(`名单导入成功！已向【${targetBatch.product} · ${targetBatch.batch}】追加 ${addedCount} 家企业`, 'success');
+        } else {
+          alert(`名单导入成功！已向【${targetBatch.product} · ${targetBatch.batch}】追加 ${addedCount} 家企业`);
+        }
+      } else {
+        closeImportModal();
+        renderBatch();
+      }
     }
 
     // =============================================

@@ -441,13 +441,13 @@
       <!-- 带有强视觉返回按钮的页头 -->
       <div class="page-header-with-back">
         <div class="page-header-left-col">
-          <button class="back-btn" onclick="history.back()" title="返回客户名单">
+          <button class="back-btn" onclick="history.back()" title="返回营销名单">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
           </button>
           <div>
             <h1 class="page-title">客户详情</h1>
             <div class="page-breadcrumb">
-              <a href="index.html">工作台</a><span class="sep">/</span>客户营销<span class="sep">/</span><a href="customers.html">客户名单</a><span class="sep">/</span><span id="bcName">苏州智云科技有限公司</span>
+              <a href="index.html">工作台</a><span class="sep">/</span>客户营销<span class="sep">/</span><a href="customers.html">营销名单</a><span class="sep">/</span><span id="bcName">苏州智云科技有限公司</span>
             </div>
           </div>
         </div>
@@ -531,7 +531,10 @@
             <div class="tab-item active" onclick="switchTab('basic', this)">基本信息</div>
             <div class="tab-item" onclick="switchTab('data', this)">关键数据</div>
             <div class="tab-item" onclick="switchTab('history', this)">营销轨迹</div>
-                      </div>
+            <div class="tab-item" id="tab-btn-risk" onclick="switchTab('risk', this)">
+              贷后风险预警 <span class="badge badge-danger" style="font-size:10px;padding:1px 5px;margin-left:4px;">高危</span>
+            </div>
+          </div>
 
           <!-- 基本信息 -->
           <div class="tab-pane active" id="pane-basic">
@@ -610,6 +613,74 @@
                             <div style="font-weight: 600; color: var(--gray-900); font-size: 13px; margin-bottom: 4px;">放款金额：<span style="color: var(--brand);">200万</span> | 放款日期：2026-05-06</div>
                             <div style="color: var(--gray-600); font-size: 13px; line-height: 1.5;">首次提款200万元，资金已到账。</div>
                         </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 贷后风险预警面板 (新增) -->
+          <div class="tab-pane" id="pane-risk">
+            <!-- 五级分类与征信资产卡片 -->
+            <div style="background:var(--gray-50);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <span style="font-size:14px;font-weight:700;color:var(--gray-900);">征信五级分类状态：</span>
+                  <span class="badge badge-warning" style="font-size:12.5px;padding:3px 10px;">关注类 (Special Mention)</span>
+                  <span style="font-size:12px;color:#dc2626;font-weight:600;">[最新月度比对：正常类 → 关注类]</span>
+                </div>
+                <div style="font-size:12px;color:var(--gray-500);margin-top:4px;">
+                  数据源：联合征信底层征信资产月度自动匹配，无论银行端是否报送，均可独立监测分类迁徙。
+                </div>
+              </div>
+              <a href="risk-warning.html" class="btn btn-sm btn-primary">去处置预警</a>
+            </div>
+
+            <!-- 贷后诊断与应对建议 -->
+            <div style="background:linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);border:1px solid #bfdbfe;border-radius:12px;padding:16px 20px;margin-bottom:20px;">
+              <div style="display:flex;align-items:center;gap:6px;font-weight:700;color:#1e40af;font-size:13.5px;margin-bottom:8px;">
+                <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                贷后风险诊断与协同处置建议
+              </div>
+              <div style="font-size:13px;color:#1e3a8a;line-height:1.6;">
+                该企业 9 月份出现五级分类下调至「关注类」，且近期新增 1 笔涉诉被执行（标的 120 万元），但近三个月税票数据显示其实际生产经营仍具韧性。
+                建议客户经理在 3 个工作日内进行<b>实地走访回访</b>，重点排查应收账款回款进度，指导企业妥善化解涉诉执行，防范授信风险进一步传导。
+              </div>
+            </div>
+
+            <!-- 风险预警历史时间轴 -->
+            <div style="font-size:14px;font-weight:700;color:var(--gray-900);margin-bottom:12px;">预警信号触发历史时间轴</div>
+            <div class="history-list">
+              <div class="history-item" style="border-left-color:#ef4444;">
+                <div class="history-dot" style="background:#ef4444;"></div>
+                <div style="font-size: 13px; color: var(--gray-500); margin-bottom: 4px;">2026-09-14 09:30</div>
+                <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px;">
+                  <div style="display:flex; justify-content: space-between; margin-bottom: 4px;">
+                    <b style="color:#dc2626;">五级分类下调 (重要风险信号)</b>
+                    <span class="badge badge-danger">待排查</span>
+                  </div>
+                  <div style="font-size:13px;color:#991b1b;">人行征信最新月度数据匹配：企业五级分类由「正常」变更为「关注」，授信资产质量评级下调。</div>
+                </div>
+              </div>
+              <div class="history-item" style="border-left-color:#f59e0b;">
+                <div class="history-dot" style="background:#f59e0b;"></div>
+                <div style="font-size: 13px; color: var(--gray-500); margin-bottom: 4px;">2026-09-12 14:20</div>
+                <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 12px;">
+                  <div style="display:flex; justify-content: space-between; margin-bottom: 4px;">
+                    <b style="color:#b45309;">新增司法执行案件</b>
+                    <span class="badge badge-warning">核查中</span>
+                  </div>
+                  <div style="font-size:13px;color:#78350f;">郑州市高新技术开发区法院立案执行 (2026)豫0191执1082号，执行标的 120 万元，原由为买卖合同纠纷。</div>
+                </div>
+              </div>
+              <div class="history-item">
+                <div class="history-dot" style="background:#10b981;"></div>
+                <div style="font-size: 13px; color: var(--gray-500); margin-bottom: 4px;">2026-08-10 16:00</div>
+                <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 12px;">
+                  <div style="display:flex; justify-content: space-between; margin-bottom: 4px;">
+                    <b style="color:var(--gray-800);">历史排查完成归档</b>
+                    <span class="badge badge-success">已化解</span>
+                  </div>
+                  <div style="font-size:13px;color:var(--gray-600);">客户经理李经理完成实地走访，企业厂房正常开工，电费与开票数据匹配。</div>
                 </div>
               </div>
             </div>
@@ -1069,7 +1140,22 @@ function saveAssignModal(){
   closeAssignModal();
 }
 
-document.addEventListener('DOMContentLoaded',()=>{updateAssignDisplay();});
+document.addEventListener('DOMContentLoaded',()=>{
+  updateAssignDisplay();
+  
+  // 处理 URL 传参（如从客户池或预警列表跳转过来）
+  const params = new URLSearchParams(window.location.search);
+  const targetTab = params.get('tab');
+  if (targetTab === 'risk') {
+    const riskBtn = document.getElementById('tab-btn-risk');
+    if (riskBtn) switchTab('risk', riskBtn);
+  }
+  const corpName = params.get('name');
+  if (corpName) {
+    const titleEl = document.querySelector('.page-title');
+    if (titleEl) titleEl.innerText = decodeURIComponent(corpName);
+  }
+});
 document.getElementById('assignModal').addEventListener('click',function(e){if(e.target===this) closeAssignModal();});
 </script>
 

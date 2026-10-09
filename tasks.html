@@ -250,14 +250,14 @@
           <a href="index.html">工作台</a><span class="sep">/</span>客户营销<span class="sep">/</span>营销跟进
         </p>
       </div>
-      <span style="font-size:14px;color:#d97706;font-weight:700;background:#fffbeb;padding:6px 14px;border-radius:100px;">跟进中 7 家</span>
+      <span style="font-size:14px;color:#d97706;font-weight:700;background:#fffbeb;padding:6px 14px;border-radius:100px;">跟进中 10 家 (含贷后协同 3 家)</span>
     </div>
 
     <!-- ===== Stage Tab ===== -->
     <div class="stage-tabs">
       <div class="stage-tab active" id="tab-all" onclick="switchTab('all')">
         <span class="st-label">全部</span>
-        <span class="st-count">7</span>
+        <span class="st-count">10</span>
       </div>
       <div class="stage-tab" id="tab-confirm" onclick="switchTab('confirm')">
         <span class="st-label">确认意向</span>
@@ -278,6 +278,15 @@
       <div class="stage-tab" id="tab-drawdown" onclick="switchTab('drawdown')">
         <span class="st-label">引导提款</span>
         <span class="st-count">1</span>
+      </div>
+      <!-- 贷后闭环扩展分组 -->
+      <div class="stage-tab" id="tab-renewal" onclick="switchTab('renewal')">
+        <span class="st-label">待续贷</span>
+        <span class="st-count" style="background:#fee2e2;color:#dc2626;">2</span>
+      </div>
+      <div class="stage-tab" id="tab-risk" onclick="switchTab('risk')">
+        <span class="st-label">风险关注</span>
+        <span class="st-count" style="background:#fef3c7;color:#d97706;">1</span>
       </div>
     </div>
 
@@ -498,6 +507,94 @@
               </div>
             </div>
 
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 待续贷 (贷后营销协同) ====== -->
+      <div class="follow-group-section" id="grp-renewal">
+        <div class="group-header">
+          <div class="group-header-body">
+            <div class="group-header-row1">
+              <span class="group-header-title" style="color:#dc2626;">待续贷跟进 (已结清与即将到期)</span>
+              <span class="group-header-count" style="background:#fee2e2;color:#dc2626;">2 家</span>
+            </div>
+            <div class="group-header-hint">人行信贷监控判定近期结清或未来30天到期，信用记录优质，建议安排二次对接</div>
+          </div>
+        </div>
+        <div class="cards-grid">
+          <!-- 续贷卡片 1 -->
+          <div class="follow-card" onclick="location.href='customer-detail.html?id=CUST-003&name=%E9%83%91%E5%B7%9E%E5%85%89%E6%B3%B0%E7%B2%BE%E5%AF%86%E7%94%B5%E5%AD%90%E6%9D%90%E6%96%99%E6%9C%89%E9%99%90%E5%85%AC%E5%8F%B8'" style="border-left:4px solid #ef4444;">
+            <div class="fc-main">
+              <div class="fc-icon" style="background:#fef2f2;color:#ef4444;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              </div>
+              <div class="fc-name-wrap">
+                <div class="fc-name">郑州光泰精密电子材料有限公司</div>
+                <div class="fc-sub" style="color:#dc2626;font-weight:600;">已结清 3 天 · 专精特新企业</div>
+              </div>
+            </div>
+            <div style="font-size:12.5px;color:var(--gray-600);background:#f8fafc;padding:8px 10px;border-radius:6px;">
+              <b>系统提示</b>：原 500 万元信贷已结清，企业开票正常增长，推荐对接「专精特新研发贷」续期方案。
+            </div>
+            <div class="fc-actions" onclick="event.stopPropagation()">
+              <button class="fc-btn fc-btn-mark" onclick="location.href='renewal-list.html'">查看续贷池</button>
+              <button class="fc-btn fc-btn-contact" onclick="openContactDrawer(1,'郑州光泰精密电子材料有限公司')">立即致电</button>
+            </div>
+          </div>
+
+          <!-- 续贷卡片 2 -->
+          <div class="follow-card" onclick="location.href='customer-detail.html?id=CUST-006&name=%E6%B2%B3%E5%8D%97%E9%87%91%E7%A7%91%E6%96%B0%E8%83%BD%E6%BA%90%E7%A7%91%E6%8A%80%E6%9C%89%E9%99%90%E5%85%AC%E5%8F%B8'" style="border-left:4px solid #f59e0b;">
+            <div class="fc-main">
+              <div class="fc-icon" style="background:#fffbeb;color:#d97706;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <div class="fc-name-wrap">
+                <div class="fc-name">河南金科新能源科技有限公司</div>
+                <div class="fc-sub" style="color:#d97706;font-weight:600;">贷款将于 10月15日 到期 · 履约优良</div>
+              </div>
+            </div>
+            <div style="font-size:12.5px;color:var(--gray-600);background:#f8fafc;padding:8px 10px;border-radius:6px;">
+              <b>系统提示</b>：800 万元额度即将到期，光伏扩产期资金需求平稳，建议提前 20 天发起授信展期确认。
+            </div>
+            <div class="fc-actions" onclick="event.stopPropagation()">
+              <button class="fc-btn fc-btn-mark" onclick="location.href='renewal-list.html'">查看续贷池</button>
+              <button class="fc-btn fc-btn-contact" onclick="openContactDrawer(2,'河南金科新能源科技有限公司')">触达路径</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 风险关注 (贷后排查协同) ====== -->
+      <div class="follow-group-section" id="grp-risk">
+        <div class="group-header">
+          <div class="group-header-body">
+            <div class="group-header-row1">
+              <span class="group-header-title" style="color:#b45309;">风险预警协查 (实地回访与排查)</span>
+              <span class="group-header-count" style="background:#fef3c7;color:#d97706;">1 家</span>
+            </div>
+            <div class="group-header-hint">触发征信资产分类下调或司法失信预警，需客户经理线下了解情况并录入排查结论</div>
+          </div>
+        </div>
+        <div class="cards-grid">
+          <!-- 预警关注卡片 1 -->
+          <div class="follow-card" onclick="location.href='customer-detail.html?id=CUST-001&tab=risk&name=%E9%83%91%E5%B7%9E%E6%81%92%E5%88%9B%E6%99%BA%E8%83%BD%E8%A3%85%E5%A4%87%E5%88%B6%E9%80%A0%E6%9C%89%E9%99%90%E5%85%AC%E5%8F%B8'" style="border-left:4px solid #ef4444;">
+            <div class="fc-main">
+              <div class="fc-icon" style="background:#fef2f2;color:#ef4444;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </div>
+              <div class="fc-name-wrap">
+                <div class="fc-name">郑州恒创智能装备制造有限公司</div>
+                <div class="fc-sub" style="color:#dc2626;font-weight:600;">五级分类下调 (正常 → 关注)</div>
+              </div>
+            </div>
+            <div style="font-size:12.5px;color:var(--gray-600);background:#fef2f2;padding:8px 10px;border-radius:6px;border:1px solid #fee2e2;">
+              <b>待办提示</b>：新增涉诉被执行 120 万元，要求 3 个工作日内实地走访核实应收账款受限情况。
+            </div>
+            <div class="fc-actions" onclick="event.stopPropagation()">
+              <button class="fc-btn fc-btn-mark" onclick="location.href='risk-warning.html'">排查处置</button>
+              <button class="fc-btn fc-btn-contact" onclick="location.href='customer-detail.html?id=CUST-001&tab=risk'">风险详情</button>
+            </div>
           </div>
         </div>
       </div>

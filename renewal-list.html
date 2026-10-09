@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+  <title>续贷名单管理 - 智能营销平台</title>
+  <meta name="description" content="智能营销平台续贷名单管理，通过结清识别、到期预测与AI潜客评分，实现贷后到二次营销的高效转化">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="css/style.css?v=1783867207">
+  <style>
+    /* 调度状态药丸 */
+    .pill-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #334155;
+    }
+    .pill-status::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+    .pill-status.protected::before { background: #3b82f6; }   /* 原机构保护中 */
+    .pill-status.transferrable::before { background: #f59e0b; } /* 待转派/已放弃 */
+    .pill-status.transferred::before { background: #10b981; }   /* 已跨机构转派 */
+    .pill-status.renewed::before { background: #16a34a; }       /* 已成功续贷 */
+    
+    /* 临期倒计时 */
+    .days-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+    .days-badge.urgent {
+      background: #fef2f2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+    .days-badge.normal {
+      background: #fffbeb;
+      color: #b45309;
+      border: 1px solid #fde68a;
+    }
+    .days-badge.far {
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* Tab 栏 */
+    .tab-bar {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid #e2e8f0;
+      margin-bottom: 16px;
+      background: #fff;
+      padding: 12px 20px 0;
+      border-radius: 8px 8px 0 0;
+    }
+    .tab-item {
+      padding: 10px 16px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: #64748b;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .tab-item:hover { color: var(--brand); }
+    .tab-item.active {
+      color: var(--brand);
+      border-bottom-color: var(--brand);
+      font-weight: 600;
+    }
+    .tab-count {
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 11px;
+      background: #f1f5f9;
+      color: #64748b;
+    }
+    .tab-item.active .tab-count {
+      background: var(--brand-light);
+      color: var(--brand);
+      font-weight: 600;
+    }
+
+    /* 抽屉 Drawer (全平台统一毛玻璃遮罩规范) */
+    .drawer-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      overscroll-behavior: contain;
+    }
+    .drawer-overlay.show, .drawer-overlay.active { opacity: 1; pointer-events: auto; }
+    .drawer-container {
+      position: fixed;
+      top: 0; right: 0; bottom: 0;
+      width: 620px;
+      max-width: 90vw;
+      background: #fff;
+      box-shadow: -6px 0 36px rgba(0, 0, 0, 0.18);
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      overscroll-behavior: contain;
+    }
+    .drawer-overlay.show .drawer-container,
+    .drawer-overlay.active .drawer-container { transform: translateX(0); }
+    .drawer-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid #e2e8f0;
+      background: #fafbfc;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+    }
+    .drawer-footer {
+      padding: 16px 24px;
+      border-top: 1px solid #e2e8f0;
+      background: #fafbfc;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <aside class="sidebar" id="sidebar"></aside>
+  <main class="main-content anim-fade-in">
+    <!-- 顶部标题 -->
+    <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <h1 class="page-title">潜在续贷/转贷商机</h1>
+        <div class="page-breadcrumb">
+          <a href="index.html">工作台</a><span class="sep">/</span>商机转化<span class="sep">/</span>潜在续贷/转贷商机
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-default" onclick="exportRenewal()">导出商机名单</button>
+      </div>
+    </div>
+
+    <!-- 统计指标卡 (4列) -->
+    <div class="stat-cards" style="grid-template-columns: repeat(4, 1fr); margin-bottom:20px;">
+      <div class="stat-card">
+        <div class="stat-label">本月新发现商机</div>
+        <div class="stat-value" style="color:var(--gray-900);">318 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span></div>
+        <div style="font-size:12px;color:var(--gray-500);margin-top:4px;">测算可转化规模约 ¥ 8.6 亿元</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">近期结清待营销</div>
+        <div class="stat-value" style="color:var(--gray-900);">84 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span></div>
+        <div style="font-size:12px;color:var(--gray-500);margin-top:4px;">信贷历史健康，可提供接续资金</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">用信激增客群</div>
+        <div class="stat-value" style="color:var(--gray-900);">246 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span></div>
+        <div style="font-size:12px;color:var(--gray-500);margin-top:4px;">近期新增大额用信，资金需求旺盛</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">优质无贷客群</div>
+        <div class="stat-value" style="color:var(--gray-900);">72 <span style="font-size:13px;font-weight:400;color:var(--gray-500);">户</span></div>
+        <div style="font-size:12px;color:var(--gray-500);margin-top:4px;">经营与纳税情况优良的白户</div>
+      </div>
+    </div>
+
+    <!-- 统一数据列表容器 -->
+    <div class="card" style="padding:0;">
+      <!-- 统一的标签栏与过滤栏 -->
+      <div class="panel-header" style="display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid #e2e8f0;background:#fff;border-radius:8px 8px 0 0;">
+        <div style="display:flex;gap:24px;font-size:14px;">
+          <div class="tab-item active" onclick="switchRenewalTab(this, 'ALL')" style="cursor:pointer;font-weight:600;color:var(--brand);border-bottom:2px solid var(--brand);padding-bottom:12px;margin-bottom:-13px;">全部商机 <span style="font-size:12px;background:var(--brand-light);color:var(--brand);padding:2px 6px;border-radius:10px;">318</span></div>
+          <div class="tab-item" onclick="switchRenewalTab(this, 'SETTLED')" style="cursor:pointer;color:#64748b;padding-bottom:12px;margin-bottom:-13px;">近期大额结清 <span style="font-size:12px;background:#f1f5f9;color:#64748b;padding:2px 6px;border-radius:10px;">84</span></div>
+          <div class="tab-item" onclick="switchRenewalTab(this, 'DROP')" style="cursor:pointer;color:#64748b;padding-bottom:12px;margin-bottom:-13px;">余额骤降 <span style="font-size:12px;background:#f1f5f9;color:#64748b;padding:2px 6px;border-radius:10px;">246</span></div>
+          <div class="tab-item" onclick="switchRenewalTab(this, 'SURGE')" style="cursor:pointer;color:#64748b;padding-bottom:12px;margin-bottom:-13px;">用信激增 <span style="font-size:12px;background:#f1f5f9;color:#64748b;padding:2px 6px;border-radius:10px;">38</span></div>
+          <div class="tab-item" onclick="switchRenewalTab(this, 'NO_LOAN')" style="cursor:pointer;color:#64748b;padding-bottom:12px;margin-bottom:-13px;">优质无贷 <span style="font-size:12px;background:#f1f5f9;color:#64748b;padding:2px 6px;border-radius:10px;">34</span></div>
+        </div>
+      </div>
+      
+      <div style="padding:14px 20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;border-bottom:1px solid #f1f5f9;background:#fafbfc;">
+        <select id="filterInstCount" onchange="applyFilters()" style="padding:7px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;min-width:140px;">
+          <option value="">全部授信家数</option>
+          <option value="1">1 家</option>
+          <option value="2">2-3 家</option>
+          <option value="3">3 家及以上</option>
+        </select>
+        <input type="text" id="filterKeyword" placeholder="搜索企业名称 / 统一社会信用代码" oninput="applyFilters()"
+          style="padding:7px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px;flex:1;min-width:240px;">
+        <button class="btn btn-default btn-sm" onclick="resetFilters()">重置</button>
+      </div>
+
+      <table class="table" style="font-size:13px;width:100%;">
+        <thead>
+          <tr style="background:#fafbfc;">
+            <th style="width:50px;text-align:center;">序号</th>
+            <th style="width:24%;">企业主体信息</th>
+            <th>授信机构家数</th>
+            <th>在贷余额估算</th>
+            <th style="width:20%;">近期征信异动</th>
+            <th>贷款五级分类</th>
+            <th>商机建议</th>
+            <th style="width:10%;text-align:right;">操作</th>
+          </tr>
+        </thead>
+        <tbody id="renewalTableBody"></tbody>
+      </table>
+      <div style="padding:14px 20px;display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:#64748b;border-top:1px solid #f1f5f9;">
+        <span id="pageInfo">共 6 条记录</span>
+        <div style="display:flex;gap:4px;">
+          <button class="btn btn-default btn-sm" disabled>上一页</button>
+          <button class="btn btn-primary btn-sm">1</button>
+          <button class="btn btn-default btn-sm" disabled>下一页</button>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+</div>
+
+<!-- 分配营销任务 Modal -->
+<div class="modal-overlay" id="assignModal">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <div class="modal-title">分配续贷跟进任务</div>
+      <button class="btn modal-close-btn" onclick="closeAssignModal()" style="font-size:18px;color:var(--gray-400);line-height:1;">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div style="background:#eff6ff;padding:12px 16px;border-radius:8px;font-size:12.5px;color:#1e40af;margin-bottom:16px;">
+        已选中 <b id="assignModalCount">1</b> 家优质续贷企业，确认后将自动推送至客户经理的「工作台 - 待续贷任务」中并发送微信/企业微信提醒。
+      </div>
+
+      <div style="margin-bottom:14px;">
+        <label class="form-label" style="font-size:12.5px;">分配目标网点与客户经理</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <select class="form-control" style="font-size:13px;" id="targetBranch">
+            <option>总行营业部</option>
+            <option>高新科技支行</option>
+            <option>经开综合支行</option>
+            <option>自贸创新支行</option>
+          </select>
+          <select class="form-control" style="font-size:13px;" id="targetRM">
+            <option>朱某人 (当前客户经理)</option>
+            <option>李经理 (专精特新专员)</option>
+            <option>王某某 (高级客户经理)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-bottom:14px;">
+        <label class="form-label" style="font-size:12.5px;">AI 智能话术与触达建议 (系统已预置)</label>
+        <div style="background:var(--gray-50);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:12px;color:var(--gray-700);line-height:1.5;">
+          “王总您好！了解到贵司在工行的前期科技研发贷款已顺利结清，信用记录极佳。针对省内最新专精特新贴息政策，我行为您核准了最高 500 万额度的新一期科创研发贷，年化利率可享专属优惠，不知您本周是否有空我们面谈确认？”
+        </div>
+      </div>
+
+      <div>
+        <label class="form-label" style="font-size:12.5px;">任务要求截止时间</label>
+        <input type="date" class="form-control" value="2026-09-25" style="font-size:13px;">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="closeAssignModal()">取消</button>
+      <button class="btn btn-primary" onclick="confirmAssign()">立即下发续贷任务</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Mock 数据：面向全平台续贷资产与再营销客观看板
+  const MOCK_RENEWALS = [
+    {
+      id: 1,
+      name: '苏州创芯微电子有限公司',
+      code: '91320500MA1WXXX1',
+      region: '苏州市',
+      instCount: '1 家',
+      loanBalance: '¥ 0 万',
+      creditChange: '近期 800 万贷款结清，无新增用信',
+      fiveCategory: '正常',
+      opportunityAdvice: '建议主动营销 1000 万低息科技贷',
+      opportunityStatus: '近期大额结清',
+      tabKey: 'SETTLED',
+      origFeedback: '根据人行最新一期征信上报数据，该企业于上周结清了某商业银行的 800 万贷款，当前资产负债率大幅下降，具备极佳的新增授信空间。',
+      tags: ['高新技术企业', '研发增长超30%', '履约0逾期']
+    },
+    {
+      id: 2,
+      name: '南京智云数据科技有限公司',
+      code: '91320100MA2BXXX2',
+      region: '南京市',
+      instCount: '2 家',
+      loanBalance: '¥ 300 万',
+      creditChange: '余额较上月骤降 70%',
+      fiveCategory: '正常',
+      opportunityAdvice: '建议跟进剩余 300 万平移转贷',
+      opportunityStatus: '余额骤降',
+      tabKey: 'DROP',
+      origFeedback: '该借据原本余额为 1000 万，本月结账日大额还本 700 万，账面资金可能存在短期缺口，可跟进提供流动资金支持。',
+      tags: ['专精特新培育', '纳税信用B级', '经营正常']
+    },
+    {
+      id: 3,
+      name: '无锡太湖新能源科技股份有限公司',
+      code: '91320200MA4DXXX4',
+      region: '无锡市',
+      instCount: '0 家',
+      loanBalance: '¥ 0 万',
+      creditChange: '近两年无任何银行信贷余额',
+      fiveCategory: '-',
+      opportunityAdvice: '纯新客首贷营销，预估额度 800 万',
+      opportunityStatus: '优质无贷',
+      tabKey: 'NO_LOAN',
+      origFeedback: '企业纳税与销售额连年高增长，且无历史逾期记录。当前为人行征信“白户”或处于无负债状态，营销潜力巨大。',
+      tags: ['国家专精特新小巨人', '连续3年纳税A级', '主营收入翻倍']
+    },
+    {
+      id: 4,
+      name: '常州龙城智能装备有限公司',
+      code: '91320400MA6FXXX6',
+      region: '常州市',
+      instCount: '1 家',
+      loanBalance: '¥ 0 万',
+      creditChange: '提前两周全额结清 200 万',
+      fiveCategory: '正常',
+      opportunityAdvice: '建议接续 200 万周转资金',
+      opportunityStatus: '近期大额结清',
+      tabKey: 'SETTLED',
+      origFeedback: '人行数据显示，该笔借据已提前结清，且历史履约正常无违约，推测存在短期转贷需求。',
+      tags: ['科技型中小企业', '制造业实业']
+    },
+    {
+      id: 5,
+      name: '南通海工装备制造有限公司',
+      code: '91320600MA8HXXX8',
+      region: '南通市',
+      instCount: '3 家',
+      loanBalance: '¥ 800 万',
+      creditChange: '近一月新增 200 万用信余额',
+      fiveCategory: '正常',
+      opportunityAdvice: '资金链扩张期，跟进配套信贷',
+      opportunityStatus: '用信激增',
+      tabKey: 'SURGE',
+      origFeedback: '征信反馈该企业近期在其他机构新增了大额贷款，推测处于业务扩张期或资金密集需求期，适合我行介入提供配套资金方案。',
+      tags: ['规模以上企业', '抵押充足']
+    }
+  ];
+
+  let currentOrgName = '江苏银行';
+  let currentTab = 'ALL';
+
+  function renderTable(data) {
+    const tbody = document.getElementById('renewalTableBody');
+    if (!data || data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:#94a3b8;">暂无符合条件的续贷储备数据</td></tr>';
+      document.getElementById('pageInfo').textContent = '共 0 条记录';
+      return;
+    }
+
+    document.getElementById('pageInfo').textContent = `共 ${data.length} 条记录`;
+
+    tbody.innerHTML = data.map((item, idx) => {
+      // 状态药丸
+      let statusPill = '';
+      if (item.tabKey === 'SETTLED') statusPill = `<span class="pill-status" style="border-color:#bbf7d0;color:#166534;background:#f0fdf4;">${item.opportunityStatus}</span>`;
+      else if (item.tabKey === 'DROP') statusPill = `<span class="pill-status" style="border-color:#fde68a;color:#b45309;background:#fffbeb;">${item.opportunityStatus}</span>`;
+      else if (item.tabKey === 'SURGE') statusPill = `<span class="pill-status" style="border-color:#e9d5ff;color:#7e22ce;background:#faf5ff;">${item.opportunityStatus}</span>`;
+      else if (item.tabKey === 'NO_LOAN') statusPill = `<span class="pill-status" style="border-color:#bae6fd;color:#0284c7;background:#f0f9ff;">${item.opportunityStatus}</span>`;
+      else statusPill = `<span class="pill-status">${item.opportunityStatus}</span>`;
+
+      return `
+        <tr>
+          <td style="text-align:center;color:#64748b;font-size:12.5px;">${idx + 1}</td>
+          <td>
+            <div style="font-weight:600;color:#0f172a;">${item.name}</div>
+            <div style="font-size:11.5px;color:#94a3b8;margin-top:2px;">${item.code}</div>
+            <div style="font-size:11px;color:#64748b;margin-top:2px;">${item.region}</div>
+          </td>
+          <td>
+            <div style="font-weight:500;color:#0f172a;">${item.instCount}</div>
+          </td>
+          <td>
+            <div style="font-weight:600;color:#0f172a;">${item.loanBalance}</div>
+          </td>
+          <td>
+            <div style="font-size:12px;color:#334155;">${item.creditChange}</div>
+            <div style="margin-top:4px;">${statusPill}</div>
+          </td>
+          <td>
+            <div style="font-weight:500;color:${item.fiveCategory.includes('关注') || item.fiveCategory.includes('不良') ? '#dc2626' : '#166534'};">${item.fiveCategory}</div>
+          </td>
+          <td>
+            <div style="font-size:12.5px;font-weight:500;color:var(--brand);">${item.opportunityAdvice}</div>
+          </td>
+          <td style="text-align:right;">
+            <button class="btn btn-text btn-sm" onclick="openRenewalDrawer(${item.id})" style="color:var(--brand);font-weight:500;">商机画像</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function switchRenewalTab(elem, type) {
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    elem.classList.add('active');
+    currentTab = type;
+    applyFilters();
+  }
+
+  function applyFilters() {
+    const instCount = document.getElementById('filterInstCount').value;
+    const kw = document.getElementById('filterKeyword').value.trim().toLowerCase();
+
+    let filtered = MOCK_RENEWALS.filter(item => {
+      // 机构端视角：仅显示本行数据
+      if (item.partnerBank && item.partnerBank !== currentOrgName) return false;
+      if (currentTab !== 'ALL' && item.tabKey !== currentTab) return false;
+      
+      if (instCount) {
+        let countNum = parseInt(item.instCount) || 0;
+        if (instCount === '1' && countNum !== 1) return false;
+        if (instCount === '2' && (countNum < 2 || countNum > 3)) return false;
+        if (instCount === '3' && countNum < 3) return false;
+      }
+
+      if (kw && !item.name.toLowerCase().includes(kw) && !item.code.toLowerCase().includes(kw)) return false;
+      return true;
+    });
+
+    renderTable(filtered);
+  }
+
+  function resetFilters() {
+    document.getElementById('filterInstCount').value = '';
+    document.getElementById('filterKeyword').value = '';
+    applyFilters();
+  }
+
+  // 抽屉详情：客观呈现商机推测原因
+  function openRenewalDrawer(id) {
+    const item = MOCK_RENEWALS.find(x => x.id === id);
+    if (!item) return;
+
+    document.getElementById('drawerEntName').textContent = item.name;
+    document.getElementById('drawerEntCode').textContent = `统一社会信用代码：${item.code} · ${item.region}`;
+
+    const tagsHtml = item.tags.map(t => `<span style="font-size:11px;padding:2px 8px;border-radius:4px;background:#f1f5f9;color:#334155;border:1px solid #e2e8f0;margin-right:6px;">${t}</span>`).join('');
+
+    let html = `
+      <!-- 商机与资质画像卡片 -->
+      <div style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div style="font-size:14px;font-weight:600;color:#0f172a;">企业资质与征信总览</div>
+        </div>
+        <div style="margin-bottom:12px;">${tagsHtml}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;background:#f8fafc;padding:10px 12px;border-radius:6px;font-size:12px;border:1px solid #edf2f7;">
+          <div>商机策略建议：<strong style="color:var(--brand);">${item.opportunityAdvice}</strong></div>
+          <div>人行五级分类：<strong style="color:${item.fiveCategory.includes('关注') || item.fiveCategory.includes('不良') ? '#dc2626' : '#166534'};">${item.fiveCategory}</strong></div>
+          <div>授信机构家数：<strong style="color:#0f172a;">${item.instCount}</strong></div>
+          <div>当前在贷余额估算：<strong style="color:#0f172a;">${item.loanBalance}</strong></div>
+        </div>
+      </div>
+
+      <!-- 征信异动与商机触发原因说明 -->
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px 16px;margin-bottom:16px;">
+        <div style="font-size:13.5px;font-weight:600;color:#0f172a;margin-bottom:8px;">征信异动特征与商机发掘</div>
+        <div style="font-size:12.5px;color:#334155;line-height:1.5;background:#fff;padding:10px 12px;border-radius:6px;border:1px solid #e2e8f0;">
+          ${item.origFeedback}
+        </div>
+      </div>
+    `;
+
+    document.getElementById('drawerContent').innerHTML = html;
+    document.getElementById('renewalDrawer').classList.add('show');
+  }
+
+  function closeRenewalDrawer() {
+    document.getElementById('renewalDrawer').classList.remove('show');
+  }
+
+  function exportRenewal() {
+    showToast('正在导出全盘续贷名单台账 (Excel)...');
+  }
+
+  function exportSingleRenewal() {
+    showToast('正在导出该企业的续贷评估档案 (PDF)...');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    renderTable(MOCK_RENEWALS);
+  });
+</script>
+
+
+<script src="js/sidebar.js"></script>
+<script src="js/toast.js"></script>
+<script>
+  renderSidebar({ currentPage: 'renewal-list' });
+</script>
+<script src="js/toast.js"></script>
+</body>
+</html>

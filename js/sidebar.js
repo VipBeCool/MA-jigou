@@ -39,7 +39,10 @@ const ICONS = {
   send:        `<svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`,
   home:        `<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
   map_pin:     `<svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
-  flag:        `<svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>`
+  flag:        `<svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>`,
+  shield:      `<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+  inbox:       `<svg viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>`
+
 };
 
 function icon(name, cls = '') {
@@ -81,27 +84,45 @@ function getNavConfig(role) {
 
   // ── 客户营销 ──
   const custItems = [
-    { id: 'customers', label: '客户名单', icon: 'users', href: 'customers.html' },
+    { id: 'customers', label: '营销名单', icon: 'users', href: 'customers.html' },
   ];
   if (admin) {
     custItems.push({ id: 'allocation', label: '名单分配', icon: 'shuffle', href: 'allocation.html' });
   }
-  if (!admin) {
-    custItems.push({ id: 'tasks', label: '营销跟进', icon: 'activity', href: 'tasks.html' });
-  }
+  custItems.push({ id: 'tasks', label: '营销跟进', icon: 'activity', href: 'tasks.html' });
   if (admin) {
     custItems.push({ id: 'team', label: '团队业绩', icon: 'team', href: 'team.html' });
   }
   sections.push({ label: '客户营销', items: custItems });
 
+  // ── 贷后管理（征信资产赋能与风险协同） ──
+  const postloanItems = [];
+  if (admin) {
+    postloanItems.push(
+      { id: 'postloan-dashboard', label: '贷后监控大盘', icon: 'chart', href: 'postloan-dashboard.html' },
+      { id: 'customer-pool', label: '机构客户池', icon: 'users', href: 'customer-pool.html' },
+      { id: 'credit-monitoring', label: '信贷余额监控', icon: 'trending_up', href: 'credit-monitoring.html' },
+      { id: 'risk-warning', label: '风险预警', icon: 'alert', href: 'risk-warning.html' },
+      { id: 'renewal-list', label: '潜在续贷/转贷商机', icon: 'refresh', href: 'renewal-list.html' }
+    );
+  } else {
+    postloanItems.push(
+      { id: 'risk-warning', label: '风险预警', icon: 'alert', href: 'risk-warning.html' },
+      { id: 'renewal-list', label: '续贷名单', icon: 'refresh', href: 'renewal-list.html' }
+    );
+  }
+  sections.push({ label: '贷后管理', items: postloanItems });
+
   // ── 运营管理（仅管理员） ──
   if (admin) {
     const opsItems = [
       { id: 'agents', label: '智能体管理', icon: 'bot', href: 'agents.html' },
-      { id: 'org-structure', label: '组织与成员', icon: 'network', href: 'org-config.html' }
+      { id: 'org-structure', label: '组织与成员', icon: 'network', href: 'org-config.html' },
+      { id: 'deliveries', label: '名单交付', icon: 'inbox', href: 'deliveries.html' },
     ];
     sections.push({ label: '运营管理', items: opsItems });
   }
+
 
   // ── 数据分析（仅管理员） ──
   if (admin) {
@@ -158,9 +179,10 @@ function renderNavItem(item, currentPage) {
 }
 
 /* ── 渲染完整侧边栏 ── */
-function renderSidebar({ currentPage = 'home', role = 'rm', containerId = 'sidebar' } = {}) {
-  const r = ROLES_CONFIG[role] || ROLES_CONFIG.rm;
-  const sections = getNavConfig(role);
+function renderSidebar({ currentPage = 'home', role, containerId = 'sidebar' } = {}) {
+  const currentRole = role || sessionStorage.getItem('wb_role') || 'manager';
+  const r = ROLES_CONFIG[currentRole] || ROLES_CONFIG.manager;
+  const sections = getNavConfig(currentRole);
 
   let navHtml = '';
   sections.forEach(section => {
@@ -195,7 +217,7 @@ function renderSidebar({ currentPage = 'home', role = 'rm', containerId = 'sideb
 
     <!-- 演示角色切换面板（隐藏于Logo交互之下） -->
     <div class="role-popover" id="rolePopover" style="top:60px;bottom:auto;">
-      <div class="role-popover-title">🎭 切换演示角色</div>
+      <div class="role-popover-title">切换演示角色</div>
       ${Object.entries(ROLES_CONFIG).map(([k, rc]) => `
         <div class="role-option ${k === role ? 'active' : ''}" onclick="switchRole('${k}')">
           <div class="role-option-avatar" style="background:${rc.color};">${rc.initials}</div>

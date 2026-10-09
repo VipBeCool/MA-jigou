@@ -2,7 +2,7 @@
  * 智能营销平台 - 银行端工作台 Mock数据
  */
 
-// 客户名单分组
+// 营销名单分组
 const customerLists = [
     {
         id: 'all', name: '全部客户', icon: '👥', count: 18, source: '系统汇总',
