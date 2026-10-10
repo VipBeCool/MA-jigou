@@ -774,6 +774,42 @@
     </div>
   </div>
 
+  <!-- 策略变更为自定义提示弹窗 -->
+  <div id="strategyChangeModal"
+    style="display:none;align-items:center;justify-content:center;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);z-index:9999;">
+    <div style="width:420px;background:#fff;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,0.18);overflow:hidden;">
+      <div
+        style="padding:16px 20px;border-bottom:1px solid var(--gray-100);display:flex;justify-content:space-between;align-items:center;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:32px;height:32px;border-radius:50%;background:#ecfdf5;color:#10b981;border:1.5px solid #a7f3d0;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
+          <span style="font-size:16px;font-weight:700;color:var(--gray-900);">提示</span>
+        </div>
+        <button onclick="closeStrategyChangeModal()"
+          style="background:none;border:none;cursor:pointer;color:var(--gray-400);padding:4px;"><svg width="18" height="18"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg></button>
+      </div>
+      <div style="padding:22px 20px 20px;">
+        <p style="font-size:14px;color:var(--gray-700);line-height:1.65;margin:0;">
+          手工修改配额后将无法按当前选定分配策略，系统已自动切换为<strong>【自定义】</strong>，后续将按默认策略顺序分配名单。
+        </p>
+      </div>
+      <div
+        style="padding:12px 20px;border-top:1px solid var(--gray-100);display:flex;justify-content:flex-end;">
+        <button class="btn btn-primary" onclick="closeStrategyChangeModal()">我知道了</button>
+      </div>
+    </div>
+  </div>
+
+
   <!-- 导出任务已提交弹窗 -->
 <div class="notify-backdrop" id="downloadModal">
   <div class="notify-box">
@@ -943,7 +979,7 @@
       selectedBatch: null,
       batchTab: '未分配',
       allocMode: 'direct',     // direct | cascade（默认一次性到人）
-      strategy: 'region',      // region | weighted（按地域匹配 | 按人数均分）
+      strategy: 'custom',      // custom | region | weighted（自定义 | 按地域匹配 | 按人数均分，默认自定义）
       isDirty: false,
       expandedNodes: new Set(),
       // quotaMap[nodeId] = { received, childQuotas: {id->count}, cmMap: {id->count} }
@@ -1098,28 +1134,11 @@
           state.quotaMap[cm.parentOrgId].cmMap[cm.id] = base + (i < extra ? 1 : 0);
         });
       } else if (state.strategy === 'weighted') {
-        // 按所在机构的CM人数加权（每机构内平均分）
-        // 先按机构加权，再机构内均分
-        const orgCmGroups = {};
-        allCms.forEach(cm => {
-          if (!orgCmGroups[cm.parentOrgId]) orgCmGroups[cm.parentOrgId] = [];
-          orgCmGroups[cm.parentOrgId].push(cm);
-        });
-        // 找所有叶子机构（直接有CM的org）
-        const orgIds = Object.keys(orgCmGroups);
-        const totalCmCount = allCms.length;
-        let remaining = total;
-        orgIds.forEach((orgId, oi) => {
-          const cms = orgCmGroups[orgId];
-          const orgBudget = oi === orgIds.length - 1
-            ? remaining
-            : Math.round(total * cms.length / totalCmCount);
-          const base = Math.floor(orgBudget / cms.length);
-          const extra = orgBudget % cms.length;
-          cms.forEach((cm, ci) => {
-            state.quotaMap[orgId].cmMap[cm.id] = base + (ci < extra ? 1 : 0);
-          });
-          remaining -= orgBudget;
+        // 按全行客户经理总人数直接均分，不再考虑地域或分支机构加权
+        const base = Math.floor(total / allCms.length);
+        const extra = total % allCms.length;
+        allCms.forEach((cm, i) => {
+          state.quotaMap[cm.parentOrgId].cmMap[cm.id] = base + (i < extra ? 1 : 0);
         });
       } else if (state.strategy === 'region') {
         // 先按地域权重给市行，再在市行内均分
@@ -1152,7 +1171,7 @@
       const phases = [
         { key: 'batch', icon: '1', label: '选择批次' },
         { key: 'alloc', icon: '2', label: '分配操作' },
-        { key: 'confirm', icon: '3', label: '确认下发' },
+        { key: 'confirm', icon: '3', label: '确认分配' },
       ];
 
       const phaseOrder = ['batch', 'alloc', 'confirm', 'done'];
@@ -1173,7 +1192,10 @@
         const pIdx = phaseOrder.indexOf(p.key);
         const status = currentIdx > pIdx ? 'done' : (currentIdx === pIdx ? 'active' : '');
         const icon = status === 'done' ? '✓' : p.icon;
-        let stepHtml = `<div class="prog-step ${status}" ${p.key === 'batch' && b ? 'onclick="tryLeave()" style="cursor:pointer;"' : ''}>
+        let stepHtml = `<div class="prog-step ${status}" ${
+          p.key === 'batch' && b ? 'onclick="tryLeave()" style="cursor:pointer;"' :
+          (p.key === 'alloc' && state.phase === 'confirm' ? 'onclick="backToAlloc()" style="cursor:pointer;"' : '')
+        }>
           <div class="prog-icon">${icon}</div>
           <div class="prog-name">${p.label}</div>
         </div>`;
@@ -1319,7 +1341,7 @@
 
       state.phase = 'alloc';
       state.isDirty = true;
-      state.expandedNodes = new Set([ORG_TREE.id, ...(ORG_TREE.children || []).map(c => c.id)]);
+      state.expandedNodes = new Set(state.allocMode === 'direct' ? getAllOrgIds(ORG_TREE) : [ORG_TREE.id, ...(ORG_TREE.children || []).map(c => c.id)]);
       renderAllocPage();
     }
 
@@ -1344,7 +1366,7 @@
         sumClass = 'err'; sumIcon = '✕'; sumMsg = `超额 ${-rootRemain} 家，请检查各机构配额`;
       }
 
-      const strategyLabels = { region: '按地域匹配', weighted: '按人数均分' };
+      const strategyLabels = { custom: '自定义', region: '按地域匹配', weighted: '按人数均分' };
 
       main.innerHTML = `
     <div class="page-header">
@@ -1413,26 +1435,30 @@
         </div>
       </div>
       
-      <!-- 底部固定策略栏 -->
-      <div class="b-strat-bar">
+      <!-- 底部固定策略栏 (仅一次性分配到人模式显示，下发到分支机构完全手工输入) -->
+      ${state.allocMode === 'direct' ? `
+      <div class="b-strat-bar" id="bottomStratBar">
         <div class="b-strat-label">分配策略</div>
         <div class="b-strat-group">
-          ${['region', 'weighted'].map(s => `
+          ${['custom', 'region', 'weighted'].map(s => `
             <button class="b-strat-opt ${state.strategy === s ? 'on' : ''}" onclick="setStrategy('${s}')">${strategyLabels[s]}</button>
           `).join('')}
         </div>
         
-        <div class="b-strat-actions">
-          <button class="b-strat-apply" onclick="applyStrategy()">一键填入</button>
+        <div class="b-strat-actions" id="stratActions">
+          ${state.strategy !== 'custom' ? `
+            <button class="b-strat-apply" onclick="applyStrategy()">一键填入</button>
+          ` : ''}
           <button class="b-strat-clear" onclick="clearAllQuotas()">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg> 清空
           </button>
         </div>
       </div>
+      ` : ''}
 
       <div style="flex:1;"></div>
       <button class="btn btn-default" onclick="doStaging()" style="border-color:var(--brand);color:var(--brand);">暂存草稿</button>
-      <button class="btn btn-primary" id="submitBtn" style="${rootRemain !== 0 ? 'opacity:0.4;pointer-events:none;' : ''}" onclick="renderConfirm()">确认下发 →</button>
+      <button class="btn btn-primary" id="submitBtn" style="${rootRemain !== 0 ? 'opacity:0.4;pointer-events:none;' : ''}" onclick="renderConfirm()">下一步 →</button>
     </div>`;
     }
 
@@ -1577,24 +1603,22 @@
     // =============================================
     // 事件处理
     // =============================================
+    function getAllOrgIds(node = ORG_TREE) {
+      let ids = [node.id];
+      (node.children || []).forEach(c => { ids = ids.concat(getAllOrgIds(c)); });
+      return ids;
+    }
+
     function switchAllocMode(mode) {
       state.allocMode = mode;
       // 重置配额但保留批次
       initQuotaMap(ORG_TREE, state.selectedBatch.total);
-      state.expandedNodes = new Set([ORG_TREE.id, ...(ORG_TREE.children || []).map(c => c.id)]);
+      state.expandedNodes = new Set(mode === 'direct' ? getAllOrgIds(ORG_TREE) : [ORG_TREE.id, ...(ORG_TREE.children || []).map(c => c.id)]);
       renderAllocPage();
     }
 
     function expandAllNodes() {
-      const allOrgIds = [];
-      function collectOrgIds(node) {
-        allOrgIds.push(node.id);
-        if (node.children) {
-          node.children.forEach(collectOrgIds);
-        }
-      }
-      collectOrgIds(ORG_TREE);
-      state.expandedNodes = new Set(allOrgIds);
+      state.expandedNodes = new Set(getAllOrgIds(ORG_TREE));
       renderAllocPage();
     }
 
@@ -1605,12 +1629,48 @@
 
     function setStrategy(s) {
       state.strategy = s;
-      renderAllocPage();
+      updateStrategyBar();
+    }
+
+    function updateStrategyBar() {
+      const bar = document.getElementById('bottomStratBar');
+      if (!bar) return;
+      const strategyLabels = { custom: '自定义', region: '按地域匹配', weighted: '按人数均分' };
+      const group = bar.querySelector('.b-strat-group');
+      if (group) {
+        group.innerHTML = ['custom', 'region', 'weighted'].map(s => `
+          <button class="b-strat-opt ${state.strategy === s ? 'on' : ''}" onclick="setStrategy('${s}')">${strategyLabels[s]}</button>
+        `).join('');
+      }
+      const actions = document.getElementById('stratActions');
+      if (actions) {
+        actions.innerHTML = `
+          ${state.strategy !== 'custom' ? `
+            <button class="b-strat-apply" onclick="applyStrategy()">一键填入</button>
+          ` : ''}
+          <button class="b-strat-clear" onclick="clearAllQuotas()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg> 清空
+          </button>
+        `;
+      }
+    }
+
+    function openStrategyChangeModal() {
+      const modal = document.getElementById('strategyChangeModal');
+      if (modal) modal.style.display = 'flex';
+    }
+
+    function closeStrategyChangeModal() {
+      const modal = document.getElementById('strategyChangeModal');
+      if (modal) modal.style.display = 'none';
     }
 
     function applyStrategy() {
-      if (state.allocMode === 'cascade') applyStrategyToCascade();
-      else applyStrategyToDirect();
+      if (state.strategy === 'custom') return;
+      if (state.allocMode === 'direct') {
+        applyStrategyToDirect();
+        showToast(`已按【${state.strategy === 'region' ? '按地域匹配' : '按人数均分'}】完成一键填入`, 'success');
+      }
     }
 
     // 手动填写模式：清空所有配额并重新渲染
@@ -1642,6 +1702,13 @@
 
     // 客户经理配额输入（两种模式都适用）
     function onCmInput(orgId, cmId, val) {
+      // 若处于一次性分配到人且当前策略不是自定义（按地域匹配/按人数均分），用户手工修改时触发提示并切换为自定义
+      if (state.allocMode === 'direct' && state.strategy !== 'custom') {
+        state.strategy = 'custom';
+        updateStrategyBar();
+        openStrategyChangeModal();
+      }
+
       const num = parseInt(val) || 0;
       state.quotaMap[orgId].cmMap[cmId] = num;
       refreshSummary();
@@ -1727,7 +1794,7 @@
     <div class="page-header">
       <div class="page-header-left">
         <h1 class="page-title">名单分配</h1>
-        <p class="page-breadcrumb"><a href="index.html">工作台</a><span class="sep">/</span>运营管理<span class="sep">/</span>名单分配<span class="sep">/</span>确认下发</p>
+        <p class="page-breadcrumb"><a href="index.html">工作台</a><span class="sep">/</span>运营管理<span class="sep">/</span>名单分配<span class="sep">/</span>确认分配</p>
       </div>
     </div>
     <div class="alloc-layout">
@@ -1741,7 +1808,7 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>
             <div>
               <div style="font-size:14px;font-weight:700;color:var(--brand);">${b.product} · ${b.batch}</div>
-              <div style="font-size:12px;color:var(--gray-500);margin-top:2px;">共 ${b.total} 家 · ${state.allocMode === 'cascade' ? '逐级下发：配额分配到各级机构' : '一次性分配到人：直接分配到客户经理'}</div>
+              <div style="font-size:12px;color:var(--gray-500);margin-top:2px;">共 ${b.total} 家 · ${state.allocMode === 'cascade' ? '下发到分支机构' : `一次性分配到人 · ${state.strategy === 'region' ? '按地域匹配' : state.strategy === 'weighted' ? '按人数均分' : '自定义'}`}</div>
             </div>
           </div>
           ${state.allocMode === 'cascade' ? `
@@ -1805,11 +1872,16 @@
         <div style="flex:1;"></div>
         ${state.allocMode !== 'cascade' ? '<button class="btn btn-primary" onclick="showDownloadModal()">下载分配名单</button>' : ''}
       ` : `
-        <button class="btn btn-default" onclick="tryLeave()">← 返回</button>
+        <button class="btn btn-default" onclick="backToAlloc()">← 上一步</button>
         <div style="flex:1;"></div>
-        <button class="btn btn-primary" onclick="doSubmit()">确认下发</button>
+        <button class="btn btn-primary" onclick="doSubmit()">确认分配</button>
       `}
     </div>`;
+    }
+
+    function backToAlloc() {
+      state.phase = 'alloc';
+      renderAllocPage();
     }
 
     function collectConfirmItems(node, path) {
@@ -1892,7 +1964,7 @@
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
       </div>
       <div style="text-align:center;animation:fadeSlideUp 0.4s 0.2s both;">
-        <h2 style="font-size:22px;font-weight:800;color:var(--gray-900);margin-bottom:8px;">下发成功</h2>
+        <h2 style="font-size:22px;font-weight:800;color:var(--gray-900);margin-bottom:8px;">分配成功</h2>
         <p style="font-size:14px;color:var(--gray-500);">${b ? b.product : ''} · ${b ? b.batch : ''} · 共 ${b ? b.total : 0} 家企业已完成分配</p>
         <p style="font-size:13px;color:var(--gray-400);margin-top:4px;">
           ${state.allocMode === 'cascade'
