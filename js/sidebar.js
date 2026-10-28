@@ -118,7 +118,6 @@ function getNavConfig(role) {
     const opsItems = [
       { id: 'agents', label: '智能体管理', icon: 'bot', href: 'agents.html' },
       { id: 'org-structure', label: '组织与成员', icon: 'network', href: 'org-config.html' },
-      { id: 'deliveries', label: '名单交付', icon: 'inbox', href: 'deliveries.html' },
     ];
     sections.push({ label: '运营管理', items: opsItems });
   }
